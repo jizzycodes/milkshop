@@ -1,0 +1,53 @@
+## Milkshop Backend Server
+
+This folder contains the Express backend for the Milkshop brand site.
+
+### Structure
+
+- `config/` – database connection and configuration.
+- `constants/` – single source of truth for lead CRM (stage, status, contact type, outcome).
+- `controllers/` – request handlers containing business logic.
+- `routes/` – Express routers that map URLs to controllers.
+- `models/` – database access helpers (franchise_requests, franchise_leads, lead_contact_logs, admin).
+- `middleware/` – reusable Express middleware (logging, errors, auth).
+- `utils/` – small utility helpers (environment loading, JWT).
+- `db/` – migrations and migration runner for franchise_leads CRM.
+- `server.js` – application entrypoint.
+
+### Phase 2 – Lead CRM (admin only)
+
+- **Rule 1 (past due):** On `GET /api/admin/leads`, leads with `next_followup_at < now()` and status not DROPPED/ARCHIVED are auto-set to `FOR_FOLLOWUP`.
+- **Rule 2 (contact log):** `POST /api/admin/leads/:id/contact-logs` updates the lead’s `last_contacted_at`, increments `followup_count`, and sets `next_followup_at` from the request body.
+- **Rule 3 (stage):** Stage is updated only by managers via `PATCH /api/admin/leads/:id/stage` or `PATCH /api/admin/leads/:id`.
+
+Endpoints: `GET/PATCH /api/admin/leads`, `GET/PATCH /api/admin/leads/:id`, `GET/POST /api/admin/leads/:id/contact-logs`.
+
+### Phase 3 – Dashboard tabs (filter only, no extra tables)
+
+`GET /api/admin/leads?tab=<tab>` – each tab is a simple filter on `franchise_leads`:
+
+| Tab            | Filter                         | Order                 |
+|----------------|--------------------------------|------------------------|
+| `all`          | none                           | updated_at DESC       |
+| `new`          | status = NEW                   | updated_at DESC       |
+| `active`       | status = ACTIVE                | updated_at DESC       |
+| `for_follow_up`| status = FOR_FOLLOWUP          | next_followup_at ASC   |
+| `orientation`  | stage = ORIENTATION            | updated_at DESC       |
+| `onboarding`   | stage = ONBOARDING             | updated_at DESC       |
+| `dropped`      | status = DROPPED               | updated_at DESC       |
+| `archived`     | status = ARCHIVED              | updated_at DESC       |
+
+Pagination and search still apply: `page`, `pageSize`, `search`, `from`, `to`.
+
+### Environment variables
+
+At minimum configure:
+
+- `PORT` – HTTP port (defaults to `4000`).
+- `DATABASE_URL` – full PostgreSQL connection string _or_:
+  - `DB_HOST`
+  - `DB_PORT`
+  - `DB_USER`
+  - `DB_PASSWORD`
+  - `DB_NAME` (defaults to `milkshop_backend`).
+

@@ -1,0 +1,88 @@
+/**
+ * Run Phase 1 migration (franchise_leads + lead_contact_logs).
+ * Usage: from repo root, run: node server/db/run-migration.js
+ */
+require('dotenv').config()
+const { Pool } = require('pg')
+
+const pool = new Pool({
+  host: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT) || 5432,
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME || 'milkshop_backend',
+})
+
+const statements = [
+  'CREATE EXTENSION IF NOT EXISTS "pgcrypto"',
+  `CREATE TABLE IF NOT EXISTS franchise_leads (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  full_name varchar(255) NOT NULL,
+  email varchar(255) NOT NULL,
+  contact_number varchar(100) NOT NULL,
+  best_contact_time varchar(100),
+  annual_income numeric,
+  proposed_location varchar(255),
+  package_type varchar(100),
+  remarks text,
+  referral varchar(255),
+  stage varchar(50) NOT NULL DEFAULT 'REGISTERED',
+  status varchar(50) NOT NULL DEFAULT 'NEW',
+  contact_outcome varchar(50),
+  followup_count int NOT NULL DEFAULT 0,
+  next_followup_at timestamptz,
+  last_contacted_at timestamptz,
+  assigned_to varchar(255),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT franchise_leads_stage_check CHECK (stage IN (
+    'REGISTERED','ORIENTATION','ONBOARDING','CLOSED'
+  )),
+  CONSTRAINT franchise_leads_status_check CHECK (status IN (
+    'NEW','ACTIVE','INACTIVE','FOR_FOLLOWUP','DROPPED','ARCHIVED','APPROVED'
+  )),
+  CONSTRAINT franchise_leads_contact_outcome_check CHECK (contact_outcome IS NULL OR contact_outcome IN (
+    'NO_ANSWER','INTERESTED','NOT_INTERESTED','PAID','PRESENT','ABSENT'
+  ))
+)`,
+  `CREATE OR REPLACE FUNCTION set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql`,
+  'DROP TRIGGER IF EXISTS franchise_leads_updated_at ON franchise_leads',
+  `CREATE TRIGGER franchise_leads_updated_at
+  BEFORE UPDATE ON franchise_leads
+  FOR EACH ROW EXECUTE PROCEDURE set_updated_at()`,
+  `CREATE TABLE IF NOT EXISTS lead_contact_logs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  lead_id uuid NOT NULL REFERENCES franchise_leads(id) ON DELETE CASCADE,
+  contact_type varchar(20) NOT NULL,
+  notes text NOT NULL DEFAULT '',
+  outcome varchar(50),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT lead_contact_logs_contact_type_check CHECK (contact_type IN ('CALL','SMS','EMAIL')),
+  CONSTRAINT lead_contact_logs_outcome_check CHECK (outcome IS NULL OR outcome IN (
+    'NO_ANSWER','INTERESTED','NOT_INTERESTED','PAID','PRESENT','ABSENT'
+  ))
+)`,
+  'CREATE INDEX IF NOT EXISTS idx_lead_contact_logs_lead_id ON lead_contact_logs(lead_id)',
+  'CREATE INDEX IF NOT EXISTS idx_lead_contact_logs_created_at ON lead_contact_logs(created_at)',
+]
+
+async function run() {
+  for (let i = 0; i < statements.length; i++) {
+    await pool.query(statements[i])
+  }
+  console.log('Migration 001_phase1_franchise_leads completed.')
+}
+
+run()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error('Migration failed:', err.message)
+    process.exit(1)
+  })
+  .finally(() => pool.end())

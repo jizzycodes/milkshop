@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Code – Franchise Form</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.25rem; color: #1A2410; }
+    label { display: block; font-size: 0.875rem; color: #5A6B4A; margin-bottom: 0.5rem; }
+    input { width: 100%; padding: 0.5rem; border: 1px solid #DDE8CF; border-radius: 8px; margin-bottom: 1rem; box-sizing: border-box; }
+    #qrcode { margin: 1rem 0; padding: 1rem; background: #fff; display: inline-block; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    #qrcode img { display: block; }
+    .hint { font-size: 0.75rem; color: #5A6B4A; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>QR Code for Franchise Form</h1>
+  <p class="hint">Paste your ngrok franchise URL below (e.g. https://xxxx.ngrok-free.app/franchise).</p>
+  <label for="url">Public franchise URL</label>
+  <input type="url" id="url" placeholder="https://xxxx.ngrok-free.app/franchise" />
+  <div id="qrcode"></div>
+
+  <script>
+    var input = document.getElementById('url');
+    var container = document.getElementById('qrcode');
+
+    function generate() {
+      var url = (input.value || '').trim();
+      container.innerHTML = '';
+      if (!url) return;
+      var img = document.createElement('img');
+      img.alt = 'QR Code';
+      img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=' + encodeURIComponent(url);
+      container.appendChild(img);
+    }
+
+    input.addEventListener('input', generate);
+    input.addEventListener('paste', function () { setTimeout(generate, 10); });
+  </script>
+</body>
+</html>
