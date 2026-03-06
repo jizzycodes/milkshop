@@ -2,6 +2,8 @@ import { Link } from "react-router-dom"
 import Reveal from "../components/Reveal"
 import logo from "../assets/milkshop-logo.png"
 
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
 const values = [
   {
     icon: "🇹🇼",
@@ -26,10 +28,69 @@ const values = [
 ];
 
 const milestones = [
-  { year: "2015", label: "Founded in Taiwan", desc: "Milkshop 秘客侠 opens its first store in Taiwan with the mission to redefine milk tea." },
-  { year: "2018", label: "Popping Boba Born", desc: "Introduced the signature Popping Boba series — a first in Taiwanese beverage culture." },
-  { year: "2022", label: "Arrived in PH", desc: "Milkshop lands in the Philippines, bringing authentic Taiwanese flavors to Manila." },
-  { year: "2024", label: "Growing Nationwide", desc: "Expanding across multiple cities nationwide." },
+  {
+    year: "2015",
+    label: "Founded in Taiwan",
+    desc: "Milkshop 秘客侠 opens its first store in Taiwan with a singular mission — to redefine what milk tea could be. Real milk. Real flavor. No shortcuts.",
+    icon: "🏪",
+  },
+  {
+    year: "2018",
+    label: "Popping Boba Born",
+    desc: "After 3 years of R&D, Milkshop introduces the Popping Boba series — a first in Taiwanese beverage culture. Each boba bursts with real fruit juice on first bite.",
+    icon: "🫧",
+  },
+  {
+    year: "2020",
+    label: "Brand Expansion",
+    desc: "Milkshop grows beyond its first store, establishing its production facility and standardized supply chain to ensure every cup tastes exactly the same — everywhere.",
+    icon: "🏭",
+  },
+  {
+    year: "2022",
+    label: "Philippines Launch",
+    desc: "Milkshop lands in Manila as the first Taiwanese Popping Boba brand in the Philippines. The response from Filipino milk tea lovers is overwhelming.",
+    icon: "🇵🇭",
+  },
+  {
+    year: "2023",
+    label: "Franchise Program Opens",
+    desc: "The official Milkshop franchise program launches, offering Filipino entrepreneurs three investment tiers to bring the brand to their own communities.",
+    icon: "🤝",
+  },
+  {
+    year: "2024",
+    label: "15+ Branches Nationwide",
+    desc: "From Metro Manila to Mindanao, Milkshop now operates 15 branches across the Philippines — with more territories opening every quarter.",
+    icon: "📍",
+  },
+];
+
+const rawMaterials = [
+  {
+    icon: "🍵",
+    title: "Premium Tea Leaves",
+    origin: "Nantou, Taiwan",
+    desc: "Hand-selected oolong and green tea leaves sourced directly from the highland tea farms of Nantou County — the heartland of Taiwanese tea.",
+  },
+  {
+    icon: "🥛",
+    title: "Fresh Dairy Milk",
+    origin: "Certified Local Farms",
+    desc: "We never use powder. Every cup is made with fresh, full-cream dairy milk from certified partner farms — richer, creamier, cleaner.",
+  },
+  {
+    icon: "🫧",
+    title: "Taiwanese Popping Boba",
+    origin: "Proprietary Factory, Taiwan",
+    desc: "Our signature boba is produced in our own facility using natural fruit juice fills — no artificial flavoring, no shortcuts.",
+  },
+  {
+    icon: "🍬",
+    title: "Black Sugar Syrup",
+    origin: "Traditional Recipe, Taiwan",
+    desc: "Slow-cooked brown sugar syrup following a traditional Taiwanese formula. The same recipe that created our iconic tiger-stripe milk tea.",
+  },
 ];
 
 const team = [
@@ -37,6 +98,8 @@ const team = [
   { emoji: "👩‍💼", name: "Maria Santos", role: "PH Operations Lead" },
   { emoji: "🧑‍🎨", name: "Kai Chen", role: "Brand & Design" },
 ];
+
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
 export default function About() {
   return (
@@ -59,7 +122,7 @@ export default function About() {
             </h1>
             <p className="text-[#5A6B4A] text-base leading-relaxed max-w-lg"
               style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Milkshop 秘客侠 started with a simple dream — to craft the most honest, flavorful, and joyful milk tea experience. From the streets of Taiwan to the heart of Manila, every cup carries that original passion.
+              Milkshop 秘客侠 wasn't built overnight. It was built cup by cup — through years of recipe testing, ingredient sourcing, and an uncompromising belief that milk tea deserved better. From the highlands of Taiwan to the streets of Manila, every sip carries that original obsession.
             </p>
             <div className="flex flex-wrap gap-3 mt-2">
               <Link
@@ -91,8 +154,15 @@ export default function About() {
                     Milkshop
                   </p>
                   <p className="text-[#5A6B4A] text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                    秘客侠 · Est. Taiwan
+                    秘客侠 · Est. Taiwan 2015
                   </p>
+                </div>
+                {/* Badge */}
+                <div className="bg-[#EEF5E6] border border-[#C8DFA8] rounded-full px-4 py-1.5 flex items-center gap-2">
+                  <span className="text-xs">🇵🇭</span>
+                  <span className="text-[#3E6610] text-xs font-bold" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    First in the Philippines
+                  </span>
                 </div>
               </div>
             </div>
@@ -100,8 +170,32 @@ export default function About() {
         </div>
       </Reveal>
 
-      {/* ── VALUES ── */}
+      {/* ── BRAND STORY DEEP DIVE ── */}
       <Reveal as="section" className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          <div className="max-w-3xl mx-auto text-center flex flex-col gap-5">
+            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              The Milkshop Identity
+            </p>
+            <h2 className="text-4xl lg:text-5xl font-bold text-[#1A2410] leading-tight"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              秘客侠 — <span className="text-[#5A9216]">The Secret Champion</span>
+            </h2>
+            <p className="text-[#5A6B4A] text-base leading-relaxed"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              The name 秘客侠 (Mì Kè Xiá) carries deep meaning — <em>"secret,"</em> <em>"guest,"</em> <em>"champion."</em> It represents a brand that quietly masters its craft before making its move. When Milkshop arrived in the Philippines in 2022, it didn't come with hype. It came with a product that spoke for itself.
+            </p>
+            <p className="text-[#5A6B4A] text-base leading-relaxed"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Every recipe was tested over hundreds of iterations. Every ingredient was traced to its source. Every cup was designed to deliver the same experience — whether you're in a mall in Taipei or a branch in Davao. That consistency is not accidental. It's the result of a decade of quiet obsession.
+            </p>
+          </div>
+        </div>
+      </Reveal>
+
+      {/* ── VALUES ── */}
+      <Reveal as="section" className="py-16 bg-[#F7F9F4] border-y border-[#DDE8CF]">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-12">
             <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2"
@@ -119,7 +213,7 @@ export default function About() {
                 key={v.title}
                 as="div"
                 delay={index * 50}
-                className="bg-[#F7F9F4] border border-[#DDE8CF] rounded-3xl p-6 flex flex-col gap-3 hover:shadow-md hover:border-[#C8DFA8] transition-all duration-300"
+                className="bg-white border border-[#DDE8CF] rounded-3xl p-6 flex flex-col gap-3 hover:shadow-md hover:border-[#C8DFA8] transition-all duration-300"
               >
                 <span className="text-4xl">{v.icon}</span>
                 <h3 className="font-bold text-[#1A2410] text-base"
@@ -136,18 +230,22 @@ export default function About() {
         </div>
       </Reveal>
 
-      {/* ── TIMELINE ── */}
-      <Reveal as="section" className="py-20 bg-[#F7F9F4] border-y border-[#DDE8CF]">
+      {/* ── COMPANY HISTORY TIMELINE ── */}
+      <Reveal as="section" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="text-center mb-14">
+          <div className="text-center mb-16">
             <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2"
               style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Our Journey
+              Company History
             </p>
             <h2 className="text-4xl font-bold text-[#1A2410]"
               style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              How We Got Here
+              A Decade in the Making
             </h2>
+            <p className="text-[#5A6B4A] text-base max-w-lg mx-auto mt-3 leading-relaxed"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              From a single store in Taiwan to a growing franchise network in the Philippines — here's how Milkshop became what it is today.
+            </p>
           </div>
 
           <div className="relative flex flex-col gap-0">
@@ -159,21 +257,24 @@ export default function About() {
                 key={m.year}
                 as="div"
                 delay={i * 80}
-                className={`relative flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-10 pb-12 ${
+                className={`relative flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-10 pb-14 ${
                   i % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
                 }`}
               >
-                {/* Content */}
+                {/* Content Card */}
                 <div className={`flex-1 ${i % 2 === 0 ? "lg:text-right" : "lg:text-left"}`}>
                   <div
-                    className={`inline-block bg-white border border-[#DDE8CF] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200 ${
+                    className={`inline-block bg-[#F7F9F4] border border-[#DDE8CF] rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-[#C8DFA8] transition-all duration-200 max-w-sm ${
                       i % 2 === 0 ? "lg:ml-auto" : ""
                     }`}
                   >
-                    <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-1"
-                      style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                      {m.label}
-                    </p>
+                    <div className={`flex items-center gap-2 mb-2 ${i % 2 === 0 ? "lg:justify-end" : ""}`}>
+                      <span className="text-xl">{m.icon}</span>
+                      <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase"
+                        style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                        {m.label}
+                      </p>
+                    </div>
                     <p className="text-[#5A6B4A] text-sm leading-relaxed"
                       style={{ fontFamily: "'DM Sans', sans-serif" }}>
                       {m.desc}
@@ -183,13 +284,13 @@ export default function About() {
 
                 {/* Year dot */}
                 <div className="lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex flex-col items-center gap-1 shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-[#5A9216] flex items-center justify-center shadow-md">
+                  <div className="w-14 h-14 rounded-full bg-[#5A9216] flex items-center justify-center shadow-md ring-4 ring-white">
                     <span className="text-white text-xs font-bold"
                       style={{ fontFamily: "'DM Mono', monospace" }}>
-                      {m.year.slice(2)}
+                      '{m.year.slice(2)}
                     </span>
                   </div>
-                  <span className="text-[#1A2410] text-xs font-bold hidden lg:block"
+                  <span className="text-[#1A2410] text-xs font-bold hidden lg:block mt-1"
                     style={{ fontFamily: "'DM Mono', monospace" }}>
                     {m.year}
                   </span>
@@ -208,8 +309,8 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
           {[
             { value: "2015", label: "Year Founded" },
-            { value: "20+", label: "Flavors" },
-            { value: "10+", label: "PH Branches" },
+            { value: "20+", label: "Menu Items" },
+            { value: "15+", label: "PH Branches" },
             { value: "5★", label: "Avg Rating" },
           ].map((s) => (
             <div key={s.label} className="flex flex-col items-center gap-1">
@@ -225,6 +326,117 @@ export default function About() {
           ))}
         </div>
       </section>
+
+      {/* ── RAW MATERIALS & SOURCING ── */}
+      <Reveal as="section" className="py-20 bg-[#F7F9F4] border-y border-[#DDE8CF]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          <div className="text-center mb-12">
+            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Ingredients & Sourcing
+            </p>
+            <h2 className="text-4xl lg:text-5xl font-bold text-[#1A2410]"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Quality Starts at the Source
+            </h2>
+            <p className="text-[#5A6B4A] text-base max-w-xl mx-auto mt-3 leading-relaxed"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              We don't cut corners on ingredients. Every element of every cup is traced back to a specific origin — because the quality of a drink starts long before it reaches your hands.
+            </p>
+          </div>
+
+          {/* Sourcing Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
+            {rawMaterials.map((r, index) => (
+              <Reveal
+                key={r.title}
+                as="div"
+                delay={index * 60}
+                className="bg-white border border-[#DDE8CF] rounded-3xl p-6 flex flex-col gap-3 hover:shadow-md hover:border-[#C8DFA8] transition-all duration-300"
+              >
+                <span className="text-4xl">{r.icon}</span>
+                <div>
+                  <h3 className="font-bold text-[#1A2410] text-base leading-snug"
+                    style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    {r.title}
+                  </h3>
+                  <span className="inline-block mt-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#EEF5E6] text-[#3E6610]"
+                    style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    📍 {r.origin}
+                  </span>
+                </div>
+                <p className="text-[#5A6B4A] text-sm leading-relaxed"
+                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  {r.desc}
+                </p>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* Sourcing Video Placeholder */}
+          <Reveal as="div" delay={60}>
+            <div className="text-center mb-8">
+              <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                See It Yourself
+              </p>
+              <h3 className="text-3xl font-bold text-[#1A2410]"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                From Farm to Cup
+              </h3>
+              <p className="text-[#5A6B4A] text-sm max-w-md mx-auto mt-2"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                Watch how our raw materials are selected, processed, and transformed into the drinks you love.
+              </p>
+            </div>
+
+            {/*
+              VIDEO PLACEHOLDER
+              ─────────────────
+              To add video, replace the inner div with:
+
+              Option A — Self-hosted:
+              <video
+                src="YOUR_VIDEO_URL"
+                autoPlay muted loop playsInline
+                className="w-full h-full object-cover rounded-3xl"
+              />
+
+              Option B — YouTube:
+              <iframe
+                src="https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=1&mute=1&loop=1&playlist=YOUR_VIDEO_ID"
+                className="w-full h-full rounded-3xl"
+                allow="autoplay; fullscreen"
+                allowFullScreen
+              />
+            */}
+            <div className="relative rounded-3xl overflow-hidden bg-[#1A2410] aspect-video max-w-4xl mx-auto shadow-2xl">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                <div className="w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
+                  <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+                <div className="text-center px-4">
+                  <p className="text-white font-bold text-lg" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    Raw Materials & Sourcing Process
+                  </p>
+                  <p className="text-white/50 text-sm mt-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    Video coming soon — replace placeholder in About.jsx
+                  </p>
+                </div>
+              </div>
+              {/* Decorative gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1A2410]/70 via-transparent to-transparent pointer-events-none" />
+              {/* Corner label */}
+              <div className="absolute top-4 left-4 bg-[#5A9216]/90 text-white text-xs font-bold px-3 py-1.5 rounded-full"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                🎬 Sourcing Story
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </Reveal>
 
       {/* ── TEAM ── */}
       <section className="py-20 bg-white">
@@ -268,14 +480,21 @@ export default function About() {
           <div>
             <h2 className="text-3xl font-bold text-white"
               style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Ready to taste the story? 🧋
+              Ready to be part of the story? 🧋
             </h2>
             <p className="text-[#C8DFA8] text-sm mt-1"
               style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Visit us at a branch near you.
+              Own a branch. Join the movement. Build something that lasts.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <Link
+              to="/franchise"
+              className="bg-[#5A9216] hover:bg-[#3E6610] text-white font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200 shadow-md active:scale-95"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              Franchise Now →
+            </Link>
             <Link
               to="/locations"
               className="border border-[#C8DFA8] text-[#C8DFA8] hover:bg-[#C8DFA8] hover:text-[#1A2410] font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200"

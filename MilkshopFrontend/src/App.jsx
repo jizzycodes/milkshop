@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import FranchiseCTAFloating from './components/FranchiseCTAFloating'
 import Home from './pages/Home'
 import Products from './pages/Products'
 import About from './pages/About'
@@ -79,14 +80,16 @@ function AppRoutes() {
             <Navbar />
             <div className="animate-page-in">
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/about" element={<About />} />
+                <Route path="/"          element={<Home />} />
+                <Route path="/products"  element={<Products />} />
+                <Route path="/about"     element={<About />} />
                 <Route path="/locations" element={<Locations />} />
                 <Route path="/franchise" element={<Franchise />} />
               </Routes>
             </div>
             <Footer />
+            {/* ── FLOATING FRANCHISE CTA — visible on all public pages ── */}
+            <FranchiseCTAFloating />
           </>
         }
       />

@@ -1,42 +1,10 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Link } from "react-router-dom"
 import Hero from "../components/Hero"
 import Reveal from "../components/Reveal"
 import logo from "../assets/milkshop-logo.png"
 
-const A1_IMAGE_URL =
-  "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A1%20Black%20Sugar%20Boba%20Milk%20Tea.png"; 
-
-// --- Data ---
-const featuredProducts = [
-  {
-    id: 1,
-    emoji: "🧋",
-    name: "Brown Sugar Milk Tea",
-    tag: "Best Seller",
-    tagColor: "bg-[#E8A020] text-white",
-    description: "Classic tiger stripes with fresh milk and chewy pearls.",
-    price: "₱99",
-  },
-  {
-    id: 2,
-    emoji: "🍵",
-    name: "Matcha Popping Boba",
-    tag: "New",
-    tagColor: "bg-[#5A9216] text-white",
-    description: "Japanese matcha base with our signature Taiwanese popping boba.",
-    price: "₱109",
-  },
-  {
-    id: 3,
-    emoji: "🍓",
-    name: "Strawberry Milk Series",
-    tag: "Fan Fave",
-    tagColor: "bg-pink-400 text-white",
-    description: "Real strawberry blended with creamy fresh milk. Refreshing & sweet.",
-    price: "₱105",
-  },
-];
+// ─── DATA ────────────────────────────────────────────────────────────────────
 
 const highlights = [
   { icon: "🫧", label: "Popping Boba", sub: "Bursts of flavor in every sip" },
@@ -45,19 +13,273 @@ const highlights = [
   { icon: "🌿", label: "Natural Ingredients", sub: "No artificial preservatives" },
 ];
 
-// --- Component ---
-export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
+const topDrinks = [
+  {
+    id: 1,
+    name: "Black Sugar Boba Milk Tea",
+    tag: "Best Seller",
+    tagColor: "bg-[#E8A020] text-white",
+    description: "Tiger-stripe signature with chewy pearls and fresh milk. The drink that started it all.",
+    price: "₱99",
+    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A1%20Black%20Sugar%20Boba%20Milk%20Tea.png",
+  },
+  {
+    id: 2,
+    name: "Signature Taiwanese Milk Tea",
+    tag: "Classic",
+    tagColor: "bg-[#5A9216] text-white",
+    description: "The purest expression of Taiwan milk tea. Smooth, clean, and perfectly balanced.",
+    price: "₱99",
+    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A2%20Signature%20Taiwanese%20Milk%20Tea.png",
+  },
+  {
+    id: 3,
+    name: "Chocolate Pearl Milk Tea",
+    tag: "Fan Fave",
+    tagColor: "bg-pink-500 text-white",
+    description: "Rich Belgian chocolate blended with fresh milk and dark pearl boba.",
+    price: "₱105",
+    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A3%20Chocolate%20Pearl%20Milk%20Tea.png",
+  },
+  {
+    id: 4,
+    name: "Matcha Black Sugar Pearl",
+    tag: "New",
+    tagColor: "bg-[#3E6610] text-white",
+    description: "Japanese matcha meets our signature black sugar — a bold fusion in every sip.",
+    price: "₱109",
+    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A4%20Matcha%20BLACK%20SUGAR%20PEARL%20Milk%20Tea.png",
+  },
+  {
+    id: 5,
+    name: "Strawberry Popping Boba",
+    tag: "Summer Pick",
+    tagColor: "bg-rose-400 text-white",
+    description: "Real strawberry with Taiwanese popping boba that bursts with every sip.",
+    price: "₱109",
+    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A1%20Black%20Sugar%20Boba%20Milk%20Tea.png",
+  },
+];
+
+const investorStats = [
+  { value: "15+", label: "Active Branches", icon: "📍" },
+  { value: "2015", label: "Year Founded", icon: "🇹🇼" },
+  { value: "20+", label: "Menu Items", icon: "🧋" },
+  { value: "12–18", label: "Months ROI", icon: "📈" },
+];
+
+const testimonials = [
+  {
+    id: 1,
+    name: "Maria Santos",
+    role: "Franchisee · SM Mall of Asia",
+    quote: "Opening my Milkshop branch was the best business decision I ever made. The support from the team is unmatched and the brand sells itself.",
+    avatar: "👩‍💼",
+    stars: 5,
+  },
+  {
+    id: 2,
+    name: "Carlo Reyes",
+    role: "Franchisee · Cebu City",
+    quote: "Within 14 months I already recovered my investment. The product quality is consistent and customers keep coming back every single day.",
+    avatar: "👨‍💼",
+    stars: 5,
+  },
+  {
+    id: 3,
+    name: "Jennelyn Cruz",
+    role: "Franchisee · BGC Taguig",
+    quote: "I had zero food industry experience. Milkshop's training program gave me everything I needed. Now I'm planning to open a second branch.",
+    avatar: "👩‍🍳",
+    stars: 5,
+  },
+];
+
+// ─── CAROUSEL COMPONENT ───────────────────────────────────────────────────────
+
+function DrinksCarousel() {
+  const [active, setActive] = useState(2);
+  const total = topDrinks.length;
+  const intervalRef = useRef(null);
+
+  const startAuto = () => {
+    intervalRef.current = setInterval(() => {
+      setActive((prev) => (prev + 1) % total);
+    }, 3000);
+  };
+
+  const stopAuto = () => clearInterval(intervalRef.current);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 400);
-    return () => clearTimeout(timer);
+    startAuto();
+    return () => stopAuto();
   }, []);
 
+  const getPos = (index) => {
+    const diff = (index - active + total) % total;
+    if (diff === 0) return "center";
+    if (diff === 1 || diff === total - 4) return "right1";
+    if (diff === total - 1 || diff === 4) return "left1";
+    return "hidden";
+  };
+
+  const posStyles = {
+    center:  "z-30 scale-100 opacity-100 translate-x-0",
+    right1:  "z-20 scale-75 opacity-60 translate-x-[55%]",
+    left1:   "z-20 scale-75 opacity-60 -translate-x-[55%]",
+    hidden:  "z-10 scale-50 opacity-0 translate-x-0 pointer-events-none",
+  };
+
+  const current = topDrinks[active];
+
+  return (
+    <div
+      className="w-full"
+      onMouseEnter={stopAuto}
+      onMouseLeave={startAuto}
+    >
+      {/* Carousel Track */}
+      <div className="relative h-72 sm:h-80 flex items-center justify-center overflow-hidden">
+        {topDrinks.map((drink, i) => {
+          const pos = getPos(i);
+          return (
+            <button
+              key={drink.id}
+              onClick={() => setActive(i)}
+              className={`absolute transition-all duration-500 ease-in-out flex flex-col items-center cursor-pointer ${posStyles[pos]}`}
+              aria-label={drink.name}
+            >
+              <img
+                src={drink.imageUrl}
+                alt={drink.name}
+                className="h-56 sm:h-64 object-contain drop-shadow-2xl select-none"
+                draggable={false}
+              />
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Active Drink Info */}
+      <div className="mt-6 flex flex-col items-center text-center gap-2 px-4 min-h-[120px] transition-all duration-300">
+        <span
+          className={`text-[11px] font-bold px-3 py-1 rounded-full ${current.tagColor}`}
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+          {current.tag}
+        </span>
+        <h3
+          className="text-xl sm:text-2xl font-bold text-[#1A2410]"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+          {current.name}
+        </h3>
+        <p
+          className="text-[#5A6B4A] text-sm max-w-xs leading-relaxed"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+          {current.description}
+        </p>
+        <span
+          className="text-xl font-bold text-[#5A9216] mt-1"
+          style={{ fontFamily: "'DM Mono', monospace" }}
+        >
+          {current.price}
+        </span>
+      </div>
+
+      {/* Dots */}
+      <div className="flex justify-center gap-2 mt-5">
+        {topDrinks.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setActive(i)}
+            className={`rounded-full transition-all duration-300 ${
+              i === active
+                ? "w-6 h-2 bg-[#5A9216]"
+                : "w-2 h-2 bg-[#DDE8CF] hover:bg-[#C8DFA8]"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── TESTIMONIAL CAROUSEL ─────────────────────────────────────────────────────
+
+function TestimonialCarousel() {
+  const [active, setActive] = useState(0);
+  const total = testimonials.length;
+
+  useEffect(() => {
+    const timer = setInterval(() => setActive((p) => (p + 1) % total), 4500);
+    return () => clearInterval(timer);
+  }, []);
+
+  const t = testimonials[active];
+
+  return (
+    <div className="flex flex-col items-center gap-6">
+      {/* Quote Card */}
+      <div className="relative bg-white border border-[#DDE8CF] rounded-3xl p-8 max-w-2xl w-full shadow-sm transition-all duration-300">
+        {/* Quote mark */}
+        <span
+          className="absolute -top-5 left-8 text-7xl text-[#EEF5E6] leading-none select-none font-serif"
+          aria-hidden
+        >
+          "
+        </span>
+        {/* Stars */}
+        <div className="flex gap-1 mb-4">
+          {Array.from({ length: t.stars }).map((_, i) => (
+            <span key={i} className="text-[#E8A020] text-base">★</span>
+          ))}
+        </div>
+        <p
+          className="text-[#1A2410] text-base leading-relaxed relative z-10"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+          {t.quote}
+        </p>
+        <div className="flex items-center gap-3 mt-6">
+          <div className="w-10 h-10 rounded-full bg-[#EEF5E6] flex items-center justify-center text-xl">
+            {t.avatar}
+          </div>
+          <div>
+            <p className="font-bold text-[#1A2410] text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              {t.name}
+            </p>
+            <p className="text-[#5A6B4A] text-xs" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              {t.role}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Dots */}
+      <div className="flex gap-2">
+        {testimonials.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setActive(i)}
+            className={`rounded-full transition-all duration-300 ${
+              i === active ? "w-6 h-2 bg-[#5A9216]" : "w-2 h-2 bg-[#DDE8CF] hover:bg-[#C8DFA8]"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
+
+export default function Home() {
   return (
     <main className="bg-white">
 
-      {/* Hero with entry transition */}
+      {/* ── HERO ── */}
       <Reveal as="div">
         <Hero />
       </Reveal>
@@ -81,15 +303,13 @@ export default function Home() {
         </div>
       </Reveal>
 
-      {/* ── FEATURED PRODUCTS ── */}
-      <Reveal as="section" className="bg-white py-20">
+      {/* ── TOP 5 DRINKS CAROUSEL ── */}
+      <Reveal as="section" className="bg-white py-20 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
-
-          {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
               <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                Our Menu
+                Top 5 Picks
               </p>
               <h2 className="text-4xl lg:text-5xl font-bold text-[#1A2410] leading-tight" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                 Fan Favorites
@@ -97,102 +317,42 @@ export default function Home() {
             </div>
             <Link
               to="/products"
-              className="ui-link-underline text-sm font-semibold text-[#5A9216] hover:text-[#3E6610]"
+              className="text-sm font-semibold text-[#5A9216] hover:text-[#3E6610] transition-colors"
               style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
               View Full Menu →
             </Link>
           </div>
+          <DrinksCarousel />
+        </div>
+      </Reveal>
 
-          {/* Product Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {isLoading
-              ? Array.from({ length: 3 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="ui-card overflow-hidden rounded-3xl border border-[#DDE8CF] animate-pulse"
-                  >
-                    <div className="bg-[#EEF5E6] h-52" />
-                    <div className="p-5 space-y-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="h-4 bg-[#DDE8CF] rounded w-2/3" />
-                        <div className="h-4 bg-[#DDE8CF] rounded w-16" />
-                      </div>
-                      <div className="h-3 bg-[#DDE8CF] rounded w-full" />
-                      <div className="h-3 bg-[#DDE8CF] rounded w-5/6" />
-                    </div>
-                  </div>
-                ))
-              : featuredProducts.map((product, index) => (
-                  <Reveal
-                    key={product.id}
-                    as="div"
-                    delay={index * 60}
-                    className="group flex flex-col items-center text-center gap-3"
-                  >
-                    {/* Floating drink image */}
-                    <div className="relative flex items-center justify-center mb-4">
-                      {product.id === 1 && (
-                        <img
-                          src="https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A4%20Matcha%20BLACK%20SUGAR%20PEARL%20Milk%20Tea.png"
-                          alt={product.name}
-                          className="h-40 object-contain drop-shadow-xl"
-                        />
-                      )}
-                      {product.id === 2 && (
-                        <img
-                          src="https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A2%20Signature%20Taiwanese%20Milk%20Tea.png"
-                          alt={product.name}
-                          className="h-40 object-contain drop-shadow-xl"
-                        />
-                      )}
-                      {product.id === 3 && (
-                        <img
-                          src="https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A3%20Chocolate%20Pearl%20Milk%20Tea.png"
-                          alt={product.name}
-                          className="h-40 object-contain drop-shadow-xl"
-                        />
-                      )}
-                      <span
-                        className={`absolute top-1/2 -right-3 -translate-y-1/2 text-[11px] font-bold px-3 py-1 rounded-full shadow-sm ${product.tagColor}`}
-                        style={{ fontFamily: "'DM Sans', sans-serif" }}
-                      >
-                        {product.tag}
-                      </span>
-                    </div>
-
-                    {/* Text info under floating image */}
-                    <div className="flex flex-col items-center gap-1">
-                      <h3
-                        className="text-base font-bold text-[#1A2410] leading-snug"
-                        style={{ fontFamily: "'DM Sans', sans-serif" }}
-                      >
-                        {product.name}
-                      </h3>
-                      <span
-                        className="text-lg font-bold text-[#5A9216]"
-                        style={{ fontFamily: "'DM Mono', monospace" }}
-                      >
-                        {product.price}
-                      </span>
-                      <p
-                        className="text-[#5A6B4A] text-sm leading-relaxed max-w-xs"
-                        style={{ fontFamily: "'DM Sans', sans-serif" }}
-                      >
-                        {product.description}
-                      </p>
-                    </div>
-                  </Reveal>
-                ))}
-          </div>
+      {/* ── INVESTOR STATS BAR ── */}
+      <Reveal as="section" className="bg-[#1A2410] py-12">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+          {investorStats.map((s, i) => (
+            <Reveal key={s.label} as="div" delay={i * 60} className="flex flex-col items-center gap-1">
+              <span className="text-2xl mb-1">{s.icon}</span>
+              <span
+                className="text-4xl font-bold text-white"
+                style={{ fontFamily: "'DM Mono', monospace" }}
+              >
+                {s.value}
+              </span>
+              <span
+                className="text-[#C8DFA8] text-xs tracking-widest uppercase"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}
+              >
+                {s.label}
+              </span>
+            </Reveal>
+          ))}
         </div>
       </Reveal>
 
       {/* ── BRAND STORY ── */}
       <Reveal as="section" className="bg-[#F7F9F4] border-y border-[#DDE8CF] py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center gap-12">
-
-          {/* Visual side */}
           <Reveal as="div" className="flex-1 flex justify-center" delay={40}>
             <div className="relative w-72 h-72 lg:w-80 lg:h-80">
               <div className="absolute inset-0 rounded-[40px] bg-[#EEF5E6] rotate-6" />
@@ -206,8 +366,6 @@ export default function Home() {
               </div>
             </div>
           </Reveal>
-
-          {/* Text side */}
           <Reveal as="div" className="flex-1 flex flex-col gap-5" delay={80}>
             <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               Our Story
@@ -230,6 +388,58 @@ export default function Home() {
         </div>
       </Reveal>
 
+      {/* ── FACTORY / TEA-MAKING VIDEO ── */}
+      <Reveal as="section" className="bg-white py-20">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          <div className="text-center mb-10">
+            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Behind Every Cup
+            </p>
+            <h2 className="text-4xl lg:text-5xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Crafted With Precision
+            </h2>
+            <p className="text-[#5A6B4A] text-base max-w-lg mx-auto mt-3 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              From our factory in Taiwan to every cup we serve — see how Milkshop ensures quality in every sip.
+            </p>
+          </div>
+
+          {/* Video Placeholder — replace src with actual video URL */}
+          <div className="relative rounded-3xl overflow-hidden bg-[#1A2410] aspect-video max-w-4xl mx-auto shadow-2xl">
+            {/* 
+              TO ADD VIDEO: Replace this div with:
+              <video
+                src="YOUR_VIDEO_URL"
+                autoPlay muted loop playsInline
+                className="w-full h-full object-cover"
+              />
+              OR for YouTube embed:
+              <iframe
+                src="https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=1&mute=1&loop=1"
+                className="w-full h-full"
+                allow="autoplay; fullscreen"
+              />
+            */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+              <div className="w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
+                <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+              <div className="text-center">
+                <p className="text-white font-bold text-lg" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  Factory & Tea-Making Process
+                </p>
+                <p className="text-white/50 text-sm mt-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  Video coming soon — replace placeholder in Home.jsx
+                </p>
+              </div>
+            </div>
+            {/* Decorative overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1A2410]/80 via-transparent to-transparent pointer-events-none" />
+          </div>
+        </div>
+      </Reveal>
+
       {/* ── FRANCHISE CTA BANNER ── */}
       <Reveal as="section" className="bg-[#E8A020] py-16">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-8">
@@ -238,50 +448,73 @@ export default function Home() {
               Grow With Us
             </p>
             <h2 className="text-4xl lg:text-5xl font-bold text-white leading-tight" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Franchise Opportunities <br /> With Milkshop
+              Own a Milkshop. <br />
+              Build Your Future.
             </h2>
             <p className="text-yellow-100 text-base max-w-md" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Curious about opening your own Milkshop branch? Learn more about our upcoming franchise
-              program and how you can be part of the story.
+              Join the fastest-growing Taiwanese beverage brand in the Philippines. Low investment, proven system, full support — everything you need to succeed.
             </p>
+            <ul className="flex flex-col gap-1.5 mt-1">
+              {["Proven ROI in 12–18 months", "Full training & brand support", "3 flexible franchise packages"].map((item) => (
+                <li key={item} className="flex items-center gap-2 text-white text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <span className="text-yellow-200 font-bold">✓</span> {item}
+                </li>
+              ))}
+            </ul>
           </Reveal>
-          <Reveal as="div" delay={80}>
+          <Reveal as="div" delay={80} className="flex flex-col items-center gap-3">
             <Link
               to="/franchise"
-              className="shrink-0 bg-white text-[#E8A020] hover:bg-yellow-50 font-bold text-sm px-8 py-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
+              className="shrink-0 bg-white text-[#E8A020] hover:bg-yellow-50 font-bold text-base px-10 py-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
               style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
-              Explore Franchise Info →
+              Franchise Now →
             </Link>
+            <p className="text-yellow-100 text-xs text-center" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              No experience needed. We'll train you.
+            </p>
           </Reveal>
+        </div>
+      </Reveal>
+
+      {/* ── FRANCHISEE TESTIMONIALS ── */}
+      <Reveal as="section" className="bg-[#F7F9F4] border-y border-[#DDE8CF] py-20">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          <div className="text-center mb-12">
+            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              From Our Partners
+            </p>
+            <h2 className="text-4xl lg:text-5xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Real Stories. Real Success.
+            </h2>
+            <p className="text-[#5A6B4A] text-base max-w-lg mx-auto mt-3 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Hear from the franchisees who took the leap — and haven't looked back since.
+            </p>
+          </div>
+          <TestimonialCarousel />
+          <div className="flex justify-center mt-10">
+            <Link
+              to="/franchise"
+              className="bg-[#5A9216] hover:bg-[#3E6610] text-white font-semibold text-sm px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              Start Your Franchise Journey →
+            </Link>
+          </div>
         </div>
       </Reveal>
 
       {/* ── LOCATIONS CTA ── */}
       <Reveal as="section" className="bg-white py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 text-center flex flex-col items-center gap-6">
-          <Reveal
-            as="p"
-            className="text-[#5A9216] text-xs font-bold tracking-widest uppercase"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
+          <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             Find Us
-          </Reveal>
-          <Reveal
-            as="h2"
-            delay={40}
-            className="text-4xl lg:text-5xl font-bold text-[#1A2410]"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
+          </p>
+          <Reveal as="h2" delay={40} className="text-4xl lg:text-5xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             We're Near You 📍
           </Reveal>
-          <Reveal
-            as="p"
-            delay={80}
-            className="text-[#5A6B4A] text-base max-w-lg leading-relaxed"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Multiple branches across the Philippines — with more locations coming soon.
+          <Reveal as="p" delay={80} className="text-[#5A6B4A] text-base max-w-lg leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            15 branches nationwide — from Metro Manila to Mindanao. With more locations opening soon.
           </Reveal>
           <Reveal as="div" delay={120} className="flex flex-wrap justify-center gap-3 mt-2">
             <Link
@@ -289,7 +522,7 @@ export default function Home() {
               className="bg-[#5A9216] hover:bg-[#3E6610] text-white font-semibold text-sm px-7 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
               style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
-              View Locations
+              View All Locations
             </Link>
           </Reveal>
         </div>

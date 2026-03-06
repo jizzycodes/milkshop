@@ -7,19 +7,19 @@ export default function Hero() {
   return (
     <section className="relative w-full bg-[#F7F9F4] overflow-hidden">
 
-      {/* Background decorative blobs */}
+      {/* ── BACKGROUND ORBS ── */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-[#EEF5E6] opacity-70 translate-x-1/3 -translate-y-1/4 pointer-events-none animate-orb-1" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#C8DFA8] opacity-30 -translate-x-1/3 translate-y-1/4 pointer-events-none animate-orb-2" />
       <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] rounded-full bg-[#E8A020] opacity-5 -translate-x-1/2 -translate-y-1/2 pointer-events-none animate-orb-3" />
 
       <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-20 lg:py-28 flex flex-col lg:flex-row items-center gap-12 lg:gap-0">
 
-        {/* LEFT — Text Content */}
+        {/* ── LEFT — Text Content ── */}
         <div className="flex-1 flex flex-col items-start gap-6 z-10">
 
-          {/* Badge */}
+          {/* Live badge */}
           <div className="flex items-center gap-2 bg-[#EEF5E6] border border-[#C8DFA8] rounded-full px-4 py-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#5A9216] animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-[#5A9216] animate-pulse shrink-0" />
             <span
               className="text-[#5A9216] text-xs font-semibold tracking-widest uppercase"
               style={{ fontFamily: "'DM Sans', sans-serif" }}
@@ -45,11 +45,25 @@ export default function Hero() {
             className="text-[#5A6B4A] text-base lg:text-lg max-w-md leading-relaxed"
             style={{ fontFamily: "'DM Sans', sans-serif" }}
           >
-            Freshly crafted milk tea with Taiwanese Popping Boba — a burst of flavor in every cup. Now in the Philippines.
+            Freshly crafted milk tea with Taiwanese Popping Boba — a burst of flavor in every cup. Now in the Philippines, and growing fast.
           </p>
 
-          {/* CTA Row – view menu only */}
+          {/* ── CTA ROW ── */}
           <div className="flex flex-wrap items-center gap-3 mt-2">
+
+            {/* PRIMARY — Franchise Now */}
+            <Link
+              to="/franchise"
+              className="relative group bg-[#E8A020] hover:bg-[#CF8E18] text-white font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              {/* Subtle pulse ring on CTA */}
+              <span className="absolute -inset-0.5 rounded-full bg-[#E8A020]/30 animate-ping opacity-0 group-hover:opacity-100 pointer-events-none" />
+              <span className="relative">Franchise Now</span>
+              <span className="relative">→</span>
+            </Link>
+
+            {/* SECONDARY — View Menu */}
             <Link
               to="/products"
               className="border border-[#5A9216] text-[#5A9216] hover:bg-[#EEF5E6] font-semibold text-sm px-7 py-3.5 rounded-full transition-all duration-200 active:scale-95"
@@ -59,22 +73,34 @@ export default function Hero() {
             </Link>
           </div>
 
+          {/* Franchise micro-proof */}
+          <p className="text-[#5A6B4A] text-xs flex items-center gap-1.5"
+            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <span className="text-[#5A9216] font-bold">✓</span>
+            No experience needed &nbsp;·&nbsp;
+            <span className="text-[#5A9216] font-bold">✓</span>
+            ROI in 12–18 months &nbsp;·&nbsp;
+            <span className="text-[#5A9216] font-bold">✓</span>
+            Full brand support
+          </p>
+
           {/* Stats row */}
-          <div className="flex items-center gap-8 mt-4 pt-4 border-t border-[#DDE8CF] w-full">
+          <div className="flex items-center gap-8 mt-2 pt-4 border-t border-[#DDE8CF] w-full">
             {[
-              { value: "20+", label: "Flavors" },
-              { value: "5★", label: "Rated" },
-              { value: "PH", label: "Nationwide" },
+              { value: "15+",  label: "Branches" },
+              { value: "20+",  label: "Flavors"  },
+              { value: "5★",   label: "Rated"    },
+              { value: "2015", label: "Est. Taiwan" },
             ].map((stat) => (
               <div key={stat.label} className="flex flex-col">
                 <span
-                  className="text-2xl font-bold text-[#1A2410]"
+                  className="text-xl lg:text-2xl font-bold text-[#1A2410]"
                   style={{ fontFamily: "'DM Mono', monospace" }}
                 >
                   {stat.value}
                 </span>
                 <span
-                  className="text-xs text-[#5A6B4A] uppercase tracking-widest"
+                  className="text-[10px] text-[#5A6B4A] uppercase tracking-widest"
                   style={{ fontFamily: "'DM Sans', sans-serif" }}
                 >
                   {stat.label}
@@ -84,13 +110,11 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* RIGHT — Visual */}
+        {/* ── RIGHT — Visual ── */}
         <div className="flex-1 flex justify-center items-center relative z-10">
-
-          {/* Main circle visual */}
           <div className="relative w-72 h-72 lg:w-96 lg:h-96">
 
-            {/* Outer ring */}
+            {/* Outer dashed spinning ring */}
             <div className="absolute inset-0 rounded-full border-2 border-dashed border-[#C8DFA8] animate-spin-slow" />
 
             {/* Inner circle bg */}
@@ -101,48 +125,56 @@ export default function Hero() {
               <div className="flex flex-col items-center gap-1">
                 <img
                   src={A1_IMAGE_URL}
-                  alt="A1 Black Sugar Boba Milk Tea"
-                  className="h-64 lg:h-80 object-contain drop-shadow-lg"
+                  alt="Milkshop Black Sugar Boba Milk Tea"
+                  className="h-64 lg:h-80 object-contain drop-shadow-xl"
                 />
                 <span
                   className="text-[#5A9216] text-xs font-bold tracking-widest uppercase"
                   style={{ fontFamily: "'DM Sans', sans-serif" }}
                 >
-                  Milkshop
+                  Milkshop 秘客侠
                 </span>
               </div>
             </div>
 
-            {/* Floating tag 1 */}
+            {/* Floating tag — Popping Boba */}
             <div className="absolute -top-3 -right-4 bg-white border border-[#DDE8CF] rounded-2xl px-3 py-2 shadow-md flex items-center gap-2">
               <span className="text-lg">🫧</span>
               <div>
                 <p className="text-[10px] font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>Popping Boba</p>
-                <p className="text-[9px] text-[#5A6B4A]" style={{ fontFamily: "'DM Sans', sans-serif" }}>Taiwanese Original</p>
+                <p className="text-[9px] text-[#5A6B4A]"            style={{ fontFamily: "'DM Sans', sans-serif" }}>Taiwanese Original</p>
               </div>
             </div>
 
-            {/* Floating tag 2 */}
+            {/* Floating tag — Best Seller */}
             <div className="absolute -bottom-3 -left-4 bg-[#E8A020] rounded-2xl px-3 py-2 shadow-md">
-              <p className="text-[10px] font-bold text-white" style={{ fontFamily: "'DM Sans', sans-serif" }}>🔥 Best Seller</p>
-              <p className="text-[9px] text-yellow-100" style={{ fontFamily: "'DM Mono', monospace" }}>Brown Sugar Series</p>
+              <p className="text-[10px] font-bold text-white"       style={{ fontFamily: "'DM Sans', sans-serif" }}>🔥 Best Seller</p>
+              <p className="text-[9px] text-yellow-100"             style={{ fontFamily: "'DM Mono', monospace" }}>Brown Sugar Series</p>
             </div>
 
-            {/* Floating tag 3 */}
+            {/* Floating tag — Taiwan */}
             <div className="absolute top-1/2 -left-8 -translate-y-1/2 bg-white border border-[#DDE8CF] rounded-2xl px-3 py-2 shadow-md">
-              <p className="text-[10px] font-bold text-[#5A9216]" style={{ fontFamily: "'DM Sans', sans-serif" }}>🇹🇼 Taiwan</p>
-              <p className="text-[9px] text-[#5A6B4A]" style={{ fontFamily: "'DM Sans', sans-serif" }}>Heritage Recipe</p>
+              <p className="text-[10px] font-bold text-[#5A9216]"  style={{ fontFamily: "'DM Sans', sans-serif" }}>🇹🇼 Taiwan</p>
+              <p className="text-[9px] text-[#5A6B4A]"             style={{ fontFamily: "'DM Sans', sans-serif" }}>Heritage Recipe</p>
             </div>
+
+            {/* NEW floating tag — Franchise */}
+            <div className="absolute -top-3 -left-6 bg-[#1A2410] rounded-2xl px-3 py-2 shadow-md hidden lg:block">
+              <p className="text-[10px] font-bold text-[#E8A020]"  style={{ fontFamily: "'DM Sans', sans-serif" }}>📈 Franchise Open</p>
+              <p className="text-[9px] text-[#C8DFA8]"             style={{ fontFamily: "'DM Sans', sans-serif" }}>ROI in 12–18 months</p>
+            </div>
+
           </div>
         </div>
       </div>
 
-      {/* Bottom wave divider */}
+      {/* ── BOTTOM WAVE DIVIDER ── */}
       <div className="w-full overflow-hidden leading-none">
         <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" className="w-full h-12 fill-white">
           <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" />
         </svg>
       </div>
+
     </section>
   );
 }
