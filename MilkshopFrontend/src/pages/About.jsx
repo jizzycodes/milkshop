@@ -178,10 +178,18 @@ export default function About() {
               style={{ fontFamily: "'DM Sans', sans-serif" }}>
               The Milkshop Identity
             </p>
-            <h2 className="text-4xl lg:text-5xl font-bold text-[#1A2410] leading-tight"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              秘客侠 — <span className="text-[#5A9216]">The Secret Champion</span>
+            <h2
+              className="text-4xl lg:text-5xl font-bold text-[#1A2410] leading-tight"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              秘客侠
             </h2>
+            <p
+              className="text-2xl lg:text-3xl font-bold text-[#5A9216] mt-1"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              The Secret Champion
+            </p>
             <p className="text-[#5A6B4A] text-base leading-relaxed"
               style={{ fontFamily: "'DM Sans', sans-serif" }}>
               The name 秘客侠 (Mì Kè Xiá) carries deep meaning — <em>"secret,"</em> <em>"guest,"</em> <em>"champion."</em> It represents a brand that quietly masters its craft before making its move. When Milkshop arrived in the Philippines in 2022, it didn't come with hype. It came with a product that spoke for itself.
@@ -304,28 +312,37 @@ export default function About() {
         </div>
       </Reveal>
 
-      {/* ── STATS BAR ── */}
-      <section className="bg-[#5A9216] py-12">
+      {/* ── STATS BAR ─ */}
+      <Reveal as="section" className="bg-[#5A9216] py-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
           {[
             { value: "2015", label: "Year Founded" },
             { value: "20+", label: "Menu Items" },
             { value: "15+", label: "PH Branches" },
             { value: "5★", label: "Avg Rating" },
-          ].map((s) => (
-            <div key={s.label} className="flex flex-col items-center gap-1">
-              <span className="text-4xl font-bold text-white"
-                style={{ fontFamily: "'DM Mono', monospace" }}>
+          ].map((s, index) => (
+            <Reveal
+              key={s.label}
+              as="div"
+              delay={index * 60}
+              className="flex flex-col items-center gap-1"
+            >
+              <span
+                className="text-4xl font-bold text-white"
+                style={{ fontFamily: "'DM Mono', monospace" }}
+              >
                 {s.value}
               </span>
-              <span className="text-green-200 text-xs tracking-widest uppercase"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              <span
+                className="text-green-200 text-xs tracking-widest uppercase"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}
+              >
                 {s.label}
               </span>
-            </div>
+            </Reveal>
           ))}
         </div>
-      </section>
+      </Reveal>
 
       {/* ── RAW MATERIALS & SOURCING ── */}
       <Reveal as="section" className="py-20 bg-[#F7F9F4] border-y border-[#DDE8CF]">
@@ -438,52 +455,66 @@ export default function About() {
         </div>
       </Reveal>
 
-      {/* ── TEAM ── */}
-      <section className="py-20 bg-white">
+      {/* ── TEAM ─ */}
+      <Reveal as="section" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-12">
-            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p
+              className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
               The People
             </p>
-            <h2 className="text-4xl font-bold text-[#1A2410]"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <h2
+              className="text-4xl font-bold text-[#1A2410]"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
               Behind Every Cup
             </h2>
           </div>
           <div className="flex flex-wrap justify-center gap-6">
-            {team.map((t) => (
-              <div
+            {team.map((t, index) => (
+              <Reveal
                 key={t.name}
+                as="div"
+                delay={index * 80}
                 className="bg-[#F7F9F4] border border-[#DDE8CF] rounded-3xl p-8 flex flex-col items-center gap-3 w-52 hover:shadow-md hover:border-[#C8DFA8] transition-all duration-300"
               >
                 <span className="text-5xl">{t.emoji}</span>
                 <div className="text-center">
-                  <p className="font-bold text-[#1A2410] text-sm"
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <p
+                    className="font-bold text-[#1A2410] text-sm"
+                    style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  >
                     {t.name}
                   </p>
-                  <p className="text-[#5A6B4A] text-xs mt-0.5"
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <p
+                    className="text-[#5A6B4A] text-xs mt-0.5"
+                    style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  >
                     {t.role}
                   </p>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
-      </section>
+      </Reveal>
 
-      {/* ── BOTTOM CTA ── */}
-      <section className="bg-[#1A2410] py-14">
+      {/* ── BOTTOM CTA ─ */}
+      <Reveal as="section" className="bg-[#1A2410] py-14">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-6">
           <div>
-            <h2 className="text-3xl font-bold text-white"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <h2
+              className="text-3xl font-bold text-white"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
               Ready to be part of the story? 🧋
             </h2>
-            <p className="text-[#C8DFA8] text-sm mt-1"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p
+              className="text-[#C8DFA8] text-sm mt-1"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
               Own a branch. Join the movement. Build something that lasts.
             </p>
           </div>
@@ -504,7 +535,7 @@ export default function About() {
             </Link>
           </div>
         </div>
-      </section>
+      </Reveal>
 
     </main>
   );

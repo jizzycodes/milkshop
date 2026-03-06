@@ -45,34 +45,6 @@ const socials = [
 export default function Footer() {
   return (
     <footer className="bg-[#0F1A09]">
-
-      {/* ── FRANCHISE CTA BANNER ── */}
-      <div className="bg-[#E8A020] py-10">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div>
-            <p className="text-yellow-900/70 text-xs font-bold tracking-widest uppercase mb-1"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Franchise Opportunities
-            </p>
-            <h3 className="text-2xl lg:text-3xl font-bold text-white leading-tight"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Ready to own a Milkshop? 🧋
-            </h3>
-            <p className="text-yellow-100 text-sm mt-1"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              ROI in 12–18 months · No experience required · Full brand support
-            </p>
-          </div>
-          <Link
-            to="/franchise"
-            className="shrink-0 bg-white text-[#E8A020] hover:bg-yellow-50 font-bold text-sm px-8 py-3.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Apply Now →
-          </Link>
-        </div>
-      </div>
-
       {/* ── MAIN FOOTER BODY ── */}
       <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-14 pb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
 
