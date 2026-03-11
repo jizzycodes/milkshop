@@ -22,7 +22,7 @@ function ScrollToTop() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      window.scrollTo(0, 0)
     }
   }, [pathname])
 
@@ -78,7 +78,7 @@ function AppRoutes() {
           <>
             <ScrollToTop />
             <Navbar />
-            <div className="animate-page-in">
+            <div className="animate-page-in mt-0 pt-0">
               <Routes>
                 <Route path="/"          element={<Home />} />
                 <Route path="/products"  element={<Products />} />

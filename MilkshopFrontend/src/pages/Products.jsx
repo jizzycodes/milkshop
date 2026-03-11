@@ -2,11 +2,8 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import Reveal from "../components/Reveal"
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PRODUCTS DATA
-// ⚠️  Set `imageUrl` to your product photo URL.
-//     If null → styled placeholder shown automatically.
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
 const categories = ["All", "Milk Tea", "Fruit Tea", "Popping Boba", "Seasonal"];
 
 const products = [
@@ -17,7 +14,6 @@ const products = [
     description: "Tiger-stripe signature with chewy pearls and fresh milk. The drink that started it all.",
     price: 99,
     tag: "Best Seller",
-    tagColor: "bg-[#E8A020] text-white",
     popular: true,
     imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A1%20Black%20Sugar%20Boba%20Milk%20Tea.png",
   },
@@ -28,7 +24,6 @@ const products = [
     description: "The purest expression of Taiwan milk tea. Smooth, clean, and perfectly balanced.",
     price: 99,
     tag: "Classic",
-    tagColor: "bg-[#97b64c] text-white",
     popular: false,
     imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A2%20Signature%20Taiwanese%20Milk%20Tea.png",
   },
@@ -49,7 +44,6 @@ const products = [
     description: "Japanese matcha meets our signature black sugar. Bold, earthy, and unforgettable.",
     price: 109,
     tag: "New",
-    tagColor: "bg-[#62840b] text-white",
     popular: true,
     imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A4%20Matcha%20BLACK%20SUGAR%20PEARL%20Milk%20Tea.png",
   },
@@ -60,9 +54,8 @@ const products = [
     description: "Creamy purple taro blend — sweet, smooth, and deeply satisfying.",
     price: 105,
     tag: "Fan Fave",
-    tagColor: "bg-purple-400 text-white",
     popular: true,
-    imageUrl: null, // ← replace with your photo URL
+    imageUrl: null,
   },
   {
     id: 6,
@@ -71,7 +64,6 @@ const products = [
     description: "Real strawberry with a refreshing green tea base. Light, bright, and fruity.",
     price: 99,
     tag: "Fan Fave",
-    tagColor: "bg-pink-400 text-white",
     popular: true,
     imageUrl: null,
   },
@@ -102,7 +94,6 @@ const products = [
     description: "Tropical mango tea bursting with Taiwanese popping boba on every sip.",
     price: 115,
     tag: "Signature",
-    tagColor: "bg-[#E8A020] text-white",
     popular: true,
     imageUrl: null,
   },
@@ -113,7 +104,6 @@ const products = [
     description: "Concord grape base with juicy grape-filled boba pearls. Bold and refreshing.",
     price: 115,
     tag: "New",
-    tagColor: "bg-[#97b64c] text-white",
     popular: false,
     imageUrl: null,
   },
@@ -134,7 +124,6 @@ const products = [
     description: "Limited ube milk tea topped with velvety cream cheese foam. Get it while it lasts.",
     price: 125,
     tag: "Limited",
-    tagColor: "bg-purple-600 text-white",
     popular: true,
     imageUrl: null,
   },
@@ -145,219 +134,171 @@ const products = [
     description: "Southeast Asian pandan with creamy milk — a local × Taiwan fusion you won't forget.",
     price: 119,
     tag: "Limited",
-    tagColor: "bg-purple-600 text-white",
     popular: false,
     imageUrl: null,
   },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CUSTOMER FEEDBACKS
-// ⚠️  Set `photo` to the customer's screenshot/image URL.
-//     If null → avatar placeholder shown.
-//     `isPhoto: true` means the entire card IS a screenshot image.
-//     `isPhoto: false` means it's a text review card with optional avatar.
-// ─────────────────────────────────────────────────────────────────────────────
 const feedbacks = [
-  {
-    id: 1,
-    name: "Angelica R.",
-    handle: "@angelicar_ph",
-    stars: 5,
-    comment: "Best milk tea I've ever had in the Philippines! The black sugar boba is INSANE. Already on my 5th visit this month 😭🧋",
-    photo: null,    // ← replace with customer photo/avatar URL
-    cardPhoto: null, // ← replace with screenshot image URL (optional)
-  },
-  {
-    id: 2,
-    name: "Miguel T.",
-    handle: "@migueltravels",
-    stars: 5,
-    comment: "The popping boba is on another level. You can actually taste the real fruit juice when it bursts. Nothing like it in Manila.",
-    photo: null,
-    cardPhoto: null,
-  },
-  {
-    id: 3,
-    name: "Trisha Mae",
-    handle: "@trishafoods",
-    stars: 5,
-    comment: "Finally a milk tea brand that uses ACTUAL fresh milk! You can taste the difference. The matcha pearl is my forever go-to 💚",
-    photo: null,
-    cardPhoto: null,
-  },
-  {
-    id: 4,
-    name: "Carlo B.",
-    handle: "@carloeats",
-    stars: 5,
-    comment: "Ordered the taro and the chocolate pearl. Both were 10/10. The queue was long but 100% worth it. Will be back tomorrow lol",
-    photo: null,
-    cardPhoto: null,
-  },
-  {
-    id: 5,
-    name: "Diane L.",
-    handle: "@dianelim.ph",
-    stars: 5,
-    comment: "The brown sugar milk tea here hits different. Tiger stripes are real, the pearls are chewy, the milk is fresh. Taiwanese quality for real 🇹🇼",
-    photo: null,
-    cardPhoto: null,
-  },
-  {
-    id: 6,
-    name: "Nico S.",
-    handle: "@nicosip",
-    stars: 5,
-    comment: "My friends dragged me here and now I'm the one dragging everyone else. The lychee popping boba is addicting.",
-    photo: null,
-    cardPhoto: null,
-  },
-  {
-    id: 7,
-    name: "Justine A.",
-    handle: "@justineandco",
-    stars: 5,
-    comment: "Visited the Cebu branch and it was packed! Staff was super friendly and drinks came out fast. The ube cream special is a must-try.",
-    photo: null,
-    cardPhoto: null,
-  },
-  {
-    id: 8,
-    name: "Rachel P.",
-    handle: "@rachelpdiary",
-    stars: 5,
-    comment: "Milkshop is the only milk tea that makes me feel like I'm actually in Taiwan. Every sip is just *chef's kiss* 🫧",
-    photo: null,
-    cardPhoto: null,
-  },
+  { id: 1, name: "Angelica R.", handle: "@angelicar_ph", stars: 5, comment: "Best milk tea I've ever had in the Philippines! The black sugar boba is INSANE. Already on my 5th visit this month 😭🧋", photo: null },
+  { id: 2, name: "Miguel T.", handle: "@migueltravels", stars: 5, comment: "The popping boba is on another level. You can actually taste the real fruit juice when it bursts. Nothing like it in Manila.", photo: null },
+  { id: 3, name: "Trisha Mae", handle: "@trishafoods", stars: 5, comment: "Finally a milk tea brand that uses ACTUAL fresh milk! You can taste the difference. The matcha pearl is my forever go-to 💚", photo: null },
+  { id: 4, name: "Carlo B.", handle: "@carloeats", stars: 5, comment: "Ordered the taro and the chocolate pearl. Both were 10/10. The queue was long but 100% worth it. Will be back tomorrow lol", photo: null },
+  { id: 5, name: "Diane L.", handle: "@dianelim.ph", stars: 5, comment: "The brown sugar milk tea here hits different. Tiger stripes are real, the pearls are chewy, the milk is fresh. Taiwanese quality for real 🇹🇼", photo: null },
+  { id: 6, name: "Nico S.", handle: "@nicosip", stars: 5, comment: "My friends dragged me here and now I'm the one dragging everyone else. The lychee popping boba is addicting.", photo: null },
+  { id: 7, name: "Justine A.", handle: "@justineandco", stars: 5, comment: "Visited the Cebu branch and it was packed! Staff was super friendly and drinks came out fast. The ube cream special is a must-try.", photo: null },
+  { id: 8, name: "Rachel P.", handle: "@rachelpdiary", stars: 5, comment: "Milkshop is the only milk tea that makes me feel like I'm actually in Taiwan. Every sip is just *chef's kiss* 🫧", photo: null },
 ];
 
-// Duplicate for seamless infinite scroll
 const feedbacksRow1 = [...feedbacks, ...feedbacks];
 const feedbacksRow2 = [...feedbacks].reverse().concat([...feedbacks].reverse());
 
+// ─── TAG CONFIG ──────────────────────────────────────────────────────────────
+
+const tagStyles = {
+  "Best Seller": { bg: "#E8A020", color: "#fff"     },
+  "Classic":     { bg: "#97b64c", color: "#fff"     },
+  "New":         { bg: "#62840b", color: "#fff"     },
+  "Fan Fave":    { bg: "#b7cd7f", color: "#1e1e1e"  },
+  "Signature":   { bg: "#1e1e1e", color: "#b7cd7f"  },
+  "Limited":     { bg: "#7c3aed", color: "#fff"     },
+};
+
 // ─── PRODUCT CARD ─────────────────────────────────────────────────────────────
+
 function ProductCard({ product, index }) {
+  const tag = tagStyles[product.tag];
+
   return (
     <Reveal
       as="div"
       delay={index * 40}
-      className="group bg-white rounded-3xl border border-[#d0e0b0] overflow-hidden flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+      className="group relative bg-white rounded-2xl overflow-hidden flex flex-col cursor-pointer"
+      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)" }}
     >
-      {/* Image / Placeholder */}
-      <div className="relative h-52 overflow-hidden bg-[#f5f8ef]">
+      {/* ── IMAGE ZONE ── */}
+      <div
+        className="relative overflow-hidden"
+        style={{ height: "220px", backgroundColor: "#f7f9f3" }}
+      >
         {product.imageUrl ? (
           <img
             src={product.imageUrl}
             alt={product.name}
-            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500 drop-shadow-md"
+            className="w-full h-full object-contain p-6 transition-transform duration-700 group-hover:scale-105 drop-shadow-md"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[#e8f0dc] via-[#b7cd7f]/30 to-[#f5f8ef] flex flex-col items-center justify-center gap-2 group-hover:from-[#d0e0b0]/60 transition-all duration-500">
-            <div className="w-12 h-12 rounded-2xl bg-white/80 border border-[#d0e0b0] flex items-center justify-center shadow-sm">
-              <svg className="w-6 h-6 text-[#b7cd7f]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 19.5h16.5M3 7.5h18" />
-              </svg>
+          <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
+              style={{ backgroundColor: "#eef4e3" }}
+            >
+              🧋
             </div>
-            <p className="text-[#b7cd7f] text-[11px] font-medium" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+            <p className="text-xs font-medium" style={{ color: "#b7cd7f", fontFamily: "'DM Sans', sans-serif" }}>
               Photo coming soon
             </p>
           </div>
         )}
 
         {/* Tag */}
-        {product.tag && (
+        {product.tag && tag && (
           <span
-            className={`absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm ${product.tagColor}`}
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+            className="absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-full tracking-wide"
+            style={{
+              backgroundColor: tag.bg,
+              color: tag.color,
+              fontFamily: "'DM Sans', sans-serif",
+              letterSpacing: "0.04em",
+            }}
           >
             {product.tag}
           </span>
         )}
 
-        {/* Popular fire */}
+        {/* Popular */}
         {product.popular && (
-          <span className="absolute top-3 right-3 text-base drop-shadow">🔥</span>
+          <span className="absolute top-3 right-3 text-sm">🔥</span>
         )}
+
+        {/* Hover overlay */}
+        <div
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          style={{ background: "linear-gradient(to top, rgba(151,182,76,0.08), transparent)" }}
+        />
       </div>
 
-      {/* Body */}
-      <div className="p-4 flex flex-col gap-2 flex-1">
-        <div className="flex items-start justify-between gap-2">
+      {/* ── DIVIDER ── */}
+      <div style={{ height: "1px", backgroundColor: "#f0f4e8" }} />
+
+      {/* ── BODY ── */}
+      <div className="p-5 flex flex-col gap-2 flex-1">
+        <div className="flex items-start justify-between gap-3">
           <h3
-            className="text-sm font-bold text-[#1e1e1e] leading-snug flex-1"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+            className="text-sm font-bold leading-snug flex-1"
+            style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}
           >
             {product.name}
           </h3>
           <span
-            className="text-base font-bold text-[#97b64c] shrink-0"
-            style={{ fontFamily: "'DM Mono', monospace" }}
+            className="text-base font-bold shrink-0 tabular-nums"
+            style={{ color: "#97b64c", fontFamily: "'DM Mono', monospace" }}
           >
             ₱{product.price}
           </span>
         </div>
         <p
-          className="text-[#5a5a5a] text-xs leading-relaxed flex-1"
-          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+          className="text-xs leading-relaxed flex-1"
+          style={{ color: "#7a8a6a", fontFamily: "'DM Sans', sans-serif" }}
         >
           {product.description}
         </p>
       </div>
+
+      {/* ── BOTTOM ACCENT LINE on hover ── */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300"
+        style={{ backgroundColor: "#97b64c" }}
+      />
     </Reveal>
   );
 }
 
 // ─── FEEDBACK CARD ────────────────────────────────────────────────────────────
-function FeedbackCard({ fb }) {
-  // If cardPhoto is set — show as screenshot image card
-  if (fb.cardPhoto) {
-    return (
-      <div className="shrink-0 w-64 rounded-3xl overflow-hidden border border-[#d0e0b0] shadow-sm bg-white">
-        <img
-          src={fb.cardPhoto}
-          alt={`${fb.name} review`}
-          className="w-full h-full object-cover"
-        />
-      </div>
-    );
-  }
 
-  // Text review card
+function FeedbackCard({ fb }) {
   return (
-    <div className="shrink-0 w-72 bg-white border border-[#d0e0b0] rounded-3xl p-5 flex flex-col gap-3 shadow-sm">
-      {/* Stars */}
+    <div
+      className="shrink-0 w-72 rounded-2xl p-5 flex flex-col gap-3"
+      style={{
+        backgroundColor: "#ffffff",
+        border: "1px solid #e8f0dc",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+      }}
+    >
       <div className="flex gap-0.5">
         {Array.from({ length: fb.stars }).map((_, i) => (
           <span key={i} className="text-[#E8A020] text-sm">★</span>
         ))}
       </div>
-      {/* Comment */}
       <p
-        className="text-[#1e1e1e] text-sm leading-relaxed flex-1"
-        style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+        className="text-sm leading-relaxed flex-1"
+        style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}
       >
         "{fb.comment}"
       </p>
-      {/* Author */}
-      <div className="flex items-center gap-2.5 pt-1 border-t border-[#d0e0b0]">
-        {fb.photo ? (
-          <img
-            src={fb.photo}
-            alt={fb.name}
-            className="w-8 h-8 rounded-full object-cover border border-[#d0e0b0]"
-          />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-[#e8f0dc] border border-[#d0e0b0] flex items-center justify-center text-base shrink-0">
-            🧋
-          </div>
-        )}
+      <div className="flex items-center gap-2.5 pt-3" style={{ borderTop: "1px solid #f0f4e8" }}>
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center text-base shrink-0"
+          style={{ backgroundColor: "#eef4e3" }}
+        >
+          🧋
+        </div>
         <div>
-          <p className="text-[#1e1e1e] text-xs font-bold" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+          <p className="text-xs font-bold" style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}>
             {fb.name}
           </p>
-          <p className="text-[#5a5a5a] text-[10px]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+          <p className="text-[10px]" style={{ color: "#97b64c", fontFamily: "'DM Sans', sans-serif" }}>
             {fb.handle}
           </p>
         </div>
@@ -366,7 +307,8 @@ function FeedbackCard({ fb }) {
   );
 }
 
-// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
+// ─── MAIN ────────────────────────────────────────────────────────────────────
+
 export default function Products() {
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -376,34 +318,51 @@ export default function Products() {
       : products.filter((p) => p.category === activeCategory);
 
   return (
-    <main className="bg-white min-h-screen">
+    <main style={{ backgroundColor: "#fafafa", minHeight: "100vh" }}>
 
       {/* ── PAGE HEADER ── */}
-      <section className="relative bg-[#1e1e1e] py-24 overflow-hidden">
-        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-[#97b64c]/10 pointer-events-none" />
-        <div className="absolute -bottom-24 -left-12 w-64 h-64 rounded-full bg-[#E8A020]/10 pointer-events-none" />
+      <section
+        className="relative py-24 overflow-hidden"
+        style={{ backgroundColor: "#1e1e1e" }}
+      >
+        {/* Decorative circles */}
+        <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full pointer-events-none" style={{ backgroundColor: "rgba(151,182,76,0.07)" }} />
+        <div className="absolute -bottom-20 -left-10 w-56 h-56 rounded-full pointer-events-none" style={{ backgroundColor: "rgba(232,160,32,0.07)" }} />
+
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 flex flex-col items-center text-center gap-5 z-10">
-          <span className="bg-[#97b64c]/20 text-[#b7cd7f] text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+          <span
+            className="text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full"
+            style={{ backgroundColor: "rgba(151,182,76,0.15)", color: "#b7cd7f", fontFamily: "'DM Sans', sans-serif" }}
+          >
             🧋 Our Menu
           </span>
-          <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+          <h1
+            className="text-5xl lg:text-6xl font-bold leading-tight"
+            style={{ color: "#ffffff", fontFamily: "'DM Sans', sans-serif" }}
+          >
             Every Sip, Crafted<br />
-            <span className="text-[#97b64c]">Just for You.</span>
+            <span style={{ color: "#97b64c" }}>Just for You.</span>
           </h1>
-          <p className="text-[#b7cd7f] text-base max-w-lg leading-relaxed"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-            From classic milk teas to our signature Taiwanese Popping Boba — explore every flavor crafted with real milk, real ingredients, real love.
+          <p
+            className="text-base max-w-lg leading-relaxed"
+            style={{ color: "#7a8a6a", fontFamily: "'DM Sans', sans-serif" }}
+          >
+            From classic milk teas to our signature Taiwanese Popping Boba — crafted with real milk, real ingredients, real love.
           </p>
-          {/* Quick category pills in hero */}
+
+          {/* Category pills in header */}
           <div className="flex flex-wrap justify-center gap-2 mt-2">
             {categories.filter(c => c !== "All").map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className="bg-white/10 hover:bg-[#97b64c] text-[#b7cd7f] hover:text-white border border-white/10 hover:border-[#97b64c] text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200"
-                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+                className="text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200"
+                style={{
+                  backgroundColor: activeCategory === cat ? "#97b64c" : "rgba(255,255,255,0.07)",
+                  color: activeCategory === cat ? "#ffffff" : "#7a8a6a",
+                  border: activeCategory === cat ? "1px solid #97b64c" : "1px solid rgba(255,255,255,0.08)",
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
               >
                 {cat}
               </button>
@@ -412,42 +371,59 @@ export default function Products() {
         </div>
       </section>
 
-      {/* ── CATEGORY FILTER ── */}
-      <section className="sticky top-[64px] z-40 bg-white border-b border-[#d0e0b0] py-4 shadow-sm">
+      {/* ── CATEGORY FILTER BAR ── */}
+      <section
+        className="sticky z-40 py-4"
+        style={{
+          // Stick just under the main navbar (h-16 ≈ 64px)
+          top: "64px",
+          backgroundColor: "rgba(250,250,250,0.95)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid #eff4e8",
+          boxShadow: "0 1px 12px rgba(0,0,0,0.04)",
+        }}
+      >
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center gap-2 overflow-x-auto scrollbar-none">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
-                activeCategory === cat
-                  ? "bg-[#97b64c] text-white shadow-sm"
-                  : "bg-[#f5f8ef] text-[#5a5a5a] border border-[#d0e0b0] hover:border-[#97b64c] hover:text-[#97b64c]"
-              }`}
-              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+              className="shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
+              style={{
+                backgroundColor: activeCategory === cat ? "#97b64c" : "transparent",
+                color: activeCategory === cat ? "#ffffff" : "#5a6a4a",
+                border: activeCategory === cat ? "1px solid #97b64c" : "1px solid #e0ebd0",
+                fontFamily: "'DM Sans', sans-serif",
+              }}
             >
               {cat}
             </button>
           ))}
-          <span className="ml-auto shrink-0 text-xs text-[#5a5a5a] font-medium bg-[#f5f8ef] border border-[#d0e0b0] px-3 py-1.5 rounded-full"
-            style={{ fontFamily: "'DM Mono', monospace" }}>
+          <span
+            className="ml-auto shrink-0 text-xs font-medium px-3 py-1.5 rounded-full"
+            style={{
+              color: "#97b64c",
+              backgroundColor: "#eef4e3",
+              fontFamily: "'DM Mono', monospace",
+            }}
+          >
             {filtered.length} items
           </span>
         </div>
       </section>
 
       {/* ── PRODUCT GRID ── */}
-      <section className="py-16 bg-[#f5f8ef]">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           {filtered.length === 0 ? (
             <div className="text-center py-24 flex flex-col items-center gap-3">
               <span className="text-4xl">🧋</span>
-              <p className="text-[#1e1e1e] font-bold" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+              <p className="font-bold" style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}>
                 No items found
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filtered.map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
               ))}
@@ -457,77 +433,109 @@ export default function Products() {
       </section>
 
       {/* ── CUSTOMER FEEDBACKS ── */}
-      <section className="bg-[#1e1e1e] py-20 overflow-hidden">
-
-        {/* Header */}
+      <section className="py-20 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
         <Reveal as="div" className="text-center mb-12 px-6">
-          <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+          <p
+            className="text-xs font-bold tracking-widest uppercase mb-2"
+            style={{ color: "#97b64c", fontFamily: "'DM Sans', sans-serif" }}
+          >
             What People Are Saying
           </p>
-          <h2 className="text-4xl lg:text-5xl font-bold text-white"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+          <h2
+            className="text-4xl lg:text-5xl font-bold"
+            style={{ color: "#ffffff", fontFamily: "'DM Sans', sans-serif" }}
+          >
             Real Sips. Real Love. 🧋
           </h2>
-          <p className="text-[#b7cd7f] text-base max-w-lg mx-auto mt-3 leading-relaxed"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-            Thousands of Milkshop fans across the Philippines — here's what they're saying.
+          <p
+            className="text-base max-w-lg mx-auto mt-3 leading-relaxed"
+            style={{ color: "#7a8a6a", fontFamily: "'DM Sans', sans-serif" }}
+          >
+            Thousands of Milkshop fans across the Philippines.
           </p>
         </Reveal>
 
-        {/* ── ROW 1 — scrolls LEFT ── */}
+        {/* Row 1 — left */}
         <div className="relative mb-4">
-          {/* Left fade */}
-          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#1e1e1e] to-transparent z-10 pointer-events-none" />
-          {/* Right fade */}
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#1e1e1e] to-transparent z-10 pointer-events-none" />
-
-          <div
-            className="flex gap-4 w-max"
-            style={{
-              animation: "marquee-left 40s linear infinite",
-            }}
-          >
-            {feedbacksRow1.map((fb, i) => (
-              <FeedbackCard key={`r1-${fb.id}-${i}`} fb={fb} />
-            ))}
+          <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #1e1e1e, transparent)" }} />
+          <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #1e1e1e, transparent)" }} />
+          <div className="flex gap-4 w-max" style={{ animation: "marquee-left 40s linear infinite" }}>
+            {feedbacksRow1.map((fb, i) => <FeedbackCard key={`r1-${fb.id}-${i}`} fb={fb} />)}
           </div>
         </div>
 
-        {/* ── ROW 2 — scrolls RIGHT ── */}
+        {/* Row 2 — right */}
         <div className="relative mt-4">
-          {/* Fades */}
-          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#1e1e1e] to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#1e1e1e] to-transparent z-10 pointer-events-none" />
-
-          <div
-            className="flex gap-4 w-max"
-            style={{
-              animation: "marquee-right 45s linear infinite",
-            }}
-          >
-            {feedbacksRow2.map((fb, i) => (
-              <FeedbackCard key={`r2-${fb.id}-${i}`} fb={fb} />
-            ))}
+          <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #1e1e1e, transparent)" }} />
+          <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #1e1e1e, transparent)" }} />
+          <div className="flex gap-4 w-max" style={{ animation: "marquee-right 45s linear infinite" }}>
+            {feedbacksRow2.map((fb, i) => <FeedbackCard key={`r2-${fb.id}-${i}`} fb={fb} />)}
           </div>
         </div>
 
-        {/* Pause on hover note + CTA */}
         <Reveal as="div" className="text-center mt-12 px-6">
-          <p className="text-[#5a5a5a] text-xs mb-6" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-            Join thousands of happy customers across the Philippines.
-          </p>
           <Link
             to="/locations"
-            className="inline-block bg-[#97b64c] hover:bg-[#62840b] text-white font-bold text-sm px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+            className="inline-block font-bold text-sm px-8 py-3.5 rounded-full transition-all duration-200 active:scale-95"
+            style={{
+              backgroundColor: "#97b64c",
+              color: "#ffffff",
+              fontFamily: "'DM Sans', sans-serif",
+              boxShadow: "0 4px 20px rgba(151,182,76,0.3)",
+            }}
           >
             Find a Branch Near You →
           </Link>
         </Reveal>
       </section>
 
-      {/* ── KEYFRAMES — injected via style tag ── */}
+      {/* ── BOTTOM CTA ── */}
+      <section style={{ backgroundColor: "#f7f9f3", borderTop: "1px solid #e8f0dc" }} className="py-14">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div>
+            <h2
+              className="text-3xl font-bold"
+              style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}
+            >
+              Can't decide? 🧋
+            </h2>
+            <p
+              className="text-sm mt-1"
+              style={{ color: "#7a8a6a", fontFamily: "'DM Sans', sans-serif" }}
+            >
+              Visit a branch — our crew will help you find your new favorite.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/locations"
+              className="font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200 active:scale-95"
+              style={{
+                backgroundColor: "#97b64c",
+                color: "#ffffff",
+                fontFamily: "'DM Sans', sans-serif",
+                boxShadow: "0 4px 16px rgba(151,182,76,0.25)",
+              }}
+            >
+              Find a Branch
+            </Link>
+            <Link
+              to="/franchise#inquiry"
+              className="font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200"
+              style={{
+                border: "1.5px solid #97b64c",
+                color: "#62840b",
+                backgroundColor: "transparent",
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+            >
+              Franchise Now →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── KEYFRAMES ── */}
       <style>{`
         @keyframes marquee-left {
           0%   { transform: translateX(0); }
@@ -538,37 +546,6 @@ export default function Products() {
           100% { transform: translateX(0); }
         }
       `}</style>
-
-      {/* ── BOTTOM CTA ── */}
-      <section className="bg-[#f5f8ef] border-t border-[#d0e0b0] py-14">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-6">
-          <div>
-            <h2 className="text-3xl font-bold text-[#1e1e1e]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-              Can't decide? 🧋
-            </h2>
-            <p className="text-[#5a5a5a] text-sm mt-1" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-              Visit a branch — our crew will help you find your new favorite.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              to="/locations"
-              className="bg-[#97b64c] hover:bg-[#62840b] text-white font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200 shadow-md active:scale-95"
-              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
-            >
-              Find a Branch
-            </Link>
-            <Link
-              to="/franchise#inquiry"
-              className="border border-[#97b64c] text-[#97b64c] hover:bg-[#e8f0dc] font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200"
-              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
-            >
-              Franchise Now →
-            </Link>
-          </div>
-        </div>
-      </section>
-
     </main>
   );
 }
