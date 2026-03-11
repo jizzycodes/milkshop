@@ -27,7 +27,7 @@ const topDrinks = [
     id: 2,
     name: "Signature Taiwanese Milk Tea",
     tag: "Classic",
-    tagColor: "bg-[#5A9216] text-white",
+    tagColor: "bg-[#97b64c] text-white",
     description: "The purest expression of Taiwan milk tea. Smooth, clean, and perfectly balanced.",
     price: "₱99",
     imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A2%20Signature%20Taiwanese%20Milk%20Tea.png",
@@ -45,7 +45,7 @@ const topDrinks = [
     id: 4,
     name: "Matcha Black Sugar Pearl",
     tag: "New",
-    tagColor: "bg-[#3E6610] text-white",
+    tagColor: "bg-[#62840b] text-white",
     description: "Japanese matcha meets our signature black sugar — a bold fusion in every sip.",
     price: "₱109",
     imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A4%20Matcha%20BLACK%20SUGAR%20PEARL%20Milk%20Tea.png",
@@ -164,24 +164,24 @@ function DrinksCarousel() {
       <div className="mt-6 flex flex-col items-center text-center gap-2 px-4 min-h-[120px] transition-all duration-300">
         <span
           className={`text-[11px] font-bold px-3 py-1 rounded-full ${current.tagColor}`}
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
         >
           {current.tag}
         </span>
         <h3
-          className="text-xl sm:text-2xl font-bold text-[#1A2410]"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          className="text-xl sm:text-2xl font-bold text-[#1e1e1e]"
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
         >
           {current.name}
         </h3>
         <p
-          className="text-[#5A6B4A] text-sm max-w-xs leading-relaxed"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          className="text-[#5a5a5a] text-sm max-w-xs leading-relaxed"
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
         >
           {current.description}
         </p>
         <span
-          className="text-xl font-bold text-[#5A9216] mt-1"
+          className="text-xl font-bold text-[#97b64c] mt-1"
           style={{ fontFamily: "'DM Mono', monospace" }}
         >
           {current.price}
@@ -196,8 +196,8 @@ function DrinksCarousel() {
             onClick={() => setActive(i)}
             className={`rounded-full transition-all duration-300 ${
               i === active
-                ? "w-6 h-2 bg-[#5A9216]"
-                : "w-2 h-2 bg-[#DDE8CF] hover:bg-[#C8DFA8]"
+                ? "w-6 h-2 bg-[#97b64c]"
+                : "w-2 h-2 bg-[#d0e0b0] hover:bg-[#b7cd7f]"
             }`}
           />
         ))}
@@ -222,10 +222,10 @@ function TestimonialCarousel() {
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Quote Card */}
-      <div className="relative bg-white border border-[#DDE8CF] rounded-3xl p-8 max-w-2xl w-full shadow-sm transition-all duration-300">
+      <div className="relative bg-white border border-[#d0e0b0] rounded-3xl p-8 max-w-2xl w-full shadow-sm transition-all duration-300">
         {/* Quote mark */}
         <span
-          className="absolute -top-5 left-8 text-7xl text-[#EEF5E6] leading-none select-none font-serif"
+          className="absolute -top-5 left-8 text-7xl text-[#e8f0dc] leading-none select-none font-serif"
           aria-hidden
         >
           "
@@ -237,20 +237,20 @@ function TestimonialCarousel() {
           ))}
         </div>
         <p
-          className="text-[#1A2410] text-base leading-relaxed relative z-10"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          className="text-[#1e1e1e] text-base leading-relaxed relative z-10"
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
         >
           {t.quote}
         </p>
         <div className="flex items-center gap-3 mt-6">
-          <div className="w-10 h-10 rounded-full bg-[#EEF5E6] flex items-center justify-center text-xl">
+          <div className="w-10 h-10 rounded-full bg-[#e8f0dc] flex items-center justify-center text-xl">
             {t.avatar}
           </div>
           <div>
-            <p className="font-bold text-[#1A2410] text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="font-bold text-[#1e1e1e] text-sm" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               {t.name}
             </p>
-            <p className="text-[#5A6B4A] text-xs" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#5a5a5a] text-xs" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               {t.role}
             </p>
           </div>
@@ -264,7 +264,7 @@ function TestimonialCarousel() {
             key={i}
             onClick={() => setActive(i)}
             className={`rounded-full transition-all duration-300 ${
-              i === active ? "w-6 h-2 bg-[#5A9216]" : "w-2 h-2 bg-[#DDE8CF] hover:bg-[#C8DFA8]"
+              i === active ? "w-6 h-2 bg-[#97b64c]" : "w-2 h-2 bg-[#d0e0b0] hover:bg-[#b7cd7f]"
             }`}
           />
         ))}
@@ -285,16 +285,16 @@ export default function Home() {
       </Reveal>
 
       {/* ── HIGHLIGHTS STRIP ── */}
-      <Reveal as="section" className="bg-[#5A9216] py-5">
+      <Reveal as="section" className="bg-[#97b64c] py-5">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-2 lg:grid-cols-4 gap-4">
           {highlights.map((h) => (
             <div key={h.label} className="flex items-center gap-3">
               <span className="text-2xl">{h.icon}</span>
               <div>
-                <p className="text-white text-sm font-bold leading-tight" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-white text-sm font-bold leading-tight" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   {h.label}
                 </p>
-                <p className="text-green-200 text-xs leading-tight" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-green-200 text-xs leading-tight" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   {h.sub}
                 </p>
               </div>
@@ -308,17 +308,17 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
-              <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                 Top 5 Picks
               </p>
-              <h2 className="text-4xl lg:text-5xl font-bold text-[#1A2410] leading-tight" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              <h2 className="text-4xl lg:text-5xl font-bold text-[#1e1e1e] leading-tight" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                 Fan Favorites
               </h2>
             </div>
             <Link
               to="/products"
-              className="text-sm font-semibold text-[#5A9216] hover:text-[#3E6610] transition-colors"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              className="text-sm font-semibold text-[#97b64c] hover:text-[#62840b] transition-colors"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
             >
               View Full Menu →
             </Link>
@@ -328,7 +328,7 @@ export default function Home() {
       </Reveal>
 
       {/* ── INVESTOR STATS BAR ── */}
-      <Reveal as="section" className="bg-[#1A2410] py-12">
+      <Reveal as="section" className="bg-[#1e1e1e] py-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
           {investorStats.map((s, i) => (
             <Reveal key={s.label} as="div" delay={i * 60} className="flex flex-col items-center gap-1">
@@ -340,8 +340,8 @@ export default function Home() {
                 {s.value}
               </span>
               <span
-                className="text-[#C8DFA8] text-xs tracking-widest uppercase"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
+                className="text-[#b7cd7f] text-xs tracking-widest uppercase"
+                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
               >
                 {s.label}
               </span>
@@ -351,36 +351,36 @@ export default function Home() {
       </Reveal>
 
       {/* ── BRAND STORY ── */}
-      <Reveal as="section" className="bg-[#F7F9F4] border-y border-[#DDE8CF] py-20">
+      <Reveal as="section" className="bg-[#f5f8ef] border-y border-[#d0e0b0] py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center gap-12">
           <Reveal as="div" className="flex-1 flex justify-center" delay={40}>
             <div className="relative w-72 h-72 lg:w-80 lg:h-80">
-              <div className="absolute inset-0 rounded-[40px] bg-[#EEF5E6] rotate-6" />
-              <div className="absolute inset-0 rounded-[40px] bg-[#C8DFA8] -rotate-3 opacity-50" />
-              <div className="absolute inset-0 rounded-[40px] bg-white border border-[#DDE8CF] flex flex-col items-center justify-center gap-3 shadow-sm">
+              <div className="absolute inset-0 rounded-[40px] bg-[#e8f0dc] rotate-6" />
+              <div className="absolute inset-0 rounded-[40px] bg-[#b7cd7f] -rotate-3 opacity-50" />
+              <div className="absolute inset-0 rounded-[40px] bg-white border border-[#d0e0b0] flex flex-col items-center justify-center gap-3 shadow-sm">
                 <img src={logo} alt="Milkshop logo" className="w-20 h-20 object-contain" />
                 <div className="text-center">
-                  <p className="font-bold text-[#1A2410] text-lg" style={{ fontFamily: "'DM Sans', sans-serif" }}>Milkshop</p>
-                  <p className="text-[#5A6B4A] text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>秘客侠 · Est. Taiwan</p>
+                  <p className="font-bold text-[#1e1e1e] text-lg" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>Milkshop</p>
+                  <p className="text-[#5a5a5a] text-sm" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>秘客侠 · Est. Taiwan</p>
                 </div>
               </div>
             </div>
           </Reveal>
           <Reveal as="div" className="flex-1 flex flex-col gap-5" delay={80}>
-            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Our Story
             </p>
-            <h2 className="text-4xl lg:text-5xl font-bold text-[#1A2410] leading-tight" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <h2 className="text-4xl lg:text-5xl font-bold text-[#1e1e1e] leading-tight" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Born in Taiwan. <br />
-              <span className="text-[#5A9216]">Loved in Manila.</span>
+              <span className="text-[#97b64c]">Loved in Manila.</span>
             </h2>
-            <p className="text-[#5A6B4A] text-base leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#5a5a5a] text-base leading-relaxed" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Milkshop 秘客侠 is the first Taiwanese brand to bring Popping Boba milk products to the Philippines. Every cup carries the authenticity of Taiwan's iconic bubble tea culture — crafted with real milk, natural flavors, and our signature boba that bursts with every sip.
             </p>
             <Link
               to="/about"
-              className="self-start border border-[#5A9216] text-[#5A9216] hover:bg-[#EEF5E6] font-semibold text-sm px-6 py-3 rounded-full transition-all duration-200"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              className="self-start border border-[#97b64c] text-[#97b64c] hover:bg-[#e8f0dc] font-semibold text-sm px-6 py-3 rounded-full transition-all duration-200"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
             >
               Learn More About Us
             </Link>
@@ -392,19 +392,19 @@ export default function Home() {
       <Reveal as="section" className="bg-white py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-10">
-            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Behind Every Cup
             </p>
-            <h2 className="text-4xl lg:text-5xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <h2 className="text-4xl lg:text-5xl font-bold text-[#1e1e1e]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Crafted With Precision
             </h2>
-            <p className="text-[#5A6B4A] text-base max-w-lg mx-auto mt-3 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#5a5a5a] text-base max-w-lg mx-auto mt-3 leading-relaxed" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               From our factory in Taiwan to every cup we serve — see how Milkshop ensures quality in every sip.
             </p>
           </div>
 
           {/* Video Placeholder — replace src with actual video URL */}
-          <div className="relative rounded-3xl overflow-hidden bg-[#1A2410] aspect-video max-w-4xl mx-auto shadow-2xl">
+          <div className="relative rounded-3xl overflow-hidden bg-[#1e1e1e] aspect-video max-w-4xl mx-auto shadow-2xl">
             {/* 
               TO ADD VIDEO: Replace this div with:
               <video
@@ -426,105 +426,44 @@ export default function Home() {
                 </svg>
               </div>
               <div className="text-center">
-                <p className="text-white font-bold text-lg" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-white font-bold text-lg" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   Factory & Tea-Making Process
                 </p>
-                <p className="text-white/50 text-sm mt-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-white/50 text-sm mt-1" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   Video coming soon — replace placeholder in Home.jsx
                 </p>
               </div>
             </div>
             {/* Decorative overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#1A2410]/80 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1e1e1e]/80 via-transparent to-transparent pointer-events-none" />
           </div>
         </div>
       </Reveal>
 
-      {/* ── FRANCHISE CTA BANNER ── */}
-      <Reveal as="section" className="bg-[#E8A020] py-16">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-8">
-          <Reveal as="div" className="flex flex-col gap-3">
-            <p className="text-yellow-100 text-xs font-bold tracking-widest uppercase" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Grow With Us
-            </p>
-            <h2 className="text-4xl lg:text-5xl font-bold text-white leading-tight" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Own a Milkshop. <br />
-              Build Your Future.
-            </h2>
-            <p className="text-yellow-100 text-base max-w-md" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Join the fastest-growing Taiwanese beverage brand in the Philippines. Low investment, proven system, full support — everything you need to succeed.
-            </p>
-            <ul className="flex flex-col gap-1.5 mt-1">
-              {["Proven ROI in 12–18 months", "Full training & brand support", "3 flexible franchise packages"].map((item) => (
-                <li key={item} className="flex items-center gap-2 text-white text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                  <span className="text-yellow-200 font-bold">✓</span> {item}
-                </li>
-              ))}
-            </ul>
-          </Reveal>
-          <Reveal as="div" delay={80} className="flex flex-col items-center gap-3">
-            <Link
-              to="/franchise"
-              className="shrink-0 bg-white text-[#E8A020] hover:bg-yellow-50 font-bold text-base px-10 py-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
-            >
-              Franchise Now →
-            </Link>
-            <p className="text-yellow-100 text-xs text-center" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              No experience needed. We'll train you.
-            </p>
-          </Reveal>
-        </div>
-      </Reveal>
-
       {/* ── FRANCHISEE TESTIMONIALS ── */}
-      <Reveal as="section" className="bg-[#F7F9F4] border-y border-[#DDE8CF] py-20">
+      <Reveal as="section" className="bg-[#f5f8ef] border-y border-[#d0e0b0] py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-12">
-            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               From Our Partners
             </p>
-            <h2 className="text-4xl lg:text-5xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <h2 className="text-4xl lg:text-5xl font-bold text-[#1e1e1e]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Real Stories. Real Success.
             </h2>
-            <p className="text-[#5A6B4A] text-base max-w-lg mx-auto mt-3 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#5a5a5a] text-base max-w-lg mx-auto mt-3 leading-relaxed" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Hear from the franchisees who took the leap — and haven't looked back since.
             </p>
           </div>
           <TestimonialCarousel />
           <div className="flex justify-center mt-10">
             <Link
-              to="/franchise"
-              className="bg-[#5A9216] hover:bg-[#3E6610] text-white font-semibold text-sm px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              to="/franchise#inquiry"
+              className="bg-[#97b64c] hover:bg-[#62840b] text-white font-semibold text-sm px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
             >
               Start Your Franchise Journey →
             </Link>
           </div>
-        </div>
-      </Reveal>
-
-      {/* ── LOCATIONS CTA ── */}
-      <Reveal as="section" className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 text-center flex flex-col items-center gap-6">
-          <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Find Us
-          </p>
-          <Reveal as="h2" delay={40} className="text-4xl lg:text-5xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            We're Near You 📍
-          </Reveal>
-          <Reveal as="p" delay={80} className="text-[#5A6B4A] text-base max-w-lg leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            15 branches nationwide — from Metro Manila to Mindanao. With more locations opening soon.
-          </Reveal>
-          <Reveal as="div" delay={120} className="flex flex-wrap justify-center gap-3 mt-2">
-            <Link
-              to="/locations"
-              className="bg-[#5A9216] hover:bg-[#3E6610] text-white font-semibold text-sm px-7 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
-            >
-              View All Locations
-            </Link>
-          </Reveal>
         </div>
       </Reveal>
 

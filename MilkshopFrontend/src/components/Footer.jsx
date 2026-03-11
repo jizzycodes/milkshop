@@ -7,7 +7,7 @@ const navLinks = [
   { label: "Menu",      path: "/products"  },
   { label: "Locations", path: "/locations" },
   { label: "About",     path: "/about"     },
-  { label: "Franchise", path: "/franchise" },
+  { label: "Franchise", path: "/franchise#inquiry" },
 ];
 
 const socials = [
@@ -44,7 +44,7 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0F1A09]">
+    <footer className="bg-[#1e1e1e]">
       {/* ── MAIN FOOTER BODY ── */}
       <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-14 pb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
 
@@ -58,17 +58,17 @@ export default function Footer() {
             />
             <div className="flex flex-col leading-none">
               <span className="font-bold text-white text-base tracking-tight"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                 Milkshop
               </span>
-              <span className="text-[#5A9216] text-[10px] tracking-widest uppercase">
+              <span className="text-[#97b64c] text-[10px] tracking-widest uppercase">
                 秘客侠
               </span>
             </div>
           </Link>
 
-          <p className="text-[#6B8C5A] text-sm leading-relaxed"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-[#b7cd7f] text-sm leading-relaxed"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             The first Taiwanese Popping Boba brand in the Philippines. Every cup is crafted with real milk, authentic Taiwanese recipes, and a burst of joy.
           </p>
 
@@ -77,8 +77,8 @@ export default function Footer() {
             {["🇹🇼 Taiwan Original", "🥛 Real Milk", "🫧 Popping Boba"].map((badge) => (
               <span
                 key={badge}
-                className="text-[10px] font-semibold text-[#5A9216] bg-[#5A9216]/10 border border-[#5A9216]/20 px-2.5 py-1 rounded-full"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
+                className="text-[10px] font-semibold text-[#97b64c] bg-[#97b64c]/10 border border-[#97b64c]/20 px-2.5 py-1 rounded-full"
+                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
               >
                 {badge}
               </span>
@@ -94,7 +94,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={s.label}
-                className="w-9 h-9 rounded-full border border-white/10 text-[#6B8C5A] hover:bg-[#5A9216] hover:border-[#5A9216] hover:text-white flex items-center justify-center transition-all duration-200"
+                className="w-9 h-9 rounded-full border border-white/10 text-[#b7cd7f] hover:bg-[#97b64c] hover:border-[#97b64c] hover:text-white flex items-center justify-center transition-all duration-200"
               >
                 {s.icon}
               </a>
@@ -104,8 +104,8 @@ export default function Footer() {
 
         {/* ── QUICK LINKS ── */}
         <div className="flex flex-col gap-4">
-          <h4 className="text-xs font-bold tracking-widest uppercase text-[#5A9216]"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <h4 className="text-xs font-bold tracking-widest uppercase text-[#97b64c]"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             Quick Links
           </h4>
           <ul className="flex flex-col gap-2.5">
@@ -113,10 +113,10 @@ export default function Footer() {
               <li key={link.path}>
                 <Link
                   to={link.path}
-                  className="text-[#6B8C5A] hover:text-white text-sm transition-colors duration-200 flex items-center gap-2 group"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  className="text-[#b7cd7f] hover:text-white text-sm transition-colors duration-200 flex items-center gap-2 group"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
                 >
-                  <span className="w-1 h-1 rounded-full bg-[#5A9216] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  <span className="w-1 h-1 rounded-full bg-[#97b64c] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   {link.label}
                 </Link>
               </li>
@@ -126,13 +126,13 @@ export default function Footer() {
 
         {/* ── CONTACT INFO ── */}
         <div className="flex flex-col gap-4">
-          <h4 className="text-xs font-bold tracking-widest uppercase text-[#5A9216]"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <h4 className="text-xs font-bold tracking-widest uppercase text-[#97b64c]"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             Contact Us
           </h4>
           <ul className="flex flex-col gap-4">
             <li className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#5A9216]/10 border border-[#5A9216]/20 flex items-center justify-center shrink-0 text-sm">
+              <div className="w-8 h-8 rounded-xl bg-[#97b64c]/10 border border-[#97b64c]/20 flex items-center justify-center shrink-0 text-sm">
                 📞
               </div>
               <div>
@@ -140,38 +140,38 @@ export default function Footer() {
                   style={{ fontFamily: "'DM Mono', monospace" }}>
                   0995 290 8161
                 </p>
-                <p className="text-[#6B8C5A] text-xs mt-0.5"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-[#b7cd7f] text-xs mt-0.5"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   Call or text — Mon to Sun
                 </p>
               </div>
             </li>
             <li className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#5A9216]/10 border border-[#5A9216]/20 flex items-center justify-center shrink-0 text-sm">
+              <div className="w-8 h-8 rounded-xl bg-[#97b64c]/10 border border-[#97b64c]/20 flex items-center justify-center shrink-0 text-sm">
                 📧
               </div>
               <div>
                 <p className="text-white text-sm font-semibold"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   franchise@milkshop.ph
                 </p>
-                <p className="text-[#6B8C5A] text-xs mt-0.5"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-[#b7cd7f] text-xs mt-0.5"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   Franchise inquiries
                 </p>
               </div>
             </li>
             <li className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#5A9216]/10 border border-[#5A9216]/20 flex items-center justify-center shrink-0 text-sm">
+              <div className="w-8 h-8 rounded-xl bg-[#97b64c]/10 border border-[#97b64c]/20 flex items-center justify-center shrink-0 text-sm">
                 🕐
               </div>
               <div>
                 <p className="text-white text-sm font-semibold"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   10:00 AM – 10:00 PM
                 </p>
-                <p className="text-[#6B8C5A] text-xs mt-0.5"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-[#b7cd7f] text-xs mt-0.5"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   Daily, including holidays
                 </p>
               </div>
@@ -181,13 +181,13 @@ export default function Footer() {
 
         {/* ── FRANCHISE COLUMN ── */}
         <div className="flex flex-col gap-4">
-          <h4 className="text-xs font-bold tracking-widest uppercase text-[#5A9216]"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <h4 className="text-xs font-bold tracking-widest uppercase text-[#97b64c]"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             Franchise
           </h4>
-          <div className="bg-[#5A9216]/10 border border-[#5A9216]/20 rounded-2xl p-4 flex flex-col gap-3">
+          <div className="bg-[#97b64c]/10 border border-[#97b64c]/20 rounded-2xl p-4 flex flex-col gap-3">
             <p className="text-white text-sm font-bold"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Own a branch in your city.
             </p>
             <ul className="flex flex-col gap-2">
@@ -197,17 +197,17 @@ export default function Footer() {
                 "Exclusive territory",
                 "Full training & support",
               ].map((item) => (
-                <li key={item} className="flex items-center gap-2 text-[#6B8C5A] text-xs"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                  <span className="text-[#5A9216] font-bold shrink-0">✓</span>
+                <li key={item} className="flex items-center gap-2 text-[#b7cd7f] text-xs"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+                  <span className="text-[#97b64c] font-bold shrink-0">✓</span>
                   {item}
                 </li>
               ))}
             </ul>
             <Link
-              to="/franchise"
+              to="/franchise#inquiry"
               className="mt-1 w-full text-center bg-[#E8A020] hover:bg-[#CF8E18] text-white font-bold text-xs py-2.5 rounded-xl transition-all duration-200 active:scale-95"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
             >
               Learn More →
             </Link>
@@ -220,18 +220,18 @@ export default function Footer() {
 
       {/* ── BOTTOM BAR ── */}
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p className="text-[#3A5A2A] text-xs"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <p className="text-[#5a5a5a] text-xs"
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
           © {new Date().getFullYear()} Milkshop 秘客侠 Philippines. All rights reserved.
         </p>
         <div className="flex items-center gap-3">
-          <span className="text-[#3A5A2A] text-xs"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <span className="text-[#5a5a5a] text-xs"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             🇹🇼 Taiwanese Original
           </span>
-          <span className="text-[#3A5A2A]">·</span>
-          <span className="text-[#3A5A2A] text-xs"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <span className="text-[#5a5a5a]">·</span>
+          <span className="text-[#5a5a5a] text-xs"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             🇵🇭 Proudly in the Philippines
           </span>
         </div>

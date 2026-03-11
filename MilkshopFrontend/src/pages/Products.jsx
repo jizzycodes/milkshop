@@ -28,7 +28,7 @@ const products = [
     description: "The purest expression of Taiwan milk tea. Smooth, clean, and perfectly balanced.",
     price: 99,
     tag: "Classic",
-    tagColor: "bg-[#5A9216] text-white",
+    tagColor: "bg-[#97b64c] text-white",
     popular: false,
     imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A2%20Signature%20Taiwanese%20Milk%20Tea.png",
   },
@@ -49,7 +49,7 @@ const products = [
     description: "Japanese matcha meets our signature black sugar. Bold, earthy, and unforgettable.",
     price: 109,
     tag: "New",
-    tagColor: "bg-[#3E6610] text-white",
+    tagColor: "bg-[#62840b] text-white",
     popular: true,
     imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A4%20Matcha%20BLACK%20SUGAR%20PEARL%20Milk%20Tea.png",
   },
@@ -113,7 +113,7 @@ const products = [
     description: "Concord grape base with juicy grape-filled boba pearls. Bold and refreshing.",
     price: 115,
     tag: "New",
-    tagColor: "bg-[#5A9216] text-white",
+    tagColor: "bg-[#97b64c] text-white",
     popular: false,
     imageUrl: null,
   },
@@ -243,10 +243,10 @@ function ProductCard({ product, index }) {
     <Reveal
       as="div"
       delay={index * 40}
-      className="group bg-white rounded-3xl border border-[#DDE8CF] overflow-hidden flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+      className="group bg-white rounded-3xl border border-[#d0e0b0] overflow-hidden flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
     >
       {/* Image / Placeholder */}
-      <div className="relative h-52 overflow-hidden bg-[#F7F9F4]">
+      <div className="relative h-52 overflow-hidden bg-[#f5f8ef]">
         {product.imageUrl ? (
           <img
             src={product.imageUrl}
@@ -254,13 +254,13 @@ function ProductCard({ product, index }) {
             className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500 drop-shadow-md"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[#EEF5E6] via-[#C8DFA8]/30 to-[#F7F9F4] flex flex-col items-center justify-center gap-2 group-hover:from-[#DDE8CF]/60 transition-all duration-500">
-            <div className="w-12 h-12 rounded-2xl bg-white/80 border border-[#DDE8CF] flex items-center justify-center shadow-sm">
-              <svg className="w-6 h-6 text-[#C8DFA8]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+          <div className="w-full h-full bg-gradient-to-br from-[#e8f0dc] via-[#b7cd7f]/30 to-[#f5f8ef] flex flex-col items-center justify-center gap-2 group-hover:from-[#d0e0b0]/60 transition-all duration-500">
+            <div className="w-12 h-12 rounded-2xl bg-white/80 border border-[#d0e0b0] flex items-center justify-center shadow-sm">
+              <svg className="w-6 h-6 text-[#b7cd7f]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 19.5h16.5M3 7.5h18" />
               </svg>
             </div>
-            <p className="text-[#C8DFA8] text-[11px] font-medium" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#b7cd7f] text-[11px] font-medium" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Photo coming soon
             </p>
           </div>
@@ -270,7 +270,7 @@ function ProductCard({ product, index }) {
         {product.tag && (
           <span
             className={`absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm ${product.tagColor}`}
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
           >
             {product.tag}
           </span>
@@ -286,21 +286,21 @@ function ProductCard({ product, index }) {
       <div className="p-4 flex flex-col gap-2 flex-1">
         <div className="flex items-start justify-between gap-2">
           <h3
-            className="text-sm font-bold text-[#1A2410] leading-snug flex-1"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
+            className="text-sm font-bold text-[#1e1e1e] leading-snug flex-1"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
           >
             {product.name}
           </h3>
           <span
-            className="text-base font-bold text-[#5A9216] shrink-0"
+            className="text-base font-bold text-[#97b64c] shrink-0"
             style={{ fontFamily: "'DM Mono', monospace" }}
           >
             ₱{product.price}
           </span>
         </div>
         <p
-          className="text-[#5A6B4A] text-xs leading-relaxed flex-1"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          className="text-[#5a5a5a] text-xs leading-relaxed flex-1"
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
         >
           {product.description}
         </p>
@@ -314,7 +314,7 @@ function FeedbackCard({ fb }) {
   // If cardPhoto is set — show as screenshot image card
   if (fb.cardPhoto) {
     return (
-      <div className="shrink-0 w-64 rounded-3xl overflow-hidden border border-[#DDE8CF] shadow-sm bg-white">
+      <div className="shrink-0 w-64 rounded-3xl overflow-hidden border border-[#d0e0b0] shadow-sm bg-white">
         <img
           src={fb.cardPhoto}
           alt={`${fb.name} review`}
@@ -326,7 +326,7 @@ function FeedbackCard({ fb }) {
 
   // Text review card
   return (
-    <div className="shrink-0 w-72 bg-white border border-[#DDE8CF] rounded-3xl p-5 flex flex-col gap-3 shadow-sm">
+    <div className="shrink-0 w-72 bg-white border border-[#d0e0b0] rounded-3xl p-5 flex flex-col gap-3 shadow-sm">
       {/* Stars */}
       <div className="flex gap-0.5">
         {Array.from({ length: fb.stars }).map((_, i) => (
@@ -335,29 +335,29 @@ function FeedbackCard({ fb }) {
       </div>
       {/* Comment */}
       <p
-        className="text-[#1A2410] text-sm leading-relaxed flex-1"
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
+        className="text-[#1e1e1e] text-sm leading-relaxed flex-1"
+        style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
       >
         "{fb.comment}"
       </p>
       {/* Author */}
-      <div className="flex items-center gap-2.5 pt-1 border-t border-[#DDE8CF]">
+      <div className="flex items-center gap-2.5 pt-1 border-t border-[#d0e0b0]">
         {fb.photo ? (
           <img
             src={fb.photo}
             alt={fb.name}
-            className="w-8 h-8 rounded-full object-cover border border-[#DDE8CF]"
+            className="w-8 h-8 rounded-full object-cover border border-[#d0e0b0]"
           />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-[#EEF5E6] border border-[#DDE8CF] flex items-center justify-center text-base shrink-0">
+          <div className="w-8 h-8 rounded-full bg-[#e8f0dc] border border-[#d0e0b0] flex items-center justify-center text-base shrink-0">
             🧋
           </div>
         )}
         <div>
-          <p className="text-[#1A2410] text-xs font-bold" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-[#1e1e1e] text-xs font-bold" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             {fb.name}
           </p>
-          <p className="text-[#5A6B4A] text-[10px]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-[#5a5a5a] text-[10px]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             {fb.handle}
           </p>
         </div>
@@ -379,21 +379,21 @@ export default function Products() {
     <main className="bg-white min-h-screen">
 
       {/* ── PAGE HEADER ── */}
-      <section className="relative bg-[#1A2410] py-24 overflow-hidden">
-        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-[#5A9216]/10 pointer-events-none" />
+      <section className="relative bg-[#1e1e1e] py-24 overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-[#97b64c]/10 pointer-events-none" />
         <div className="absolute -bottom-24 -left-12 w-64 h-64 rounded-full bg-[#E8A020]/10 pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 flex flex-col items-center text-center gap-5 z-10">
-          <span className="bg-[#5A9216]/20 text-[#C8DFA8] text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <span className="bg-[#97b64c]/20 text-[#b7cd7f] text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             🧋 Our Menu
           </span>
           <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             Every Sip, Crafted<br />
-            <span className="text-[#5A9216]">Just for You.</span>
+            <span className="text-[#97b64c]">Just for You.</span>
           </h1>
-          <p className="text-[#C8DFA8] text-base max-w-lg leading-relaxed"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-[#b7cd7f] text-base max-w-lg leading-relaxed"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             From classic milk teas to our signature Taiwanese Popping Boba — explore every flavor crafted with real milk, real ingredients, real love.
           </p>
           {/* Quick category pills in hero */}
@@ -402,8 +402,8 @@ export default function Products() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className="bg-white/10 hover:bg-[#5A9216] text-[#C8DFA8] hover:text-white border border-white/10 hover:border-[#5A9216] text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
+                className="bg-white/10 hover:bg-[#97b64c] text-[#b7cd7f] hover:text-white border border-white/10 hover:border-[#97b64c] text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200"
+                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
               >
                 {cat}
               </button>
@@ -413,7 +413,7 @@ export default function Products() {
       </section>
 
       {/* ── CATEGORY FILTER ── */}
-      <section className="sticky top-[64px] z-40 bg-white border-b border-[#DDE8CF] py-4 shadow-sm">
+      <section className="sticky top-[64px] z-40 bg-white border-b border-[#d0e0b0] py-4 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center gap-2 overflow-x-auto scrollbar-none">
           {categories.map((cat) => (
             <button
@@ -421,15 +421,15 @@ export default function Products() {
               onClick={() => setActiveCategory(cat)}
               className={`shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                 activeCategory === cat
-                  ? "bg-[#5A9216] text-white shadow-sm"
-                  : "bg-[#F7F9F4] text-[#5A6B4A] border border-[#DDE8CF] hover:border-[#5A9216] hover:text-[#5A9216]"
+                  ? "bg-[#97b64c] text-white shadow-sm"
+                  : "bg-[#f5f8ef] text-[#5a5a5a] border border-[#d0e0b0] hover:border-[#97b64c] hover:text-[#97b64c]"
               }`}
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
             >
               {cat}
             </button>
           ))}
-          <span className="ml-auto shrink-0 text-xs text-[#5A6B4A] font-medium bg-[#F7F9F4] border border-[#DDE8CF] px-3 py-1.5 rounded-full"
+          <span className="ml-auto shrink-0 text-xs text-[#5a5a5a] font-medium bg-[#f5f8ef] border border-[#d0e0b0] px-3 py-1.5 rounded-full"
             style={{ fontFamily: "'DM Mono', monospace" }}>
             {filtered.length} items
           </span>
@@ -437,12 +437,12 @@ export default function Products() {
       </section>
 
       {/* ── PRODUCT GRID ── */}
-      <section className="py-16 bg-[#F7F9F4]">
+      <section className="py-16 bg-[#f5f8ef]">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           {filtered.length === 0 ? (
             <div className="text-center py-24 flex flex-col items-center gap-3">
               <span className="text-4xl">🧋</span>
-              <p className="text-[#1A2410] font-bold" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              <p className="text-[#1e1e1e] font-bold" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                 No items found
               </p>
             </div>
@@ -457,20 +457,20 @@ export default function Products() {
       </section>
 
       {/* ── CUSTOMER FEEDBACKS ── */}
-      <section className="bg-[#1A2410] py-20 overflow-hidden">
+      <section className="bg-[#1e1e1e] py-20 overflow-hidden">
 
         {/* Header */}
         <Reveal as="div" className="text-center mb-12 px-6">
-          <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             What People Are Saying
           </p>
           <h2 className="text-4xl lg:text-5xl font-bold text-white"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             Real Sips. Real Love. 🧋
           </h2>
-          <p className="text-[#C8DFA8] text-base max-w-lg mx-auto mt-3 leading-relaxed"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-[#b7cd7f] text-base max-w-lg mx-auto mt-3 leading-relaxed"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             Thousands of Milkshop fans across the Philippines — here's what they're saying.
           </p>
         </Reveal>
@@ -478,9 +478,9 @@ export default function Products() {
         {/* ── ROW 1 — scrolls LEFT ── */}
         <div className="relative mb-4">
           {/* Left fade */}
-          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#1A2410] to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#1e1e1e] to-transparent z-10 pointer-events-none" />
           {/* Right fade */}
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#1A2410] to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#1e1e1e] to-transparent z-10 pointer-events-none" />
 
           <div
             className="flex gap-4 w-max"
@@ -497,8 +497,8 @@ export default function Products() {
         {/* ── ROW 2 — scrolls RIGHT ── */}
         <div className="relative mt-4">
           {/* Fades */}
-          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#1A2410] to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#1A2410] to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#1e1e1e] to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#1e1e1e] to-transparent z-10 pointer-events-none" />
 
           <div
             className="flex gap-4 w-max"
@@ -514,13 +514,13 @@ export default function Products() {
 
         {/* Pause on hover note + CTA */}
         <Reveal as="div" className="text-center mt-12 px-6">
-          <p className="text-[#5A6B4A] text-xs mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-[#5a5a5a] text-xs mb-6" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             Join thousands of happy customers across the Philippines.
           </p>
           <Link
             to="/locations"
-            className="inline-block bg-[#5A9216] hover:bg-[#3E6610] text-white font-bold text-sm px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
+            className="inline-block bg-[#97b64c] hover:bg-[#62840b] text-white font-bold text-sm px-8 py-3.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
           >
             Find a Branch Near You →
           </Link>
@@ -540,28 +540,28 @@ export default function Products() {
       `}</style>
 
       {/* ── BOTTOM CTA ── */}
-      <section className="bg-[#F7F9F4] border-t border-[#DDE8CF] py-14">
+      <section className="bg-[#f5f8ef] border-t border-[#d0e0b0] py-14">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-6">
           <div>
-            <h2 className="text-3xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <h2 className="text-3xl font-bold text-[#1e1e1e]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Can't decide? 🧋
             </h2>
-            <p className="text-[#5A6B4A] text-sm mt-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#5a5a5a] text-sm mt-1" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Visit a branch — our crew will help you find your new favorite.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link
               to="/locations"
-              className="bg-[#5A9216] hover:bg-[#3E6610] text-white font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200 shadow-md active:scale-95"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              className="bg-[#97b64c] hover:bg-[#62840b] text-white font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200 shadow-md active:scale-95"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
             >
               Find a Branch
             </Link>
             <Link
-              to="/franchise"
-              className="border border-[#5A9216] text-[#5A9216] hover:bg-[#EEF5E6] font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              to="/franchise#inquiry"
+              className="border border-[#97b64c] text-[#97b64c] hover:bg-[#e8f0dc] font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
             >
               Franchise Now →
             </Link>

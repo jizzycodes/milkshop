@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import logo from "../assets/milkshop-logo.png";
 
 // Regular nav links — Franchise is handled separately as a CTA button
 const navLinks = [
@@ -36,7 +35,7 @@ export default function Navbar() {
   return (
     <>
       {/* ── TOP BRAND BAR (scrolling promos) ── */}
-      <div className="bg-[#1A2410] text-[#C8DFA8] text-xs py-2 font-medium tracking-widest uppercase overflow-hidden">
+      <div className="bg-[#1e1e1e] text-[#b7cd7f] text-xs py-2 font-medium tracking-widest uppercase overflow-hidden">
         <div className="flex animate-nav-marquee whitespace-nowrap">
           {[...PROMO_MESSAGES, ...PROMO_MESSAGES].map((msg, i) => (
             <span key={i} className="mx-8 inline-block">
@@ -57,30 +56,23 @@ export default function Navbar() {
       <nav
         className={`sticky top-0 z-50 w-full transition-all duration-300 ${
           scrolled
-            ? "bg-white/95 backdrop-blur-md shadow-md border-b border-[#DDE8CF]"
-            : "bg-white border-b border-[#DDE8CF]"
+            ? "bg-white/95 backdrop-blur-md shadow-md border-b border-[#d0e0b0]"
+            : "bg-white border-b border-[#d0e0b0]"
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-16 gap-6">
 
-          {/* ── LOGO ── */}
-          <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+          {/* ── LOGO (clickable; standard ~60–70% of bar height, with spacing) ── */}
+          <Link
+            to="/"
+            className="flex items-center justify-center shrink-0 mr-6 group"
+            aria-label="Milkshop home"
+          >
             <img
-              src={logo}
-              alt="Milkshop logo"
-              className="w-9 h-9 object-contain transition-transform duration-200 group-hover:scale-110 group-hover:-translate-y-0.5"
+              src="/logo-landscape.png"
+              alt="Milkshop"
+              className="h-10 w-auto max-h-12 object-contain object-left sm:h-11 block transition-transform duration-200 group-hover:scale-[1.02]"
             />
-            <div className="flex flex-col leading-none">
-              <span
-                className="font-bold text-[#1A2410] text-base tracking-tight"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              >
-                Milkshop
-              </span>
-              <span className="text-[#5A6B4A] text-[10px] tracking-widest uppercase">
-                秘客侠
-              </span>
-            </div>
           </Link>
 
           {/* ── DESKTOP NAV ── */}
@@ -93,14 +85,14 @@ export default function Navbar() {
                     to={link.path}
                     className={`relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 ${
                       isActive
-                        ? "text-[#5A9216] bg-[#EEF5E6]"
-                        : "text-[#5A6B4A] hover:text-[#5A9216] hover:bg-[#EEF5E6]"
+                        ? "text-[#97b64c] bg-[#e8f0dc]"
+                        : "text-[#5a5a5a] hover:text-[#97b64c] hover:bg-[#e8f0dc]"
                     }`}
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}
+                    style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
                   >
                     {link.label}
                     {isActive && (
-                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#5A9216]" />
+                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#97b64c]" />
                     )}
                   </Link>
                 </li>
@@ -111,13 +103,13 @@ export default function Navbar() {
           {/* ── FRANCHISE CTA BUTTON (desktop) ── */}
           <div className="hidden md:flex items-center shrink-0">
             <Link
-              to="/franchise"
+              to="/franchise#inquiry"
               className={`relative group flex items-center gap-2 font-bold text-sm px-5 py-2.5 rounded-full transition-all duration-200 active:scale-95 ${
                 isFranchise
                   ? "bg-[#CF8E18] text-white shadow-md"
                   : "bg-[#E8A020] hover:bg-[#CF8E18] text-white shadow-md hover:shadow-lg"
               }`}
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
             >
               {/* Ping ring — only when NOT already on franchise page */}
               {!isFranchise && (
@@ -131,12 +123,12 @@ export default function Navbar() {
           {/* ── MOBILE HAMBURGER ── */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden flex flex-col justify-center items-center gap-1.5 w-10 h-10 rounded-full hover:bg-[#EEF5E6] transition-colors shrink-0"
+            className="md:hidden flex flex-col justify-center items-center gap-1.5 w-10 h-10 rounded-full hover:bg-[#e8f0dc] transition-colors shrink-0"
             aria-label="Toggle menu"
           >
-            <span className={`block w-5 h-0.5 bg-[#1A2410] transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
-            <span className={`block w-5 h-0.5 bg-[#1A2410] transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
-            <span className={`block w-5 h-0.5 bg-[#1A2410] transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+            <span className={`block w-5 h-0.5 bg-[#1e1e1e] transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
+            <span className={`block w-5 h-0.5 bg-[#1e1e1e] transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
+            <span className={`block w-5 h-0.5 bg-[#1e1e1e] transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
           </button>
         </div>
 
@@ -146,7 +138,7 @@ export default function Navbar() {
             menuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="bg-white border-t border-[#DDE8CF] px-6 py-4 flex flex-col gap-1">
+          <div className="bg-white border-t border-[#d0e0b0] px-6 py-4 flex flex-col gap-1">
 
             {/* Regular links */}
             {navLinks.map((link) => {
@@ -157,10 +149,10 @@ export default function Navbar() {
                   to={link.path}
                   className={`px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-200 ${
                     isActive
-                      ? "bg-[#EEF5E6] text-[#5A9216]"
-                      : "text-[#5A6B4A] hover:bg-[#EEF5E6] hover:text-[#5A9216]"
+                      ? "bg-[#e8f0dc] text-[#97b64c]"
+                      : "text-[#5a5a5a] hover:bg-[#e8f0dc] hover:text-[#97b64c]"
                   }`}
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
                 >
                   {link.label}
                 </Link>
@@ -168,11 +160,11 @@ export default function Navbar() {
             })}
 
             {/* Franchise CTA — highlighted in mobile menu */}
-            <div className="mt-3 pt-3 border-t border-[#DDE8CF]">
+            <div className="mt-3 pt-3 border-t border-[#d0e0b0]">
               <Link
-                to="/franchise"
+                to="/franchise#inquiry"
                 className="flex items-center justify-between bg-[#E8A020] hover:bg-[#CF8E18] text-white font-bold text-sm px-5 py-3.5 rounded-2xl transition-all duration-200 active:scale-95 shadow-md"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
+                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
               >
                 <div className="flex flex-col gap-0.5">
                   <span>Franchise Now →</span>

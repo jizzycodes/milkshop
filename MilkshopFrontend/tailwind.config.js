@@ -4,18 +4,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        "green-primary": "#5A9216",
-        "green-dark": "#3E6610",
-        "green-light": "#EEF5E6",
-        "green-muted": "#C8DFA8",
+        "green-primary": "#97b64c",
+        "green-dark": "#62840b",
+        "green-light": "#b7cd7f",
+        "green-muted": "#b7cd7f",
         "amber-accent": "#E8A020",
-        "surface-bg": "#F7F9F4",
-        "border-color": "#DDE8CF",
-        "text-primary": "#1A2410",
-        "text-secondary": "#5A6B4A",
+        "surface-bg": "#f5f8ef",
+        "border-color": "#d0e0b0",
+        "text-primary": "#1e1e1e",
+        "text-secondary": "#5a5a5a",
       },
       fontFamily: {
-        sans: ["DM Sans", "sans-serif"],
+        sans: ["Signia Pro", "DM Sans", "sans-serif"],
         mono: ["DM Mono", "monospace"],
       },
       transitionTimingFunction: {

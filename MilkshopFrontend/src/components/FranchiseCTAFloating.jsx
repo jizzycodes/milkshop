@@ -38,7 +38,7 @@ export default function FranchiseCTAFloating() {
       <Link
         to="/franchise#inquiry"
         className="group flex items-center gap-2.5 bg-[#E8A020] hover:bg-[#CF8E18] text-white font-bold text-sm pl-4 pr-5 py-3.5 rounded-full shadow-lg hover:shadow-2xl active:scale-95 transition-all duration-300"
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
+        style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
       >
         {/* Pulse ring */}
         <span className="relative flex items-center justify-center shrink-0">
@@ -55,7 +55,7 @@ export default function FranchiseCTAFloating() {
         {/* Always visible label on mobile */}
         <span
           className="sm:hidden whitespace-nowrap"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
         >
           Franchise Now
         </span>

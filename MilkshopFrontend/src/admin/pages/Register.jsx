@@ -181,8 +181,8 @@ const STYLES = `
 `
 
 const REGISTER_TABS = [
-  { value: "inactive", label: "Inactive" },
   { value: "active",   label: "Active" },
+  { value: "inactive", label: "Inactive" },
 ]
 
 function statusForSubStatus(subStatus) {

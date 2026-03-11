@@ -1,5 +1,6 @@
 const { createFranchiseRequest } = require('../models/franchiseRequestModel')
 const { createLeadFromFranchisePayload } = require('../models/franchiseLeadModel')
+const { sendFranchiseConfirmation } = require('../utils/mail')
 
 function validateFranchisePayload(body) {
   const requiredFields = [
@@ -52,9 +53,23 @@ async function createFranchise(req, res, next) {
     try {
       await createLeadFromFranchisePayload(payload)
     } catch (leadErr) {
-      // Do not block the public form on lead-creation issues, but log for investigation.
       // eslint-disable-next-line no-console
       console.error('Failed to create lead from franchise request', leadErr)
+    }
+
+    // Send confirmation email to the submitter (non-blocking).
+    try {
+      const result = await sendFranchiseConfirmation(payload.email, payload.name)
+      if (result.sent) {
+        // eslint-disable-next-line no-console
+        console.log('[Franchise] Confirmation email sent to', payload.email)
+      } else {
+        // eslint-disable-next-line no-console
+        console.warn('[Franchise] Email NOT sent:', result.error || 'unknown')
+      }
+    } catch (mailErr) {
+      // eslint-disable-next-line no-console
+      console.warn('[Franchise] Email error:', mailErr.message)
     }
 
     res.status(201).json({

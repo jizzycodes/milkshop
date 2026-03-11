@@ -50,4 +50,6 @@ At minimum configure:
   - `DB_USER`
   - `DB_PASSWORD`
   - `DB_NAME` (defaults to `milkshop_backend`).
+- `GMAIL_USER` – Gmail address used to send franchise confirmation emails.
+- `GMAIL_APP_PASSWORD` – [Gmail App Password](https://support.google.com/accounts/answer/185833) for that account (not your normal password). If unset, franchise form still works but no email is sent.
 

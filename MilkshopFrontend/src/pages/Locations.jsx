@@ -25,7 +25,7 @@ const locations = [
     phone: "0995 290 8161",
     dateEstablished: "March 2022",
     tag: "Flagship",
-    tagColor: "bg-[#5A9216] text-white",
+    tagColor: "bg-[#97b64c] text-white",
     photo: null, // ← replace with your photo URL
   },
   {
@@ -82,7 +82,7 @@ const locations = [
     phone: "0995 290 8166",
     dateEstablished: "February 2023",
     tag: "New",
-    tagColor: "bg-[#5A9216] text-white",
+    tagColor: "bg-[#97b64c] text-white",
     photo: null,
   },
   {
@@ -105,7 +105,7 @@ const locations = [
     phone: "0995 290 8168",
     dateEstablished: "July 2023",
     tag: "New",
-    tagColor: "bg-[#5A9216] text-white",
+    tagColor: "bg-[#97b64c] text-white",
     photo: null,
   },
   {
@@ -151,7 +151,7 @@ const locations = [
     phone: "0995 290 8172",
     dateEstablished: "November 2023",
     tag: "New",
-    tagColor: "bg-[#5A9216] text-white",
+    tagColor: "bg-[#97b64c] text-white",
     photo: null,
   },
   {
@@ -186,7 +186,7 @@ const locations = [
     phone: "0995 290 8175",
     dateEstablished: "January 2024",
     tag: "New",
-    tagColor: "bg-[#5A9216] text-white",
+    tagColor: "bg-[#97b64c] text-white",
     photo: null,
   },
 ];
@@ -199,7 +199,7 @@ function LocationCard({ loc, index }) {
     <Reveal
       as="div"
       delay={index * 45}
-      className="group relative bg-white rounded-3xl border border-[#DDE8CF] overflow-hidden flex flex-col hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+      className="group relative bg-white rounded-3xl border border-[#d0e0b0] overflow-hidden flex flex-col hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
     >
       {/* ── PHOTO / PLACEHOLDER ── */}
       <div className="relative h-52 overflow-hidden">
@@ -211,13 +211,13 @@ function LocationCard({ loc, index }) {
           />
         ) : (
           /* Placeholder — replaced once you upload a photo */
-          <div className="w-full h-full bg-gradient-to-br from-[#EEF5E6] via-[#C8DFA8]/40 to-[#F7F9F4] flex flex-col items-center justify-center gap-2 group-hover:from-[#DDE8CF] transition-all duration-500">
-            <div className="w-14 h-14 rounded-2xl bg-white/70 border border-[#DDE8CF] flex items-center justify-center shadow-sm">
-              <svg className="w-7 h-7 text-[#C8DFA8]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+          <div className="w-full h-full bg-gradient-to-br from-[#e8f0dc] via-[#b7cd7f]/40 to-[#f5f8ef] flex flex-col items-center justify-center gap-2 group-hover:from-[#d0e0b0] transition-all duration-500">
+            <div className="w-14 h-14 rounded-2xl bg-white/70 border border-[#d0e0b0] flex items-center justify-center shadow-sm">
+              <svg className="w-7 h-7 text-[#b7cd7f]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 19.5h16.5M3 7.5h18M3 12h18" />
               </svg>
             </div>
-            <p className="text-[#C8DFA8] text-xs font-medium" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#b7cd7f] text-xs font-medium" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Photo coming soon
             </p>
           </div>
@@ -230,7 +230,7 @@ function LocationCard({ loc, index }) {
         {loc.tag && (
           <span
             className={`absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full shadow-sm ${loc.tagColor}`}
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
           >
             {loc.tag}
           </span>
@@ -238,8 +238,8 @@ function LocationCard({ loc, index }) {
 
         {/* Region pill */}
         <span
-          className="absolute top-3 right-3 text-xs font-medium bg-white/90 backdrop-blur-sm text-[#5A6B4A] border border-[#DDE8CF] px-2.5 py-1 rounded-full"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          className="absolute top-3 right-3 text-xs font-medium bg-white/90 backdrop-blur-sm text-[#5a5a5a] border border-[#d0e0b0] px-2.5 py-1 rounded-full"
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
         >
           {loc.region}
         </span>
@@ -250,8 +250,8 @@ function LocationCard({ loc, index }) {
 
         {/* Branch name */}
         <h3
-          className="font-bold text-[#1A2410] text-base leading-snug"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          className="font-bold text-[#1e1e1e] text-base leading-snug"
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
         >
           {loc.name}
         </h3>
@@ -260,40 +260,40 @@ function LocationCard({ loc, index }) {
         <div className="flex flex-col gap-2.5">
           <div className="flex items-start gap-2.5">
             <span className="text-base mt-0.5 shrink-0">📍</span>
-            <p className="text-[#5A6B4A] text-xs leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#5a5a5a] text-xs leading-relaxed" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               {loc.address}
             </p>
           </div>
           <div className="flex items-center gap-2.5">
             <span className="text-base shrink-0">🕐</span>
-            <p className="text-[#5A6B4A] text-xs" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#5a5a5a] text-xs" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               {loc.hours}
             </p>
           </div>
           <div className="flex items-center gap-2.5">
             <span className="text-base shrink-0">📞</span>
-            <p className="text-[#5A6B4A] text-xs" style={{ fontFamily: "'DM Mono', monospace" }}>
+            <p className="text-[#5a5a5a] text-xs" style={{ fontFamily: "'DM Mono', monospace" }}>
               {loc.phone}
             </p>
           </div>
           <div className="flex items-center gap-2.5">
             <span className="text-base shrink-0">📅</span>
-            <p className="text-[#5A6B4A] text-xs" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#5a5a5a] text-xs" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Est. {loc.dateEstablished}
             </p>
           </div>
         </div>
 
         {/* Divider */}
-        <div className="border-t border-[#DDE8CF]" />
+        <div className="border-t border-[#d0e0b0]" />
 
         {/* Action */}
         <a
           href={`https://maps.google.com/?q=${encodeURIComponent(loc.address)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 bg-[#5A9216] hover:bg-[#3E6610] text-white text-xs font-bold py-3 rounded-2xl transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          className="flex items-center justify-center gap-2 bg-[#97b64c] hover:bg-[#62840b] text-white text-xs font-bold py-3 rounded-2xl transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md"
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -323,23 +323,23 @@ export default function Locations() {
     <main className="bg-white min-h-screen">
 
       {/* ── HERO HEADER ── */}
-      <section className="relative bg-[#1A2410] py-24 overflow-hidden">
+      <section className="relative bg-[#1e1e1e] py-24 overflow-hidden">
         {/* Decorative blobs */}
-        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-[#5A9216]/10 pointer-events-none" />
+        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-[#97b64c]/10 pointer-events-none" />
         <div className="absolute -bottom-24 -left-12 w-64 h-64 rounded-full bg-[#E8A020]/10 pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 flex flex-col items-center text-center gap-6 z-10">
-          <span className="bg-[#5A9216]/20 text-[#C8DFA8] text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <span className="bg-[#97b64c]/20 text-[#b7cd7f] text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             📍 Find Us
           </span>
           <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             We're All Over<br />
-            <span className="text-[#5A9216]">the Philippines.</span>
+            <span className="text-[#97b64c]">the Philippines.</span>
           </h1>
-          <p className="text-[#C8DFA8] text-base max-w-lg leading-relaxed"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-[#b7cd7f] text-base max-w-lg leading-relaxed"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
             {locations.length} branches nationwide — from Metro Manila to Mindanao. Find the nearest Milkshop to you.
           </p>
 
@@ -354,7 +354,7 @@ export default function Locations() {
                 <span className="text-3xl font-bold text-white" style={{ fontFamily: "'DM Mono', monospace" }}>
                   {s.value}
                 </span>
-                <span className="text-[#C8DFA8] text-xs uppercase tracking-widest" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <span className="text-[#b7cd7f] text-xs uppercase tracking-widest" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   {s.label}
                 </span>
               </div>
@@ -363,7 +363,7 @@ export default function Locations() {
 
           {/* Search bar */}
           <div className="relative w-full max-w-md mt-2">
-            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5A6B4A]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5a5a5a]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" />
             </svg>
             <input
@@ -371,15 +371,15 @@ export default function Locations() {
               placeholder="Search branch or city..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3.5 rounded-full border border-white/10 bg-white/10 backdrop-blur-sm text-sm text-white placeholder-[#5A6B4A] focus:outline-none focus:border-[#5A9216] focus:ring-2 focus:ring-[#5A9216]/30 transition-all"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              className="w-full pl-11 pr-4 py-3.5 rounded-full border border-white/10 bg-white/10 backdrop-blur-sm text-sm text-white placeholder-[#5a5a5a] focus:outline-none focus:border-[#97b64c] focus:ring-2 focus:ring-[#97b64c]/30 transition-all"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
             />
           </div>
         </div>
       </section>
 
       {/* ── REGION FILTER ── */}
-      <section className="sticky top-[64px] z-40 bg-white border-b border-[#DDE8CF] py-4 shadow-sm">
+      <section className="sticky top-[64px] z-40 bg-white border-b border-[#d0e0b0] py-4 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center gap-2 overflow-x-auto scrollbar-none">
           {regions.map((r) => (
             <button
@@ -387,16 +387,16 @@ export default function Locations() {
               onClick={() => setActiveRegion(r)}
               className={`shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                 activeRegion === r
-                  ? "bg-[#5A9216] text-white shadow-sm"
-                  : "bg-[#F7F9F4] text-[#5A6B4A] border border-[#DDE8CF] hover:border-[#5A9216] hover:text-[#5A9216]"
+                  ? "bg-[#97b64c] text-white shadow-sm"
+                  : "bg-[#f5f8ef] text-[#5a5a5a] border border-[#d0e0b0] hover:border-[#97b64c] hover:text-[#97b64c]"
               }`}
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
             >
               {r}
             </button>
           ))}
           <span
-            className="ml-auto shrink-0 text-xs text-[#5A6B4A] font-medium bg-[#F7F9F4] border border-[#DDE8CF] px-3 py-1.5 rounded-full"
+            className="ml-auto shrink-0 text-xs text-[#5a5a5a] font-medium bg-[#f5f8ef] border border-[#d0e0b0] px-3 py-1.5 rounded-full"
             style={{ fontFamily: "'DM Mono', monospace" }}
           >
             {filtered.length} branch{filtered.length !== 1 ? "es" : ""}
@@ -405,23 +405,23 @@ export default function Locations() {
       </section>
 
       {/* ── LOCATIONS GRID ── */}
-      <section className="py-16 bg-[#F7F9F4]">
+      <section className="py-16 bg-[#f5f8ef]">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           {filtered.length === 0 ? (
             <div className="text-center py-32 flex flex-col items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-[#EEF5E6] border border-[#DDE8CF] flex items-center justify-center text-3xl">
+              <div className="w-16 h-16 rounded-2xl bg-[#e8f0dc] border border-[#d0e0b0] flex items-center justify-center text-3xl">
                 🔍
               </div>
-              <p className="text-[#1A2410] font-bold text-lg" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              <p className="text-[#1e1e1e] font-bold text-lg" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                 No branches found
               </p>
-              <p className="text-[#5A6B4A] text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              <p className="text-[#5a5a5a] text-sm" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                 Try a different search or region filter.
               </p>
               <button
                 onClick={() => { setSearch(""); setActiveRegion("All"); }}
-                className="mt-2 text-sm font-semibold text-[#5A9216] border border-[#5A9216] px-5 py-2 rounded-full hover:bg-[#EEF5E6] transition-all duration-200"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
+                className="mt-2 text-sm font-semibold text-[#97b64c] border border-[#97b64c] px-5 py-2 rounded-full hover:bg-[#e8f0dc] transition-all duration-200"
+                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
               >
                 Clear filters
               </button>
@@ -437,28 +437,28 @@ export default function Locations() {
       </section>
 
       {/* ── FRANCHISE CTA ── */}
-      <Reveal as="section" className="bg-[#1A2410] py-20 relative overflow-hidden">
-        <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-[#5A9216]/10 pointer-events-none" />
+      <Reveal as="section" className="bg-[#1e1e1e] py-20 relative overflow-hidden">
+        <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-[#97b64c]/10 pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-10 relative z-10">
           <div className="flex flex-col gap-4">
-            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Grow With Us
             </p>
             <h2 className="text-4xl lg:text-5xl font-bold text-white leading-tight"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Don't see your city? <br />
-              <span className="text-[#5A9216]">Open a branch there.</span>
+              <span className="text-[#97b64c]">Open a branch there.</span>
             </h2>
-            <p className="text-[#C8DFA8] text-base max-w-md leading-relaxed"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#b7cd7f] text-base max-w-md leading-relaxed"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               We're actively expanding across the Philippines. Bring Milkshop to your community — and build a business you're proud of.
             </p>
             <ul className="flex flex-col gap-2 mt-1">
               {["Exclusive territory guaranteed", "Full training & brand support", "Proven 12–18 month ROI"].map((item) => (
-                <li key={item} className="flex items-center gap-2 text-[#C8DFA8] text-sm"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                  <span className="w-4 h-4 rounded-full bg-[#5A9216] flex items-center justify-center text-white text-[9px] font-bold shrink-0">✓</span>
+                <li key={item} className="flex items-center gap-2 text-[#b7cd7f] text-sm"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+                  <span className="w-4 h-4 rounded-full bg-[#97b64c] flex items-center justify-center text-white text-[9px] font-bold shrink-0">✓</span>
                   {item}
                 </li>
               ))}
@@ -466,13 +466,13 @@ export default function Locations() {
           </div>
           <div className="flex flex-col items-center gap-3 shrink-0">
             <Link
-              to="/franchise"
+              to="/franchise#inquiry"
               className="bg-[#E8A020] hover:bg-[#CF8E18] text-white font-bold text-sm px-10 py-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
             >
               Franchise Now →
             </Link>
-            <p className="text-[#5A6B4A] text-xs" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#5a5a5a] text-xs" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               No food experience required.
             </p>
           </div>

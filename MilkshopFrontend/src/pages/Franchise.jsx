@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import Reveal from "../components/Reveal"
 import { createFranchiseRequest } from "../services/api"
@@ -33,7 +33,7 @@ const packages = [
     name: "Kiosk",
     emoji: "🏪",
     tag: "Entry Level",
-    tagColor: "bg-[#C8DFA8] text-[#3E6610]",
+    tagColor: "bg-[#b7cd7f] text-[#62840b]",
     size: "4–6 sqm",
     popular: false,
     highlight: "Ideal for malls & high-foot-traffic areas",
@@ -51,7 +51,7 @@ const packages = [
     name: "In-Line Store",
     emoji: "🏬",
     tag: "Best Value",
-    tagColor: "bg-[#5A9216] text-white",
+    tagColor: "bg-[#97b64c] text-white",
     size: "15–25 sqm",
     popular: true,
     highlight: "Maximum ROI. Full brand experience.",
@@ -109,16 +109,16 @@ function Field({ label, required, error, children }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label
-        className="text-xs font-bold text-[#1A2410] uppercase tracking-widest flex items-center gap-1"
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
+        className="text-xs font-bold text-[#1e1e1e] uppercase tracking-widest flex items-center gap-1"
+        style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
       >
         {label}
-        {required && <span className="text-[#5A9216] ml-0.5">*</span>}
+        {required && <span className="text-[#97b64c] ml-0.5">*</span>}
       </label>
       {children}
       {error && (
         <p className="text-xs text-red-500 flex items-center gap-1 mt-0.5"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
           <span>⚠</span> {error}
         </p>
       )}
@@ -126,13 +126,24 @@ function Field({ label, required, error, children }) {
   );
 }
 
-const inputBase  = "w-full px-4 py-3 rounded-xl border text-sm text-[#1A2410] placeholder-[#9BA89A] focus:outline-none transition-all duration-200 bg-white";
-const inputIdle  = "border-[#DDE8CF] focus:border-[#5A9216] focus:ring-2 focus:ring-[#EEF5E6]";
+const inputBase  = "w-full px-4 py-3 rounded-xl border text-sm text-[#1e1e1e] placeholder-[#9BA89A] focus:outline-none transition-all duration-200 bg-white";
+const inputIdle  = "border-[#d0e0b0] focus:border-[#97b64c] focus:ring-2 focus:ring-[#e8f0dc]";
 const inputErr   = "border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 focus:ring-red-100";
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
+const FRANCHISE_FORM_ID = "inquiry"
+
 export default function Franchise() {
   const [openFaq, setOpenFaq] = useState(null);
+
+  // Scroll to the inquiry form when landing with #inquiry (e.g. from "Franchise Now" CTAs)
+  useEffect(() => {
+    if (window.location.hash !== `#${FRANCHISE_FORM_ID}`) return
+    const el = document.getElementById(FRANCHISE_FORM_ID)
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+  }, [])
 
   const [formData, setFormData] = useState({
     name: "", email: "", contactNumber: "", bestContactTime: "",
@@ -193,25 +204,25 @@ export default function Franchise() {
     <main className="bg-white min-h-screen">
 
       {/* ── HERO ── */}
-      <Reveal as="section" className="bg-[#1A2410] py-24 relative overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#5A9216]/10 pointer-events-none" />
+      <Reveal as="section" className="bg-[#1e1e1e] py-24 relative overflow-hidden">
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#97b64c]/10 pointer-events-none" />
         <div className="absolute -bottom-32 -left-16 w-72 h-72 rounded-full bg-[#E8A020]/10 pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center gap-14 relative z-10">
 
           {/* Copy */}
           <div className="flex-1 flex flex-col gap-6">
-            <span className="self-start bg-[#5A9216]/20 text-[#C8DFA8] text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <span className="self-start bg-[#97b64c]/20 text-[#b7cd7f] text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               🇹🇼 Franchise Opportunities
             </span>
             <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Own a Milkshop.<br />
-              <span className="text-[#5A9216]">Build Your Future.</span>
+              <span className="text-[#97b64c]">Build Your Future.</span>
             </h1>
-            <p className="text-[#C8DFA8] text-base leading-relaxed max-w-lg"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#b7cd7f] text-base leading-relaxed max-w-lg"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Join the Philippines' fastest-growing Taiwanese beverage brand. Proven system, full support, real ROI — everything you need to run a business you're proud of.
             </p>
             <ul className="flex flex-col gap-2.5 mt-1">
@@ -221,9 +232,9 @@ export default function Franchise() {
                 "Exclusive territory per franchisee",
                 "Full brand & operations support",
               ].map((item) => (
-                <li key={item} className="flex items-center gap-2.5 text-[#C8DFA8] text-sm"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                  <span className="w-5 h-5 rounded-full bg-[#5A9216] flex items-center justify-center shrink-0 text-white text-[10px] font-bold">✓</span>
+                <li key={item} className="flex items-center gap-2.5 text-[#b7cd7f] text-sm"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+                  <span className="w-5 h-5 rounded-full bg-[#97b64c] flex items-center justify-center shrink-0 text-white text-[10px] font-bold">✓</span>
                   {item}
                 </li>
               ))}
@@ -231,12 +242,12 @@ export default function Franchise() {
             <div className="flex flex-wrap gap-3 mt-2">
               <a href="#inquiry"
                 className="bg-[#E8A020] hover:bg-[#CF8E18] text-white font-bold text-sm px-8 py-3.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                 Apply Now →
               </a>
               <a href="#packages"
-                className="border border-[#5A9216] text-[#C8DFA8] hover:bg-[#5A9216]/20 font-semibold text-sm px-8 py-3.5 rounded-full transition-all duration-200"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                className="border border-[#97b64c] text-[#b7cd7f] hover:bg-[#97b64c]/20 font-semibold text-sm px-8 py-3.5 rounded-full transition-all duration-200"
+                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                 View Packages
               </a>
             </div>
@@ -257,12 +268,12 @@ export default function Franchise() {
                   style={{ fontFamily: "'DM Mono', monospace" }}>
                   {s.value}
                 </span>
-                <span className="text-[#C8DFA8] text-xs font-bold uppercase tracking-wide"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <span className="text-[#b7cd7f] text-xs font-bold uppercase tracking-wide"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   {s.label}
                 </span>
-                <span className="text-[#5A6B4A] text-xs"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <span className="text-[#5a5a5a] text-xs"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   {s.sub}
                 </span>
               </Reveal>
@@ -272,15 +283,15 @@ export default function Franchise() {
       </Reveal>
 
       {/* ── WHY MILKSHOP ── */}
-      <Reveal as="section" className="bg-[#F7F9F4] border-y border-[#DDE8CF] py-16">
+      <Reveal as="section" className="bg-[#f5f8ef] border-y border-[#d0e0b0] py-16">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-10">
-            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Why Partner With Us
             </p>
-            <h2 className="text-4xl font-bold text-[#1A2410]"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <h2 className="text-4xl font-bold text-[#1e1e1e]"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               What Makes Milkshop Different
             </h2>
           </div>
@@ -292,10 +303,10 @@ export default function Franchise() {
               { icon: "📈",  title: "Proven ROI",               desc: "Current franchisees recover investment in 12–18 months. Our model is built for profitability, not just presence." },
             ].map((w, i) => (
               <Reveal key={w.title} as="div" delay={i * 60}
-                className="bg-white border border-[#DDE8CF] rounded-3xl p-6 flex flex-col gap-3 hover:shadow-md hover:border-[#C8DFA8] transition-all duration-300">
+                className="bg-white border border-[#d0e0b0] rounded-3xl p-6 flex flex-col gap-3 hover:shadow-md hover:border-[#b7cd7f] transition-all duration-300">
                 <span className="text-4xl">{w.icon}</span>
-                <h3 className="font-bold text-[#1A2410] text-base" style={{ fontFamily: "'DM Sans', sans-serif" }}>{w.title}</h3>
-                <p className="text-[#5A6B4A] text-sm leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>{w.desc}</p>
+                <h3 className="font-bold text-[#1e1e1e] text-base" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>{w.title}</h3>
+                <p className="text-[#5a5a5a] text-sm leading-relaxed" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>{w.desc}</p>
               </Reveal>
             ))}
           </div>
@@ -306,15 +317,15 @@ export default function Franchise() {
       <Reveal as="section" id="packages" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-4">
-            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Investment Options
             </p>
-            <h2 className="text-4xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <h2 className="text-4xl font-bold text-[#1e1e1e]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Choose Your Package
             </h2>
-            <p className="text-[#5A6B4A] text-sm max-w-md mx-auto mt-3 leading-relaxed"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#5a5a5a] text-sm max-w-md mx-auto mt-3 leading-relaxed"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Three flexible packages to match your budget and goals. Inquire to receive full investment details.
             </p>
           </div>
@@ -324,65 +335,65 @@ export default function Franchise() {
             {packages.map((pkg, index) => (
               <Reveal key={pkg.id} as="div" delay={index * 80}
                 className={`relative flex flex-col rounded-3xl border overflow-hidden transition-all duration-300 hover:shadow-xl ${
-                  pkg.popular ? "border-[#5A9216] shadow-lg scale-[1.02]" : "border-[#DDE8CF] hover:border-[#C8DFA8]"
+                  pkg.popular ? "border-[#97b64c] shadow-lg scale-[1.02]" : "border-[#d0e0b0] hover:border-[#b7cd7f]"
                 }`}>
 
                 {pkg.popular && (
-                  <div className="bg-[#5A9216] text-white text-xs font-bold text-center py-2.5 tracking-widest uppercase"
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <div className="bg-[#97b64c] text-white text-xs font-bold text-center py-2.5 tracking-widest uppercase"
+                    style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                     ⭐ Most Recommended
                   </div>
                 )}
 
-                <div className="bg-[#F7F9F4] p-6 flex flex-col gap-3">
+                <div className="bg-[#f5f8ef] p-6 flex flex-col gap-3">
                   <div className="flex items-start justify-between">
                     <span className="text-5xl">{pkg.emoji}</span>
                     <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${pkg.tagColor}`}
-                      style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                       {pkg.tag}
                     </span>
                   </div>
-                  <h3 className="text-xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <h3 className="text-xl font-bold text-[#1e1e1e]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                     {pkg.name}
                   </h3>
-                  <p className="text-[#5A6B4A] text-sm italic" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <p className="text-[#5a5a5a] text-sm italic" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                     {pkg.highlight}
                   </p>
                   {/* Investment CTA — no price shown */}
-                  <div className="bg-white border border-[#DDE8CF] rounded-xl px-4 py-3 flex items-center justify-between mt-1">
-                    <span className="text-xs text-[#5A6B4A] font-medium" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <div className="bg-white border border-[#d0e0b0] rounded-xl px-4 py-3 flex items-center justify-between mt-1">
+                    <span className="text-xs text-[#5a5a5a] font-medium" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                       Investment details
                     </span>
-                    <a href="#inquiry" className="text-xs font-bold text-[#5A9216] hover:text-[#3E6610] transition-colors"
-                      style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    <a href="#inquiry" className="text-xs font-bold text-[#97b64c] hover:text-[#62840b] transition-colors"
+                      style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                       Inquire →
                     </a>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-[#5A6B4A]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <div className="flex items-center gap-2 text-xs text-[#5a5a5a]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                     <span>📐</span> {pkg.size} floor area
                   </div>
                 </div>
 
                 <div className="bg-white p-6 flex flex-col gap-4 flex-1">
-                  <p className="text-xs font-bold text-[#1A2410] uppercase tracking-widest"
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <p className="text-xs font-bold text-[#1e1e1e] uppercase tracking-widest"
+                    style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                     What's Included
                   </p>
                   <ul className="flex flex-col gap-2.5 flex-1">
                     {pkg.inclusions.map((inc) => (
                       <li key={inc} className="flex items-start gap-2">
-                        <span className="text-[#5A9216] font-bold text-sm mt-0.5 shrink-0">✓</span>
-                        <span className="text-[#5A6B4A] text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>{inc}</span>
+                        <span className="text-[#97b64c] font-bold text-sm mt-0.5 shrink-0">✓</span>
+                        <span className="text-[#5a5a5a] text-sm" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>{inc}</span>
                       </li>
                     ))}
                   </ul>
                   <a href="#inquiry"
                     className={`mt-3 w-full text-center font-bold text-sm py-3.5 rounded-2xl transition-all duration-200 active:scale-95 ${
                       pkg.popular
-                        ? "bg-[#5A9216] hover:bg-[#3E6610] text-white shadow-md"
-                        : "border-2 border-[#5A9216] text-[#5A9216] hover:bg-[#EEF5E6]"
+                        ? "bg-[#97b64c] hover:bg-[#62840b] text-white shadow-md"
+                        : "border-2 border-[#97b64c] text-[#97b64c] hover:bg-[#e8f0dc]"
                     }`}
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                     Apply for This Package
                   </a>
                 </div>
@@ -393,30 +404,30 @@ export default function Franchise() {
       </Reveal>
 
       {/* ── HOW IT WORKS ── */}
-      <Reveal as="section" className="py-20 bg-[#F7F9F4] border-y border-[#DDE8CF]">
+      <Reveal as="section" className="py-20 bg-[#f5f8ef] border-y border-[#d0e0b0]">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-14">
-            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               The Process
             </p>
-            <h2 className="text-4xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <h2 className="text-4xl font-bold text-[#1e1e1e]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               From Inquiry to Opening Day
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {steps.map((s, index) => (
               <Reveal key={s.step} as="div" delay={index * 70}
-                className="bg-white border border-[#DDE8CF] rounded-3xl p-6 flex flex-col gap-3 hover:shadow-md hover:border-[#C8DFA8] transition-all duration-300 relative overflow-hidden">
-                <span className="absolute -top-3 -right-1 text-8xl font-bold text-[#F7F9F4] leading-none select-none pointer-events-none"
+                className="bg-white border border-[#d0e0b0] rounded-3xl p-6 flex flex-col gap-3 hover:shadow-md hover:border-[#b7cd7f] transition-all duration-300 relative overflow-hidden">
+                <span className="absolute -top-3 -right-1 text-8xl font-bold text-[#f5f8ef] leading-none select-none pointer-events-none"
                   style={{ fontFamily: "'DM Mono', monospace" }}>
                   {s.step}
                 </span>
                 <span className="text-3xl relative z-10">{s.icon}</span>
-                <h3 className="font-bold text-[#1A2410] text-base relative z-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <h3 className="font-bold text-[#1e1e1e] text-base relative z-10" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   {s.title}
                 </h3>
-                <p className="text-[#5A6B4A] text-sm leading-relaxed relative z-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-[#5a5a5a] text-sm leading-relaxed relative z-10" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   {s.desc}
                 </p>
               </Reveal>
@@ -429,33 +440,33 @@ export default function Franchise() {
       <section className="py-20 bg-white">
         <div className="max-w-3xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-12">
-            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Common Questions
             </p>
-            <h2 className="text-4xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>FAQs</h2>
+            <h2 className="text-4xl font-bold text-[#1e1e1e]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>FAQs</h2>
           </div>
           <div className="flex flex-col gap-3">
             {faqs.map((faq, i) => (
               <div key={i}
                 className={`border rounded-2xl overflow-hidden transition-all duration-200 ${
-                  openFaq === i ? "border-[#5A9216] shadow-sm" : "border-[#DDE8CF] hover:border-[#C8DFA8]"
+                  openFaq === i ? "border-[#97b64c] shadow-sm" : "border-[#d0e0b0] hover:border-[#b7cd7f]"
                 }`}>
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className={`w-full flex items-center justify-between px-5 py-4 text-left gap-4 transition-colors duration-200 ${
-                    openFaq === i ? "bg-[#EEF5E6]" : "bg-[#F7F9F4] hover:bg-[#EEF5E6]"
+                    openFaq === i ? "bg-[#e8f0dc]" : "bg-[#f5f8ef] hover:bg-[#e8f0dc]"
                   }`}>
-                  <span className="font-semibold text-[#1A2410] text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <span className="font-semibold text-[#1e1e1e] text-sm" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                     {faq.q}
                   </span>
-                  <span className={`text-[#5A9216] text-xl font-bold shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-45" : ""}`}>
+                  <span className={`text-[#97b64c] text-xl font-bold shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-45" : ""}`}>
                     +
                   </span>
                 </button>
                 {openFaq === i && (
-                  <div className="px-5 py-4 bg-white border-t border-[#DDE8CF]">
-                    <p className="text-[#5A6B4A] text-sm leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <div className="px-5 py-4 bg-white border-t border-[#d0e0b0]">
+                    <p className="text-[#5a5a5a] text-sm leading-relaxed" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                       {faq.a}
                     </p>
                   </div>
@@ -467,25 +478,25 @@ export default function Franchise() {
       </section>
 
       {/* ── INQUIRY FORM ── */}
-      <section id="inquiry" className="py-20 bg-[#F7F9F4] border-t border-[#DDE8CF]">
+      <section id="inquiry" className="py-20 bg-[#f5f8ef] border-t border-[#d0e0b0]">
         <div className="max-w-2xl mx-auto px-6 lg:px-10">
 
           <div className="text-center mb-10">
-            <p className="text-[#5A9216] text-xs font-bold tracking-widest uppercase mb-2"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Take the First Step
             </p>
-            <h2 className="text-4xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <h2 className="text-4xl font-bold text-[#1e1e1e]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Franchise Inquiry
             </h2>
-            <p className="text-[#5A6B4A] text-sm mt-3 leading-relaxed max-w-sm mx-auto"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-[#5a5a5a] text-sm mt-3 leading-relaxed max-w-sm mx-auto"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
               Fill out the form and our franchise team will reach out within <strong>3–5 business days</strong>.
             </p>
             <div className="flex flex-wrap justify-center gap-3 mt-5">
               {["🔒 Confidential", "📞 We call you", "⚡ Fast response"].map((t) => (
-                <span key={t} className="text-xs text-[#5A6B4A] bg-white border border-[#DDE8CF] px-3 py-1.5 rounded-full"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <span key={t} className="text-xs text-[#5a5a5a] bg-white border border-[#d0e0b0] px-3 py-1.5 rounded-full"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   {t}
                 </span>
               ))}
@@ -495,22 +506,22 @@ export default function Franchise() {
           {/* ── SUCCESS ── */}
           {submitted ? (
             <Reveal as="div"
-              className="bg-white border-2 border-[#5A9216] rounded-3xl p-12 flex flex-col items-center gap-5 text-center shadow-lg">
-              <div className="w-20 h-20 rounded-full bg-[#EEF5E6] border-4 border-[#C8DFA8] flex items-center justify-center text-4xl">
+              className="bg-white border-2 border-[#97b64c] rounded-3xl p-12 flex flex-col items-center gap-5 text-center shadow-lg">
+              <div className="w-20 h-20 rounded-full bg-[#e8f0dc] border-4 border-[#b7cd7f] flex items-center justify-center text-4xl">
                 🎉
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-[#1A2410]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <h3 className="text-2xl font-bold text-[#1e1e1e]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   Inquiry Submitted!
                 </h3>
-                <p className="text-[#5A6B4A] text-sm mt-2 leading-relaxed max-w-xs mx-auto"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-[#5a5a5a] text-sm mt-2 leading-relaxed max-w-xs mx-auto"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   Thank you for your interest in Milkshop! Our franchise team will contact you within <strong>3–5 business days</strong>.
                 </p>
               </div>
-              <div className="bg-[#F7F9F4] border border-[#DDE8CF] rounded-2xl px-6 py-4 text-sm text-[#5A6B4A] text-left w-full"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                <p className="font-bold text-[#1A2410] mb-3 text-xs uppercase tracking-widest">What happens next?</p>
+              <div className="bg-[#f5f8ef] border border-[#d0e0b0] rounded-2xl px-6 py-4 text-sm text-[#5a5a5a] text-left w-full"
+                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+                <p className="font-bold text-[#1e1e1e] mb-3 text-xs uppercase tracking-widest">What happens next?</p>
                 <ul className="flex flex-col gap-2">
                   {[
                     "We review your inquiry internally",
@@ -518,7 +529,7 @@ export default function Franchise() {
                     "Initial interview is scheduled at your convenience",
                   ].map((step, i) => (
                     <li key={i} className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-[#5A9216] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                      <span className="w-5 h-5 rounded-full bg-[#97b64c] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
                         {i + 1}
                       </span>
                       {step}
@@ -528,13 +539,13 @@ export default function Franchise() {
               </div>
               <div className="flex flex-wrap gap-3 justify-center mt-2">
                 <Link to="/"
-                  className="bg-[#5A9216] hover:bg-[#3E6610] text-white font-semibold text-sm px-7 py-3 rounded-full transition-all duration-200 active:scale-95"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  className="bg-[#97b64c] hover:bg-[#62840b] text-white font-semibold text-sm px-7 py-3 rounded-full transition-all duration-200 active:scale-95"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   Back to Home
                 </Link>
                 <Link to="/products"
-                  className="border border-[#5A9216] text-[#5A9216] hover:bg-[#EEF5E6] font-semibold text-sm px-7 py-3 rounded-full transition-all duration-200"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  className="border border-[#97b64c] text-[#97b64c] hover:bg-[#e8f0dc] font-semibold text-sm px-7 py-3 rounded-full transition-all duration-200"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   Explore Our Menu
                 </Link>
               </div>
@@ -543,17 +554,17 @@ export default function Franchise() {
           ) : (
 
             // ── FORM ──
-            <div className="bg-white border border-[#DDE8CF] rounded-3xl p-8 flex flex-col gap-6 shadow-sm">
+            <div className="bg-white border border-[#d0e0b0] rounded-3xl p-8 flex flex-col gap-6 shadow-sm">
 
               {/* API error banner */}
               {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl bg-red-50 border border-red-200 px-4 py-4">
                   <span className="text-xl shrink-0">⚠️</span>
                   <div>
-                    <p className="text-red-700 font-bold text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    <p className="text-red-700 font-bold text-sm" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                       Submission failed
                     </p>
-                    <p className="text-red-600 text-sm mt-0.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    <p className="text-red-600 text-sm mt-0.5" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                       {errorMessage}
                     </p>
                   </div>
@@ -566,13 +577,13 @@ export default function Franchise() {
                   <input id="name" name="name" value={formData.name} onChange={handleChange}
                     placeholder="Juan dela Cruz"
                     className={`${inputBase} ${fieldErrors.name ? inputErr : inputIdle}`}
-                    style={{ fontFamily: "'DM Sans', sans-serif" }} />
+                    style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }} />
                 </Field>
                 <Field label="Email Address" required error={fieldErrors.email}>
                   <input id="email" name="email" type="email" value={formData.email} onChange={handleChange}
                     placeholder="juan@email.com"
                     className={`${inputBase} ${fieldErrors.email ? inputErr : inputIdle}`}
-                    style={{ fontFamily: "'DM Sans', sans-serif" }} />
+                    style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }} />
                 </Field>
               </div>
 
@@ -588,7 +599,7 @@ export default function Franchise() {
                   <input id="bestContactTime" name="bestContactTime" type="datetime-local"
                     value={formData.bestContactTime} onChange={handleChange}
                     className={`${inputBase} ${fieldErrors.bestContactTime ? inputErr : inputIdle}`}
-                    style={{ fontFamily: "'DM Sans', sans-serif" }} />
+                    style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }} />
                 </Field>
               </div>
 
@@ -598,7 +609,7 @@ export default function Franchise() {
                   value={formData.estimatedAnnualIncome} onChange={handleChange}
                   placeholder="e.g. ₱800,000 – ₱1,200,000"
                   className={`${inputBase} ${fieldErrors.estimatedAnnualIncome ? inputErr : inputIdle}`}
-                  style={{ fontFamily: "'DM Sans', sans-serif" }} />
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }} />
               </Field>
 
               {/* Location */}
@@ -607,7 +618,7 @@ export default function Franchise() {
                   value={formData.proposedLocation} onChange={handleChange}
                   placeholder="City, mall or area (e.g. Cebu City, Ayala Center)"
                   className={`${inputBase} ${fieldErrors.proposedLocation ? inputErr : inputIdle}`}
-                  style={{ fontFamily: "'DM Sans', sans-serif" }} />
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }} />
               </Field>
 
               {/* Package */}
@@ -615,7 +626,7 @@ export default function Franchise() {
                 <select id="preferredPackage" name="preferredPackage"
                   value={formData.preferredPackage} onChange={handleChange}
                   className={`${inputBase} ${fieldErrors.preferredPackage ? inputErr : inputIdle} cursor-pointer`}
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                   <option value="">Select a package...</option>
                   <option value="cart">Cart / Mobile</option>
                   <option value="kiosk">Kiosk</option>
@@ -630,16 +641,16 @@ export default function Franchise() {
                   rows={4}
                   placeholder="Tell us about your planned location, your background, or any questions you have..."
                   className={`${inputBase} ${fieldErrors.remarks ? inputErr : inputIdle} resize-none`}
-                  style={{ fontFamily: "'DM Sans', sans-serif" }} />
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }} />
               </Field>
 
               {/* Referral — optional */}
-              <div className="border-t border-[#DDE8CF] pt-4">
+              <div className="border-t border-[#d0e0b0] pt-4">
                 <Field label="Referral" error={null}>
                   <input name="referral" value={formData.referral} onChange={handleChange}
                     placeholder="Friend, social media, franchise expo, etc."
                     className={`${inputBase} ${inputIdle}`}
-                    style={{ fontFamily: "'DM Sans', sans-serif" }} />
+                    style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }} />
                 </Field>
               </div>
 
@@ -647,8 +658,8 @@ export default function Franchise() {
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="w-full bg-[#5A9216] hover:bg-[#3E6610] disabled:bg-[#9BBF7D] disabled:cursor-not-allowed text-white font-bold text-base py-4 rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                className="w-full bg-[#97b64c] hover:bg-[#62840b] disabled:bg-[#a8c26a] disabled:cursor-not-allowed text-white font-bold text-base py-4 rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                 {isSubmitting ? (
                   <>
                     <svg className="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
@@ -662,7 +673,7 @@ export default function Franchise() {
                 )}  
               </button>
 
-              <p className="text-center text-xs text-[#5A6B4A]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              <p className="text-center text-xs text-[#5a5a5a]" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                 🔒 Your information is kept strictly confidential.
               </p>
             </div>

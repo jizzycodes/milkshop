@@ -13,9 +13,9 @@ const ORIENTATION_TABS = [
   { value: "attendance", label: "Attendance" },
 ]
 
-export default function Orientation() {
+export default function Orientation({ initialSubStatus }) {
   const { token } = useAdminAuth()
-  const [subStatus, setSubStatus] = useState("reschedule")
+  const [subStatus, setSubStatus] = useState(initialSubStatus || "reschedule")
   const [selectedLead, setSelectedLead] = useState(null)
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
@@ -54,6 +54,14 @@ export default function Orientation() {
       : subStatus === "attendance"
       ? attendanceOptions
       : defaultOptions
+
+  useEffect(() => {
+    if (!initialSubStatus) return
+    const allowedValues = ORIENTATION_TABS.map((t) => t.value)
+    if (allowedValues.includes(initialSubStatus)) {
+      setSubStatus(initialSubStatus)
+    }
+  }, [initialSubStatus])
 
   useEffect(() => {
     let cancelled = false

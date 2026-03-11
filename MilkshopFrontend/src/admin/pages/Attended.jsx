@@ -7,8 +7,8 @@ import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadSe
 import { formatDateTime } from "../utils/formatDateTime"
 
 const ATTENDED_TABS = [
-  { value: "inactive", label: "Inactive" },
   { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
 ]
 
 export default function Attended() {
