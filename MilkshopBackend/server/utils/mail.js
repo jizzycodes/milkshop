@@ -32,21 +32,53 @@ async function sendFranchiseConfirmation(toEmail, name) {
   }
 
   const displayName = name || 'there'
-  const subject = 'Milkshop Franchise – We received your inquiry'
+  const subject = 'Welcome to Milkshop! Your Franchise Journey Starts Here'
+
+  const logoUrl =
+    process.env.FRONTEND_PUBLIC_LOGO_URL ||
+    'https://milkshop.ph/logo-landscape.png'
+
   const html = `
-    <div style="font-family: 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto;">
-      <p>Hi ${escapeHtml(displayName)},</p>
-      <p>Thank you for your interest in a Milkshop franchise. We've received your inquiry.</p>
-      <p><strong>What happens next?</strong></p>
-      <ul>
-        <li>Our franchise team will review your application.</li>
-        <li>We'll contact you within <strong>3–5 business days</strong> to schedule an initial call.</li>
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color: #1e1e1e;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <img src="${logoUrl}" alt="Milkshop" style="max-width: 180px; height: auto;" />
+      </div>
+      <p style="margin: 0 0 16px 0;">Good day, ${escapeHtml(displayName)}!</p>
+      <p style="margin: 0 0 16px 0;">
+        Thank you for signing up with Milkshop Franchise! 🎉
+      </p>
+      <p style="margin: 0 0 16px 0;">
+        We’re excited to help you explore this amazing opportunity.
+      </p>
+      <p style="margin: 0 0 8px 0; font-weight: 600;">What to expect:</p>
+      <ul style="margin: 0 0 16px 20px; padding: 0; color: #5a5a5a;">
+        <li>Our team will review your application</li>
+        <li>We’ll reach out to schedule an initial call within 3–5 business days</li>
       </ul>
-      <p>If you have any urgent questions, reply to this email.</p>
-      <p>Best regards,<br/>The Milkshop Franchise Team</p>
+      <p style="margin: 0 0 16px 0;">
+        If you’re ready, we’d love to connect sooner to discuss our franchise process, current promos, and answer any questions you may have.
+        Just reply to this email or message us directly!
+      </p>
+      <p style="margin: 0 0 24px 0;">
+        Looking forward to chatting with you soon!
+      </p>
+      <p style="margin: 0;">
+        Warm regards,<br/>
+        <strong>Milkshop Team</strong>
+      </p>
     </div>
   `
-  const text = `Hi ${displayName},\n\nThank you for your interest in a Milkshop franchise. We've received your inquiry. Our team will contact you within 3–5 business days.\n\nBest regards,\nThe Milkshop Franchise Team`
+
+  const text = `Good day, ${displayName}!\n
+Thank you for signing up with Milkshop Franchise!\n
+We’re excited to help you explore this amazing opportunity.\n
+What to expect:\n
+- Our team will review your application\n
+- We’ll reach out to schedule an initial call within 3–5 business days\n
+If you’re ready, we’d love to connect sooner to discuss our franchise process, current promos, and answer any questions you may have. Just reply to this email or message us directly!\n
+Looking forward to chatting with you soon!\n
+Warm regards,\n
+Milkshop Team`
 
   try {
     await transport.sendMail({

@@ -1,307 +1,288 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import Reveal from "../components/Reveal"
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Link } from "react-router-dom";
+import Reveal from "../components/Reveal";
+import { supabase } from "../lib/supabaseClient";
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
+// ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
-const categories = ["All", "Milk Tea", "Fruit Tea", "Popping Boba", "Seasonal"];
-
-const products = [
-  {
-    id: 1,
-    category: "Milk Tea",
-    name: "Black Sugar Boba Milk Tea",
-    description: "Tiger-stripe signature with chewy pearls and fresh milk. The drink that started it all.",
-    price: 99,
-    tag: "Best Seller",
-    popular: true,
-    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A1%20Black%20Sugar%20Boba%20Milk%20Tea.png",
-  },
-  {
-    id: 2,
-    category: "Milk Tea",
-    name: "Signature Taiwanese Milk Tea",
-    description: "The purest expression of Taiwan milk tea. Smooth, clean, and perfectly balanced.",
-    price: 99,
-    tag: "Classic",
-    popular: false,
-    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A2%20Signature%20Taiwanese%20Milk%20Tea.png",
-  },
-  {
-    id: 3,
-    category: "Milk Tea",
-    name: "Chocolate Pearl Milk Tea",
-    description: "Rich Belgian chocolate blended with fresh milk and dark pearl boba.",
-    price: 105,
-    tag: null,
-    popular: false,
-    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A3%20Chocolate%20Pearl%20Milk%20Tea.png",
-  },
-  {
-    id: 4,
-    category: "Milk Tea",
-    name: "Matcha Black Sugar Pearl",
-    description: "Japanese matcha meets our signature black sugar. Bold, earthy, and unforgettable.",
-    price: 109,
-    tag: "New",
-    popular: true,
-    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/A4%20Matcha%20BLACK%20SUGAR%20PEARL%20Milk%20Tea.png",
-  },
-  {
-    id: 5,
-    category: "Milk Tea",
-    name: "Taro Milk Tea",
-    description: "Creamy purple taro blend — sweet, smooth, and deeply satisfying.",
-    price: 105,
-    tag: "Fan Fave",
-    popular: true,
-    imageUrl: null,
-  },
-  {
-    id: 6,
-    category: "Fruit Tea",
-    name: "Strawberry Fruit Tea",
-    description: "Real strawberry with a refreshing green tea base. Light, bright, and fruity.",
-    price: 99,
-    tag: "Fan Fave",
-    popular: true,
-    imageUrl: null,
-  },
-  {
-    id: 7,
-    category: "Fruit Tea",
-    name: "Peach Oolong Tea",
-    description: "Sweet peach meets floral oolong — light, aromatic, and beautifully layered.",
-    price: 99,
-    tag: null,
-    popular: false,
-    imageUrl: null,
-  },
-  {
-    id: 8,
-    category: "Fruit Tea",
-    name: "Lemon Green Tea",
-    description: "Zesty fresh lemon with crisp green tea. Your perfect everyday sip.",
-    price: 89,
-    tag: null,
-    popular: false,
-    imageUrl: null,
-  },
-  {
-    id: 9,
-    category: "Popping Boba",
-    name: "Mango Popping Boba",
-    description: "Tropical mango tea bursting with Taiwanese popping boba on every sip.",
-    price: 115,
-    tag: "Signature",
-    popular: true,
-    imageUrl: null,
-  },
-  {
-    id: 10,
-    category: "Popping Boba",
-    name: "Grape Popping Boba",
-    description: "Concord grape base with juicy grape-filled boba pearls. Bold and refreshing.",
-    price: 115,
-    tag: "New",
-    popular: false,
-    imageUrl: null,
-  },
-  {
-    id: 11,
-    category: "Popping Boba",
-    name: "Lychee Popping Boba",
-    description: "Delicate lychee tea with floral notes and popping boba that bursts with every sip.",
-    price: 115,
-    tag: null,
-    popular: false,
-    imageUrl: null,
-  },
-  {
-    id: 12,
-    category: "Seasonal",
-    name: "Ube Cream Special",
-    description: "Limited ube milk tea topped with velvety cream cheese foam. Get it while it lasts.",
-    price: 125,
-    tag: "Limited",
-    popular: true,
-    imageUrl: null,
-  },
-  {
-    id: 13,
-    category: "Seasonal",
-    name: "Pandan Milk Tea",
-    description: "Southeast Asian pandan with creamy milk — a local × Taiwan fusion you won't forget.",
-    price: 119,
-    tag: "Limited",
-    popular: false,
-    imageUrl: null,
-  },
+const CATEGORIES = [
+  "Milk Tea Series",
+  "Cheesecake Series",
+  "Fruit Tea Series",
+  "Milku Series",
+  "Smoothies Series",
+  "Bread",
 ];
-
-const feedbacks = [
-  { id: 1, name: "Angelica R.", handle: "@angelicar_ph", stars: 5, comment: "Best milk tea I've ever had in the Philippines! The black sugar boba is INSANE. Already on my 5th visit this month 😭🧋", photo: null },
-  { id: 2, name: "Miguel T.", handle: "@migueltravels", stars: 5, comment: "The popping boba is on another level. You can actually taste the real fruit juice when it bursts. Nothing like it in Manila.", photo: null },
-  { id: 3, name: "Trisha Mae", handle: "@trishafoods", stars: 5, comment: "Finally a milk tea brand that uses ACTUAL fresh milk! You can taste the difference. The matcha pearl is my forever go-to 💚", photo: null },
-  { id: 4, name: "Carlo B.", handle: "@carloeats", stars: 5, comment: "Ordered the taro and the chocolate pearl. Both were 10/10. The queue was long but 100% worth it. Will be back tomorrow lol", photo: null },
-  { id: 5, name: "Diane L.", handle: "@dianelim.ph", stars: 5, comment: "The brown sugar milk tea here hits different. Tiger stripes are real, the pearls are chewy, the milk is fresh. Taiwanese quality for real 🇹🇼", photo: null },
-  { id: 6, name: "Nico S.", handle: "@nicosip", stars: 5, comment: "My friends dragged me here and now I'm the one dragging everyone else. The lychee popping boba is addicting.", photo: null },
-  { id: 7, name: "Justine A.", handle: "@justineandco", stars: 5, comment: "Visited the Cebu branch and it was packed! Staff was super friendly and drinks came out fast. The ube cream special is a must-try.", photo: null },
-  { id: 8, name: "Rachel P.", handle: "@rachelpdiary", stars: 5, comment: "Milkshop is the only milk tea that makes me feel like I'm actually in Taiwan. Every sip is just *chef's kiss* 🫧", photo: null },
-];
-
-const feedbacksRow1 = [...feedbacks, ...feedbacks];
-const feedbacksRow2 = [...feedbacks].reverse().concat([...feedbacks].reverse());
-
-// ─── TAG CONFIG ──────────────────────────────────────────────────────────────
 
 const tagStyles = {
-  "Best Seller": { bg: "#E8A020", color: "#fff"     },
-  "Classic":     { bg: "#97b64c", color: "#fff"     },
-  "New":         { bg: "#62840b", color: "#fff"     },
-  "Fan Fave":    { bg: "#b7cd7f", color: "#1e1e1e"  },
-  "Signature":   { bg: "#1e1e1e", color: "#b7cd7f"  },
-  "Limited":     { bg: "#7c3aed", color: "#fff"     },
+  "Best Seller": { bg: "#E8A020", color: "#fff"    },
+  "Classic":     { bg: "#97b64c", color: "#fff"    },
+  "New":         { bg: "#62840b", color: "#fff"    },
+  "Fan Fave":    { bg: "#b7cd7f", color: "#1e1e1e" },
+  "Signature":   { bg: "#1e1e1e", color: "#b7cd7f" },
+  "Limited":     { bg: "#7c3aed", color: "#fff"    },
 };
 
-// ─── PRODUCT CARD ─────────────────────────────────────────────────────────────
+const feedbacks = [
+  { id: 1, name: "Angelica R.",  handle: "@angelicar_ph",  stars: 5, comment: "Best milk tea I've ever had in the Philippines! The black sugar boba is absolutely insane. Already on my 5th visit this month." },
+  { id: 2, name: "Miguel T.",    handle: "@migueltravels", stars: 5, comment: "The popping boba is on another level. You can actually taste the real fruit juice when it bursts. Nothing like it in Manila." },
+  { id: 3, name: "Trisha Mae",   handle: "@trishafoods",   stars: 5, comment: "Finally a milk tea brand that uses ACTUAL fresh milk. You can taste the difference. The matcha pearl is my forever go-to." },
+  { id: 4, name: "Carlo B.",     handle: "@carloeats",     stars: 5, comment: "Ordered the taro and the chocolate pearl. Both were 10/10. The queue was long but 100% worth it. Will be back tomorrow." },
+  { id: 5, name: "Diane L.",     handle: "@dianelim.ph",   stars: 5, comment: "The brown sugar milk tea here hits different. Tiger stripes are real, the pearls are chewy. Taiwanese quality for real." },
+  { id: 6, name: "Nico S.",      handle: "@nicosip",       stars: 5, comment: "My friends dragged me here and now I'm the one dragging everyone else. The lychee popping boba is completely addicting." },
+  { id: 7, name: "Justine A.",   handle: "@justineandco",  stars: 5, comment: "Visited the Cebu branch and it was packed! Staff was super friendly and drinks came out fast. Ube cream is a must-try." },
+  { id: 8, name: "Rachel P.",    handle: "@rachelpdiary",  stars: 5, comment: "Milkshop is the only milk tea that makes me feel like I'm actually in Taiwan. Every sip is just absolutely perfect." },
+  { id: 9, name: "James V.",     handle: "@jamesv.eats",   stars: 5, comment: "Came for the black sugar, stayed for everything else. This is easily the best milk tea brand operating in the country right now." },
+  { id: 10, name: "Sofia M.",    handle: "@sofiamph",      stars: 5, comment: "The freshness is unreal. No weird aftertaste, no powder taste — just clean, smooth, and so satisfying every single time." },
+];
 
-function ProductCard({ product, index }) {
-  const tag = tagStyles[product.tag];
+// ─── FLOATING CAROUSEL — DARK PREMIUM ────────────────────────────────────────
+
+function FloatingCarousel({ products, accentColor = "#97b64c" }) {
+  const [active, setActive] = useState(0);
+  const [fading, setFading] = useState(false);
+  const intervalRef         = useRef(null);
+  const total               = products.length;
+
+  const goTo = useCallback((idx) => {
+    if (idx === active) return;
+    setFading(true);
+    setTimeout(() => { setActive(idx); setFading(false); }, 220);
+  }, [active]);
+
+  const startAuto = useCallback(() => {
+    clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setActive((p) => (p + 1) % total);
+    }, 3000);
+  }, [total]);
+
+  useEffect(() => { startAuto(); return () => clearInterval(intervalRef.current); }, [startAuto]);
+
+  const getPos = (i) => {
+    const d = (i - active + total) % total;
+    if (d === 0)                       return "center";
+    if (d === 1 || d === total - 4)    return "right1";
+    if (d === total - 1 || d === 4)    return "left1";
+    if (d === 2 || d === total - 5)    return "right2";
+    if (d === total - 2 || d === 5)    return "left2";
+    return "hidden";
+  };
+
+  const posStyles = {
+    center: { zIndex: 30, transform: "translateX(0%)    scale(1)",    opacity: 1,    filter: "none"         },
+    right1: { zIndex: 20, transform: "translateX(46%)   scale(0.72)", opacity: 0.45, filter: "blur(0.8px)"  },
+    left1:  { zIndex: 20, transform: "translateX(-46%)  scale(0.72)", opacity: 0.45, filter: "blur(0.8px)"  },
+    right2: { zIndex: 10, transform: "translateX(78%)   scale(0.5)",  opacity: 0.15, filter: "blur(1.5px)"  },
+    left2:  { zIndex: 10, transform: "translateX(-78%)  scale(0.5)",  opacity: 0.15, filter: "blur(1.5px)"  },
+    hidden: { zIndex: 0,  transform: "translateX(0%)    scale(0.3)",  opacity: 0,    filter: "blur(3px)"    },
+  };
+
+  const current = products[active];
+  const tag     = current?.tag ? tagStyles[current.tag] : null;
+  if (!total) return null;
 
   return (
-    <Reveal
-      as="div"
-      delay={index * 40}
-      className="group relative bg-white rounded-2xl overflow-hidden flex flex-col cursor-pointer"
-      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)" }}
+    <div
+      className="relative"
+      onMouseEnter={() => clearInterval(intervalRef.current)}
+      onMouseLeave={startAuto}
     >
-      {/* ── IMAGE ZONE ── */}
+      {/* Radial glow — larger, more dramatic */}
       <div
-        className="relative overflow-hidden"
-        style={{ height: "220px", backgroundColor: "#f7f9f3" }}
-      >
-        {product.imageUrl ? (
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className="w-full h-full object-contain p-6 transition-transform duration-700 group-hover:scale-105 drop-shadow-md"
-          />
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-3">
-            <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
-              style={{ backgroundColor: "#eef4e3" }}
-            >
-              🧋
-            </div>
-            <p className="text-xs font-medium" style={{ color: "#b7cd7f", fontFamily: "'DM Sans', sans-serif" }}>
-              Photo coming soon
-            </p>
-          </div>
-        )}
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none"
+        style={{
+          width: "480px",
+          height: "180px",
+          background: `radial-gradient(ellipse at center, ${accentColor}35 0%, transparent 70%)`,
+          filter: "blur(32px)",
+        }}
+      />
 
-        {/* Tag */}
-        {product.tag && tag && (
+      {/* Stage */}
+      <div className="relative flex items-end justify-center overflow-hidden" style={{ height: "380px" }}>
+        {products.map((p, i) => {
+          const s = posStyles[getPos(i)];
+          return (
+            <button
+              key={p.id}
+              onClick={() => { goTo(i); startAuto(); }}
+              className="absolute bottom-0 flex items-end justify-center cursor-pointer"
+              style={{ transition: "all 0.6s cubic-bezier(0.22,1,0.36,1)", ...s }}
+              aria-label={p.name}
+            >
+              {p.image_url ? (
+                <img
+                  src={p.image_url}
+                  alt={p.name}
+                  draggable={false}
+                  className="select-none object-contain"
+                  style={{ height: "320px", width: "auto", filter: "drop-shadow(0 32px 48px rgba(0,0,0,0.65))" }}
+                />
+              ) : (
+                <div style={{ height: "280px", fontSize: "5rem", display: "flex", alignItems: "flex-end" }}>🧋</div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Info */}
+      <div
+        className="mt-10 flex flex-col items-center text-center gap-3 px-6"
+        style={{ minHeight: "120px", transition: "opacity 0.25s ease", opacity: fading ? 0 : 1 }}
+      >
+        {tag && (
           <span
-            className="absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-full tracking-wide"
+            className="text-[10px] font-bold px-3 py-1 rounded-full tracking-widest uppercase"
+            style={{ backgroundColor: tag.bg, color: tag.color, fontFamily: "'DM Sans', sans-serif", letterSpacing: "0.1em" }}
+          >
+            {current.tag}
+          </span>
+        )}
+        <h3
+          className="text-3xl sm:text-4xl font-black"
+          style={{ color: "#ffffff", fontFamily: "'DM Sans', sans-serif", letterSpacing: "-0.03em" }}
+        >
+          {current.name}
+        </h3>
+        {current.description && (
+          <p className="text-sm max-w-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)", fontFamily: "'DM Sans', sans-serif" }}>
+            {current.description}
+          </p>
+        )}
+        {current.price && (
+          <span
+            className="text-2xl font-black mt-1 tabular-nums"
+            style={{ color: accentColor, fontFamily: "'DM Mono', monospace" }}
+          >
+            ₱{current.price}
+          </span>
+        )}
+      </div>
+
+      {/* Dots */}
+      <div className="flex justify-center gap-2 mt-8 pb-2">
+        {products.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => { goTo(i); startAuto(); }}
+            className="rounded-full transition-all duration-300"
             style={{
-              backgroundColor: tag.bg,
-              color: tag.color,
-              fontFamily: "'DM Sans', sans-serif",
-              letterSpacing: "0.04em",
+              width: i === active ? "28px" : "6px",
+              height: "6px",
+              backgroundColor: i === active ? accentColor : "rgba(255,255,255,0.15)",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── CATEGORY SECTION — DARK ──────────────────────────────────────────────────
+
+function CategorySection({ category, products }) {
+  if (!products.length) return null;
+  return (
+    <Reveal as="section" className="relative overflow-hidden">
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundColor: "#161616",
+          backgroundImage: `
+            radial-gradient(circle at 15% 50%, rgba(151,182,76,0.06) 0%, transparent 55%),
+            radial-gradient(circle at 85% 50%, rgba(98,132,11,0.04) 0%, transparent 55%),
+            radial-gradient(circle at 50% 100%, rgba(151,182,76,0.05) 0%, transparent 40%)
+          `,
+        }}
+      />
+      <div className="relative max-w-4xl mx-auto px-6 lg:px-10 py-20">
+        {/* Section header */}
+        <div className="flex items-center justify-between mb-14">
+          <div className="flex items-center gap-5">
+            <div className="w-1 h-12 rounded-full" style={{ background: "linear-gradient(to bottom, #97b64c, #62840b)" }} />
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase mb-1" style={{ color: "#97b64c", fontFamily: "'DM Sans', sans-serif" }}>
+                Series
+              </p>
+              <h2 className="text-3xl font-black leading-none" style={{ color: "#ffffff", fontFamily: "'DM Sans', sans-serif", letterSpacing: "-0.03em" }}>
+                {category}
+              </h2>
+            </div>
+          </div>
+          <span
+            className="text-xs font-bold px-4 py-2 rounded-full tabular-nums"
+            style={{
+              backgroundColor: "rgba(151,182,76,0.1)",
+              color: "#b7cd7f",
+              border: "1px solid rgba(151,182,76,0.25)",
+              fontFamily: "'DM Mono', monospace",
             }}
           >
-            {product.tag}
-          </span>
-        )}
-
-        {/* Popular */}
-        {product.popular && (
-          <span className="absolute top-3 right-3 text-sm">🔥</span>
-        )}
-
-        {/* Hover overlay */}
-        <div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-          style={{ background: "linear-gradient(to top, rgba(151,182,76,0.08), transparent)" }}
-        />
-      </div>
-
-      {/* ── DIVIDER ── */}
-      <div style={{ height: "1px", backgroundColor: "#f0f4e8" }} />
-
-      {/* ── BODY ── */}
-      <div className="p-5 flex flex-col gap-2 flex-1">
-        <div className="flex items-start justify-between gap-3">
-          <h3
-            className="text-sm font-bold leading-snug flex-1"
-            style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}
-          >
-            {product.name}
-          </h3>
-          <span
-            className="text-base font-bold shrink-0 tabular-nums"
-            style={{ color: "#97b64c", fontFamily: "'DM Mono', monospace" }}
-          >
-            ₱{product.price}
+            {products.length} drinks
           </span>
         </div>
-        <p
-          className="text-xs leading-relaxed flex-1"
-          style={{ color: "#7a8a6a", fontFamily: "'DM Sans', sans-serif" }}
-        >
-          {product.description}
-        </p>
+        <FloatingCarousel products={products} />
       </div>
-
-      {/* ── BOTTOM ACCENT LINE on hover ── */}
+      {/* Separator */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300"
-        style={{ backgroundColor: "#97b64c" }}
+        className="mx-auto"
+        style={{
+          height: "1px",
+          maxWidth: "80%",
+          background: "linear-gradient(to right, transparent, rgba(151,182,76,0.15), transparent)",
+        }}
       />
     </Reveal>
   );
 }
 
-// ─── FEEDBACK CARD ────────────────────────────────────────────────────────────
+// ─── ANIMATED REVIEW TICKER ───────────────────────────────────────────────────
 
-function FeedbackCard({ fb }) {
+function ReviewTicker({ reviews, direction = "left", speed = 38 }) {
+  const doubled = [...reviews, ...reviews];
   return (
-    <div
-      className="shrink-0 w-72 rounded-2xl p-5 flex flex-col gap-3"
-      style={{
-        backgroundColor: "#ffffff",
-        border: "1px solid #e8f0dc",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-      }}
-    >
-      <div className="flex gap-0.5">
-        {Array.from({ length: fb.stars }).map((_, i) => (
-          <span key={i} className="text-[#E8A020] text-sm">★</span>
-        ))}
-      </div>
-      <p
-        className="text-sm leading-relaxed flex-1"
-        style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}
+    <div className="relative overflow-hidden py-2">
+      <div
+        className="flex gap-5 w-max"
+        style={{ animation: `${direction === "left" ? "marquee-left" : "marquee-right"} ${speed}s linear infinite` }}
       >
-        "{fb.comment}"
-      </p>
-      <div className="flex items-center gap-2.5 pt-3" style={{ borderTop: "1px solid #f0f4e8" }}>
-        <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-base shrink-0"
-          style={{ backgroundColor: "#eef4e3" }}
-        >
-          🧋
-        </div>
-        <div>
-          <p className="text-xs font-bold" style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}>
-            {fb.name}
-          </p>
-          <p className="text-[10px]" style={{ color: "#97b64c", fontFamily: "'DM Sans', sans-serif" }}>
-            {fb.handle}
-          </p>
-        </div>
+        {doubled.map((fb, i) => (
+          <div
+            key={`${fb.id}-${i}`}
+            className="shrink-0 w-[280px] rounded-2xl p-5 flex flex-col gap-3"
+            style={{
+              backgroundColor: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              backdropFilter: "blur(4px)",
+            }}
+          >
+            <div className="flex gap-0.5">
+              {Array.from({ length: fb.stars }).map((_, si) => (
+                <span key={si} className="text-[#E8A020] text-xs">★</span>
+              ))}
+            </div>
+            <p
+              className="text-xs leading-relaxed flex-1"
+              style={{ color: "rgba(255,255,255,0.6)", fontFamily: "'DM Sans', sans-serif" }}
+            >
+              "{fb.comment}"
+            </p>
+            <div className="flex items-center gap-2.5 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-xs shrink-0"
+                style={{ backgroundColor: "rgba(151,182,76,0.18)", border: "1px solid rgba(151,182,76,0.2)" }}
+              >
+                🧋
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-white" style={{ fontFamily: "'DM Sans', sans-serif" }}>{fb.name}</p>
+                <p className="text-[9px]" style={{ color: "#97b64c", fontFamily: "'DM Sans', sans-serif" }}>{fb.handle}</p>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -310,89 +291,154 @@ function FeedbackCard({ fb }) {
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 
 export default function Products() {
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState(CATEGORIES[0]);
+  const [products, setProducts]             = useState([]);
+  const [loading, setLoading]               = useState(true);
+  const [activeReview, setActiveReview]     = useState(0);
 
-  const filtered =
-    activeCategory === "All"
-      ? products
-      : products.filter((p) => p.category === activeCategory);
+  useEffect(() => {
+    async function load() {
+      const { data, error } = await supabase
+        .from("MSproducts")
+        .select("*")
+        .order("id", { ascending: true });
+      if (error) { console.error(error); return; }
+      setProducts(data || []);
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  // Cycle featured review
+  useEffect(() => {
+    const t = setInterval(() => setActiveReview((p) => (p + 1) % feedbacks.length), 4000);
+    return () => clearInterval(t);
+  }, []);
+
+  const grouped = CATEGORIES.reduce((acc, cat) => {
+    acc[cat] = products.filter((p) => p.category === cat);
+    return acc;
+  }, {});
+
+  const visibleCategories = [activeCategory];
+  const featured = feedbacks[activeReview];
+  const row1 = feedbacks.slice(0, Math.ceil(feedbacks.length / 2));
+  const row2 = feedbacks.slice(Math.ceil(feedbacks.length / 2));
 
   return (
     <main style={{ backgroundColor: "#fafafa", minHeight: "100vh" }}>
 
-      {/* ── PAGE HEADER ── */}
-      <section
-        className="relative py-24 overflow-hidden"
-        style={{ backgroundColor: "#1e1e1e" }}
-      >
-        {/* Decorative circles */}
-        <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full pointer-events-none" style={{ backgroundColor: "rgba(151,182,76,0.07)" }} />
-        <div className="absolute -bottom-20 -left-10 w-56 h-56 rounded-full pointer-events-none" style={{ backgroundColor: "rgba(232,160,32,0.07)" }} />
+      {/* ── HEADER ── */}
+      <section className="relative overflow-hidden py-24 pb-32" style={{ backgroundColor: "#1e1e1e" }}>
+        {/* Diagonal accent */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "linear-gradient(135deg, rgba(151,182,76,0.1) 0%, transparent 45%, rgba(98,132,11,0.06) 100%)",
+          }}
+        />
+        {/* Dot grid */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.25) 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+            maskImage: "radial-gradient(ellipse at center, black 30%, transparent 80%)",
+            WebkitMaskImage: "radial-gradient(ellipse at center, black 30%, transparent 80%)",
+          }}
+        />
+        {/* Green glow top */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
+          style={{
+            width: "600px", height: "300px",
+            background: "radial-gradient(ellipse, rgba(151,182,76,0.12) 0%, transparent 70%)",
+            filter: "blur(60px)",
+          }}
+        />
 
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 flex flex-col items-center text-center gap-5 z-10">
-          <span
-            className="text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full"
-            style={{ backgroundColor: "rgba(151,182,76,0.15)", color: "#b7cd7f", fontFamily: "'DM Sans', sans-serif" }}
-          >
-            🧋 Our Menu
-          </span>
-          <h1
-            className="text-5xl lg:text-6xl font-bold leading-tight"
-            style={{ color: "#ffffff", fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Every Sip, Crafted<br />
-            <span style={{ color: "#97b64c" }}>Just for You.</span>
-          </h1>
-          <p
-            className="text-base max-w-lg leading-relaxed"
-            style={{ color: "#7a8a6a", fontFamily: "'DM Sans', sans-serif" }}
-          >
-            From classic milk teas to our signature Taiwanese Popping Boba — crafted with real milk, real ingredients, real love.
-          </p>
-
-          {/* Category pills in header */}
-          <div className="flex flex-wrap justify-center gap-2 mt-2">
-            {categories.filter(c => c !== "All").map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className="text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200"
+        <div className="relative max-w-4xl mx-auto px-6 z-10">
+          {/* Two-column layout */}
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-12">
+            <div>
+              {/* Eyebrow */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-8 h-px" style={{ backgroundColor: "#97b64c" }} />
+                <span
+                  className="text-[11px] font-bold tracking-[0.25em] uppercase"
+                  style={{ color: "#97b64c", fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  The Menu
+                </span>
+              </div>
+              <h1
+                className="font-black leading-[1.0] mb-4"
                 style={{
-                  backgroundColor: activeCategory === cat ? "#97b64c" : "rgba(255,255,255,0.07)",
-                  color: activeCategory === cat ? "#ffffff" : "#7a8a6a",
-                  border: activeCategory === cat ? "1px solid #97b64c" : "1px solid rgba(255,255,255,0.08)",
+                  fontSize: "clamp(2.8rem, 6vw, 5.5rem)",
+                  color: "#ffffff",
                   fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: "-0.04em",
                 }}
               >
-                {cat}
-              </button>
-            ))}
+                Sip the<br />
+                <span style={{ color: "#97b64c" }}>Difference.</span>
+              </h1>
+              <p
+                className="text-sm leading-relaxed max-w-xs"
+                style={{ color: "rgba(255,255,255,0.35)", fontFamily: "'DM Sans', sans-serif" }}
+              >
+                Taiwan's original Popping Boba — brewed fresh, never powdered, always real.
+              </p>
+            </div>
+
+            {/* Stats */}
+            <div className="flex gap-8 lg:gap-10">
+              {[
+                { value: "20+",  label: "Menu Items"   },
+                { value: "6",    label: "Series"       },
+                { value: "100%", label: "Fresh Milk"   },
+              ].map((s) => (
+                <div key={s.label} className="flex flex-col">
+                  <span
+                    className="text-3xl lg:text-4xl font-black leading-none"
+                    style={{ color: "#ffffff", fontFamily: "'DM Mono', monospace" }}
+                  >
+                    {s.value}
+                  </span>
+                  <span
+                    className="text-[10px] uppercase tracking-widest mt-1"
+                    style={{ color: "rgba(255,255,255,0.3)", fontFamily: "'DM Sans', sans-serif" }}
+                  >
+                    {s.label}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── CATEGORY FILTER BAR ── */}
-      <section
-        className="sticky z-40 py-4"
+      {/* ── STICKY FILTER (series navbar) ── */}
+      <div
+        className="sticky z-40 py-3.5"
         style={{
-          // Stick just under the main navbar (h-16 ≈ 64px)
           top: "64px",
-          backgroundColor: "rgba(250,250,250,0.95)",
-          backdropFilter: "blur(12px)",
-          borderBottom: "1px solid #eff4e8",
-          boxShadow: "0 1px 12px rgba(0,0,0,0.04)",
+          backgroundColor: "rgba(22,22,22,0.97)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(151,182,76,0.12)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center gap-2 overflow-x-auto scrollbar-none">
-          {categories.map((cat) => (
+        <div className="max-w-4xl mx-auto px-6 lg:px-10 flex items-center gap-2 overflow-x-auto scrollbar-none">
+          {CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className="shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
+              className="shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200"
               style={{
-                backgroundColor: activeCategory === cat ? "#97b64c" : "transparent",
-                color: activeCategory === cat ? "#ffffff" : "#5a6a4a",
-                border: activeCategory === cat ? "1px solid #97b64c" : "1px solid #e0ebd0",
+                backgroundColor: activeCategory === cat ? "#97b64c" : "rgba(255,255,255,0.05)",
+                color:           activeCategory === cat ? "#ffffff" : "rgba(255,255,255,0.5)",
+                border:          activeCategory === cat ? "1px solid #97b64c" : "1px solid rgba(255,255,255,0.08)",
                 fontFamily: "'DM Sans', sans-serif",
               }}
             >
@@ -400,134 +446,204 @@ export default function Products() {
             </button>
           ))}
           <span
-            className="ml-auto shrink-0 text-xs font-medium px-3 py-1.5 rounded-full"
-            style={{
-              color: "#97b64c",
-              backgroundColor: "#eef4e3",
-              fontFamily: "'DM Mono', monospace",
-            }}
+            className="ml-auto shrink-0 text-[10px] font-semibold px-3 py-1 rounded-full tabular-nums"
+            style={{ color: "#b7cd7f", backgroundColor: "rgba(151,182,76,0.12)", border: "1px solid rgba(151,182,76,0.15)", fontFamily: "'DM Mono', monospace" }}
           >
-            {filtered.length} items
+            {grouped[activeCategory]?.length ?? 0} items
           </span>
         </div>
-      </section>
+      </div>
 
-      {/* ── PRODUCT GRID ── */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          {filtered.length === 0 ? (
-            <div className="text-center py-24 flex flex-col items-center gap-3">
-              <span className="text-4xl">🧋</span>
-              <p className="font-bold" style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}>
-                No items found
+      {/* ── CAROUSELS ── */}
+      <div style={{ backgroundColor: "#161616" }}>
+      {loading ? (
+        <div className="flex items-center justify-center py-40 gap-3">
+          {[0, 150, 300].map((d) => (
+            <div key={d} className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: "#97b64c", animationDelay: `${d}ms` }} />
+          ))}
+        </div>
+      ) : (
+        visibleCategories.map((cat) => (
+          <CategorySection key={cat} category={cat} products={grouped[cat] || []} />
+        ))
+      )}
+      </div>
+
+      {/* ── REVIEWS — SPLIT LAYOUT ── */}
+      <section className="overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
+        {/* Top separator */}
+        <div style={{ height: "1px", background: "linear-gradient(to right, transparent, rgba(151,182,76,0.2), transparent)" }} />
+
+        {/* ── TOP: SPLIT — stat left, featured quote right ── */}
+        <div className="max-w-5xl mx-auto px-6 lg:px-10 py-24">
+          <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-center">
+
+            {/* LEFT — Brand credibility */}
+            <Reveal as="div" className="flex flex-col gap-6 lg:w-[380px] shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-px" style={{ backgroundColor: "#97b64c" }} />
+                <span
+                  className="text-[11px] font-bold tracking-[0.25em] uppercase"
+                  style={{ color: "#97b64c", fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  What They Say
+                </span>
+              </div>
+
+              <h2
+                className="font-black leading-[1.05]"
+                style={{
+                  fontSize: "clamp(2.2rem, 4vw, 3.5rem)",
+                  color: "#ffffff",
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                Loved by<br />
+                <span style={{ color: "#97b64c" }}>Thousands.</span>
+              </h2>
+
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: "rgba(255,255,255,0.35)", fontFamily: "'DM Sans', sans-serif" }}
+              >
+                From first-timers to daily regulars — Milkshop has built a loyal community across the Philippines.
               </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filtered.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
 
-      {/* ── CUSTOMER FEEDBACKS ── */}
-      <section className="py-20 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
-        <Reveal as="div" className="text-center mb-12 px-6">
-          <p
-            className="text-xs font-bold tracking-widest uppercase mb-2"
-            style={{ color: "#97b64c", fontFamily: "'DM Sans', sans-serif" }}
-          >
-            What People Are Saying
-          </p>
-          <h2
-            className="text-4xl lg:text-5xl font-bold"
-            style={{ color: "#ffffff", fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Real Sips. Real Love. 🧋
-          </h2>
-          <p
-            className="text-base max-w-lg mx-auto mt-3 leading-relaxed"
-            style={{ color: "#7a8a6a", fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Thousands of Milkshop fans across the Philippines.
-          </p>
-        </Reveal>
+              {/* Stats */}
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                {[
+                  { value: "4.9★",  label: "Average Rating" },
+                  { value: "15+",   label: "Branches"       },
+                  { value: "2,000+",label: "Happy Reviews"  },
+                  { value: "2015",  label: "Est. Taiwan"    },
+                ].map((s) => (
+                  <div
+                    key={s.label}
+                    className="rounded-2xl p-4"
+                    style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
+                  >
+                    <p
+                      className="text-2xl font-black leading-none mb-1"
+                      style={{ color: "#ffffff", fontFamily: "'DM Mono', monospace" }}
+                    >
+                      {s.value}
+                    </p>
+                    <p
+                      className="text-[10px] uppercase tracking-widest"
+                      style={{ color: "rgba(255,255,255,0.3)", fontFamily: "'DM Sans', sans-serif" }}
+                    >
+                      {s.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
 
-        {/* Row 1 — left */}
-        <div className="relative mb-4">
-          <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #1e1e1e, transparent)" }} />
-          <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #1e1e1e, transparent)" }} />
-          <div className="flex gap-4 w-max" style={{ animation: "marquee-left 40s linear infinite" }}>
-            {feedbacksRow1.map((fb, i) => <FeedbackCard key={`r1-${fb.id}-${i}`} fb={fb} />)}
+            {/* RIGHT — Animated featured quote */}
+            <Reveal as="div" delay={80} className="flex-1 flex flex-col gap-4">
+              {/* Big quote mark */}
+              <span
+                className="text-8xl leading-none select-none"
+                style={{ color: "rgba(151,182,76,0.2)", fontFamily: "Georgia, serif", lineHeight: 1 }}
+              >
+                "
+              </span>
+
+              {/* Quote text — animates on change */}
+              <div style={{ minHeight: "140px" }}>
+                <p
+                  key={activeReview}
+                  className="text-lg lg:text-xl leading-relaxed font-medium review-fadein"
+                  style={{ color: "rgba(255,255,255,0.85)", fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  {featured.comment}
+                </p>
+              </div>
+
+              {/* Author */}
+              <div
+                key={`author-${activeReview}`}
+                className="flex items-center gap-3 review-fadein"
+              >
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-base shrink-0"
+                  style={{ backgroundColor: "rgba(151,182,76,0.15)", border: "1px solid rgba(151,182,76,0.2)" }}
+                >
+                  🧋
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    {featured.name}
+                  </p>
+                  <p className="text-xs" style={{ color: "#97b64c", fontFamily: "'DM Sans', sans-serif" }}>
+                    {featured.handle}
+                  </p>
+                </div>
+                <div className="ml-auto flex gap-0.5">
+                  {Array.from({ length: featured.stars }).map((_, i) => (
+                    <span key={i} className="text-[#E8A020] text-sm">★</span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Dots */}
+              <div className="flex gap-2 mt-2">
+                {feedbacks.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveReview(i)}
+                    className="rounded-full transition-all duration-300"
+                    style={{
+                      width:           i === activeReview ? "24px" : "6px",
+                      height:          "6px",
+                      backgroundColor: i === activeReview ? "#97b64c" : "rgba(255,255,255,0.15)",
+                    }}
+                  />
+                ))}
+              </div>
+            </Reveal>
           </div>
         </div>
 
-        {/* Row 2 — right */}
-        <div className="relative mt-4">
-          <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #1e1e1e, transparent)" }} />
-          <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #1e1e1e, transparent)" }} />
-          <div className="flex gap-4 w-max" style={{ animation: "marquee-right 45s linear infinite" }}>
-            {feedbacksRow2.map((fb, i) => <FeedbackCard key={`r2-${fb.id}-${i}`} fb={fb} />)}
+        {/* ── BOTTOM: ANIMATED TICKER ROWS ── */}
+        <div className="pb-20 flex flex-col gap-5">
+          <div className="relative">
+            <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #1e1e1e, transparent)" }} />
+            <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #1e1e1e, transparent)" }} />
+            <ReviewTicker reviews={row1} direction="left"  speed={35} />
+          </div>
+          <div className="relative">
+            <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #1e1e1e, transparent)" }} />
+            <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #1e1e1e, transparent)" }} />
+            <ReviewTicker reviews={row2} direction="right" speed={42} />
           </div>
         </div>
-
-        <Reveal as="div" className="text-center mt-12 px-6">
-          <Link
-            to="/locations"
-            className="inline-block font-bold text-sm px-8 py-3.5 rounded-full transition-all duration-200 active:scale-95"
-            style={{
-              backgroundColor: "#97b64c",
-              color: "#ffffff",
-              fontFamily: "'DM Sans', sans-serif",
-              boxShadow: "0 4px 20px rgba(151,182,76,0.3)",
-            }}
-          >
-            Find a Branch Near You →
-          </Link>
-        </Reveal>
       </section>
 
       {/* ── BOTTOM CTA ── */}
-      <section style={{ backgroundColor: "#f7f9f3", borderTop: "1px solid #e8f0dc" }} className="py-14">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-6">
+      <section className="py-16" style={{ backgroundColor: "#f7f9f3", borderTop: "1px solid #e8f0dc" }}>
+        <div className="max-w-5xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-8">
           <div>
-            <h2
-              className="text-3xl font-bold"
-              style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}
-            >
+            <h2 className="text-3xl font-bold mb-1" style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif", letterSpacing: "-0.02em" }}>
               Can't decide? 🧋
             </h2>
-            <p
-              className="text-sm mt-1"
-              style={{ color: "#7a8a6a", fontFamily: "'DM Sans', sans-serif" }}
-            >
+            <p className="text-sm" style={{ color: "#7a8a6a", fontFamily: "'DM Sans', sans-serif" }}>
               Visit a branch — our crew will help you find your new favorite.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link
               to="/locations"
-              className="font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200 active:scale-95"
-              style={{
-                backgroundColor: "#97b64c",
-                color: "#ffffff",
-                fontFamily: "'DM Sans', sans-serif",
-                boxShadow: "0 4px 16px rgba(151,182,76,0.25)",
-              }}
+              className="font-bold text-sm px-8 py-3.5 rounded-full transition-all duration-200 active:scale-95"
+              style={{ backgroundColor: "#97b64c", color: "#ffffff", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 6px 20px rgba(151,182,76,0.35)" }}
             >
               Find a Branch
             </Link>
             <Link
               to="/franchise#inquiry"
-              className="font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200"
-              style={{
-                border: "1.5px solid #97b64c",
-                color: "#62840b",
-                backgroundColor: "transparent",
-                fontFamily: "'DM Sans', sans-serif",
-              }}
+              className="font-bold text-sm px-8 py-3.5 rounded-full transition-all duration-200 hover:bg-[#f0f7e6]"
+              style={{ border: "1.5px solid #97b64c", color: "#62840b", backgroundColor: "transparent", fontFamily: "'DM Sans', sans-serif" }}
             >
               Franchise Now →
             </Link>
@@ -535,16 +651,13 @@ export default function Products() {
         </div>
       </section>
 
-      {/* ── KEYFRAMES ── */}
       <style>{`
-        @keyframes marquee-left {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes marquee-right {
-          0%   { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
-        }
+        @keyframes marquee-left  { 0% { transform: translateX(0);    } 100% { transform: translateX(-50%); } }
+        @keyframes marquee-right { 0% { transform: translateX(-50%); } 100% { transform: translateX(0);    } }
+        @keyframes reviewFadeIn  { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .review-fadein { animation: reviewFadeIn 0.5s ease forwards; }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </main>
   );
