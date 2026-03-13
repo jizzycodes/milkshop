@@ -1,15 +1,17 @@
 /**
- * Run Phase 1 migration (franchise_leads + lead_contact_logs).
- * Usage: from repo root, run: node server/db/run-migration.js
+ * Run migrations (001 + 003 + 004).
+ * Usage: from server folder, run: node db/run-migration.js
+ * Loads .env from backend root so DB_PASSWORD is set.
  */
-require('dotenv').config()
+const path = require('path')
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
 const { Pool } = require('pg')
 
 const pool = new Pool({
   host: process.env.DB_HOST || 'localhost',
   port: Number(process.env.DB_PORT) || 5432,
   user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD,
+  password: process.env.DB_PASSWORD != null ? String(process.env.DB_PASSWORD) : undefined,
   database: process.env.DB_NAME || 'milkshop_backend',
 })
 
@@ -25,6 +27,7 @@ const statements = [
   proposed_location varchar(255),
   package_type varchar(100),
   remarks text,
+  remarks_admin text,
   referral varchar(255),
   stage varchar(50) NOT NULL DEFAULT 'REGISTERED',
   status varchar(50) NOT NULL DEFAULT 'NEW',
@@ -70,13 +73,24 @@ $$ LANGUAGE plpgsql`,
 )`,
   'CREATE INDEX IF NOT EXISTS idx_lead_contact_logs_lead_id ON lead_contact_logs(lead_id)',
   'CREATE INDEX IF NOT EXISTS idx_lead_contact_logs_created_at ON lead_contact_logs(created_at)',
+  // 003: contact log metadata for history table
+  `ALTER TABLE lead_contact_logs
+   ADD COLUMN IF NOT EXISTS next_followup_at timestamptz,
+   ADD COLUMN IF NOT EXISTS created_by varchar(255)`,
+  // 004: allow all outcome values
+  'ALTER TABLE lead_contact_logs DROP CONSTRAINT IF EXISTS lead_contact_logs_outcome_check',
+  `ALTER TABLE lead_contact_logs
+   ADD CONSTRAINT lead_contact_logs_outcome_check CHECK (outcome IS NULL OR outcome IN (
+     'NO_ANSWER','INTERESTED','NOT_INTERESTED','PAID','PRESENT','ABSENT',
+     'CALLBACK','CONFIRMED_SCHEDULE','ARCHIVE','DROP','CANCEL','REMIND_SUCCESS'
+   ))`,
 ]
 
 async function run() {
   for (let i = 0; i < statements.length; i++) {
     await pool.query(statements[i])
   }
-  console.log('Migration 001_phase1_franchise_leads completed.')
+  console.log('Migrations 001+003+004 completed.')
 }
 
 run()

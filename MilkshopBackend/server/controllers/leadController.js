@@ -152,7 +152,7 @@ async function postContactLog(req, res, next) {
         outcome: outcome || null,
         nextFollowupAt: nextFollowupAt || null,
       },
-      req.user?.sub,
+      req.user?.email || req.user?.sub || null,
     )
 
     res.status(201).json({ success: true, data: log })

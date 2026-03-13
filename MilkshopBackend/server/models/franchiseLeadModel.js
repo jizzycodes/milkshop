@@ -96,7 +96,7 @@ async function runPastDueDetection() {
 async function getLeadById(id) {
   const result = await query(
     `SELECT id, full_name, email, contact_number, best_contact_time, annual_income,
-     proposed_location, package_type, remarks, referral, stage, status, contact_outcome,
+     proposed_location, package_type, remarks, remarks_admin, referral, stage, status, contact_outcome,
      followup_count, next_followup_at, last_contacted_at, assigned_to, created_at, updated_at,
      best_contact_at
      FROM franchise_leads WHERE id = $1`,
@@ -172,7 +172,7 @@ async function listLeads(options = {}) {
   const listResult = await query(
     `
     SELECT id, full_name, email, contact_number, best_contact_time, annual_income,
-           proposed_location, package_type, remarks, referral, stage, status, contact_outcome,
+           proposed_location, package_type, remarks, remarks_admin, referral, stage, status, contact_outcome,
            followup_count, next_followup_at, last_contacted_at, assigned_to, created_at, updated_at,
            best_contact_at
     FROM franchise_leads
@@ -214,6 +214,7 @@ async function updateLeadFields(id, fields) {
     'contact_outcome',
     'next_followup_at',
     'assigned_to',
+    'remarks_admin',
   ]
   const setClauses = []
   const values = []

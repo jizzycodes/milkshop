@@ -2,7 +2,7 @@ const { query, getClient } = require('../config/db')
 
 async function listByLeadId(leadId) {
   const result = await query(
-    `SELECT id, lead_id, contact_type, notes, outcome, created_at
+    `SELECT id, lead_id, contact_type, notes, outcome, next_followup_at, created_by, created_at
      FROM lead_contact_logs
      WHERE lead_id = $1
      ORDER BY created_at DESC`,
@@ -23,10 +23,10 @@ async function createContactLog(leadId, payload, createdBy = null) {
     const { contactType, notes, outcome, nextFollowupAt } = payload
 
     const insertResult = await client.query(
-      `INSERT INTO lead_contact_logs (lead_id, contact_type, notes, outcome)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, lead_id, contact_type, notes, outcome, created_at`,
-      [leadId, contactType, notes || '', outcome || null],
+      `INSERT INTO lead_contact_logs (lead_id, contact_type, notes, outcome, next_followup_at, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, lead_id, contact_type, notes, outcome, next_followup_at, created_by, created_at`,
+      [leadId, contactType, notes || '', outcome || null, nextFollowupAt || null, createdBy || null],
     )
     const log = insertResult.rows[0]
 

@@ -1,6 +1,5 @@
 # Database migrations
 
-- `migrations/001_phase1_franchise_leads.sql` – creates `franchise_leads` and `lead_contact_logs`.
-- `migrations/002_add_best_contact_at.sql` – adds `best_contact_at` (timestamptz) to `franchise_leads`.
-- Run via Node (recommended): from repo root, `node server/db/run-migration.js` (uses `.env`).
-- Or run each SQL file in pgAdmin/psql against `milkshop_backend`.
+- `run-migration.js` runs 001 (franchise_leads + lead_contact_logs) plus 003 (next_followup_at, created_by on lead_contact_logs) and 004 (outcome check).
+- **Run**: From **MilkshopBackend** folder: `node server/db/run-migration.js`. Uses `.env` in backend root; ensure `DB_PASSWORD` is set.
+- Or run each SQL in `migrations/` via pgAdmin/psql against `milkshop_backend`.
