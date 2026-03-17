@@ -47,12 +47,15 @@ export default function Orientation({ initialSubStatus }) {
 
   const attendanceOptions = ["Present", "Absent"]
   const defaultOptions = ["No response", "Callback", "Confirmed Schedule", "Archive", "Drop"]
+  const confirmedOptions = ["Cancel Schedule"]
 
   const currentOptions =
     subStatus === "remind"
       ? remindOptions
       : subStatus === "attendance"
       ? attendanceOptions
+      : subStatus === "confirmed"
+      ? confirmedOptions
       : defaultOptions
 
   useEffect(() => {
@@ -90,13 +93,20 @@ export default function Orientation({ initialSubStatus }) {
 
     const outcomeMap = {
       "No response": "NO_ANSWER",
+      "No Response": "NO_ANSWER",
+      Busy: "NO_ANSWER",
+      Callback: "CALLBACK",
       "Present": "PRESENT",
       "Absent": "ABSENT",
+      Drop: "DROP",
+      Archive: "ARCHIVE",
+      "Confirmed Schedule": "CONFIRMED_SCHEDULE",
+      "Cancel Schedule": "CANCEL",
     }
 
     const outcome = outcomeMap[contactRecord] || null
 
-    await createLeadContactLog(token, selectedLead.id, {
+    const log = await createLeadContactLog(token, selectedLead.id, {
       contactType: "CALL",
       notes: notes || `Contact record: ${contactRecord}`,
       outcome,
@@ -122,9 +132,19 @@ export default function Orientation({ initialSubStatus }) {
         status: "ACTIVE",
         next_followup_at: nextContactAt || null,
       })
+    } else if (subStatus === "confirmed" && contactRecord === "Cancel Schedule") {
+      await updateLead(token, selectedLead.id, {
+        status: "INACTIVE",
+        next_followup_at: nextContactAt || null,
+      })
+    }
+
+    if (notes) {
+      await updateLead(token, selectedLead.id, { remarks_admin: notes })
     }
 
     setRefreshKey((k) => k + 1)
+    return log
   }
 
   const filteredLeads = leads
@@ -224,13 +244,14 @@ export default function Orientation({ initialSubStatus }) {
       {selectedLead && (
         <LeadModal
           lead={selectedLead}
-          contactOptions={subStatus === "confirmed" ? null : currentOptions}
-          onSaveContact={subStatus === "confirmed" ? undefined : handleSaveContact}
+          contactOptions={currentOptions}
+          onSaveContact={handleSaveContact}
           onClose={() => setSelectedLead(null)}
           onSaved={() => {
             setSuccess("Contact record saved.")
             setTimeout(() => setSuccess(""), 3000)
           }}
+          pipelineLabel="Orientation"
         />
       )}
 

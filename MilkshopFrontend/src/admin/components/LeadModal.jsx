@@ -1,5 +1,8 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { formatDateTime } from "../utils/formatDateTime"
+import { useAdminAuth } from "../context/AdminAuthContext"
+import { fetchLeadContactLogs } from "../services/leadService"
+import AddContactRecordModal from "./AddContactRecordModal"
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
@@ -19,6 +22,7 @@ const STYLES = `
 
   .lm-card {
     width: 100%;
+    max-width: 880px;
     background: #FFFFFF;
     border: 1px solid #DDE8CF;
     border-radius: 20px;
@@ -129,7 +133,7 @@ const STYLES = `
     margin: 16px 0;
   }
 
-  /* Contact Record section */
+  /* Contact Record / History sections */
   .lm-section-label {
     font-family: 'DM Mono', monospace;
     font-size: 9.5px;
@@ -149,7 +153,6 @@ const STYLES = `
 
   @media (min-width: 461px) {
     .lm-contact-row { grid-template-columns: 1fr 1fr auto; }
-    .lm-card        { max-width: 480px; }
   }
 
   .lm-select,
@@ -240,10 +243,63 @@ const STYLES = `
     box-shadow: 0 0 0 3px rgba(90,146,22,0.08);
     background: #FFFFFF;
   }
+  
+  /* Contact history table */
+  .lm-history-table-wrapper {
+    margin-top: 6px;
+    border-radius: 10px;
+    border: 1px solid #DDE8CF;
+    overflow: hidden;
+    background: #FFFFFF;
+  }
+
+  .lm-history-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .lm-history-head {
+    background: #F7F9F4;
+  }
+
+  .lm-history-th {
+    padding: 7px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-align: left;
+    color: #5A6B4A;
+    border-bottom: 1px solid #DDE8CF;
+    white-space: nowrap;
+  }
+
+  .lm-history-row:nth-child(odd) {
+    background: #FFFFFF;
+  }
+
+  .lm-history-row:nth-child(even) {
+    background: #F9FBF6;
+  }
+
+  .lm-history-td {
+    padding: 8px 10px;
+    font-size: 11.5px;
+    color: #1A2410;
+    border-bottom: 1px solid #EEF5E6;
+    vertical-align: top;
+  }
+
+  .lm-history-td-notes {
+    font-size: 11px;
+    color: #5A6B4A;
+  }
 `
 
-export default function LeadModal({ lead, onClose, contactOptions, onSaveContact, onSaved }) {
+export default function LeadModal({ lead, onClose, contactOptions, onSaveContact, onSaved, pipelineLabel }) {
   if (!lead) return null
+
+  const { token } = useAdminAuth()
 
   const name             = lead.full_name || lead.name || "—"
   const email            = lead.email || ""
@@ -268,11 +324,69 @@ export default function LeadModal({ lead, onClose, contactOptions, onSaveContact
   const [contactRecord, setContactRecord] = useState("")
   const [nextContactAt, setNextContactAt] = useState("")
   const [notes, setNotes]                 = useState("")
-  const [done, setDone]                   = useState(false)
-  const [saving, setSaving]               = useState(false)
-  const [error, setError]                 = useState("")
+  const [logs, setLogs]                   = useState([])
+  const [logsLoading, setLogsLoading]     = useState(false)
+  const [logsError, setLogsError]         = useState("")
+  const [logsRefreshKey, setLogsRefreshKey] = useState(0)
+  const [showAddModal, setShowAddModal]   = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadLogs() {
+      if (!token || !lead?.id) return
+      setLogsLoading(true)
+      setLogsError("")
+      try {
+        const res = await fetchLeadContactLogs(token, lead.id)
+        const list = Array.isArray(res) ? res : (res?.data ?? [])
+        if (!cancelled) setLogs(list)
+      } catch (e) {
+        if (!cancelled) {
+          setLogs([])
+          setLogsError(e?.message || "Failed to load contact history")
+        }
+      } finally {
+        if (!cancelled) {
+          setLogsLoading(false)
+        }
+      }
+    }
+    loadLogs()
+    return () => {
+      cancelled = true
+    }
+  }, [token, lead?.id, logsRefreshKey])
+
+  const handleCreateRecord = async ({ contactRecord, nextContactAt, notes }) => {
+    if (!onSaveContact) return
+    const log = await onSaveContact({ contactRecord, nextContactAt, notes })
+    if (onSaved) {
+      onSaved()
+    }
+    setLogsRefreshKey((k) => k + 1)
+    return log
+  }
 
   const hasOptions = Array.isArray(contactOptions) && contactOptions.length > 0
+
+  function formatOutcomeLabel(code) {
+    if (!code) return "—"
+    const map = {
+      NO_ANSWER: "No Response",
+      CONFIRMED_SCHEDULE: "Confirmed Schedule",
+      CALLBACK: "Callback",
+      PAID: "Paid",
+      DROP: "Drop",
+      ARCHIVE: "Archive",
+      NOT_INTERESTED: "Issue",
+      PRESENT: "Present",
+      ABSENT: "Absent",
+      REMIND_SUCCESS: "Remind Successfully",
+      CANCEL: "Cancel",
+      INTERESTED: "Interested",
+    }
+    return map[code] || code
+  }
 
   return (
     <>
@@ -368,8 +482,15 @@ export default function LeadModal({ lead, onClose, contactOptions, onSaveContact
 
               {remarks && (
                 <div className="lm-info-item span2">
-                  <p className="lm-info-label">Remarks</p>
+                  <p className="lm-info-label">Additional Information</p>
                   <p className="lm-info-value">{remarks}</p>
+                </div>
+              )}
+
+              {logs && logs.length > 0 && logs[0]?.notes && (
+                <div className="lm-info-item span2">
+                  <p className="lm-info-label">Remarks</p>
+                  <p className="lm-info-value">{logs[0].notes}</p>
                 </div>
               )}
 
@@ -389,77 +510,81 @@ export default function LeadModal({ lead, onClose, contactOptions, onSaveContact
 
             </div>
 
-            {/* Contact Record */}
-            {hasOptions && (
-              <>
-                <div className="lm-divider" />
-                <p className="lm-section-label">Contact Record</p>
-                <div className="lm-contact-row">
-                  <select
-                    className="lm-select"
-                    value={contactRecord}
-                    onChange={(e) => { setContactRecord(e.target.value); setDone(false) }}
-                  >
-                    <option value="">Select...</option>
-                    {contactOptions.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
-                    ))}
-                  </select>
-
-                  <input
-                    type="datetime-local"
-                    className="lm-datetime"
-                    value={nextContactAt}
-                    onChange={(e) => { setNextContactAt(e.target.value); setDone(false) }}
-                  />
-
-                  <button
-                    type="button"
-                    className="lm-btn-done"
-                    disabled={!contactRecord || !nextContactAt}
-                    onClick={async () => {
-                      if (!onSaveContact) return
-                      try {
-                        setSaving(true)
-                        setError("")
-                        await onSaveContact({ contactRecord, nextContactAt, notes })
-                        setDone(true)
-                        if (onSaved) {
-                          onSaved()
-                        }
-                        setTimeout(() => {
-                          if (onClose) {
-                            onClose()
-                          }
-                        }, 800)
-                      } catch (e) {
-                        setDone(false)
-                        setError(e?.message || "Failed to save contact record")
-                      } finally {
-                        setSaving(false)
-                      }
-                    }}
-                  >
-                    {saving ? "Saving..." : "Done"}
-                  </button>
-                </div>
-
-                {error && <p className="lm-feedback-err">{error}</p>}
-                {done  && <p className="lm-feedback-ok">✓ Contact record saved.</p>}
-
-                <span className="lm-notes-label">Notes</span>
-                <textarea
-                  rows={3}
-                  className="lm-textarea"
-                  value={notes}
-                  onChange={(e) => { setNotes(e.target.value); setDone(false) }}
-                  placeholder="Notes about this contact..."
-                />
-              </>
+            {/* Contact History */}
+            <div className="lm-divider" />
+            <div className="flex items-center justify-between gap-2">
+              <p className="lm-section-label">Contact History</p>
+              <button
+                type="button"
+                className="lm-btn-done"
+                onClick={() => setShowAddModal(true)}
+              >
+                Add Record
+              </button>
+            </div>
+            {logsLoading && <p className="lm-info-value">Loading history...</p>}
+            {logsError && !logsLoading && (
+              <p className="lm-feedback-err">{logsError}</p>
             )}
+            {!logsLoading && !logsError && (
+              <div className="lm-history-table-wrapper">
+                <table className="lm-history-table">
+                  <thead className="lm-history-head">
+                    <tr>
+                      <th className="lm-history-th">Status</th>
+                      <th className="lm-history-th">Serial</th>
+                      <th className="lm-history-th">Contact Date/Time</th>
+                      <th className="lm-history-th">Results</th>
+                      <th className="lm-history-th">Next Contact Date/Time</th>
+                      <th className="lm-history-th">Contacter</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {logs.length === 0 ? (
+                      <tr className="lm-history-row">
+                        <td colSpan={6} className="lm-history-td lm-history-td-notes">
+                          No contact records yet.
+                        </td>
+                      </tr>
+                    ) : (
+                      logs.map((log, index) => (
+                        <tr key={log.id} className="lm-history-row">
+                          <td className="lm-history-td">
+                            {pipelineLabel || lead.status || "—"}
+                          </td>
+                          <td className="lm-history-td">{logs.length - index}</td>
+                          <td className="lm-history-td">
+                            {formatDateTime(log.created_at)}
+                          </td>
+                          <td className="lm-history-td">
+                            {formatOutcomeLabel(log.outcome) || log.contact_type || "—"}
+                          </td>
+                          <td className="lm-history-td">
+                            {log.next_followup_at
+                              ? formatDateTime(log.next_followup_at)
+                              : "—"}
+                          </td>
+                          <td className="lm-history-td">
+                            {log.created_by || "—"}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
           </div>
         </div>
       </div>
+
+      <AddContactRecordModal
+        open={showAddModal && hasOptions}
+        onClose={() => setShowAddModal(false)}
+        onSubmit={handleCreateRecord}
+        options={contactOptions}
+      />
     </>
   )
 }

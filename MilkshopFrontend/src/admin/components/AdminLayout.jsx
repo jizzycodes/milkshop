@@ -27,6 +27,17 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  {
+    to: "/admin/qr-email",
+    label: "Qr and Email",
+    icon: (
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="14" rx="2" />
+        <polyline points="4 6 12 11 20 6" />
+        <path d="M9 16h6" />
+      </svg>
+    ),
+  },
 ];
 
 const STYLES = `

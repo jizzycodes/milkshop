@@ -11,6 +11,7 @@ import Franchise from './pages/Franchise'
 import AdminLogin from './admin/pages/AdminLogin'
 import AdminDashboard from './admin/pages/AdminDashboard'
 import LeadsPage from './admin/pages/LeadsPage'
+import QrAndEmail from './admin/pages/QrAndEmail'
 import LeadDetails from './admin/pages/LeadDetails'
 import AdminLayout from './admin/components/AdminLayout'
 import ProtectedRoute from './admin/components/ProtectedRoute'
@@ -56,6 +57,17 @@ function AppRoutes() {
           <ProtectedRoute>
             <AdminLayout>
               <LeadsPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/qr-email"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <QrAndEmail />
             </AdminLayout>
           </ProtectedRoute>
         }

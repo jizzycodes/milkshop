@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import LeadTable from "../components/LeadTable"
 import LeadModal from "../components/LeadModal"
 import { useAdminAuth } from "../context/AdminAuthContext"
-import { fetchLeads } from "../services/leadService"
+import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
 
 export default function Archived() {
@@ -11,6 +11,8 @@ export default function Archived() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [selectedLead, setSelectedLead] = useState(null)
+   const [refreshKey, setRefreshKey] = useState(0)
+   const [success, setSuccess] = useState("")
 
   const columns = [
     { key: "name", label: "Lead Name" },
@@ -39,7 +41,38 @@ export default function Archived() {
         if (!cancelled) setLoading(false)
       })
     return () => { cancelled = true }
-  }, [token])
+  }, [token, refreshKey])
+
+  const contactOptions = ["Confirmed Schedule"]
+
+  const handleSaveContact = async ({ contactRecord, nextContactAt, notes }) => {
+    if (!token || !selectedLead) return
+
+    if (contactRecord !== "Confirmed Schedule") {
+      throw new Error("Invalid result for archived lead.")
+    }
+
+    if (!nextContactAt) {
+      throw new Error("Please select a next contact date.")
+    }
+
+    const log = await createLeadContactLog(token, selectedLead.id, {
+      contactType: "CALL",
+      notes: notes || "Contact record: Confirmed Schedule",
+      outcome: "CONFIRMED_SCHEDULE",
+      nextFollowupAt: nextContactAt,
+    })
+
+    await updateLead(token, selectedLead.id, {
+      stage: "REGISTERED",
+      status: "ACTIVE",
+      next_followup_at: nextContactAt,
+      ...(notes ? { remarks_admin: notes } : {}),
+    })
+
+    setRefreshKey((k) => k + 1)
+    return log
+  }
 
   return (
     <div className="space-y-5">
@@ -100,7 +133,37 @@ export default function Archived() {
       )}
 
       {selectedLead && (
-        <LeadModal lead={selectedLead} onClose={() => setSelectedLead(null)} />
+        <LeadModal
+          lead={selectedLead}
+          contactOptions={contactOptions}
+          onSaveContact={handleSaveContact}
+          onClose={() => setSelectedLead(null)}
+          onSaved={() => {
+            setSuccess("Contact record saved.")
+            setTimeout(() => setSuccess(""), 3000)
+          }}
+          pipelineLabel="Archived"
+        />
+      )}
+
+      {success && !error && (
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-start justify-center pt-20">
+          <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-[#166534] px-4 py-2 text-xs font-medium text-white shadow-lg">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            {success}
+          </div>
+        </div>
       )}
     </div>
   )

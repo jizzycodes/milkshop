@@ -138,7 +138,7 @@ function DrinksCarousel() {
       onMouseEnter={stopAuto}
       onMouseLeave={startAuto}
     >
-      {/* Carousel Track */}
+      {/* Carousel Track + Arrows */}
       <div className="relative h-72 sm:h-80 flex items-center justify-center overflow-hidden">
         {topDrinks.map((drink, i) => {
           const pos = getPos(i);
@@ -158,6 +158,37 @@ function DrinksCarousel() {
             </button>
           );
         })}
+
+        {total > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => setActive((active - 1 + total) % total)}
+              className="hidden sm:flex items-center justify-center absolute left-4 md:left-10 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border text-xs transition-colors"
+              style={{
+                borderColor: "#b7cd7f",
+                backgroundColor: "rgba(183,205,127,0.18)",
+                color: "#b7cd7f",
+              }}
+              aria-label="Previous drink"
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              onClick={() => setActive((active + 1) % total)}
+              className="hidden sm:flex items-center justify-center absolute right-4 md:right-10 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border text-xs transition-colors"
+              style={{
+                borderColor: "#b7cd7f",
+                backgroundColor: "rgba(183,205,127,0.18)",
+                color: "#b7cd7f",
+              }}
+              aria-label="Next drink"
+            >
+              →
+            </button>
+          </>
+        )}
       </div>
 
       {/* Active Drink Info */}

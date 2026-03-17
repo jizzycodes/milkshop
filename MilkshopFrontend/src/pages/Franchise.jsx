@@ -625,7 +625,7 @@ export default function Franchise() {
                   </select>
                 </Field>
 
-                <Field label="Remarks" required error={fieldErrors.remarks}>
+                <Field label="Additional Information" required error={fieldErrors.remarks}>
                   <textarea id="remarks" name="remarks" value={formData.remarks} onChange={handleChange} rows={4} placeholder="Tell us about your planned location, your background, or any questions you have..." className={`${inputBase} ${fieldErrors.remarks ? inputErr : inputIdle} resize-none`} />
                 </Field>
 

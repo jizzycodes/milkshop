@@ -63,12 +63,16 @@ export default function Attended() {
 
     const outcomeMap = {
       "No Response": "NO_ANSWER",
-      Paid: "PAID",
+      Busy: "NO_ANSWER",
+      Callback: "CALLBACK",
+      "Paid": "PAID",
+      Drop: "DROP",
+      Archive: "ARCHIVE",
     }
 
     const outcome = outcomeMap[contactRecord] || null
 
-    await createLeadContactLog(token, selectedLead.id, {
+    const log = await createLeadContactLog(token, selectedLead.id, {
       contactType: "CALL",
       notes: notes || `Contact record: ${contactRecord}`,
       outcome,
@@ -85,9 +89,18 @@ export default function Attended() {
         status: "ACTIVE",
         next_followup_at: nextContactAt || null,
       })
+    } else if (["No Response", "Call back"].includes(contactRecord) && nextContactAt) {
+      await updateLead(token, selectedLead.id, {
+        next_followup_at: nextContactAt,
+      })
+    }
+
+    if (notes) {
+      await updateLead(token, selectedLead.id, { remarks_admin: notes })
     }
 
     setRefreshKey((k) => k + 1)
+    return log
   }
 
   const filteredLeads = leads
@@ -159,7 +172,7 @@ export default function Attended() {
                 Select in View
               </td>
               <td className="px-4 py-3 text-xs text-[#5A6B4A]">
-                {formatDateTime(lead.best_contact_at || lead.next_followup_at)}
+                {formatDateTime(lead.next_followup_at || lead.best_contact_at)}
               </td>
               <td className="px-4 py-3">
                 <button
@@ -185,6 +198,7 @@ export default function Attended() {
             setSuccess("Contact record saved.")
             setTimeout(() => setSuccess(""), 3000)
           }}
+          pipelineLabel="Attended"
         />
       )}
 

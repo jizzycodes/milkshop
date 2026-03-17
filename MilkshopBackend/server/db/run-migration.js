@@ -84,6 +84,8 @@ $$ LANGUAGE plpgsql`,
      'NO_ANSWER','INTERESTED','NOT_INTERESTED','PAID','PRESENT','ABSENT',
      'CALLBACK','CONFIRMED_SCHEDULE','ARCHIVE','DROP','CANCEL','REMIND_SUCCESS'
    ))`,
+  // 005: admin remarks on franchise_leads (for existing tables)
+  'ALTER TABLE franchise_leads ADD COLUMN IF NOT EXISTS remarks_admin text',
 ]
 
 async function run() {

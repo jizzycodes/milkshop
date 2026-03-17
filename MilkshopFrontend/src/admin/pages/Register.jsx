@@ -185,11 +185,23 @@ const REGISTER_TABS = [
   { value: "inactive", label: "Inactive" },
 ]
 
-function statusForSubStatus(subStatus) {
-  return subStatus === "active" ? "FOR_FOLLOWUP" : "NEW"
-}
-
-function StatusPill({ status }) {
+function StatusPill({ status, subStatus }) {
+  if (subStatus === "active") {
+    return (
+      <span className="reg-status-badge badge-followup">
+        <span className="reg-badge-dot" />
+        Follow-up
+      </span>
+    )
+  }
+  if (subStatus === "inactive") {
+    return (
+      <span className="reg-status-badge badge-new">
+        <span className="reg-badge-dot" />
+        New
+      </span>
+    )
+  }
   const map = {
     NEW:          { label: "New",           cls: "badge-new"      },
     FOR_FOLLOWUP: { label: "For Follow-up", cls: "badge-followup" },
@@ -237,7 +249,6 @@ export default function Register() {
     setError("")
     fetchLeads(token, {
       tab: "new",
-      status: statusForSubStatus(subStatus),
       page: 1,
       pageSize: 50,
     })
@@ -245,15 +256,23 @@ export default function Register() {
       .catch((err) => { if (!cancelled) setError(err?.message || "Failed to load leads"); setLeads([]) })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [token, subStatus, refreshKey])
+  }, [token, refreshKey])
 
   const handleSaveContact = async ({ contactRecord, nextContactAt, notes }) => {
     if (!token || !selectedLead) return
 
-    const outcomeMap = { "No Response": "NO_ANSWER" }
+    const outcomeMap = {
+      "No Response": "NO_ANSWER",
+      Busy: "NO_ANSWER",
+      Callback: "CALLBACK",
+      Issue: "NOT_INTERESTED",
+      Drop: "DROP",
+      Archive: "ARCHIVE",
+      "Confirmed Schedule": "CONFIRMED_SCHEDULE",
+    }
     const outcome = outcomeMap[contactRecord] || null
 
-    await createLeadContactLog(token, selectedLead.id, {
+    const log = await createLeadContactLog(token, selectedLead.id, {
       contactType: "CALL",
       notes: notes || `Contact record: ${contactRecord}`,
       outcome,
@@ -270,9 +289,18 @@ export default function Register() {
         status: "ACTIVE",
         next_followup_at: nextContactAt,
       })
+    } else if (["No Response", "Callback"].includes(contactRecord) && nextContactAt) {
+      await updateLead(token, selectedLead.id, {
+        next_followup_at: nextContactAt,
+      })
+    }
+
+    if (notes) {
+      await updateLead(token, selectedLead.id, { remarks_admin: notes })
     }
 
     setRefreshKey((k) => k + 1)
+    return log
   }
 
   return (
@@ -310,20 +338,31 @@ export default function Register() {
           <div className="reg-table-card">
             <LeadTable
               columns={columns}
-              leads={leads}
+              leads={leads
+                .filter((lead) => lead.status !== "ARCHIVED" && lead.status !== "DROPPED")
+                .filter((lead) => {
+                  const ts = lead.next_followup_at || lead.best_contact_at
+                  if (!ts) return subStatus === "inactive"
+                  const now = new Date()
+                  const d = new Date(ts)
+                  if (subStatus === "active") {
+                    return d.getTime() <= now.getTime()
+                  }
+                  return d.getTime() > now.getTime()
+                })}
               renderRow={(lead) => (
                 <tr key={lead.id} className="reg-tr">
                   <td className="reg-td">
                     <span className="reg-name">{lead.full_name || "—"}</span>
                   </td>
                   <td className="reg-td">
-                    <StatusPill status={lead.status} />
+                    <StatusPill status={lead.status} subStatus={subStatus} />
                   </td>
                   <td className="reg-td-mono">
                     {formatDateTime(lead.created_at)}
                   </td>
                   <td className="reg-td-mono">
-                    {formatDateTime(lead.best_contact_at || lead.next_followup_at)}
+                    {formatDateTime(lead.next_followup_at || lead.best_contact_at)}
                   </td>
                   <td className="reg-td">
                     <button
@@ -350,6 +389,7 @@ export default function Register() {
               setSuccess("Contact record saved.")
               setTimeout(() => setSuccess(""), 3000)
             }}
+            pipelineLabel="Register"
           />
         )}
 
