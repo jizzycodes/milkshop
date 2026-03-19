@@ -330,8 +330,11 @@ function PremiumCarousel({ products }) {
       {/* Dot Indicators */}
       {products.length > VISIBLE && (
         <div style={{
-          display: "flex", justifyContent: "center", gap: "10px",
-          marginTop: "20px",
+          display: "flex",
+          justifyContent: "center",
+          gap: "10px",
+          marginTop: "10px",
+          marginBottom: "70px",
         }}>
           {Array.from({ length: maxOffset + 1 }).map((_, i) => (
             <button
@@ -360,14 +363,14 @@ function CategorySection({ category, products }) {
   const isBreak = category === "Bread";
 
   return (
-    <Reveal as="section" style={{ marginBottom: "96px" }}>
+    <Reveal as="section" style={{ marginBottom: "10px" }}>
       {/* Header */}
-      <div style={{ textAlign: "center", marginBottom: "8px", padding: "0 24px" }}>
+      <div style={{ textAlign: "center", marginBottom: "10px", padding: "0 24px" }}>
         <span style={{
           display: "inline-block",
           fontSize: "12px", fontWeight: 800, letterSpacing: "0.3em",
           textTransform: "uppercase", color: "#97b64c",
-          fontFamily: "'DM Sans', sans-serif", marginBottom: "10px",
+          fontFamily: "'DM Sans', sans-serif", marginBottom: "5px",
         }}>
           {isBreak ? "Bites" : "Series"}
         </span>

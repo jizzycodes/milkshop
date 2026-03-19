@@ -1,465 +1,577 @@
 import { useState, useEffect, useRef } from "react"
 import { Link } from "react-router-dom"
+import { supabase } from "../lib/supabaseClient"
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 
-const locations = [
-  { id: 1,  name: "SM Mall of Asia",          region: "Metro Manila", address: "SM Mall of Asia, Pasay City, Metro Manila",                hours: "10:00 AM – 10:00 PM", phone: "0995 290 8161", dateEstablished: "March 2022",     tag: "Flagship", tagColor: { bg: "#97b64c", text: "#fff" },  photo: null },
-  { id: 2,  name: "BGC Bonifacio High Street", region: "Metro Manila", address: "Bonifacio High Street, BGC, Taguig City",                  hours: "10:00 AM – 11:00 PM", phone: "0995 290 8162", dateEstablished: "June 2022",      tag: "Popular",  tagColor: { bg: "#E8A020", text: "#fff" },  photo: null },
-  { id: 3,  name: "SM Megamall",               region: "Metro Manila", address: "SM Megamall, Ortigas, Mandaluyong City",                   hours: "10:00 AM – 10:00 PM", phone: "0995 290 8163", dateEstablished: "August 2022",    tag: null,       tagColor: null,                             photo: null },
-  { id: 4,  name: "Trinoma",                   region: "Metro Manila", address: "TriNoma Mall, North Avenue, Quezon City",                  hours: "10:00 AM – 10:00 PM", phone: "0995 290 8164", dateEstablished: "October 2022",   tag: null,       tagColor: null,                             photo: null },
-  { id: 5,  name: "Robinsons Ermita",          region: "Metro Manila", address: "Robinsons Place Manila, Ermita, Manila",                   hours: "10:00 AM – 9:30 PM",  phone: "0995 290 8165", dateEstablished: "November 2022",  tag: null,       tagColor: null,                             photo: null },
-  { id: 6,  name: "SM City Baguio",            region: "Luzon",        address: "SM City Baguio, Luneta Hill, Baguio City",                 hours: "10:00 AM – 9:00 PM",  phone: "0995 290 8166", dateEstablished: "February 2023",  tag: "New",      tagColor: { bg: "#97b64c", text: "#fff" },  photo: null },
-  { id: 7,  name: "SM City Pampanga",          region: "Luzon",        address: "SM City Pampanga, San Fernando, Pampanga",                 hours: "10:00 AM – 9:30 PM",  phone: "0995 290 8167", dateEstablished: "April 2023",     tag: null,       tagColor: null,                             photo: null },
-  { id: 8,  name: "Robinsons Naga",            region: "Luzon",        address: "Robinsons Place Naga, Naga City, Camarines Sur",           hours: "10:00 AM – 9:00 PM",  phone: "0995 290 8168", dateEstablished: "July 2023",      tag: "New",      tagColor: { bg: "#97b64c", text: "#fff" },  photo: null },
-  { id: 9,  name: "SM City Sta. Rosa",         region: "Luzon",        address: "SM City Sta. Rosa, Sta. Rosa City, Laguna",                hours: "10:00 AM – 10:00 PM", phone: "0995 290 8169", dateEstablished: "September 2023", tag: null,       tagColor: null,                             photo: null },
-  { id: 10, name: "Ayala Center Cebu",         region: "Visayas",      address: "Ayala Center Cebu, Cebu Business Park, Cebu City",         hours: "10:00 AM – 10:00 PM", phone: "0995 290 8170", dateEstablished: "May 2023",       tag: "Popular",  tagColor: { bg: "#E8A020", text: "#fff" },  photo: null },
-  { id: 11, name: "SM City Iloilo",            region: "Visayas",      address: "SM City Iloilo, Iloilo City, Iloilo",                      hours: "10:00 AM – 9:30 PM",  phone: "0995 290 8171", dateEstablished: "August 2023",    tag: null,       tagColor: null,                             photo: null },
-  { id: 12, name: "Robinsons Bacolod",         region: "Visayas",      address: "Robinsons Place Bacolod, Bacolod City, Negros Occidental", hours: "10:00 AM – 9:00 PM",  phone: "0995 290 8172", dateEstablished: "November 2023",  tag: "New",      tagColor: { bg: "#97b64c", text: "#fff" },  photo: null },
-  { id: 13, name: "Abreeza Mall Davao",        region: "Mindanao",     address: "Abreeza Ayala Mall, J.P. Laurel Ave., Davao City",         hours: "10:00 AM – 10:00 PM", phone: "0995 290 8173", dateEstablished: "June 2023",      tag: "Popular",  tagColor: { bg: "#E8A020", text: "#fff" },  photo: null },
-  { id: 14, name: "SM City Cagayan de Oro",    region: "Mindanao",     address: "SM City CDO, Limketkai Dr., Cagayan de Oro City",          hours: "10:00 AM – 9:30 PM",  phone: "0995 290 8174", dateEstablished: "September 2023", tag: null,       tagColor: null,                             photo: null },
-  { id: 15, name: "NCCC Mall Zamboanga",       region: "Mindanao",     address: "NCCC Mall, Veterans Ave., Zamboanga City",                 hours: "10:00 AM – 9:00 PM",  phone: "0995 290 8175", dateEstablished: "January 2024",   tag: "New",      tagColor: { bg: "#97b64c", text: "#fff" },  photo: null },
-];
-
-const regions = [
-  { label: "All",          emoji: "🗺️" },
-  { label: "Metro Manila", emoji: "🏙️" },
-  { label: "Luzon",        emoji: "🌿" },
-  { label: "Visayas",      emoji: "🌊" },
-  { label: "Mindanao",     emoji: "🏝️" },
-];
+const STATIC_LOCATIONS = [
+  { id: 1,  name: "SM Mall of Asia",           region: "Metro Manila", address: "SM Mall of Asia, Pasay City, Metro Manila",                hours: "10:00 AM – 10:00 PM", phone: "0995 290 8161", dateEstablished: "March 2022",     tag: "Flagship", tagColor: { bg: "#97b64c", text: "#fff" },  photo: null },
+  { id: 2,  name: "BGC Bonifacio High Street",  region: "Metro Manila", address: "Bonifacio High Street, BGC, Taguig City",                  hours: "10:00 AM – 11:00 PM", phone: "0995 290 8162", dateEstablished: "June 2022",      tag: "Popular",  tagColor: { bg: "#E8A020", text: "#fff" },  photo: null },
+  { id: 3,  name: "SM Megamall",                region: "Metro Manila", address: "SM Megamall, Ortigas, Mandaluyong City",                   hours: "10:00 AM – 10:00 PM", phone: "0995 290 8163", dateEstablished: "August 2022",    tag: null,       tagColor: null,                             photo: null },
+  { id: 4,  name: "Trinoma",                    region: "Metro Manila", address: "TriNoma Mall, North Avenue, Quezon City",                  hours: "10:00 AM – 10:00 PM", phone: "0995 290 8164", dateEstablished: "October 2022",   tag: null,       tagColor: null,                             photo: null },
+  { id: 5,  name: "Robinsons Ermita",           region: "Metro Manila", address: "Robinsons Place Manila, Ermita, Manila",                   hours: "10:00 AM – 9:30 PM",  phone: "0995 290 8165", dateEstablished: "November 2022",  tag: null,       tagColor: null,                             photo: null },
+  { id: 6,  name: "SM City Baguio",             region: "Luzon",        address: "SM City Baguio, Luneta Hill, Baguio City",                 hours: "10:00 AM – 9:00 PM",  phone: "0995 290 8166", dateEstablished: "February 2023",  tag: "New",      tagColor: { bg: "#97b64c", text: "#fff" },  photo: null },
+  { id: 7,  name: "SM City Pampanga",           region: "Luzon",        address: "SM City Pampanga, San Fernando, Pampanga",                 hours: "10:00 AM – 9:30 PM",  phone: "0995 290 8167", dateEstablished: "April 2023",     tag: null,       tagColor: null,                             photo: null },
+  { id: 8,  name: "Robinsons Naga",             region: "Luzon",        address: "Robinsons Place Naga, Naga City, Camarines Sur",           hours: "10:00 AM – 9:00 PM",  phone: "0995 290 8168", dateEstablished: "July 2023",      tag: "New",      tagColor: { bg: "#97b64c", text: "#fff" },  photo: null },
+  { id: 9,  name: "SM City Sta. Rosa",          region: "Luzon",        address: "SM City Sta. Rosa, Sta. Rosa City, Laguna",                hours: "10:00 AM – 10:00 PM", phone: "0995 290 8169", dateEstablished: "September 2023", tag: null,       tagColor: null,                             photo: null },
+  { id: 10, name: "Ayala Center Cebu",          region: "Visayas",      address: "Ayala Center Cebu, Cebu Business Park, Cebu City",         hours: "10:00 AM – 10:00 PM", phone: "0995 290 8170", dateEstablished: "May 2023",       tag: "Popular",  tagColor: { bg: "#E8A020", text: "#fff" },  photo: null },
+  { id: 11, name: "SM City Iloilo",             region: "Visayas",      address: "SM City Iloilo, Iloilo City, Iloilo",                      hours: "10:00 AM – 9:30 PM",  phone: "0995 290 8171", dateEstablished: "August 2023",    tag: null,       tagColor: null,                             photo: null },
+  { id: 12, name: "Robinsons Bacolod",          region: "Visayas",      address: "Robinsons Place Bacolod, Bacolod City, Negros Occidental", hours: "10:00 AM – 9:00 PM",  phone: "0995 290 8172", dateEstablished: "November 2023",  tag: "New",      tagColor: { bg: "#97b64c", text: "#fff" },  photo: null },
+  { id: 13, name: "Abreeza Mall Davao",         region: "Mindanao",     address: "Abreeza Ayala Mall, J.P. Laurel Ave., Davao City",         hours: "10:00 AM – 10:00 PM", phone: "0995 290 8173", dateEstablished: "June 2023",      tag: "Popular",  tagColor: { bg: "#E8A020", text: "#fff" },  photo: null },
+  { id: 14, name: "SM City Cagayan de Oro",     region: "Mindanao",     address: "SM City CDO, Limketkai Dr., Cagayan de Oro City",          hours: "10:00 AM – 9:30 PM",  phone: "0995 290 8174", dateEstablished: "September 2023", tag: null,       tagColor: null,                             photo: null },
+  { id: 15, name: "NCCC Mall Zamboanga",        region: "Mindanao",     address: "NCCC Mall, Veterans Ave., Zamboanga City",                 hours: "10:00 AM – 9:00 PM",  phone: "0995 290 8175", dateEstablished: "January 2024",   tag: "New",      tagColor: { bg: "#97b64c", text: "#fff" },  photo: null },
+]
 
 const regionAccent = {
   "Metro Manila": "#97b64c",
   "Luzon":        "#62840b",
   "Visayas":      "#E8A020",
   "Mindanao":     "#b7cd7f",
-};
+}
 
 // ─── ANIMATION HOOK ───────────────────────────────────────────────────────────
 
-function useInView(threshold = 0.12) {
-  const ref = useRef(null);
-  const [inView, setInView] = useState(false);
+function useInView(threshold = 0.08) {
+  const ref = useRef(null)
+  const [inView, setInView] = useState(false)
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const el = ref.current
+    if (!el) return
     const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setInView(true); obs.disconnect(); }
-    }, { threshold });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-  return [ref, inView];
+      if (e.isIntersecting) { setInView(true); obs.disconnect() }
+    }, { threshold })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  return [ref, inView]
 }
 
-function Slide({ children, className = "", style = {}, delay = 0, direction = "up" }) {
-  const [ref, inView] = useInView();
-  const from = { up: "translateY(36px)", left: "translateX(-36px)", right: "translateX(36px)" };
-  return (
-    <div ref={ref} className={className} style={{
-      ...style,
-      opacity: inView ? 1 : 0,
-      transform: inView ? "none" : from[direction],
-      transition: `opacity 0.65s ease ${delay}ms, transform 0.65s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
-    }}>
-      {children}
-    </div>
-  );
-}
-
-// ─── CARD ─────────────────────────────────────────────────────────────────────
+// ─── LOCATION CARD ────────────────────────────────────────────────────────────
 
 function LocationCard({ loc, index }) {
-  const accent = regionAccent[loc.region] || "#97b64c";
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    setVisible(false);
-    const t = setTimeout(() => setVisible(true), index * 55);
-    return () => clearTimeout(t);
-  }, [loc.id, index]);
-
-  const regionEmoji = regions.find(r => r.label === loc.region)?.emoji || "📍";
+  const [ref, inView] = useInView()
+  const [hovered, setHovered] = useState(false)
+  const [imgError, setImgError] = useState(false)
+  const accent = regionAccent[loc.region] || "#97b64c"
 
   return (
     <div
-      className="group relative bg-white rounded-3xl overflow-hidden flex flex-col"
+      ref={ref}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
-        border: "1px solid #e8f0dc",
-        boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
-        opacity: visible ? 1 : 0,
-        transform: visible ? "none" : "translateY(28px)",
-        transition: "opacity 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1), box-shadow 0.25s ease",
+        backgroundColor: "#ffffff",
+        borderRadius: "20px",
+        overflow: "hidden",
+        border: `1px solid ${hovered ? accent + "55" : "#e8f0dc"}`,
+        boxShadow: hovered
+          ? `0 20px 48px rgba(0,0,0,0.10), 0 0 0 1px ${accent}22`
+          : "0 2px 12px rgba(0,0,0,0.05)",
+        opacity: inView ? 1 : 0,
+        transform: inView
+          ? hovered ? "translateY(-6px)" : "translateY(0)"
+          : "translateY(24px)",
+        transition: `opacity 0.5s ease ${index * 50}ms, transform 0.4s cubic-bezier(0.22,1,0.36,1) ${index * 50}ms, box-shadow 0.3s ease, border-color 0.3s ease`,
+        display: "flex",
+        flexDirection: "column",
+        cursor: "pointer",
       }}
-      onMouseEnter={e => e.currentTarget.style.boxShadow = "0 12px 40px rgba(0,0,0,0.1)"}
-      onMouseLeave={e => e.currentTarget.style.boxShadow = "0 2px 16px rgba(0,0,0,0.05)"}
     >
-      {/* Region accent top stripe */}
-      <div style={{ height: "3px", backgroundColor: accent }} />
-
-      {/* Photo / Placeholder */}
-      <div className="relative overflow-hidden" style={{ height: "172px", backgroundColor: "#f5f8ef" }}>
-        {loc.photo ? (
-          <img src={loc.photo} alt={loc.name} draggable={false}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+      {/* ── Photo area ── */}
+      <div style={{
+        position: "relative",
+        height: "200px",
+        backgroundColor: "#f0f5e8",
+        overflow: "hidden",
+        flexShrink: 0,
+      }}>
+        {loc.photo && !imgError ? (
+          <img
+            src={loc.photo}
+            alt={loc.name}
+            onError={() => setImgError(true)}
+            draggable={false}
+            style={{
+              width: "100%", height: "100%", objectFit: "cover",
+              transition: "transform 0.5s cubic-bezier(0.22,1,0.36,1)",
+              transform: hovered ? "scale(1.06)" : "scale(1)",
+              display: "block",
+            }}
+          />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-3">
-            <div className="relative flex flex-col items-center">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: `${accent}18`, border: `2px solid ${accent}28` }}>
-                <svg className="w-6 h-6" fill="none" stroke={accent} strokeWidth="1.8" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                </svg>
-              </div>
-              <div className="mt-1 w-8 h-1.5 rounded-full" style={{ backgroundColor: `${accent}20`, filter: "blur(3px)" }} />
+          <div style={{
+            width: "100%", height: "100%",
+            background: `linear-gradient(145deg, ${accent}18 0%, ${accent}08 60%, #f5f8ef 100%)`,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center", gap: "10px",
+            position: "relative", overflow: "hidden",
+          }}>
+            <div style={{
+              position: "absolute", inset: 0, pointerEvents: "none",
+              backgroundImage: `radial-gradient(circle, ${accent}22 1px, transparent 1px)`,
+              backgroundSize: "22px 22px",
+            }} />
+            <div style={{
+              width: "56px", height: "56px", borderRadius: "50%",
+              backgroundColor: `${accent}18`,
+              border: `1.5px solid ${accent}30`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              position: "relative", zIndex: 1,
+            }}>
+              <svg width="22" height="22" fill="none" stroke={accent} strokeWidth="1.8" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+              </svg>
             </div>
-            <p className="text-[11px] font-medium" style={{ color: `${accent}88`, fontFamily: "'DM Sans', sans-serif" }}>
+            <span style={{
+              fontSize: "10px", fontWeight: 600, color: `${accent}88`,
+              fontFamily: "'DM Sans', sans-serif", position: "relative", zIndex: 1,
+              letterSpacing: "0.05em",
+            }}>
               Photo coming soon
-            </p>
+            </span>
+            <div style={{
+              position: "absolute", bottom: 0, left: "50%",
+              transform: "translateX(-50%)",
+              width: "60%", height: "32px",
+              background: `radial-gradient(ellipse, ${accent}20 0%, transparent 70%)`,
+              filter: "blur(6px)",
+            }} />
           </div>
         )}
 
+        {/* Tag badge */}
         {loc.tag && (
-          <span className="absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm"
-            style={{ backgroundColor: loc.tagColor.bg, color: loc.tagColor.text, fontFamily: "'DM Sans', sans-serif" }}>
+          <span style={{
+            position: "absolute", top: "12px", left: "12px",
+            fontSize: "9px", fontWeight: 800,
+            letterSpacing: "0.14em", textTransform: "uppercase",
+            padding: "4px 10px", borderRadius: "999px",
+            backgroundColor: loc.tagColor?.bg || accent,
+            color: loc.tagColor?.text || "#fff",
+            fontFamily: "'DM Sans', sans-serif",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+          }}>
             {loc.tag}
           </span>
         )}
 
-        <span className="absolute top-3 right-3 text-[10px] font-semibold px-2.5 py-1 rounded-full"
-          style={{ backgroundColor: "white", color: accent, border: `1px solid ${accent}28`, fontFamily: "'DM Sans', sans-serif" }}>
-          {regionEmoji} {loc.region}
+        {/* Region chip */}
+        <span style={{
+          position: "absolute", top: "12px", right: "12px",
+          fontSize: "9px", fontWeight: 700,
+          letterSpacing: "0.1em", textTransform: "uppercase",
+          padding: "4px 10px", borderRadius: "999px",
+          backgroundColor: "rgba(255,255,255,0.92)",
+          color: accent,
+          border: `1px solid ${accent}30`,
+          fontFamily: "'DM Sans', sans-serif",
+          backdropFilter: "blur(8px)",
+        }}>
+          {loc.region}
         </span>
+
+        {/* Accent line bottom of photo */}
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0,
+          height: "3px",
+          background: `linear-gradient(to right, ${accent}, ${accent}66)`,
+          opacity: hovered ? 1 : 0.35,
+          transition: "opacity 0.3s ease",
+        }} />
       </div>
 
-      {/* Body */}
-      <div className="flex flex-col gap-4 p-5 flex-1">
-
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-sm leading-snug" style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}>
+      {/* ── Body ── */}
+      <div style={{
+        padding: "20px 20px 22px",
+        display: "flex", flexDirection: "column", gap: "14px", flex: 1,
+      }}>
+        {/* Name */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px" }}>
+          <h3 style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "0.95rem", fontWeight: 800,
+            color: "#1e1e1e", letterSpacing: "-0.02em",
+            lineHeight: 1.25, margin: 0, flex: 1,
+          }}>
             {loc.name}
           </h3>
-          <span className="shrink-0 text-[10px] font-bold px-2 py-1 rounded-lg whitespace-nowrap"
-            style={{ backgroundColor: "#f5f8ef", color: "#62840b", border: "1px solid #d0e0b0", fontFamily: "'DM Mono', monospace" }}>
-            {loc.dateEstablished.split(" ")[1]}
-          </span>
         </div>
 
-        <div className="flex flex-col gap-2 flex-1">
-          {[
-            { icon: "📍", text: loc.address },
-            { icon: "🕐", text: loc.hours },
-            { icon: "📞", text: loc.phone, mono: true },
-          ].map((row, i) => (
-            <div key={i} className="flex items-start gap-2">
-              <span className="text-xs shrink-0 mt-0.5">{row.icon}</span>
-              <p className="text-xs leading-relaxed" style={{
-                color: "#5a6a4a",
-                fontFamily: row.mono ? "'DM Mono', monospace" : "'DM Sans', sans-serif",
-              }}>{row.text}</p>
-            </div>
-          ))}
+        {/* Info rows */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+            <svg style={{ flexShrink: 0, marginTop: "2px" }} width="12" height="12" fill="none" stroke={accent} strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+            </svg>
+            <span style={{ fontSize: "11px", color: "#5a6a4a", lineHeight: 1.5, fontFamily: "'DM Sans', sans-serif" }}>
+              {loc.address}
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <svg style={{ flexShrink: 0 }} width="12" height="12" fill="none" stroke={accent} strokeWidth="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2"/>
+            </svg>
+            <span style={{ fontSize: "11px", color: "#5a6a4a", fontFamily: "'DM Sans', sans-serif" }}>
+              {loc.hours}
+            </span>
+          </div>
         </div>
 
-        <div className="h-px" style={{ backgroundColor: "#e8f0dc" }} />
-
-        <a
-          href={`https://maps.google.com/?q=${encodeURIComponent(loc.address)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-xs transition-all duration-200 active:scale-95"
-          style={{ backgroundColor: accent, color: "#ffffff", fontFamily: "'DM Sans', sans-serif", boxShadow: `0 4px 14px ${accent}30` }}
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-          </svg>
-          Get Directions
-        </a>
       </div>
     </div>
-  );
+  )
 }
 
-// ─── MAIN ────────────────────────────────────────────────────────────────────
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
 
 export default function Locations() {
-  const [activeRegion, setActiveRegion] = useState("All");
-  const [search, setSearch] = useState("");
+  const [allLocations, setAllLocations] = useState(STATIC_LOCATIONS)
+  const [loading, setLoading]           = useState(true)
+  const [search, setSearch]             = useState("")
+  const [heroVisible, setHeroVisible]   = useState(false)
 
-  const filtered = locations.filter(loc => {
-    const matchRegion = activeRegion === "All" || loc.region === activeRegion;
-    const matchSearch =
-      loc.name.toLowerCase().includes(search.toLowerCase()) ||
-      loc.address.toLowerCase().includes(search.toLowerCase());
-    return matchRegion && matchSearch;
-  });
+  useEffect(() => {
+    const t = setTimeout(() => setHeroVisible(true), 60)
+    return () => clearTimeout(t)
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const { data, error } = await supabase
+          .from("MSlocations").select("*").order("id", { ascending: true })
+        if (error) throw error
+        if (!cancelled && Array.isArray(data) && data.length > 0) {
+          setAllLocations(data.map(row => ({
+            id: row.id,
+            name: row.name,
+            address: row.address ?? "",
+            hours: row.hours ?? "",
+            phone: row.phone ?? "",
+            dateEstablished: row.date_established ? String(row.date_established) : "",
+            region: row.region ?? null,
+            tag: row.tag ?? null,
+            tagColor: row.tag_color_bg ? { bg: row.tag_color_bg, text: row.tag_color_text || "#fff" } : null,
+            photo: row.image_url || row.photo_url || null,
+          })))
+        }
+      } catch (e) {
+        console.error("Supabase error", e)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [])
+
+  const filtered = allLocations.filter(loc => {
+    const q = search.toLowerCase()
+    return (
+      loc.name.toLowerCase().includes(q) ||
+      loc.address.toLowerCase().includes(q)
+    )
+  })
 
   return (
-    <main style={{ backgroundColor: "#fafaf8", fontFamily: "'DM Sans', sans-serif", minHeight: "100vh" }}>
+    <main style={{ backgroundColor: "#fafaf8", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif" }}>
 
-      {/* ══════════════════════════════════════
-          SLIDE 1 — HERO
-      ══════════════════════════════════════ */}
-      <section className="relative overflow-hidden" style={{
+      {/* ══ HERO ═══════════════════════════════════════════════════════════════ */}
+      <section style={{
+        position: "relative", overflow: "hidden",
         background: "linear-gradient(160deg, #f5f8ef 0%, #ffffff 60%, #fffdf5 100%)",
-        minHeight: "72vh",
-        display: "flex", alignItems: "center",
+        padding: "140px 48px 110px",
       }}>
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.22) 1px, transparent 1px)",
+        <div style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.2) 1px, transparent 1px)",
           backgroundSize: "32px 32px",
           maskImage: "radial-gradient(ellipse at 20% 50%, black 10%, transparent 65%)",
           WebkitMaskImage: "radial-gradient(ellipse at 20% 50%, black 10%, transparent 65%)",
         }} />
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" style={{
+        <div style={{
+          position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)",
           width: "500px", height: "500px",
-          background: "radial-gradient(circle, rgba(151,182,76,0.07) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(151,182,76,0.08) 0%, transparent 70%)",
+          pointerEvents: "none",
         }} />
-        <div className="absolute bottom-0 left-0 right-0 h-px" style={{
-          background: "linear-gradient(to right, transparent, rgba(151,182,76,0.25), transparent)",
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0, height: "1px",
+          background: "linear-gradient(to right, transparent, rgba(151,182,76,0.3), transparent)",
         }} />
 
-        <div className="relative max-w-7xl mx-auto px-8 lg:px-16 py-24 z-10 w-full">
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+        <div style={{ maxWidth: "1200px", margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: "8px", marginBottom: "24px",
+            opacity: heroVisible ? 1 : 0,
+            transform: heroVisible ? "none" : "translateY(14px)",
+            transition: "opacity 0.6s ease, transform 0.6s cubic-bezier(0.22,1,0.36,1)",
+          }}>
+            <span style={{
+              fontSize: "10px", fontWeight: 800, letterSpacing: "0.28em",
+              textTransform: "uppercase", color: "#62840b",
+              padding: "6px 14px", borderRadius: "999px",
+              backgroundColor: "rgba(151,182,76,0.1)",
+              border: "1px solid rgba(151,182,76,0.22)",
+              fontFamily: "'DM Sans', sans-serif",
+            }}>📍 Find a Branch</span>
+          </div>
 
-            <div className="flex-1 flex flex-col gap-6">
-              <Slide direction="left" delay={0}>
-                <span className="self-start inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full"
-                  style={{ backgroundColor: "rgba(151,182,76,0.12)", color: "#62840b", border: "1px solid rgba(151,182,76,0.25)" }}>
-                  📍 Find Us
-                </span>
-              </Slide>
-
-              <Slide direction="left" delay={80}>
-                <h1 style={{ fontSize: "clamp(3rem, 6vw, 5.5rem)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.0, color: "#1e1e1e" }}>
-                  We're All Over<br />
-                  <span style={{ color: "#97b64c" }}>the Philippines.</span>
-                </h1>
-              </Slide>
-
-              <Slide direction="left" delay={150}>
-                <p className="text-base leading-relaxed max-w-md" style={{ color: "#5a6a4a" }}>
-                  {locations.length} branches nationwide — from Metro Manila to Mindanao. Find the nearest Milkshop to you.
-                </p>
-              </Slide>
-
-              <Slide direction="left" delay={220}>
-                <div className="relative max-w-md">
-                  <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" fill="none" stroke="#97b64c" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" />
-                  </svg>
-                  <input
-                    type="text"
-                    placeholder="Search branch or city..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    style={{
-                      width: "100%", paddingLeft: "2.75rem", paddingRight: "2.5rem",
-                      paddingTop: "0.875rem", paddingBottom: "0.875rem",
-                      borderRadius: "9999px", fontSize: "0.875rem",
-                      border: "1.5px solid #d0e0b0", backgroundColor: "white",
-                      color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif",
-                      boxShadow: "0 2px 12px rgba(151,182,76,0.08)", outline: "none",
-                    }}
-                    onFocus={e => e.target.style.borderColor = "#97b64c"}
-                    onBlur={e => e.target.style.borderColor = "#d0e0b0"}
-                  />
-                  {search && (
-                    <button onClick={() => setSearch("")}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold"
-                      style={{ color: "#97b64c" }}>✕</button>
-                  )}
-                </div>
-              </Slide>
+          <div style={{
+            display: "flex", flexWrap: "wrap",
+            alignItems: "flex-end", justifyContent: "space-between", gap: "32px",
+          }}>
+            <div>
+              <h1 style={{
+                fontSize: "clamp(3rem, 6.5vw, 5.5rem)", fontWeight: 900,
+                letterSpacing: "-0.04em", lineHeight: 0.92,
+                color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif",
+                margin: "0 0 20px",
+                opacity: heroVisible ? 1 : 0,
+                transform: heroVisible ? "none" : "translateY(20px)",
+                transition: "opacity 0.65s ease 80ms, transform 0.65s cubic-bezier(0.22,1,0.36,1) 80ms",
+              }}>
+                We're All Over<br />
+                <span style={{ color: "#97b64c" }}>the Philippines.</span>
+              </h1>
+              <p style={{
+                fontSize: "0.95rem", color: "#5a6a4a", lineHeight: 1.7,
+                maxWidth: "420px", margin: 0,
+                opacity: heroVisible ? 1 : 0,
+                transform: heroVisible ? "none" : "translateY(14px)",
+                transition: "opacity 0.65s ease 160ms, transform 0.65s cubic-bezier(0.22,1,0.36,1) 160ms",
+              }}>
+                {allLocations.length} branches nationwide — from Metro Manila to Mindanao. Find the nearest Milkshop to you.
+              </p>
             </div>
 
-            {/* Stats grid */}
-            <Slide direction="right" delay={150} className="flex-shrink-0 grid grid-cols-2 gap-4">
-              {[
-                { value: `${locations.length}`, label: "Total Branches",  icon: "🏪" },
-                { value: "4",                   label: "Regions Covered", icon: "🗺️" },
-                { value: "2022",                label: "PH Launch Year",  icon: "🇵🇭" },
-                { value: "12–18mo",             label: "Franchise ROI",   icon: "📈" },
-              ].map(s => (
-                <div key={s.label} className="rounded-2xl p-5 flex flex-col gap-1.5"
-                  style={{ backgroundColor: "white", border: "1px solid #e8f0dc", boxShadow: "0 2px 12px rgba(151,182,76,0.07)" }}>
-                  <span className="text-2xl">{s.icon}</span>
-                  <span className="text-2xl font-black leading-none" style={{ color: "#1e1e1e", fontFamily: "'DM Mono', monospace" }}>{s.value}</span>
-                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "#62840b" }}>{s.label}</span>
-                </div>
-              ))}
-            </Slide>
+            <div style={{
+              display: "flex", flexDirection: "column", gap: "16px",
+              opacity: heroVisible ? 1 : 0,
+              transform: heroVisible ? "none" : "translateY(14px)",
+              transition: "opacity 0.65s ease 220ms, transform 0.65s cubic-bezier(0.22,1,0.36,1) 220ms",
+              minWidth: "300px",
+            }}>
+              {/* Stats */}
+              <div style={{
+                display: "flex", gap: "0",
+                border: "1px solid #e0ecd0", borderRadius: "14px",
+                overflow: "hidden", backgroundColor: "white",
+                boxShadow: "0 2px 12px rgba(151,182,76,0.07)",
+              }}>
+                {[
+                  { v: `${allLocations.length}`, l: "Branches" },
+                  { v: "4",    l: "Regions"  },
+                  { v: "2022", l: "Est."      },
+                ].map((s, i) => (
+                  <div key={s.l} style={{
+                    flex: 1, padding: "16px 12px", textAlign: "center",
+                    borderRight: i < 2 ? "1px solid #e0ecd0" : "none",
+                  }}>
+                    <p style={{ fontFamily: "'DM Mono', monospace", fontWeight: 900, fontSize: "1.25rem", color: "#1e1e1e", lineHeight: 1, margin: "0 0 4px" }}>{s.v}</p>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", color: "#97b64c", margin: 0 }}>{s.l}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Search */}
+              <div style={{ position: "relative" }}>
+                <svg style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", width: "14px", height: "14px", pointerEvents: "none" }}
+                  fill="none" stroke="#97b64c" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z"/>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search branch or city..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  style={{
+                    width: "100%", boxSizing: "border-box",
+                    paddingLeft: "44px", paddingRight: search ? "40px" : "16px",
+                    paddingTop: "13px", paddingBottom: "13px",
+                    borderRadius: "12px", fontSize: "0.875rem",
+                    border: "1.5px solid #d0e0b0",
+                    backgroundColor: "white", color: "#1e1e1e",
+                    fontFamily: "'DM Sans', sans-serif",
+                    boxShadow: "0 2px 10px rgba(151,182,76,0.07)",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
+                  }}
+                  onFocus={e => e.target.style.borderColor = "#97b64c"}
+                  onBlur={e => e.target.style.borderColor = "#d0e0b0"}
+                />
+                {search && (
+                  <button onClick={() => setSearch("")} style={{
+                    position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)",
+                    background: "none", border: "none", cursor: "pointer",
+                    color: "#97b64c", fontSize: "13px", lineHeight: 1, padding: "2px",
+                  }}>✕</button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          SLIDE 2 — STICKY REGION FILTER
-      ══════════════════════════════════════ */}
-      <div className="sticky z-40 py-4" style={{
-        top: "calc(32px + 72px)",
-        backgroundColor: "rgba(250,250,248,0.97)",
-        backdropFilter: "blur(16px)",
-        borderBottom: "1px solid #e8f0dc",
-        boxShadow: "0 2px 16px rgba(0,0,0,0.04)",
-      }}>
-        <div className="max-w-7xl mx-auto px-8 lg:px-16 flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-          {regions.map(r => (
-            <button key={r.label} onClick={() => setActiveRegion(r.label)}
-              className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200"
-              style={{
-                backgroundColor: activeRegion === r.label ? "#97b64c" : "white",
-                color:           activeRegion === r.label ? "#ffffff" : "#5a6a4a",
-                border:          activeRegion === r.label ? "1.5px solid #97b64c" : "1px solid #d0e0b0",
-                boxShadow:       activeRegion === r.label ? "0 2px 12px rgba(151,182,76,0.25)" : "none",
-                fontFamily: "'DM Sans', sans-serif",
+      {/* ══ CARD GRID ══════════════════════════════════════════════════════════ */}
+      <section style={{ backgroundColor: "#f5f8ef", padding: "56px 48px 80px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          {loading ? (
+            <div style={{ display: "flex", gap: "12px", padding: "120px 0", justifyContent: "center" }}>
+              {[0, 150, 300].map(d => (
+                <div key={d} style={{
+                  width: "10px", height: "10px", borderRadius: "50%",
+                  backgroundColor: "#97b64c",
+                  animation: "locBounce 1s ease infinite",
+                  animationDelay: `${d}ms`,
+                }} />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
+            <div style={{ padding: "100px 0", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
+              <div style={{ width: "60px", height: "60px", borderRadius: "16px", backgroundColor: "white", border: "1px solid #d0e0b0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px" }}>🔍</div>
+              <p style={{ fontWeight: 800, fontSize: "1.1rem", color: "#1e1e1e", margin: 0 }}>No branches found</p>
+              <p style={{ fontSize: "0.875rem", color: "#5a6a4a", margin: 0 }}>Try a different search or region.</p>
+              <button onClick={() => { setSearch("") }} style={{
+                marginTop: "4px", padding: "10px 24px", borderRadius: "999px",
+                border: "1.5px solid #97b64c", backgroundColor: "white", color: "#62840b",
+                fontFamily: "'DM Sans', sans-serif", fontSize: "12px", fontWeight: 700, cursor: "pointer",
               }}>
-              {r.emoji} {r.label}
-            </button>
-          ))}
-          <span className="ml-auto shrink-0 text-[10px] font-bold px-3 py-1.5 rounded-full"
-            style={{ backgroundColor: "#f5f8ef", color: "#97b64c", border: "1px solid #d0e0b0", fontFamily: "'DM Mono', monospace" }}>
-            {filtered.length} branch{filtered.length !== 1 ? "es" : ""}
-          </span>
-        </div>
-      </div>
-
-      {/* ══════════════════════════════════════
-          SLIDE 3 — GRID
-      ══════════════════════════════════════ */}
-      <section className="py-16" style={{ backgroundColor: "#f5f8ef" }}>
-        <div className="max-w-7xl mx-auto px-8 lg:px-16">
-          {filtered.length === 0 ? (
-            <div className="py-32 flex flex-col items-center gap-4 text-center">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl"
-                style={{ backgroundColor: "white", border: "1px solid #d0e0b0" }}>🔍</div>
-              <p className="font-bold text-lg" style={{ color: "#1e1e1e" }}>No branches found</p>
-              <p className="text-sm" style={{ color: "#5a6a4a" }}>Try a different search or region.</p>
-              <button onClick={() => { setSearch(""); setActiveRegion("All"); }}
-                className="mt-2 text-sm font-bold px-6 py-2.5 rounded-full transition-all duration-200"
-                style={{ border: "1.5px solid #97b64c", color: "#62840b", backgroundColor: "white" }}>
                 Clear filters
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {filtered.map((loc, index) => (
-                <LocationCard key={loc.id} loc={loc} index={index} />
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: "20px",
+            }}>
+              {filtered.map((loc, i) => (
+                <LocationCard key={loc.id} loc={loc} index={i} />
               ))}
             </div>
           )}
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          SLIDE 4 — COMING TO YOUR CITY
-      ══════════════════════════════════════ */}
-      <section className="relative py-20 overflow-hidden bg-white" style={{ borderTop: "1px solid #e8f0dc" }}>
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: "linear-gradient(rgba(151,182,76,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.06) 1px, transparent 1px)",
+      {/* ══ COMING TO YOUR CITY ════════════════════════════════════════════════ */}
+      <section style={{
+        backgroundColor: "#ffffff", borderTop: "1px solid #e8f0dc",
+        padding: "80px 48px", position: "relative", overflow: "hidden",
+      }}>
+        <div style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          backgroundImage: "linear-gradient(rgba(151,182,76,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.05) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
         }} />
-        <div className="relative max-w-7xl mx-auto px-8 lg:px-16 z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
-          <Slide direction="left">
-            <p className="text-[11px] font-bold tracking-[0.28em] uppercase mb-3" style={{ color: "#97b64c" }}>Expanding Nationwide</p>
-            <h2 className="font-black" style={{ fontSize: "clamp(2rem, 4vw, 3.2rem)", color: "#1e1e1e", letterSpacing: "-0.03em", lineHeight: 1.1 }}>
-              Don't see your city?<br />
-              <span style={{ color: "#97b64c" }}>We're coming there.</span>
+        <div style={{
+          maxWidth: "1200px", margin: "0 auto", position: "relative", zIndex: 1,
+          display: "flex", flexWrap: "wrap", alignItems: "center",
+          justifyContent: "space-between", gap: "40px",
+        }}>
+          <div>
+            <p style={{ fontSize: "10px", fontWeight: 800, letterSpacing: "0.28em", textTransform: "uppercase", color: "#97b64c", fontFamily: "'DM Sans', sans-serif", marginBottom: "12px" }}>
+              Expanding Nationwide
+            </p>
+            <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.05, color: "#1e1e1e", margin: "0 0 12px", fontFamily: "'DM Sans', sans-serif" }}>
+              Don't see your city?<br /><span style={{ color: "#97b64c" }}>We're coming there.</span>
             </h2>
-            <p className="text-sm mt-4 max-w-md" style={{ color: "#5a6a4a" }}>
+            <p style={{ fontSize: "0.875rem", color: "#5a6a4a", maxWidth: "380px", lineHeight: 1.7, margin: 0 }}>
               New branches open every quarter. Check back soon — or bring Milkshop to your city yourself.
             </p>
-          </Slide>
-          <Slide direction="right" delay={100}>
-            <div className="flex flex-wrap gap-3">
-              <Link to="/franchise#inquiry"
-                className="font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200 active:scale-95"
-                style={{ backgroundColor: "#E8A020", color: "#ffffff", boxShadow: "0 4px 20px rgba(232,160,32,0.3)", fontFamily: "'DM Sans', sans-serif" }}>
-                Open a Branch →
-              </Link>
-              <Link to="/franchise"
-                className="font-bold text-sm px-7 py-3.5 rounded-full transition-all duration-200"
-                style={{ border: "1.5px solid #d0e0b0", color: "#62840b", backgroundColor: "transparent", fontFamily: "'DM Sans', sans-serif" }}>
-                Learn About Franchising
-              </Link>
-            </div>
-          </Slide>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════
-          SLIDE 5 — FRANCHISE CTA
-      ══════════════════════════════════════ */}
-      <section className="relative py-28 overflow-hidden" style={{
-        background: "linear-gradient(160deg, #f5f8ef 0%, #eef4e3 100%)",
-        borderTop: "1px solid #d0e0b0",
-      }}>
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.18) 1px, transparent 1px)",
-          backgroundSize: "36px 36px",
-          maskImage: "radial-gradient(ellipse at 80% 50%, black 0%, transparent 60%)",
-          WebkitMaskImage: "radial-gradient(ellipse at 80% 50%, black 0%, transparent 60%)",
-        }} />
-
-        <div className="relative max-w-7xl mx-auto px-8 lg:px-16 z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-            <div className="flex-1 flex flex-col gap-5">
-              <Slide direction="left">
-                <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>Grow With Us</p>
-              </Slide>
-              <Slide direction="left" delay={60}>
-                <h2 className="font-black" style={{ fontSize: "clamp(2.2rem, 4vw, 3.5rem)", color: "#1e1e1e", letterSpacing: "-0.03em", lineHeight: 1.1 }}>
-                  Build a Business<br />You're Proud Of.
-                </h2>
-              </Slide>
-              <Slide direction="left" delay={120}>
-                <ul className="flex flex-col gap-2.5">
-                  {["Exclusive territory guaranteed", "Full training & brand support", "Proven 12–18 month ROI", "No food experience required"].map(item => (
-                    <li key={item} className="flex items-center gap-2.5 text-sm" style={{ color: "#3a4a2a" }}>
-                      <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-white text-[10px] font-bold"
-                        style={{ backgroundColor: "#97b64c" }}>✓</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </Slide>
-            </div>
-
-            <Slide direction="right" delay={100} className="flex-shrink-0 w-full lg:w-80">
-              <div className="rounded-3xl p-8 flex flex-col gap-6"
-                style={{ backgroundColor: "white", border: "1px solid #d0e0b0", boxShadow: "0 8px 40px rgba(151,182,76,0.15)" }}>
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl">🏪</span>
-                  <div>
-                    <p className="font-bold text-sm" style={{ color: "#1e1e1e" }}>Milkshop Franchise</p>
-                    <p className="text-xs" style={{ color: "#97b64c" }}>3 packages available</p>
-                  </div>
-                </div>
-                <div className="h-px" style={{ backgroundColor: "#e8f0dc" }} />
-                <div className="flex flex-col gap-2">
-                  {["🛒 Cart / Mobile", "🏪 Kiosk", "🏬 In-Line Store"].map(p => (
-                    <div key={p} className="flex items-center justify-between py-2.5 px-3 rounded-xl text-sm"
-                      style={{ backgroundColor: "#f5f8ef", color: "#3a4a2a" }}>
-                      <span>{p}</span>
-                      <span className="text-xs font-bold" style={{ color: "#97b64c" }}>→</span>
-                    </div>
-                  ))}
-                </div>
-                <Link to="/franchise#inquiry"
-                  className="w-full text-center font-bold text-sm py-3.5 rounded-2xl transition-all duration-200 active:scale-95"
-                  style={{ backgroundColor: "#97b64c", color: "#ffffff", boxShadow: "0 4px 16px rgba(151,182,76,0.3)", fontFamily: "'DM Sans', sans-serif" }}>
-                  Franchise Now →
-                </Link>
-                <p className="text-center text-xs" style={{ color: "#9aaa8a" }}>No food experience required.</p>
-              </div>
-            </Slide>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+            <Link to="/franchise#inquiry" style={{
+              fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: "0.875rem",
+              padding: "14px 28px", borderRadius: "999px",
+              backgroundColor: "#E8A020", color: "#fff", textDecoration: "none",
+              boxShadow: "0 4px 20px rgba(232,160,32,0.28)", transition: "all 0.2s ease",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 28px rgba(232,160,32,0.35)" }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(232,160,32,0.28)" }}
+            >Open a Branch →</Link>
+            <Link to="/franchise" style={{
+              fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: "0.875rem",
+              padding: "14px 28px", borderRadius: "999px",
+              border: "1.5px solid #d0e0b0", color: "#62840b",
+              textDecoration: "none", backgroundColor: "transparent", transition: "all 0.2s ease",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "#97b64c"; e.currentTarget.style.backgroundColor = "#f5f8ef" }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "#d0e0b0"; e.currentTarget.style.backgroundColor = "transparent" }}
+            >Learn About Franchising</Link>
           </div>
         </div>
       </section>
 
+      {/* ══ FRANCHISE CTA ══════════════════════════════════════════════════════ */}
+      <section style={{
+        background: "linear-gradient(160deg, #f5f8ef 0%, #eef4e3 100%)",
+        borderTop: "1px solid #d0e0b0", padding: "80px 48px",
+        position: "relative", overflow: "hidden",
+      }}>
+        <div style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.16) 1px, transparent 1px)",
+          backgroundSize: "36px 36px",
+          maskImage: "radial-gradient(ellipse at 80% 50%, black 0%, transparent 60%)",
+          WebkitMaskImage: "radial-gradient(ellipse at 80% 50%, black 0%, transparent 60%)",
+        }} />
+        <div style={{
+          maxWidth: "1200px", margin: "0 auto", position: "relative", zIndex: 1,
+          display: "flex", flexWrap: "wrap", alignItems: "center",
+          gap: "48px", justifyContent: "space-between",
+        }}>
+          <div style={{ flex: "1 1 340px" }}>
+           
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {["Exclusive territory guaranteed", "Full training & brand support", "Proven 12–18 month ROI", "No food experience required"].map(item => (
+                <div key={item} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ flex: "0 1 300px", backgroundColor: "white", borderRadius: "24px", padding: "28px", border: "1px solid #d0e0b0", boxShadow: "0 8px 40px rgba(151,182,76,0.12)", display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <span style={{ fontSize: "28px" }}>🏪</span>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: "0.9rem", color: "#1e1e1e", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>Milkshop Franchise</p>
+                <p style={{ fontSize: "11px", color: "#97b64c", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>3 packages available</p>
+              </div>
+            </div>
+            <div style={{ height: "1px", backgroundColor: "#e8f0dc" }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {["🛒 Cart / Mobile", "🏪 Kiosk", "🏬 In-Line Store"].map(p => (
+                <div key={p} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: "10px", backgroundColor: "#f5f8ef", fontSize: "13px", color: "#3a4a2a", fontFamily: "'DM Sans', sans-serif" }}>
+                  {p}<span style={{ color: "#97b64c", fontWeight: 700 }}>→</span>
+                </div>
+              ))}
+            </div>
+            <Link to="/franchise#inquiry" style={{
+              display: "block", textAlign: "center",
+              fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: "13px",
+              padding: "13px", borderRadius: "14px",
+              backgroundColor: "#97b64c", color: "#fff", textDecoration: "none",
+              boxShadow: "0 4px 16px rgba(151,182,76,0.28)", transition: "all 0.2s ease",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#62840b"; e.currentTarget.style.transform = "translateY(-1px)" }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = "#97b64c"; e.currentTarget.style.transform = "translateY(0)" }}
+            >Franchise Now →</Link>
+            <p style={{ textAlign: "center", fontSize: "11px", color: "#9aaa8a", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>No food experience required.</p>
+          </div>
+        </div>
+      </section>
+
+      <style>{`
+        @keyframes locBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        input::placeholder { color: #a0b080; }
+        *::-webkit-scrollbar { display: none; }
+        * { scrollbar-width: none; }
+      `}</style>
     </main>
-  );
+  )
 }
