@@ -9,66 +9,170 @@ import { formatDateTime } from "../utils/formatDateTime"
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
 
+  :root {
+    --green-primary: #97b64c;
+    --green-dark:    #62840b;
+    --green-light:   #b7cd7f;
+    --amber:         #E8A020;
+    --surface-bg:    #f5f8ef;
+    --border:        #d0e0b0;
+    --text-primary:  #1e1e1e;
+    --text-secondary:#5a5a5a;
+    --white:         #ffffff;
+  }
+
   .reg-root {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
     font-family: 'DM Sans', sans-serif;
-    color: #1A2410;
+    color: var(--text-primary);
   }
 
-  .reg-topbar {
+  /* ── Stage hero (Register header) ── */
+  .reg-hero {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 22px 22px 22px 26px;
+    border-radius: 18px;
+    border: 1px solid #dde8cf;
+    background: linear-gradient(145deg, #fbfdf8 0%, #ffffff 42%, #f7faf3 100%);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 8px 28px rgba(26, 36, 16, 0.06);
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  }
+
+  .reg-hero::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, #97b64c 0%, #62840b 100%);
+    border-radius: 18px 0 0 18px;
+  }
+
+  .reg-hero:hover {
+    border-color: #c8dfa8;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 12px 36px rgba(98, 132, 11, 0.1);
+  }
+
+  .reg-hero-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .reg-hero-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-    background: #FFFFFF;
-    border: 1px solid #DDE8CF;
-    border-radius: 14px;
-    padding: 16px 20px;
+    justify-content: center;
+    background: linear-gradient(145deg, #eef5df 0%, #d4e4b8 100%);
+    border: 1px solid #c8dfa8;
+    color: #3e6610;
+    box-shadow: 0 2px 8px rgba(98, 132, 11, 0.12);
   }
 
-  .reg-eyebrow {
+  .reg-hero-copy {
+    min-width: 0;
+  }
+
+  .reg-hero-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .reg-hero-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    font-weight: 500;
+    font-size: 9px;
+    font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #5A9216;
-    margin-bottom: 3px;
+    color: #3e6610;
+    background: rgba(151, 182, 76, 0.14);
+    border: 1px solid rgba(151, 182, 76, 0.35);
+  }
+
+  .reg-hero-sep {
+    color: #c8dfa8;
+    font-weight: 300;
+    user-select: none;
+  }
+
+  .reg-hero-stage {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #5a9216;
   }
 
   .reg-title {
-    font-size: 17px;
+    font-size: clamp(1.25rem, 2.5vw, 1.5rem);
     font-weight: 700;
-    color: #1A2410;
-    letter-spacing: -0.02em;
+    color: #1a2410;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    margin: 0 0 6px 0;
   }
 
   .reg-desc {
-    font-size: 11.5px;
-    color: #5A6B4A;
-    margin-top: 2px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #5a6b4a;
+    margin: 0;
+    max-width: 28rem;
   }
 
+  .reg-hero-actions {
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .reg-hero { padding: 18px 18px 18px 22px; }
+    .reg-hero-actions { width: 100%; }
+    .reg-hero-actions > div { width: 100%; justify-content: stretch; }
+  }
+
+  /* ── Error ── */
   .reg-error {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 10px 14px;
-    background: #FEF2F2;
-    border: 1px solid #FCA5A5;
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
     border-radius: 10px;
     font-size: 12.5px;
-    color: #991B1B;
+    color: #c0392b;
   }
 
+  /* ── Loading ── */
   .reg-loading {
-    background: #FFFFFF;
-    border: 1px solid #DDE8CF;
+    background: var(--white);
+    border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 48px 20px;
+    padding: 52px 20px;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -77,9 +181,10 @@ const STYLES = `
   }
 
   .reg-spinner {
-    width: 24px; height: 24px;
-    border: 2.5px solid #DDE8CF;
-    border-top-color: #5A9216;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--border);
+    border-top-color: var(--green-primary);
     border-radius: 50%;
     animation: reg-spin 0.7s linear infinite;
   }
@@ -88,107 +193,225 @@ const STYLES = `
 
   .reg-loading-text {
     font-family: 'DM Mono', monospace;
-    font-size: 11.5px;
-    color: #5A6B4A;
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.6;
   }
 
-  /* Table wrapper */
+  /* ── Table Card ── */
   .reg-table-card {
-    background: #FFFFFF;
-    border: 1px solid #DDE8CF;
+    background: var(--white);
+    border: 1px solid var(--border);
     border-radius: 14px;
     overflow: hidden;
   }
 
-  /* Row styles — applied via renderRow */
+  /* ── Table Header ── */
+  .reg-thead {
+    background: var(--surface-bg);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .reg-th {
+    padding: 10px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    text-align: left;
+    opacity: 0.7;
+    white-space: nowrap;
+  }
+
+  /* ── Rows ── */
   .reg-tr {
-    border-bottom: 1px solid #DDE8CF;
+    border-bottom: 1px solid #eef5df;
     transition: background 0.1s ease;
   }
 
   .reg-tr:last-child { border-bottom: none; }
-  .reg-tr:hover { background: #F7F9F4; }
+  .reg-tr:hover { background: var(--surface-bg); }
 
   .reg-td {
-    padding: 12px 16px;
-    font-size: 12.5px;
-    color: #1A2410;
+    padding: 13px 16px;
+    font-size: 13px;
+    color: var(--text-primary);
     vertical-align: middle;
   }
 
   .reg-td-mono {
-    padding: 12px 16px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    color: #5A6B4A;
+    padding: 13px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-secondary);
     vertical-align: middle;
+  }
+
+  /* ── Lead Name Cell ── */
+  .reg-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .reg-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d4e8a0 0%, #97b64c 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--white);
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
   }
 
   .reg-name {
     font-weight: 500;
-    color: #1A2410;
+    color: var(--text-primary);
+    font-size: 13px;
   }
 
-  .reg-status-badge {
+  /* ── Status Badges ── */
+  .reg-badge {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 3px 9px;
+    padding: 4px 10px;
     border-radius: 20px;
-    font-family: 'DM Mono', monospace;
-    font-size: 10.5px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
   }
 
   .reg-badge-dot {
-    width: 5px; height: 5px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
     flex-shrink: 0;
   }
 
-  .badge-new      { background: #EEF5E6; color: #3E6610;  border: 1px solid #C8DFA8; }
-  .badge-followup { background: #FEF3E2; color: #92400E;  border: 1px solid #FCD34D; }
-  .badge-active   { background: #F0FFF4; color: #166534;  border: 1px solid #BBF7D0; }
-  .badge-other    { background: #F3F4F6; color: #374151;  border: 1px solid #D1D5DB; }
+  .reg-badge.new {
+    background: #eef5df;
+    color: var(--green-dark);
+  }
+  .reg-badge.new .reg-badge-dot { background: var(--green-primary); }
 
-  .badge-new .reg-badge-dot      { background: #5A9216; }
-  .badge-followup .reg-badge-dot { background: #E8A020; }
-  .badge-active .reg-badge-dot   { background: #16A34A; }
-  .badge-other .reg-badge-dot    { background: #9CA3AF; }
+  .reg-badge.followup {
+    background: #fef3e0;
+    color: #b07010;
+  }
+  .reg-badge.followup .reg-badge-dot { background: var(--amber); }
 
+  .reg-badge.active {
+    background: #f0fff4;
+    color: #166534;
+  }
+  .reg-badge.active .reg-badge-dot { background: #22c55e; }
+
+  .reg-badge.other {
+    background: #f3f4f6;
+    color: #4b5563;
+  }
+  .reg-badge.other .reg-badge-dot { background: #9ca3af; }
+
+  /* ── View Button ── */
   .reg-btn-view {
     display: inline-flex;
     align-items: center;
     gap: 5px;
     padding: 6px 14px;
     border-radius: 8px;
-    border: 1px solid #DDE8CF;
-    background: #FFFFFF;
-    font-size: 11.5px;
-    font-weight: 600;
-    color: #1A2410;
+    border: 1px solid var(--border);
+    background: var(--white);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
     cursor: pointer;
     font-family: 'DM Sans', sans-serif;
-    transition: all 0.12s ease;
+    transition: background 0.13s, color 0.13s, border-color 0.13s;
+    white-space: nowrap;
   }
 
   .reg-btn-view:hover {
-    background: #5A9216;
-    border-color: #5A9216;
-    color: #FFFFFF;
-    box-shadow: 0 2px 8px rgba(90,146,22,0.22);
+    background: #eef5df;
+    border-color: var(--green-light);
+    color: var(--green-dark);
+  }
+
+  /* ── Empty State ── */
+  .reg-empty {
+    padding: 48px 20px;
+    text-align: center;
+  }
+
+  .reg-empty-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    color: var(--text-secondary);
+    opacity: 0.5;
+  }
+
+  .reg-empty-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    opacity: 0.6;
+  }
+
+  /* ── Toast ── */
+  .reg-toast {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 72px;
+  }
+
+  .reg-toast-inner {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green-dark);
+    color: var(--white);
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    box-shadow: 0 4px 20px rgba(10,20,5,0.18);
+    animation: reg-toast-in 0.2s ease;
+  }
+
+  @keyframes reg-toast-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 `
 
 const REGISTER_TABS = [
-  { value: "active",   label: "Active" },
+  { value: "active",   label: "Active"   },
   { value: "inactive", label: "Inactive" },
 ]
 
-function StatusPill({ status, subStatus }) {
+function StatusPill({ subStatus, status }) {
   if (subStatus === "active") {
     return (
-      <span className="reg-status-badge badge-followup">
+      <span className="reg-badge followup">
         <span className="reg-badge-dot" />
         Follow-up
       </span>
@@ -196,20 +419,20 @@ function StatusPill({ status, subStatus }) {
   }
   if (subStatus === "inactive") {
     return (
-      <span className="reg-status-badge badge-new">
+      <span className="reg-badge new">
         <span className="reg-badge-dot" />
         New
       </span>
     )
   }
   const map = {
-    NEW:          { label: "New",           cls: "badge-new"      },
-    FOR_FOLLOWUP: { label: "For Follow-up", cls: "badge-followup" },
-    ACTIVE:       { label: "Active",        cls: "badge-active"   },
+    NEW:          { label: "New",           cls: "new"      },
+    FOR_FOLLOWUP: { label: "For Follow-up", cls: "followup" },
+    ACTIVE:       { label: "Active",        cls: "active"   },
   }
-  const d = map[status] || { label: status || "—", cls: "badge-other" }
+  const d = map[status] || { label: status || "—", cls: "other" }
   return (
-    <span className={`reg-status-badge ${d.cls}`}>
+    <span className={`reg-badge ${d.cls}`}>
       <span className="reg-badge-dot" />
       {d.label}
     </span>
@@ -247,38 +470,31 @@ export default function Register() {
     if (!token) { setLoading(false); return }
     setLoading(true)
     setError("")
-    fetchLeads(token, {
-      tab: "new",
-      page: 1,
-      pageSize: 50,
-    })
-      .then((res) => { if (!cancelled) setLeads(res.data || []) })
-      .catch((err) => { if (!cancelled) setError(err?.message || "Failed to load leads"); setLeads([]) })
-      .finally(() => { if (!cancelled) setLoading(false) })
+    fetchLeads(token, { tab: "new", page: 1, pageSize: 50 })
+      .then((res)  => { if (!cancelled) setLeads(res.data || []) })
+      .catch((err) => { if (!cancelled) { setError(err?.message || "Failed to load leads"); setLeads([]) } })
+      .finally(()  => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [token, refreshKey])
 
   const handleSaveContact = async ({ contactRecord, nextContactAt, notes }) => {
     if (!token || !selectedLead) return
-
     const outcomeMap = {
-      "No Response": "NO_ANSWER",
-      Busy: "NO_ANSWER",
-      Callback: "CALLBACK",
-      Issue: "NOT_INTERESTED",
-      Drop: "DROP",
-      Archive: "ARCHIVE",
-      "Confirmed Schedule": "CONFIRMED_SCHEDULE",
+      "No Response":       "NO_ANSWER",
+      Busy:                "NO_ANSWER",
+      Callback:            "CALLBACK",
+      Issue:               "NOT_INTERESTED",
+      Drop:                "DROP",
+      Archive:             "ARCHIVE",
+      "Confirmed Schedule":"CONFIRMED_SCHEDULE",
     }
     const outcome = outcomeMap[contactRecord] || null
-
     const log = await createLeadContactLog(token, selectedLead.id, {
       contactType: "CALL",
       notes: notes || `Contact record: ${contactRecord}`,
       outcome,
       nextFollowupAt: nextContactAt || null,
     })
-
     if (contactRecord === "Archive") {
       await updateLead(token, selectedLead.id, { status: "ARCHIVED" })
     } else if (contactRecord === "Drop") {
@@ -290,33 +506,59 @@ export default function Register() {
         next_followup_at: nextContactAt,
       })
     } else if (["No Response", "Callback"].includes(contactRecord) && nextContactAt) {
-      await updateLead(token, selectedLead.id, {
-        next_followup_at: nextContactAt,
-      })
+      await updateLead(token, selectedLead.id, { next_followup_at: nextContactAt })
     }
-
     if (notes) {
       await updateLead(token, selectedLead.id, { remarks_admin: notes })
     }
-
     setRefreshKey((k) => k + 1)
     return log
   }
+
+  const filteredLeads = leads
+    .filter((l) => l.status !== "ARCHIVED" && l.status !== "DROPPED")
+    .filter((l) => {
+      const ts = l.next_followup_at || l.best_contact_at
+      if (!ts) return subStatus === "inactive"
+      const now = new Date()
+      const d   = new Date(ts)
+      return subStatus === "active"
+        ? d.getTime() <= now.getTime()
+        : d.getTime() >  now.getTime()
+    })
 
   return (
     <>
       <style>{STYLES}</style>
       <div className="reg-root">
 
-        {/* Top bar */}
-        <div className="reg-topbar">
-          <div>
-            <p className="reg-eyebrow">Pipeline · Stage 1</p>
-            <h1 className="reg-title">Register</h1>
-            <p className="reg-desc">New franchise inquiries and initial follow-ups.</p>
+        {/* Stage header */}
+        <header className="reg-hero">
+          <div className="reg-hero-main">
+            <div className="reg-hero-icon" aria-hidden>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <div className="reg-hero-copy">
+              <div className="reg-hero-meta">
+                <span className="reg-hero-pill">Pipeline</span>
+                <span className="reg-hero-sep">·</span>
+                <span className="reg-hero-stage">Stage 1</span>
+              </div>
+              <h1 className="reg-title">Register</h1>
+              <p className="reg-desc">
+                New franchise inquiries and initial follow-ups.
+              </p>
+            </div>
           </div>
-          <StatusTabs options={REGISTER_TABS} value={subStatus} onChange={setSubStatus} />
-        </div>
+          <div className="reg-hero-actions">
+            <StatusTabs options={REGISTER_TABS} value={subStatus} onChange={setSubStatus} />
+          </div>
+        </header>
 
         {/* Error */}
         {error && (
@@ -336,46 +578,63 @@ export default function Register() {
           </div>
         ) : (
           <div className="reg-table-card">
-            <LeadTable
-              columns={columns}
-              leads={leads
-                .filter((lead) => lead.status !== "ARCHIVED" && lead.status !== "DROPPED")
-                .filter((lead) => {
-                  const ts = lead.next_followup_at || lead.best_contact_at
-                  if (!ts) return subStatus === "inactive"
-                  const now = new Date()
-                  const d = new Date(ts)
-                  if (subStatus === "active") {
-                    return d.getTime() <= now.getTime()
-                  }
-                  return d.getTime() > now.getTime()
-                })}
-              renderRow={(lead) => (
-                <tr key={lead.id} className="reg-tr">
-                  <td className="reg-td">
-                    <span className="reg-name">{lead.full_name || "—"}</span>
-                  </td>
-                  <td className="reg-td">
-                    <StatusPill status={lead.status} subStatus={subStatus} />
-                  </td>
-                  <td className="reg-td-mono">
-                    {formatDateTime(lead.created_at)}
-                  </td>
-                  <td className="reg-td-mono">
-                    {formatDateTime(lead.next_followup_at || lead.best_contact_at)}
-                  </td>
-                  <td className="reg-td">
-                    <button
-                      type="button"
-                      className="reg-btn-view"
-                      onClick={() => setSelectedLead(lead)}
-                    >
-                      View
-                    </button>
-                  </td>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead className="reg-thead">
+                <tr>
+                  {columns.map((col) => (
+                    <th key={col.key} className="reg-th">{col.label}</th>
+                  ))}
                 </tr>
-              )}
-            />
+              </thead>
+              <tbody>
+                {filteredLeads.length === 0 ? (
+                  <tr>
+                    <td colSpan={columns.length}>
+                      <div className="reg-empty">
+                        <div className="reg-empty-icon">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                          </svg>
+                        </div>
+                        <p className="reg-empty-text">No leads found.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredLeads.map((lead) => (
+                    <tr key={lead.id} className="reg-tr">
+                      <td className="reg-td">
+                        <div className="reg-name-cell">
+                          <div className="reg-avatar">
+                            {(lead.full_name?.[0] || "?").toUpperCase()}
+                          </div>
+                          <span className="reg-name">{lead.full_name || "—"}</span>
+                        </div>
+                      </td>
+                      <td className="reg-td">
+                        <StatusPill status={lead.status} subStatus={subStatus} />
+                      </td>
+                      <td className="reg-td-mono">
+                        {formatDateTime(lead.created_at)}
+                      </td>
+                      <td className="reg-td-mono">
+                        {formatDateTime(lead.next_followup_at || lead.best_contact_at)}
+                      </td>
+                      <td className="reg-td">
+                        <button
+                          type="button"
+                          className="reg-btn-view"
+                          onClick={() => setSelectedLead(lead)}
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         )}
 
@@ -395,11 +654,11 @@ export default function Register() {
 
       </div>
 
-      {/* Floating success toast */}
+      {/* Toast */}
       {success && !error && (
-        <div className="pointer-events-none fixed inset-0 z-50 flex items-start justify-center pt-20">
-          <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-[#166534] px-4 py-2 text-xs font-medium text-white shadow-lg">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="reg-toast">
+          <div className="reg-toast-inner">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12" />
             </svg>
             {success}

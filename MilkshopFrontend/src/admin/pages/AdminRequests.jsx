@@ -450,7 +450,12 @@ export default function AdminRequests() {
             <input
               type="date"
               value={from}
-              onChange={(e) => setFrom(e.target.value)}
+              max={to || undefined}
+              onChange={(e) => {
+                const v = e.target.value;
+                setFrom(v);
+                if (to && v && v > to) setTo(v);
+              }}
               className="filter-input"
             />
           </div>
@@ -459,7 +464,12 @@ export default function AdminRequests() {
             <input
               type="date"
               value={to}
-              onChange={(e) => setTo(e.target.value)}
+              min={from || undefined}
+              onChange={(e) => {
+                const v = e.target.value;
+                setTo(v);
+                if (from && v && v < from) setFrom(v);
+              }}
               className="filter-input"
             />
           </div>

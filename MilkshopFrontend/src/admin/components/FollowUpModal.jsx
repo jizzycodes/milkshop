@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { localDatetimeLocalFloor } from "../../utils/dateInputConstraints";
 
 const CONTACT_TYPES = [
   { value: "CALL", label: "Call" },
@@ -89,8 +90,13 @@ export default function FollowUpModal({ open, onClose, onSubmit }) {
             </label>
             <input
               type="datetime-local"
+              min={localDatetimeLocalFloor()}
               value={nextFollowupAt || ""}
-              onChange={(e) => setNextFollowupAt(e.target.value)}
+              onChange={(e) => {
+                const v = e.target.value;
+                const min = localDatetimeLocalFloor();
+                setNextFollowupAt(!v || v >= min ? v : min);
+              }}
               className="w-full rounded-lg border border-[#DDE8CF] bg-[#F7F9F4] px-3 py-2 text-xs text-[#1A2410] focus:border-[#5A9216] focus:outline-none focus:ring-1 focus:ring-[#5A9216] transition"
             />
           </div>

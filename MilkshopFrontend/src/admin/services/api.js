@@ -78,3 +78,33 @@ export async function fetchFranchiseRequests(token, { page = 1, pageSize = 10, f
   return handleResponse(response);
 }
 
+/** Qr & Email: franchise QR URL + confirmation email template (global). */
+export async function fetchQrEmailSettings(token) {
+  if (!token || String(token).trim() === "") {
+    throw new Error("Authorization token missing — sign in at /admin/login.");
+  }
+  const response = await fetch(`${API_BASE_URL}/api/admin/settings/qr-email`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse(response);
+}
+
+export async function updateQrEmailSettings(token, payload) {
+  if (!token || String(token).trim() === "") {
+    throw new Error("Authorization token missing — sign in at /admin/login.");
+  }
+  const response = await fetch(`${API_BASE_URL}/api/admin/settings/qr-email`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return handleResponse(response);
+}
+

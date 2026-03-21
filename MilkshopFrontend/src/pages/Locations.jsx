@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { Link } from "react-router-dom"
+import { createPortal } from "react-dom"
 import { supabase } from "../lib/supabaseClient"
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -48,7 +49,7 @@ function useInView(threshold = 0.08) {
 
 // ─── LOCATION CARD ────────────────────────────────────────────────────────────
 
-function LocationCard({ loc, index }) {
+function LocationCard({ loc, index, onOpenImage }) {
   const [ref, inView] = useInView()
   const [hovered, setHovered] = useState(false)
   const [imgError, setImgError] = useState(false)
@@ -78,6 +79,16 @@ function LocationCard({ loc, index }) {
       }}
     >
       {/* ── Photo area ── */}
+      <button
+        type="button"
+        onClick={() => loc.photo && !imgError && onOpenImage?.(loc)}
+        style={{
+          all: "unset",
+          display: "block",
+          width: "100%",
+          cursor: loc.photo && !imgError ? "zoom-in" : "default",
+        }}
+      >
       <div style={{
         position: "relative",
         height: "200px",
@@ -180,6 +191,7 @@ function LocationCard({ loc, index }) {
           transition: "opacity 0.3s ease",
         }} />
       </div>
+      </button>
 
       {/* ── Body ── */}
       <div style={{
@@ -194,7 +206,20 @@ function LocationCard({ loc, index }) {
             color: "#1e1e1e", letterSpacing: "-0.02em",
             lineHeight: 1.25, margin: 0, flex: 1,
           }}>
-            {loc.name}
+            {loc.facebookUrl ? (
+              <a
+                href={loc.facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#1e1e1e", textDecoration: "none" }}
+                onMouseEnter={(e) => { e.currentTarget.style.textDecoration = "underline" }}
+                onMouseLeave={(e) => { e.currentTarget.style.textDecoration = "none" }}
+              >
+                {loc.name}
+              </a>
+            ) : (
+              loc.name
+            )}
           </h3>
         </div>
 
@@ -232,6 +257,7 @@ export default function Locations() {
   const [loading, setLoading]           = useState(true)
   const [search, setSearch]             = useState("")
   const [heroVisible, setHeroVisible]   = useState(false)
+  const [activeImage, setActiveImage]   = useState(null)
 
   useEffect(() => {
     const t = setTimeout(() => setHeroVisible(true), 60)
@@ -257,6 +283,7 @@ export default function Locations() {
             tag: row.tag ?? null,
             tagColor: row.tag_color_bg ? { bg: row.tag_color_bg, text: row.tag_color_text || "#fff" } : null,
             photo: row.image_url || row.photo_url || null,
+            facebookUrl: row.facebook_url || row.fb_link || row.fb_url || null,
           })))
         }
       } catch (e) {
@@ -276,6 +303,17 @@ export default function Locations() {
       loc.address.toLowerCase().includes(q)
     )
   })
+
+  // Group by region (e.g. Bulacan, Metro Manila); null/empty → "Other"
+  const groupedByRegion = filtered.reduce((acc, loc) => {
+    const region = (loc.region && String(loc.region).trim()) || "Other"
+    if (!acc[region]) acc[region] = []
+    acc[region].push(loc)
+    return acc
+  }, {})
+  const regionOrder = Object.keys(groupedByRegion).sort((a, b) =>
+    a === "Other" ? 1 : b === "Other" ? -1 : a.localeCompare(b)
+  )
 
   return (
     <main style={{ backgroundColor: "#fafaf8", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif" }}>
@@ -445,18 +483,95 @@ export default function Locations() {
               </button>
             </div>
           ) : (
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-              gap: "20px",
-            }}>
-              {filtered.map((loc, i) => (
-                <LocationCard key={loc.id} loc={loc} index={i} />
+            <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
+              {regionOrder.map(region => (
+                <div key={region}>
+                  <h2 style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "1.35rem",
+                    fontWeight: 800,
+                    letterSpacing: "-0.02em",
+                    color: "#1e1e1e",
+                    margin: "0 0 16px",
+                    paddingBottom: "8px",
+                    borderBottom: "2px solid #97b64c",
+                    display: "inline-block",
+                  }}>
+                    {region}
+                  </h2>
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                    gap: "20px",
+                  }}>
+                    {groupedByRegion[region].map((loc, i) => (
+                      <LocationCard
+                        key={loc.id}
+                        loc={loc}
+                        index={i}
+                        onOpenImage={setActiveImage}
+                      />
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           )}
         </div>
       </section>
+
+      {activeImage?.photo && createPortal(
+        <div
+          onClick={() => setActiveImage(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 9999,
+            backgroundColor: "rgba(17,24,39,0.82)",
+            display: "grid",
+            placeItems: "center",
+            padding: "24px",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setActiveImage(null)}
+            style={{
+              position: "absolute",
+              top: "18px",
+              right: "18px",
+              width: "36px",
+              height: "36px",
+              borderRadius: "999px",
+              border: "1px solid rgba(255,255,255,0.35)",
+              backgroundColor: "rgba(0,0,0,0.4)",
+              color: "#fff",
+              fontSize: "18px",
+              cursor: "pointer",
+            }}
+          >
+            ×
+          </button>
+          <img
+            src={activeImage.photo}
+            alt={activeImage.name || "Location photo"}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              display: "block",
+              maxWidth: "min(1200px, 94vw)",
+              maxHeight: "88vh",
+              objectFit: "contain",
+              borderRadius: "12px",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.45)",
+              backgroundColor: "#fff",
+            }}
+          />
+        </div>,
+        document.body
+      )}
 
       {/* ══ COMING TO YOUR CITY ════════════════════════════════════════════════ */}
       <section style={{
@@ -507,64 +622,7 @@ export default function Locations() {
         </div>
       </section>
 
-      {/* ══ FRANCHISE CTA ══════════════════════════════════════════════════════ */}
-      <section style={{
-        background: "linear-gradient(160deg, #f5f8ef 0%, #eef4e3 100%)",
-        borderTop: "1px solid #d0e0b0", padding: "80px 48px",
-        position: "relative", overflow: "hidden",
-      }}>
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.16) 1px, transparent 1px)",
-          backgroundSize: "36px 36px",
-          maskImage: "radial-gradient(ellipse at 80% 50%, black 0%, transparent 60%)",
-          WebkitMaskImage: "radial-gradient(ellipse at 80% 50%, black 0%, transparent 60%)",
-        }} />
-        <div style={{
-          maxWidth: "1200px", margin: "0 auto", position: "relative", zIndex: 1,
-          display: "flex", flexWrap: "wrap", alignItems: "center",
-          gap: "48px", justifyContent: "space-between",
-        }}>
-          <div style={{ flex: "1 1 340px" }}>
-           
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {["Exclusive territory guaranteed", "Full training & brand support", "Proven 12–18 month ROI", "No food experience required"].map(item => (
-                <div key={item} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={{ flex: "0 1 300px", backgroundColor: "white", borderRadius: "24px", padding: "28px", border: "1px solid #d0e0b0", boxShadow: "0 8px 40px rgba(151,182,76,0.12)", display: "flex", flexDirection: "column", gap: "16px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <span style={{ fontSize: "28px" }}>🏪</span>
-              <div>
-                <p style={{ fontWeight: 700, fontSize: "0.9rem", color: "#1e1e1e", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>Milkshop Franchise</p>
-                <p style={{ fontSize: "11px", color: "#97b64c", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>3 packages available</p>
-              </div>
-            </div>
-            <div style={{ height: "1px", backgroundColor: "#e8f0dc" }} />
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              {["🛒 Cart / Mobile", "🏪 Kiosk", "🏬 In-Line Store"].map(p => (
-                <div key={p} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: "10px", backgroundColor: "#f5f8ef", fontSize: "13px", color: "#3a4a2a", fontFamily: "'DM Sans', sans-serif" }}>
-                  {p}<span style={{ color: "#97b64c", fontWeight: 700 }}>→</span>
-                </div>
-              ))}
-            </div>
-            <Link to="/franchise#inquiry" style={{
-              display: "block", textAlign: "center",
-              fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: "13px",
-              padding: "13px", borderRadius: "14px",
-              backgroundColor: "#97b64c", color: "#fff", textDecoration: "none",
-              boxShadow: "0 4px 16px rgba(151,182,76,0.28)", transition: "all 0.2s ease",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#62840b"; e.currentTarget.style.transform = "translateY(-1px)" }}
-              onMouseLeave={e => { e.currentTarget.style.backgroundColor = "#97b64c"; e.currentTarget.style.transform = "translateY(0)" }}
-            >Franchise Now →</Link>
-            <p style={{ textAlign: "center", fontSize: "11px", color: "#9aaa8a", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>No food experience required.</p>
-          </div>
-        </div>
-      </section>
+     
 
       <style>{`
         @keyframes locBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }

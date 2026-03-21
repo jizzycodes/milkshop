@@ -14,6 +14,7 @@ const {
   postContactLog,
   getContactLogs,
 } = require('../controllers/leadController')
+const { getQrEmail, putQrEmail } = require('../controllers/adminSettingsController')
 
 const router = express.Router()
 
@@ -93,6 +94,9 @@ router.patch('/leads/:id/stage', patchLeadStage)
 router.patch('/leads/:id', patchLead)
 router.post('/leads/:id/contact-logs', postContactLog)
 router.get('/leads/:id/contact-logs', getContactLogs)
+
+router.get('/settings/qr-email', getQrEmail)
+router.put('/settings/qr-email', putQrEmail)
 
 module.exports = router
 

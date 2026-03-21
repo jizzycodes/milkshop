@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Link } from "react-router-dom"
 import { createFranchiseRequest } from "../services/api"
+import { localDatetimeLocalFloor } from "../utils/dateInputConstraints"
 
 // ─── DATA (unchanged) ────────────────────────────────────────────────────────
 
@@ -165,8 +166,13 @@ export default function Franchise() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(p => ({ ...p, [name]: value }));
-    if (fieldErrors[name]) setFieldErrors(p => ({ ...p, [name]: "" }));
+    let next = value;
+    if (name === "bestContactTime" && value) {
+      const min = localDatetimeLocalFloor();
+      if (value < min) next = min;
+    }
+    setFormData((p) => ({ ...p, [name]: next }));
+    if (fieldErrors[name]) setFieldErrors((p) => ({ ...p, [name]: "" }));
   };
 
   const validate = () => {
@@ -603,7 +609,15 @@ export default function Franchise() {
                     <input id="contactNumber" name="contactNumber" value={formData.contactNumber} onChange={handleChange} placeholder="09XX XXX XXXX" className={`${inputBase} ${fieldErrors.contactNumber ? inputErr : inputIdle}`} style={{ fontFamily: "'DM Mono', monospace" }} />
                   </Field>
                   <Field label="Best Contact Date / Time" required error={fieldErrors.bestContactTime}>
-                    <input id="bestContactTime" name="bestContactTime" type="datetime-local" value={formData.bestContactTime} onChange={handleChange} className={`${inputBase} ${fieldErrors.bestContactTime ? inputErr : inputIdle}`} />
+                    <input
+                      id="bestContactTime"
+                      name="bestContactTime"
+                      type="datetime-local"
+                      min={localDatetimeLocalFloor()}
+                      value={formData.bestContactTime}
+                      onChange={handleChange}
+                      className={`${inputBase} ${fieldErrors.bestContactTime ? inputErr : inputIdle}`}
+                    />
                   </Field>
                 </div>
 

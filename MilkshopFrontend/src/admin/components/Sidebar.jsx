@@ -2,9 +2,9 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap');
 
   .sb-aside {
-    width: 200px;
-    background: #FFFFFF;
-    border: 1px solid #DDE8CF;
+    width: 196px;
+    background: #ffffff;
+    border: 1px solid #d0e0b0;
     border-radius: 14px;
     overflow: hidden;
     font-family: 'DM Sans', sans-serif;
@@ -12,68 +12,82 @@ const STYLES = `
   }
 
   .sb-header {
-    padding: 14px 16px 10px;
-    border-bottom: 1px solid #DDE8CF;
+    padding: 13px 16px 11px;
+    border-bottom: 1px solid #d0e0b0;
   }
 
   .sb-eyebrow {
     font-family: 'DM Mono', monospace;
     font-size: 9px;
     font-weight: 500;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #5A9216;
+    color: #5a5a5a;
+    opacity: 0.65;
   }
 
   .sb-nav {
     display: flex;
     flex-direction: column;
-    padding: 6px;
+    padding: 7px;
     gap: 2px;
   }
 
   .sb-item {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 10px;
     padding: 9px 12px;
     border-radius: 9px;
     border: none;
     background: transparent;
     font-size: 13px;
     font-weight: 500;
-    color: #5A6B4A;
+    color: #5a5a5a;
     cursor: pointer;
     text-align: left;
-    transition: all 0.12s ease;
+    transition: background 0.13s, color 0.13s;
     font-family: 'DM Sans', sans-serif;
     width: 100%;
     position: relative;
+    letter-spacing: -0.01em;
   }
 
-  .sb-item:hover:not(.active) {
-    background: #F7F9F4;
-    color: #1A2410;
+  .sb-item:hover:not(.sb-active) {
+    background: #f5f8ef;
+    color: #1e1e1e;
   }
 
-  .sb-item.active {
-    background: #EEF5E6;
-    color: #3E6610;
+  .sb-item.sb-active {
+    background: #eef5df;
+    color: #62840b;
     font-weight: 600;
   }
 
-  .sb-item-dot {
+  .sb-item.sb-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 52%;
+    background: #97b64c;
+    border-radius: 0 3px 3px 0;
+  }
+
+  .sb-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #C8DFA8;
+    background: #d0e0b0;
     flex-shrink: 0;
-    transition: background 0.12s;
+    transition: background 0.13s;
   }
 
-  .sb-item.active .sb-item-dot {
-    background: #5A9216;
-    box-shadow: 0 0 0 3px rgba(90,146,22,0.15);
+  .sb-item.sb-active .sb-dot {
+    background: #97b64c;
+    box-shadow: 0 0 0 3px rgba(151, 182, 76, 0.18);
   }
 `
 
@@ -100,9 +114,9 @@ export default function Sidebar({ current, onSelect }) {
                 key={item.id}
                 type="button"
                 onClick={() => onSelect?.(item.id)}
-                className={`sb-item${active ? " active" : ""}`}
+                className={`sb-item${active ? " sb-active" : ""}`}
               >
-                <span className="sb-item-dot" />
+                <span className="sb-dot" />
                 {item.label}
               </button>
             )

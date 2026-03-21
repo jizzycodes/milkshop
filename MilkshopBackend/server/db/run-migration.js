@@ -86,6 +86,15 @@ $$ LANGUAGE plpgsql`,
    ))`,
   // 005: admin remarks on franchise_leads (for existing tables)
   'ALTER TABLE franchise_leads ADD COLUMN IF NOT EXISTS remarks_admin text',
+  // 006: app_settings (QR URL + franchise confirmation email template)
+  `CREATE TABLE IF NOT EXISTS app_settings (
+    key varchar(100) PRIMARY KEY,
+    value text NOT NULL,
+    updated_at timestamptz NOT NULL DEFAULT now()
+  )`,
+  `INSERT INTO app_settings (key, value) VALUES
+    ('franchise_qr_url', 'http://172.16.1.119:5173/franchise#inquiry')
+  ON CONFLICT (key) DO NOTHING`,
 ]
 
 async function run() {

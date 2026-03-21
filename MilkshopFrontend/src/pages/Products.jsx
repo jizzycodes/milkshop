@@ -42,14 +42,12 @@ function ProductCard({ product, isCenter, isAdjacent }) {
   const [hovered, setHovered] = useState(false);
   const tag = product.tag ? tagStyles[product.tag] : null;
 
-  const scale    = hovered ? 1.06 : isCenter ? 1.03 : isAdjacent ? 0.95 : 0.88;
-  const opacity  = isCenter ? 1 : isAdjacent ? 0.85 : 0.55;
-  const yShift   = hovered ? -12 : isCenter ? -4 : 0;
+  const scale    = hovered ? 1.04 : 1;
+  const opacity  = 1;
+  const yShift   = hovered ? -8 : 0;
   const shadow   = hovered
     ? "0 32px 64px rgba(98,132,11,0.28), 0 8px 24px rgba(0,0,0,0.12)"
-    : isCenter
-    ? "0 16px 40px rgba(98,132,11,0.16)"
-    : "0 4px 16px rgba(0,0,0,0.06)";
+    : "0 10px 26px rgba(98,132,11,0.14)";
 
   return (
     <div
@@ -70,12 +68,10 @@ function ProductCard({ product, isCenter, isAdjacent }) {
         borderRadius: "24px",
         background: hovered
           ? "rgba(255,255,255,0.95)"
-          : isCenter
-          ? "rgba(255,255,255,0.88)"
-          : "rgba(255,255,255,0.60)",
+          : "rgba(255,255,255,0.88)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
-        border: `1.5px solid ${hovered ? "rgba(151,182,76,0.6)" : isCenter ? "rgba(151,182,76,0.3)" : "rgba(151,182,76,0.12)"}`,
+        border: `1.5px solid ${hovered ? "rgba(151,182,76,0.6)" : "rgba(151,182,76,0.32)"}`,
         boxShadow: shadow,
         overflow: "hidden",
         transition: "all 0.45s cubic-bezier(0.34,1.4,0.64,1)",
@@ -104,7 +100,7 @@ function ProductCard({ product, isCenter, isAdjacent }) {
             width: "70%", height: "40px",
             background: "radial-gradient(ellipse, rgba(151,182,76,0.35) 0%, transparent 70%)",
             filter: "blur(10px)",
-            opacity: hovered ? 1 : isCenter ? 0.6 : 0,
+            opacity: hovered ? 1 : 0.45,
             transition: "opacity 0.4s ease",
             pointerEvents: "none",
           }} />
@@ -124,9 +120,7 @@ function ProductCard({ product, isCenter, isAdjacent }) {
                 transform: hovered ? "scale(1.12) translateY(-6px)" : "scale(1) translateY(0)",
                 filter: hovered
                   ? "drop-shadow(0 20px 32px rgba(0,0,0,0.22))"
-                  : isCenter
-                  ? "drop-shadow(0 10px 18px rgba(0,0,0,0.12))"
-                  : "drop-shadow(0 4px 8px rgba(0,0,0,0.08))",
+                  : "drop-shadow(0 10px 18px rgba(0,0,0,0.12))",
                 userSelect: "none",
               }}
             />

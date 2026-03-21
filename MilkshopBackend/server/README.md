@@ -52,4 +52,17 @@ At minimum configure:
   - `DB_NAME` (defaults to `milkshop_backend`).
 - `GMAIL_USER` – Gmail address used to send franchise confirmation emails.
 - `GMAIL_APP_PASSWORD` – [Gmail App Password](https://support.google.com/accounts/answer/185833) for that account (not your normal password). If unset, franchise form still works but no email is sent.
+- `FRONTEND_PUBLIC_LOGO_URL` (optional) – logo URL in HTML confirmation emails.
+
+### App settings (Qr & Email)
+
+Global key/value table `app_settings` (migration **006**):
+
+- `franchise_qr_url` – URL encoded in QR materials (default seeded in migration).
+- `franchise_confirmation_email_template` – plain-text body for `sendFranchiseConfirmation`; use the literal text `(name)` where the recipient’s name goes. If empty, the server uses a built-in default.
+
+Admin API (requires `Authorization: Bearer <admin JWT>`):
+
+- `GET /api/admin/settings/qr-email` → `{ success, data: { qrUrl, emailTemplate } }`
+- `PUT /api/admin/settings/qr-email` → body `{ qrUrl?, emailTemplate? }` → same shape.
 
