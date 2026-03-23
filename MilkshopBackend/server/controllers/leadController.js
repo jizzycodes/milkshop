@@ -2,6 +2,7 @@ const {
   runPastDueDetection,
   getLeadById,
   listLeads,
+  getLeadFocusStats,
   updateLeadStatus,
   updateLeadStage,
   updateLeadFields,
@@ -52,6 +53,16 @@ async function getLeads(req, res, next) {
       },
       data: result.items,
     })
+  } catch (err) {
+    next(err)
+  }
+}
+
+async function getLeadsFocusStats(req, res, next) {
+  try {
+    await runPastDueDetection()
+    const data = await getLeadFocusStats()
+    res.json({ success: true, data })
   } catch (err) {
     next(err)
   }
@@ -174,6 +185,7 @@ async function getContactLogs(req, res, next) {
 
 module.exports = {
   getLeads,
+  getLeadsFocusStats,
   getLead,
   patchLeadStatus,
   patchLeadStage,

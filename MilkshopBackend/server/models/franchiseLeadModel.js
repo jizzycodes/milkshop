@@ -191,6 +191,49 @@ async function listLeads(options = {}) {
   }
 }
 
+async function getLeadFocusStats() {
+  const result = await query(
+    `
+    SELECT
+      COUNT(*) FILTER (
+        WHERE status = 'NEW'
+          AND best_contact_at IS NOT NULL
+          AND best_contact_at < now()
+      )::int
+      +
+      COUNT(*) FILTER (
+        WHERE status = 'FOR_FOLLOWUP'
+          AND next_followup_at IS NOT NULL
+          AND next_followup_at < now()
+      )::int AS overdue,
+
+      COUNT(*) FILTER (
+        WHERE status = 'NEW'
+          AND best_contact_at IS NOT NULL
+          AND best_contact_at::date = CURRENT_DATE
+      )::int
+      +
+      COUNT(*) FILTER (
+        WHERE status = 'FOR_FOLLOWUP'
+          AND next_followup_at IS NOT NULL
+          AND next_followup_at::date = CURRENT_DATE
+      )::int AS due_today,
+
+      COUNT(*) FILTER (WHERE created_at::date = CURRENT_DATE)::int AS new_today,
+      COUNT(*) FILTER (WHERE status = 'FOR_FOLLOWUP')::int AS for_followup
+    FROM franchise_leads
+    WHERE status NOT IN ('DROPPED', 'ARCHIVED')
+    `,
+  )
+
+  return result.rows[0] || {
+    overdue: 0,
+    due_today: 0,
+    new_today: 0,
+    for_followup: 0,
+  }
+}
+
 async function updateLeadStatus(id, status) {
   const result = await query(
     `UPDATE franchise_leads SET status = $1, updated_at = now() WHERE id = $2 RETURNING id, status`,
@@ -258,6 +301,7 @@ module.exports = {
   runPastDueDetection,
   getLeadById,
   listLeads,
+  getLeadFocusStats,
   updateLeadStatus,
   updateLeadStage,
   updateLeadFields,

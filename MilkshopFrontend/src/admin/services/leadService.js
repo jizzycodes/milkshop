@@ -64,6 +64,16 @@ export async function fetchLeadById(token, id) {
   return handleResponse(response);
 }
 
+export async function fetchLeadFocusStats(token) {
+  const response = await fetch(`${API_BASE_URL}/api/admin/leads/focus-stats`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse(response);
+}
+
 export async function fetchLeadContactLogs(token, id) {
   const response = await fetch(`${API_BASE_URL}/api/admin/leads/${id}/contact-logs`, {
     headers: {

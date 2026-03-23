@@ -12,10 +12,13 @@ import AdminLogin from './admin/pages/AdminLogin'
 import AdminDashboard from './admin/pages/AdminDashboard'
 import LeadsPage from './admin/pages/LeadsPage'
 import QrAndEmail from './admin/pages/QrAndEmail'
+import AccountSettings from './admin/pages/AccountSettings'
+import Monitor from './admin/pages/Monitor'
 import LeadDetails from './admin/pages/LeadDetails'
 import AdminLayout from './admin/components/AdminLayout'
 import ProtectedRoute from './admin/components/ProtectedRoute'
 import { AdminAuthProvider } from './admin/context/AdminAuthContext'
+import TrackingBootstrap from './tracking/TrackingBootstrap'
 import './App.css'
 
 function ScrollToTop() {
@@ -74,6 +77,28 @@ function AppRoutes() {
       />
 
       <Route
+        path="/admin/account-settings"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AccountSettings />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/monitor"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <Monitor />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/admin/leads/:id"
         element={
           <ProtectedRoute>
@@ -89,6 +114,7 @@ function AppRoutes() {
         element={
           <>
             <ScrollToTop />
+            <TrackingBootstrap />
             <Navbar />
             <div className="animate-page-in mt-0 pt-0">
               <Routes>

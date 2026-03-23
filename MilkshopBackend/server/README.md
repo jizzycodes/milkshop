@@ -66,3 +66,26 @@ Admin API (requires `Authorization: Bearer <admin JWT>`):
 - `GET /api/admin/settings/qr-email` → `{ success, data: { qrUrl, emailTemplate } }`
 - `PUT /api/admin/settings/qr-email` → body `{ qrUrl?, emailTemplate? }` → same shape.
 
+### Account settings (roles: admin/user)
+
+Migration **007** adds `user_accounts` and role-based login.
+
+- Roles: `admin`, `user`.
+- Login stays on `POST /api/admin/login` for both roles.
+- Admin endpoints (JWT required):
+  - `GET /api/admin/settings/account/me`
+  - `PUT /api/admin/settings/account/me`
+  - `GET /api/admin/settings/account/accounts` (admin only)
+  - `POST /api/admin/settings/account/accounts` (admin only)
+  - `PUT /api/admin/settings/account/accounts/:id` (admin only)
+
+### Website tracking + monitor
+
+Migration **008** adds `website_tracking_events`.
+
+- Public tracking endpoint:
+  - `POST /api/track/events` (batched website events).
+- Admin monitor endpoints (admin role only):
+  - `GET /api/admin/monitor/summary?days=14` (totals, top sections, daily trend, top menu clicks).
+  - `DELETE /api/admin/monitor/metrics` — clears all rows in `website_tracking_events` (Monitor resets to zero).
+

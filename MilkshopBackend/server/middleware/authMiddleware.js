@@ -13,7 +13,7 @@ function authenticateAdmin(req, res, next) {
 
   try {
     const decoded = verifyAccessToken(token)
-    if (decoded.role !== 'admin') {
+    if (!['admin', 'user'].includes(decoded.role)) {
       return res.status(403).json({
         success: false,
         error: 'Forbidden',

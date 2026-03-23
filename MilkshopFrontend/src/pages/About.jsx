@@ -106,6 +106,7 @@ export default function About() {
           SLIDE 1 — HERO: Born in Taiwan
       ══════════════════════════════════════════════ */}
       <section
+        data-track-section="About Hero"
         className="relative min-h-screen flex flex-col justify-center overflow-hidden"
         style={{ backgroundColor: "#1e1e1e" }}
       >
@@ -207,7 +208,7 @@ export default function About() {
       {/* ══════════════════════════════════════════════
           SLIDE 2 — 秘客侠 IDENTITY
       ══════════════════════════════════════════════ */}
-      <section className="relative py-28 overflow-hidden bg-white">
+      <section data-track-section="Milkshop Identity" className="relative py-28 overflow-hidden bg-white">
         {/* Large Chinese character watermark */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none select-none" style={{
           fontSize: "32vw", fontWeight: 900, lineHeight: 1,
@@ -251,7 +252,7 @@ export default function About() {
       {/* ══════════════════════════════════════════════
           SLIDE 3 — CORE VALUES
       ══════════════════════════════════════════════ */}
-      <section className="relative py-28 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
+      <section data-track-section="Core Values" className="relative py-28 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
         <div className="absolute inset-0 pointer-events-none" style={{
           background: "linear-gradient(135deg, rgba(151,182,76,0.06) 0%, transparent 60%)",
         }} />
@@ -288,7 +289,7 @@ export default function About() {
       {/* ══════════════════════════════════════════════
           SLIDE 4 — STATS BAR
       ══════════════════════════════════════════════ */}
-      <section className="py-20" style={{ backgroundColor: "#97b64c" }}>
+      <section data-track-section="Company Stats" className="py-20" style={{ backgroundColor: "#97b64c" }}>
         <div className="max-w-6xl mx-auto px-8 lg:px-16 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
           {[
             { value: "2015", suffix: "", label: "Year Founded" },
@@ -311,7 +312,7 @@ export default function About() {
       {/* ══════════════════════════════════════════════
           SLIDE 5 — TIMELINE
       ══════════════════════════════════════════════ */}
-      <section className="relative py-28 bg-white overflow-hidden">
+      <section data-track-section="Company Timeline" className="relative py-28 bg-white overflow-hidden">
         {/* Vertical line */}
         <div className="absolute left-1/2 top-0 bottom-0 w-px hidden lg:block" style={{ backgroundColor: "#e8f0dc" }} />
 
@@ -370,7 +371,7 @@ export default function About() {
       {/* ══════════════════════════════════════════════
           SLIDE 6 — RAW MATERIALS
       ══════════════════════════════════════════════ */}
-      <section className="relative py-28 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
+      <section data-track-section="Raw Materials" className="relative py-28 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
         <div className="absolute inset-0 pointer-events-none" style={{
           backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.15) 1px, transparent 1px)",
           backgroundSize: "40px 40px",
@@ -445,7 +446,7 @@ export default function About() {
       {/* ══════════════════════════════════════════════
           SLIDE 7 — TEAM
       ══════════════════════════════════════════════ */}
-      <section className="relative py-28 bg-white overflow-hidden">
+      <section data-track-section="Team" className="relative py-28 bg-white overflow-hidden">
         {/* Large watermark */}
         <div className="absolute bottom-0 left-0 pointer-events-none select-none" style={{
           fontSize: "30vw", fontWeight: 900, lineHeight: 1,
@@ -483,7 +484,7 @@ export default function About() {
       {/* ══════════════════════════════════════════════
           SLIDE 8 — BOTTOM CTA
       ══════════════════════════════════════════════ */}
-      <section className="relative py-24 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
+      <section data-track-section="About CTA" className="relative py-24 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
         <div className="absolute inset-0 pointer-events-none" style={{
           background: "radial-gradient(ellipse at center, rgba(151,182,76,0.1) 0%, transparent 70%)",
         }} />

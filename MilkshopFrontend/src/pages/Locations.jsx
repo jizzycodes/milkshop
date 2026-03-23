@@ -319,7 +319,7 @@ export default function Locations() {
     <main style={{ backgroundColor: "#fafaf8", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif" }}>
 
       {/* ══ HERO ═══════════════════════════════════════════════════════════════ */}
-      <section style={{
+      <section data-track-section="Locations Hero" style={{
         position: "relative", overflow: "hidden",
         background: "linear-gradient(160deg, #f5f8ef 0%, #ffffff 60%, #fffdf5 100%)",
         padding: "140px 48px 110px",
@@ -456,7 +456,7 @@ export default function Locations() {
       </section>
 
       {/* ══ CARD GRID ══════════════════════════════════════════════════════════ */}
-      <section style={{ backgroundColor: "#f5f8ef", padding: "56px 48px 80px" }}>
+      <section data-track-section="Branch List" style={{ backgroundColor: "#f5f8ef", padding: "56px 48px 80px" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           {loading ? (
             <div style={{ display: "flex", gap: "12px", padding: "120px 0", justifyContent: "center" }}>
@@ -574,7 +574,7 @@ export default function Locations() {
       )}
 
       {/* ══ COMING TO YOUR CITY ════════════════════════════════════════════════ */}
-      <section style={{
+      <section data-track-section="Locations CTA" style={{
         backgroundColor: "#ffffff", borderTop: "1px solid #e8f0dc",
         padding: "80px 48px", position: "relative", overflow: "hidden",
       }}>

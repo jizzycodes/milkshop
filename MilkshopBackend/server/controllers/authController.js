@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt')
 const { findAdminByEmail } = require('../models/adminUserModel')
+const { findAccountByEmail } = require('../models/userAccountModel')
 const { signAccessToken } = require('../utils/jwt')
 
 function validateLoginPayload(body) {
@@ -17,15 +18,17 @@ async function login(req, res, next) {
     const email = String(req.body.email).trim()
     const password = String(req.body.password)
 
-    const admin = await findAdminByEmail(email)
+    const account = await findAccountByEmail(email)
+    const legacyAdmin = account ? null : await findAdminByEmail(email)
+    const subject = account || legacyAdmin
 
-    if (!admin) {
+    if (!subject) {
       const error = new Error('Invalid credentials')
       error.status = 401
       throw error
     }
 
-    const passwordMatches = await bcrypt.compare(password, admin.password)
+    const passwordMatches = await bcrypt.compare(password, subject.password)
 
     if (!passwordMatches) {
       const error = new Error('Invalid credentials')
@@ -34,17 +37,20 @@ async function login(req, res, next) {
     }
 
     const token = signAccessToken({
-      sub: admin.id,
-      email: admin.email,
-      role: 'admin',
+      sub: subject.id,
+      email: subject.email,
+      username: subject.username || subject.email,
+      role: subject.role || 'admin',
     })
 
     res.json({
       success: true,
       token,
       data: {
-        id: admin.id,
-        email: admin.email,
+        id: subject.id,
+        email: subject.email,
+        username: subject.username || subject.email,
+        role: subject.role || 'admin',
       },
     })
   } catch (err) {

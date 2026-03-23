@@ -1,5 +1,5 @@
 /**
- * Run migrations (001 + 003 + 004).
+ * Run migrations (001..007).
  * Usage: from server folder, run: node db/run-migration.js
  * Loads .env from backend root so DB_PASSWORD is set.
  */
@@ -95,13 +95,58 @@ $$ LANGUAGE plpgsql`,
   `INSERT INTO app_settings (key, value) VALUES
     ('franchise_qr_url', 'http://172.16.1.119:5173/franchise#inquiry')
   ON CONFLICT (key) DO NOTHING`,
+  // 007: user_accounts (admin + user login/account settings)
+  `CREATE TABLE IF NOT EXISTS user_accounts (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    email varchar(255) NOT NULL UNIQUE,
+    username varchar(255) NOT NULL,
+    password varchar(255) NOT NULL,
+    role varchar(20) NOT NULL DEFAULT 'user',
+    is_active boolean NOT NULL DEFAULT true,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT user_accounts_role_check CHECK (role IN ('admin','user'))
+  )`,
+  'DROP TRIGGER IF EXISTS user_accounts_updated_at ON user_accounts',
+  `CREATE TRIGGER user_accounts_updated_at
+  BEFORE UPDATE ON user_accounts
+  FOR EACH ROW EXECUTE PROCEDURE set_updated_at()`,
+  `DO $$
+   BEGIN
+     IF to_regclass('public.admin_users') IS NOT NULL THEN
+       INSERT INTO user_accounts (email, username, password, role, is_active)
+       SELECT a.email,
+              split_part(a.email, '@', 1) AS username,
+              a.password,
+              'admin' AS role,
+              true AS is_active
+       FROM admin_users a
+       ON CONFLICT (email) DO NOTHING;
+     END IF;
+   END $$`,
+  // 008: website tracking events (monitor dashboard)
+  `CREATE TABLE IF NOT EXISTS website_tracking_events (
+    id bigserial PRIMARY KEY,
+    event_type varchar(60) NOT NULL,
+    section_key varchar(150),
+    path varchar(255),
+    duration_ms int NOT NULL DEFAULT 0,
+    session_id varchar(120),
+    user_agent text,
+    ip_address varchar(120),
+    occurred_at timestamptz NOT NULL DEFAULT now(),
+    created_at timestamptz NOT NULL DEFAULT now()
+  )`,
+  'CREATE INDEX IF NOT EXISTS idx_wte_occurred_at ON website_tracking_events(occurred_at)',
+  'CREATE INDEX IF NOT EXISTS idx_wte_section_key ON website_tracking_events(section_key)',
+  'CREATE INDEX IF NOT EXISTS idx_wte_event_type ON website_tracking_events(event_type)',
 ]
 
 async function run() {
   for (let i = 0; i < statements.length; i++) {
     await pool.query(statements[i])
   }
-  console.log('Migrations 001+003+004 completed.')
+  console.log('Migrations 001..007 completed.')
 }
 
 run()

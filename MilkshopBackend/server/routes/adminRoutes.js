@@ -7,6 +7,7 @@ const {
 } = require('../models/franchiseRequestModel')
 const {
   getLeads,
+  getLeadsFocusStats,
   getLead,
   patchLeadStatus,
   patchLeadStage,
@@ -15,6 +16,14 @@ const {
   getContactLogs,
 } = require('../controllers/leadController')
 const { getQrEmail, putQrEmail } = require('../controllers/adminSettingsController')
+const { getMonitorSummary, deleteMonitorMetrics } = require('../controllers/trackingController')
+const {
+  getMyAccount,
+  updateMyAccount,
+  getAccounts,
+  postAccount,
+  putAccount,
+} = require('../controllers/accountSettingsController')
 
 const router = express.Router()
 
@@ -88,6 +97,7 @@ router.get('/franchise-requests', async (req, res, next) => {
 
 // Phase 2: CRM leads (franchise_leads) + contact logs
 router.get('/leads', getLeads)
+router.get('/leads/focus-stats', getLeadsFocusStats)
 router.get('/leads/:id', getLead)
 router.patch('/leads/:id/status', patchLeadStatus)
 router.patch('/leads/:id/stage', patchLeadStage)
@@ -97,6 +107,13 @@ router.get('/leads/:id/contact-logs', getContactLogs)
 
 router.get('/settings/qr-email', getQrEmail)
 router.put('/settings/qr-email', putQrEmail)
+router.get('/settings/account/me', getMyAccount)
+router.put('/settings/account/me', updateMyAccount)
+router.get('/settings/account/accounts', getAccounts)
+router.post('/settings/account/accounts', postAccount)
+router.put('/settings/account/accounts/:id', putAccount)
+router.get('/monitor/summary', getMonitorSummary)
+router.delete('/monitor/metrics', deleteMonitorMetrics)
 
 module.exports = router
 

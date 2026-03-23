@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchAdminDashboard, fetchRecentFranchiseRequests } from "../services/api";
+import { fetchLeadFocusStats } from "../services/leadService";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import AdminErrorBanner from "../components/AdminErrorBanner";
 import AdminEmptyState from "../components/AdminEmptyState";
@@ -44,7 +45,7 @@ const STYLES = `
   }
 
   .db-greeting {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 700;
     color: var(--text-primary);
     letter-spacing: -0.03em;
@@ -55,9 +56,9 @@ const STYLES = `
 
   .db-subline {
     margin-top: 6px;
-    font-size: 13px;
-    color: var(--text-secondary);
-    opacity: 0.65;
+    font-size: 20px;
+    color: #4b5563;
+    opacity: 1;
   }
 
   .db-date-chip {
@@ -69,9 +70,9 @@ const STYLES = `
     border-radius: 10px;
     padding: 8px 14px;
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text-secondary);
-    opacity: 0.8;
+    font-size: 13px;
+    color: #4b5563;
+    opacity: 1;
     white-space: nowrap;
     flex-shrink: 0;
     margin-top: 4px;
@@ -140,12 +141,12 @@ const STYLES = `
 
   .db-stat-label {
     font-family: 'DM Mono', monospace;
-    font-size: 9.5px;
+    font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--text-secondary);
-    opacity: 0.6;
+    color: #4b5563;
+    opacity: 1;
     margin-bottom: 10px;
   }
 
@@ -173,9 +174,9 @@ const STYLES = `
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-secondary);
+    color: #4b5563;
     flex-shrink: 0;
-    opacity: 0.55;
+    opacity: 1;
   }
 
   .db-stat.featured .db-stat-icon {
@@ -206,6 +207,84 @@ const STYLES = `
     to   { opacity: 1; transform: translateY(0);    }
   }
 
+  /* ── Today's Focus ── */
+  .db-focus {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    animation: db-enter 0.35s 0.2s ease both;
+  }
+
+  .db-focus-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .db-focus-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+
+  .db-focus-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #4b5563;
+    opacity: 1;
+  }
+
+  .db-focus-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  @media (min-width: 640px) {
+    .db-focus-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (min-width: 980px) {
+    .db-focus-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+
+  .db-focus-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 13px;
+    background: #fbfdf7;
+  }
+
+  .db-focus-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #4b5563;
+    opacity: 1;
+  }
+
+  .db-focus-value {
+    margin-top: 7px;
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--text-primary);
+  }
+
+  .db-focus-card.overdue {
+    border-color: #f2c8c8;
+    background: #fff7f7;
+  }
+
+  .db-focus-card.overdue .db-focus-value { color: #b42318; }
+
   /* ── Recent Panel ── */
   .db-panel {
     background: var(--white);
@@ -234,12 +313,12 @@ const STYLES = `
   .db-panel-badge {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
-    color: var(--text-secondary);
+    color: #4b5563;
     background: var(--surface-bg);
     border: 1px solid var(--border);
     padding: 3px 10px;
     border-radius: 20px;
-    opacity: 0.7;
+    opacity: 1;
   }
 
   /* ── Rows ── */
@@ -279,7 +358,7 @@ const STYLES = `
   .db-row-info { flex: 1; min-width: 0; }
 
   .db-row-name {
-    font-size: 13.5px;
+    font-size: 17px;
     font-weight: 500;
     color: var(--text-primary);
     white-space: nowrap;
@@ -290,9 +369,9 @@ const STYLES = `
 
   .db-row-email {
     font-family: 'DM Mono', monospace;
-    font-size: 10.5px;
-    color: var(--text-secondary);
-    opacity: 0.5;
+    font-size: 13px;
+    color: #4b5563;
+    opacity: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -323,9 +402,9 @@ const STYLES = `
 
   .db-row-time {
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--text-secondary);
-    opacity: 0.4;
+    font-size: 12px;
+    color: #4b5563;
+    opacity: 1;
   }
 
   /* ── Skeleton ── */
@@ -375,6 +454,7 @@ function getGreeting() {
 export default function AdminDashboard() {
   const { token, logout, admin }        = useAdminAuth();
   const [stats, setStats]               = useState(null);
+  const [focus, setFocus]               = useState(null);
   const [recent, setRecent]             = useState([]);
   const [isLoading, setIsLoading]       = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -386,12 +466,14 @@ export default function AdminDashboard() {
       setIsLoading(true);
       setErrorMessage("");
       try {
-        const [dashboardRes, recentRes] = await Promise.all([
+        const [dashboardRes, focusRes, recentRes] = await Promise.all([
           fetchAdminDashboard(token),
+          fetchLeadFocusStats(token),
           fetchRecentFranchiseRequests(token, { pageSize: 5 }),
         ]);
         if (!isMounted) return;
         setStats(dashboardRes.data || null);
+        setFocus(focusRes.data || null);
         setRecent(recentRes.data || []);
       } catch (err) {
         if (!isMounted) return;
@@ -412,6 +494,10 @@ export default function AdminDashboard() {
   const total     = stats?.total      ?? "—";
   const today     = stats?.today      ?? "—";
   const thisMonth = stats?.this_month ?? "—";
+  const overdue   = focus?.overdue ?? "—";
+  const dueToday  = focus?.due_today ?? "—";
+  const newToday  = focus?.new_today ?? "—";
+  const followup  = focus?.for_followup ?? "—";
 
   const adminName = admin?.email?.split("@")[0] || "Admin";
 
@@ -499,6 +585,32 @@ export default function AdminDashboard() {
             </div>
 
           </div>
+
+          {/* ── Today's Focus ── */}
+          <section className="db-focus">
+            <div className="db-focus-head">
+              <p className="db-focus-title">Today's Focus</p>
+              <span className="db-focus-sub">LEADS SNAPSHOT</span>
+            </div>
+            <div className="db-focus-grid">
+              <div className="db-focus-card overdue">
+                <p className="db-focus-label">Overdue</p>
+                <p className="db-focus-value">{isLoading ? "…" : overdue}</p>
+              </div>
+              <div className="db-focus-card">
+                <p className="db-focus-label">Due Today</p>
+                <p className="db-focus-value">{isLoading ? "…" : dueToday}</p>
+              </div>
+              <div className="db-focus-card">
+                <p className="db-focus-label">New Today</p>
+                <p className="db-focus-value">{isLoading ? "…" : newToday}</p>
+              </div>
+              <div className="db-focus-card">
+                <p className="db-focus-label">For Follow-up</p>
+                <p className="db-focus-value">{isLoading ? "…" : followup}</p>
+              </div>
+            </div>
+          </section>
 
           {/* ── Recent Requests ── */}
           <div className="db-panel">

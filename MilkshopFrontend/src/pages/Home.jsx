@@ -311,12 +311,12 @@ export default function Home() {
     <main className="bg-white -mt-px">
 
       {/* ── HERO ── */}
-      <Reveal as="div">
+      <Reveal as="section" data-track-section="Home Hero">
         <Hero />
       </Reveal>
 
       {/* ── HIGHLIGHTS STRIP ── */}
-      <Reveal as="section" className="bg-[#97b64c] py-5">
+      <Reveal as="section" data-track-section="Highlights Strip" className="bg-[#97b64c] py-5">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-2 lg:grid-cols-4 gap-4">
           {highlights.map((h) => (
             <div key={h.label} className="flex items-center gap-3">
@@ -335,7 +335,7 @@ export default function Home() {
       </Reveal>
 
       {/* ── TOP 5 DRINKS CAROUSEL ── */}
-      <Reveal as="section" className="bg-white py-20 overflow-hidden">
+      <Reveal as="section" data-track-section="Fan Favorites" className="bg-white py-20 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
@@ -359,7 +359,7 @@ export default function Home() {
       </Reveal>
 
       {/* ── INVESTOR STATS BAR ── */}
-      <Reveal as="section" className="bg-[#1e1e1e] py-12">
+      <Reveal as="section" data-track-section="Investor Stats" className="bg-[#1e1e1e] py-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
           {investorStats.map((s, i) => (
             <Reveal key={s.label} as="div" delay={i * 60} className="flex flex-col items-center gap-1">
@@ -382,7 +382,7 @@ export default function Home() {
       </Reveal>
 
       {/* ── BRAND STORY ── */}
-      <Reveal as="section" className="bg-[#f5f8ef] border-y border-[#d0e0b0] py-20">
+      <Reveal as="section" data-track-section="Brand Story" className="bg-[#f5f8ef] border-y border-[#d0e0b0] py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col lg:flex-row items-center gap-12">
           <Reveal as="div" className="flex-1 flex justify-center" delay={40}>
             <div className="relative w-72 h-72 lg:w-80 lg:h-80">
@@ -420,7 +420,7 @@ export default function Home() {
       </Reveal>
 
       {/* ── FACTORY / TEA-MAKING VIDEO ── */}
-      <Reveal as="section" className="bg-white py-20">
+      <Reveal as="section" data-track-section="Crafted With Precision" className="bg-white py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-10">
             <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
@@ -472,7 +472,7 @@ export default function Home() {
       </Reveal>
 
       {/* ── FRANCHISEE TESTIMONIALS ── */}
-      <Reveal as="section" className="bg-[#f5f8ef] border-y border-[#d0e0b0] py-20">
+      <Reveal as="section" data-track-section="Testimonials" className="bg-[#f5f8ef] border-y border-[#d0e0b0] py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-12">
             <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>

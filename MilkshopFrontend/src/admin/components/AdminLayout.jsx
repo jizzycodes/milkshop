@@ -37,6 +37,26 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  {
+    to: "/admin/account-settings",
+    label: "Account Settings",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="8" r="3" />
+        <path d="M5 21v-1a7 7 0 0 1 14 0v1" />
+      </svg>
+    ),
+  },
+  {
+    to: "/admin/monitor",
+    label: "Monitor",
+    adminOnly: true,
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+      </svg>
+    ),
+  },
 ];
 
 const STYLES = `
@@ -407,6 +427,8 @@ export default function AdminLayout({ children }) {
     navigate("/admin/login");
   };
 
+  const visibleNavItems = NAV_ITEMS.filter((item) => !item.adminOnly || admin?.role === "admin");
+
   const SidebarContent = ({ onLinkClick }) => (
     <>
       <div className="al-brand">
@@ -418,7 +440,7 @@ export default function AdminLayout({ children }) {
 
       <nav className="al-nav">
         <p className="al-nav-section-label">Navigation</p>
-        {NAV_ITEMS.map((item) => (
+        {visibleNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

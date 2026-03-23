@@ -216,7 +216,7 @@ export default function Franchise() {
       {/* ══════════════════════════════════════
           SLIDE 1 — HERO
       ══════════════════════════════════════ */}
-      <section className="relative overflow-hidden" style={{
+      <section data-track-section="Franchise Hero" className="relative overflow-hidden" style={{
         background: "linear-gradient(160deg, #f5f8ef 0%, #ffffff 50%, #fffdf5 100%)",
         minHeight: "100vh",
         display: "flex", flexDirection: "column", justifyContent: "center",
@@ -315,7 +315,7 @@ export default function Franchise() {
       {/* ══════════════════════════════════════
           SLIDE 2 — WHY MILKSHOP
       ══════════════════════════════════════ */}
-      <section className="relative py-28 overflow-hidden bg-white">
+      <section data-track-section="Why Milkshop" className="relative py-28 overflow-hidden bg-white">
         {/* Large watermark text */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none select-none" style={{
           fontSize: "28vw", fontWeight: 900, lineHeight: 1,
@@ -351,7 +351,7 @@ export default function Franchise() {
       {/* ══════════════════════════════════════
           SLIDE 3 — PACKAGES
       ══════════════════════════════════════ */}
-      <section id="packages" className="relative py-28 overflow-hidden" style={{
+      <section id="packages" data-track-section="Franchise Packages" className="relative py-28 overflow-hidden" style={{
         background: "linear-gradient(180deg, #f5f8ef 0%, #ffffff 100%)",
       }}>
         {/* Subtle grid */}
@@ -441,7 +441,7 @@ export default function Franchise() {
       {/* ══════════════════════════════════════
           SLIDE 4 — HOW IT WORKS
       ══════════════════════════════════════ */}
-      <section className="relative py-28 overflow-hidden bg-white">
+      <section data-track-section="How It Works" className="relative py-28 overflow-hidden bg-white">
         {/* Connecting line */}
         <div className="absolute top-[19rem] left-0 right-0 h-px hidden lg:block" style={{
           background: "linear-gradient(to right, transparent 5%, #d0e0b0 20%, #d0e0b0 80%, transparent 95%)",
@@ -479,7 +479,7 @@ export default function Franchise() {
       {/* ══════════════════════════════════════
           SLIDE 5 — FAQ
       ══════════════════════════════════════ */}
-      <section className="relative py-28 overflow-hidden" style={{ backgroundColor: "#f5f8ef" }}>
+      <section data-track-section="Franchise FAQs" className="relative py-28 overflow-hidden" style={{ backgroundColor: "#f5f8ef" }}>
         <div className="absolute inset-0 pointer-events-none" style={{
           backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.15) 1px, transparent 1px)",
           backgroundSize: "40px 40px",
@@ -525,7 +525,7 @@ export default function Franchise() {
       {/* ══════════════════════════════════════
           SLIDE 6 — INQUIRY FORM
       ══════════════════════════════════════ */}
-      <section id="inquiry" className="relative py-28 overflow-hidden bg-white">
+      <section id="inquiry" data-track-section="Franchise Inquiry" className="relative py-28 overflow-hidden bg-white">
         {/* Corner accents */}
         <div className="absolute top-0 left-0 w-64 h-64 pointer-events-none" style={{
           background: "radial-gradient(circle at top left, rgba(151,182,76,0.08) 0%, transparent 70%)",
@@ -670,7 +670,7 @@ export default function Franchise() {
       {/* ══════════════════════════════════════
           SLIDE 7 — BOTTOM CTA
       ══════════════════════════════════════ */}
-      <section className="relative py-24 overflow-hidden" style={{ backgroundColor: "#f5f8ef", borderTop: "1px solid #d0e0b0" }}>
+      <section data-track-section="Franchise CTA" className="relative py-24 overflow-hidden" style={{ backgroundColor: "#f5f8ef", borderTop: "1px solid #d0e0b0" }}>
         <div className="absolute inset-0 pointer-events-none" style={{
           backgroundImage: "linear-gradient(rgba(151,182,76,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.06) 1px, transparent 1px)",
           backgroundSize: "48px 48px",

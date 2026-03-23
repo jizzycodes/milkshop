@@ -494,7 +494,7 @@ export default function Products() {
     }}>
 
       {/* ══ HERO (white header) ═══════════════════════════════════ */}
-      <section style={{
+      <section data-track-section="Products Hero" style={{
         position: "relative",
         overflow: "hidden",
         background: "#ffffff",
@@ -581,7 +581,7 @@ export default function Products() {
       </section>
 
       {/* ══ ALL SERIES ══════════════════════════════════════════════ */}
-      <section style={{ paddingTop: "80px", paddingBottom: "40px" }}>
+      <section data-track-section="All Series" style={{ paddingTop: "80px", paddingBottom: "40px" }}>
         {loading ? (
           <div style={{
             display: "flex", alignItems: "center",
@@ -606,7 +606,7 @@ export default function Products() {
       </section>
 
       {/* ══ REVIEWS ══════════════════════════════════════════════ */}
-      <section style={{
+      <section data-track-section="Reviews" style={{
         overflow: "hidden", padding: "96px 0",
         backgroundColor: "#ffffff", borderTop: "1px solid #dde8cc",
       }}>
@@ -723,7 +723,7 @@ export default function Products() {
       </section>
 
       {/* ══ BOTTOM CTA ════════════════════════════════════════════ */}
-      <section style={{
+      <section data-track-section="Products CTA" style={{
         padding: "64px 40px", backgroundColor: "#1e1e1e",
         position: "relative", overflow: "hidden",
       }}>
