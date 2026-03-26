@@ -28,7 +28,7 @@ const STYLES = `
     background: #ffffff;
     font-size: 12px;
     font-weight: 500;
-    color: #5a5a5a;
+    color: #374151;
     cursor: pointer;
     letter-spacing: -0.01em;
     transition: background 0.13s, color 0.13s, border-color 0.13s;

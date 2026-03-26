@@ -11,7 +11,7 @@ export default function StatusTabs({ options, value, onChange }) {
             className={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 ${
               active
                 ? "bg-[#5A9216] text-white shadow-sm"
-                : "bg-transparent text-[#5A6B4A] hover:bg-[#DDE8CF] hover:text-[#1A2410]"
+                : "bg-transparent text-[#374151] hover:bg-[#DDE8CF] hover:text-[#1A2410]"
             }`}
           >
             {opt.label}

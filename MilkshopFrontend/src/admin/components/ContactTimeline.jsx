@@ -14,7 +14,7 @@ function formatFullDate(value) {
 export default function ContactTimeline({ logs }) {
   if (!logs || logs.length === 0) {
     return (
-      <p className="text-xs text-[#5A6B4A]">
+      <p className="text-xs text-[#374151]">
         No contact history yet.
       </p>
     );
@@ -30,7 +30,7 @@ export default function ContactTimeline({ logs }) {
               <span className="font-medium text-[#1A2410]">
                 {log.contact_type}
               </span>
-              <span className="text-[10px] text-[#5A6B4A]">
+              <span className="text-[10px] text-[#374151]">
                 {formatFullDate(log.created_at)}
               </span>
             </div>

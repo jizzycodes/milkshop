@@ -22,7 +22,7 @@ const STYLES = `
     font-weight: 500;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #5a5a5a;
+    color: #374151;
     opacity: 0.65;
   }
 
@@ -43,7 +43,7 @@ const STYLES = `
     background: transparent;
     font-size: 13px;
     font-weight: 500;
-    color: #5a5a5a;
+    color: #374151;
     cursor: pointer;
     text-align: left;
     transition: background 0.13s, color 0.13s;

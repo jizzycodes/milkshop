@@ -89,7 +89,7 @@ export default function LeadDetails() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#F7F9F4] flex-col gap-3">
         <div className="h-6 w-6 rounded-full border-2 border-[#DDE8CF] border-t-[#5A9216] animate-spin" />
-        <span className="font-mono text-xs text-[#5A6B4A]">Loading lead...</span>
+        <span className="font-mono text-xs text-[#374151]">Loading lead...</span>
       </div>
     );
   }
@@ -102,7 +102,7 @@ export default function LeadDetails() {
         <button
           type="button"
           onClick={() => navigate("/admin/leads")}
-          className="mt-4 text-xs font-medium text-[#5A6B4A] hover:text-[#1A2410] transition"
+          className="mt-4 text-xs font-medium text-[#374151] hover:text-[#1A2410] transition"
         >
           ← Back to leads
         </button>
@@ -121,7 +121,7 @@ export default function LeadDetails() {
         <button
           type="button"
           onClick={() => navigate("/admin/leads")}
-          className="mb-5 inline-flex items-center gap-1.5 text-xs font-medium text-[#5A6B4A] hover:text-[#1A2410] transition"
+          className="mb-5 inline-flex items-center gap-1.5 text-xs font-medium text-[#374151] hover:text-[#1A2410] transition"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 5l-7 7 7 7" />
@@ -138,7 +138,7 @@ export default function LeadDetails() {
             <h1 className="text-xl font-semibold tracking-tight text-[#1A2410]">
               {lead.full_name || "—"}
             </h1>
-            <p className="mt-1 font-mono text-[11px] text-[#5A6B4A]">
+            <p className="mt-1 font-mono text-[11px] text-[#374151]">
               {lead.email} · {lead.contact_number}
             </p>
           </div>
@@ -147,7 +147,7 @@ export default function LeadDetails() {
           <div className="flex flex-wrap items-end gap-3">
             {/* Stage */}
             <div className="flex flex-col gap-1">
-              <span className="font-mono text-[9.5px] font-semibold uppercase tracking-widest text-[#5A6B4A]">
+              <span className="font-mono text-[9.5px] font-semibold uppercase tracking-widest text-[#374151]">
                 Stage
               </span>
               <select
@@ -165,7 +165,7 @@ export default function LeadDetails() {
 
             {/* Status */}
             <div className="flex flex-col gap-1">
-              <span className="font-mono text-[9.5px] font-semibold uppercase tracking-widest text-[#5A6B4A]">
+              <span className="font-mono text-[9.5px] font-semibold uppercase tracking-widest text-[#374151]">
                 Status
               </span>
               <select
@@ -185,7 +185,7 @@ export default function LeadDetails() {
 
             {/* Current Badge */}
             <div className="flex flex-col gap-1">
-              <span className="font-mono text-[9.5px] font-semibold uppercase tracking-widest text-[#5A6B4A]">
+              <span className="font-mono text-[9.5px] font-semibold uppercase tracking-widest text-[#374151]">
                 Current
               </span>
               <div className="flex items-center h-[34px]">
@@ -201,7 +201,7 @@ export default function LeadDetails() {
           {/* Basic Info */}
           <div className="overflow-hidden rounded-xl border border-[#DDE8CF] bg-white shadow-sm">
             <div className="border-b border-[#DDE8CF] px-5 py-3.5">
-              <h2 className="text-[11px] font-semibold uppercase tracking-widest text-[#5A6B4A]">
+              <h2 className="text-[11px] font-semibold uppercase tracking-widest text-[#374151]">
                 Basic Info
               </h2>
             </div>
@@ -223,7 +223,7 @@ export default function LeadDetails() {
           {/* Contact History */}
           <div className="overflow-hidden rounded-xl border border-[#DDE8CF] bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-[#DDE8CF] px-5 py-3.5">
-              <h2 className="text-[11px] font-semibold uppercase tracking-widest text-[#5A6B4A]">
+              <h2 className="text-[11px] font-semibold uppercase tracking-widest text-[#374151]">
                 Contact History
               </h2>
               <button
@@ -266,7 +266,7 @@ export default function LeadDetails() {
 function InfoItem({ label, value }) {
   return (
     <div className="rounded-lg border border-[#DDE8CF] bg-[#F7F9F4] px-3.5 py-3">
-      <p className="mb-1 font-mono text-[9.5px] uppercase tracking-widest text-[#5A6B4A]">
+      <p className="mb-1 font-mono text-[9.5px] uppercase tracking-widest text-[#374151]">
         {label}
       </p>
       <p className="text-[12.5px] font-medium text-[#1A2410]">

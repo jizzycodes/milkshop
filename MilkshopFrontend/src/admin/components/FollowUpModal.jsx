@@ -38,7 +38,7 @@ export default function FollowUpModal({ open, onClose, onSubmit }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex h-6 w-6 items-center justify-center rounded-full text-[#5A6B4A] hover:bg-[#EEF5E6] hover:text-[#1A2410] transition"
+            className="flex h-6 w-6 items-center justify-center rounded-full text-[#374151] hover:bg-[#EEF5E6] hover:text-[#1A2410] transition"
           >
             ✕
           </button>
@@ -49,7 +49,7 @@ export default function FollowUpModal({ open, onClose, onSubmit }) {
 
           {/* Contact Type */}
           <div>
-            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#5A6B4A]">
+            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#374151]">
               Contact Type
             </label>
             <div className="flex gap-2">
@@ -61,7 +61,7 @@ export default function FollowUpModal({ open, onClose, onSubmit }) {
                   className={`flex-1 rounded-lg border py-1.5 text-xs font-medium transition ${
                     contactType === c.value
                       ? "border-[#5A9216] bg-[#5A9216] text-white"
-                      : "border-[#DDE8CF] bg-white text-[#5A6B4A] hover:bg-[#EEF5E6]"
+                      : "border-[#DDE8CF] bg-white text-[#374151] hover:bg-[#EEF5E6]"
                   }`}
                 >
                   {c.label}
@@ -72,7 +72,7 @@ export default function FollowUpModal({ open, onClose, onSubmit }) {
 
           {/* Outcome */}
           <div>
-            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#5A6B4A]">
+            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#374151]">
               Outcome <span className="normal-case font-normal text-[#9AA686]">(optional)</span>
             </label>
             <input
@@ -85,7 +85,7 @@ export default function FollowUpModal({ open, onClose, onSubmit }) {
 
           {/* Next Contact Date */}
           <div>
-            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#5A6B4A]">
+            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#374151]">
               Next Contact <span className="normal-case font-normal text-[#9AA686]">(optional)</span>
             </label>
             <input
@@ -103,7 +103,7 @@ export default function FollowUpModal({ open, onClose, onSubmit }) {
 
           {/* Notes */}
           <div>
-            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#5A6B4A]">
+            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#374151]">
               Notes
             </label>
             <textarea
@@ -121,7 +121,7 @@ export default function FollowUpModal({ open, onClose, onSubmit }) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-[#DDE8CF] px-4 py-1.5 text-xs font-medium text-[#5A6B4A] hover:bg-[#EEF5E6] transition"
+            className="rounded-full border border-[#DDE8CF] px-4 py-1.5 text-xs font-medium text-[#374151] hover:bg-[#EEF5E6] transition"
           >
             Cancel
           </button>

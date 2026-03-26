@@ -13,7 +13,7 @@ const STYLES = `
     --surface-bg:    #f5f8ef;
     --border:        #d0e0b0;
     --text-primary:  #1e1e1e;
-    --text-secondary:#5a5a5a;
+    --text-secondary:#374151;
     --white:         #ffffff;
     --gray:          #6b7280;
     --gray-light:    #f3f4f6;
@@ -297,7 +297,7 @@ const STYLES = `
     gap: 5px;
     font-family: 'DM Mono', monospace;
     font-size: 11.5px;
-    color: #5a5a5a;
+    color: #374151;
     opacity: 1;
   }
 

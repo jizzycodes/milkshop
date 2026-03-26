@@ -17,7 +17,7 @@ const STYLES = `
     --surface-bg:    #f5f8ef;
     --border:        #d0e0b0;
     --text-primary:  #1e1e1e;
-    --text-secondary:#5a5a5a;
+    --text-secondary:#374151;
     --white:         #ffffff;
   }
 
@@ -37,7 +37,7 @@ const STYLES = `
     justify-content: space-between;
     gap: 20px;
     flex-wrap: wrap;
-    padding: 22px 22px 22px 26px;
+    padding: 18px 18px 18px 22px;
     border-radius: 18px;
     border: 1px solid #dde8cf;
     background: linear-gradient(145deg, #fbfdf8 0%, #ffffff 42%, #f7faf3 100%);
@@ -146,12 +146,15 @@ const STYLES = `
   .reg-hero-actions {
     flex-shrink: 0;
     padding-top: 2px;
+    width: 100%;
   }
 
-  @media (max-width: 640px) {
-    .reg-hero { padding: 18px 18px 18px 22px; }
-    .reg-hero-actions { width: 100%; }
-    .reg-hero-actions > div { width: 100%; justify-content: stretch; }
+  .reg-hero-actions > div { width: 100%; justify-content: stretch; }
+
+  @media (min-width: 641px) {
+    .reg-hero { padding: 22px 22px 22px 26px; }
+    .reg-hero-actions { width: auto; }
+    .reg-hero-actions > div { width: auto; justify-content: flex-end; }
   }
 
   /* ── Error ── */

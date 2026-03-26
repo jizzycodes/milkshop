@@ -29,7 +29,7 @@ const STYLES = `
     --bg: #f5f8ef;
     --bd: #d0e0b0;
     --tp: #1e1e1e;
-    --ts: #5a5a5a;
+    --ts: #374151;
     --wh: #ffffff;
   }
 

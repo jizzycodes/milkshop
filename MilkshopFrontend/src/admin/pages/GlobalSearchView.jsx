@@ -61,7 +61,7 @@ export default function GlobalSearchView({ search }) {
     <div className="space-y-5">
       <div>
         <h1 className="text-xl font-semibold tracking-tight text-[#1A2410]">Search results</h1>
-        <p className="mt-0.5 text-xs text-[#5A6B4A]">
+        <p className="mt-0.5 text-xs text-[#374151]">
           Leads matching &quot;{search}&quot; across all pipeline stages.
         </p>
       </div>
@@ -76,7 +76,7 @@ export default function GlobalSearchView({ search }) {
         <div className="flex items-center justify-center rounded-xl border border-[#DDE8CF] bg-white py-12 shadow-sm">
           <div className="flex flex-col items-center gap-3">
             <div className="h-5 w-5 rounded-full border-2 border-[#DDE8CF] border-t-[#5A9216] animate-spin" />
-            <span className="font-mono text-xs text-[#5A6B4A]">Searching...</span>
+            <span className="font-mono text-xs text-[#374151]">Searching...</span>
           </div>
         </div>
       ) : (
@@ -88,7 +88,7 @@ export default function GlobalSearchView({ search }) {
               <td className="px-4 py-3 text-sm font-medium text-[#1A2410]">
                 {lead.full_name || "—"}
               </td>
-              <td className="px-4 py-3 text-sm text-[#5A6B4A]">
+              <td className="px-4 py-3 text-sm text-[#374151]">
                 {lead.email || "—"}
               </td>
               <td className="px-4 py-3">

@@ -1,6 +1,6 @@
 const STATUS_STYLES = {
   NEW: {
-    pill: "bg-[#EEF5E6] text-[#5A6B4A] border-[#DDE8CF]",
+    pill: "bg-[#EEF5E6] text-[#374151] border-[#DDE8CF]",
     dot: "bg-[#5A6B4A]",
   },
   ACTIVE: {
@@ -24,7 +24,7 @@ const STATUS_STYLES = {
     dot: "bg-red-500",
   },
   ARCHIVED: {
-    pill: "bg-[#F3F4F6] text-[#6B7280] border-[#D1D5DB]",
+    pill: "bg-[#F3F4F6] text-[#374151] border-[#D1D5DB]",
     dot: "bg-[#9CA3AF]",
   },
 };

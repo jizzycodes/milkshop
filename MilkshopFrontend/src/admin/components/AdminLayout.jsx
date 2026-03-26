@@ -71,7 +71,7 @@ const STYLES = `
     --surface-bg: #f5f8ef;
     --border: #d0e0b0;
     --text-primary: #1e1e1e;
-    --text-secondary: #5a5a5a;
+    --text-secondary: #374151;
     --sidebar-width: 240px;
     --white: #ffffff;
   }
