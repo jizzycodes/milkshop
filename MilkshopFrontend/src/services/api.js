@@ -1,5 +1,12 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000'
 
+function toIsoIfLocalDateTime(value) {
+  if (!value || typeof value !== 'string') return value
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return value
+  const d = new Date(value)
+  return Number.isNaN(d.getTime()) ? value : d.toISOString()
+}
+
 async function handleResponse(response) {
   let body
   try {
@@ -29,7 +36,7 @@ export async function createFranchiseRequest(payload) {
       name: payload.name,
       email: payload.email,
       contactNumber: payload.contactNumber,
-      bestContactTime: payload.bestContactTime,
+      bestContactTime: toIsoIfLocalDateTime(payload.bestContactTime),
       estimatedAnnualIncome: payload.estimatedAnnualIncome,
       proposedLocation: payload.proposedLocation,
       preferredPackage: payload.preferredPackage,

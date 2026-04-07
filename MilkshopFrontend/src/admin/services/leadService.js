@@ -1,5 +1,22 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
 
+function toIsoIfLocalDateTime(value) {
+  if (!value || typeof value !== "string") return value;
+  // HTML datetime-local value: YYYY-MM-DDTHH:mm (no timezone)
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return value;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? value : d.toISOString();
+}
+
+function normalizeDateTimePayload(payload = {}) {
+  return {
+    ...payload,
+    next_followup_at: toIsoIfLocalDateTime(payload.next_followup_at),
+    nextFollowupAt: toIsoIfLocalDateTime(payload.nextFollowupAt),
+    bestContactTime: toIsoIfLocalDateTime(payload.bestContactTime),
+  };
+}
+
 async function handleResponse(response) {
   let body;
   try {
@@ -91,7 +108,7 @@ export async function createLeadContactLog(token, id, payload) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(normalizeDateTimePayload(payload)),
   });
 
   return handleResponse(response);
@@ -104,7 +121,7 @@ export async function updateLead(token, id, payload) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(normalizeDateTimePayload(payload)),
   });
 
   return handleResponse(response);

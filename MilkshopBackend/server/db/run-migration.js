@@ -1,5 +1,5 @@
 /**
- * Run migrations (001..007).
+ * Run all SQL migrations (single runner).
  * Usage: from server folder, run: node db/run-migration.js
  * Loads .env from backend root so DB_PASSWORD is set.
  */
@@ -17,6 +17,22 @@ const pool = new Pool({
 
 const statements = [
   'CREATE EXTENSION IF NOT EXISTS "pgcrypto"',
+  // Public franchise form + admin dashboard stats (franchise_requests list)
+  `CREATE TABLE IF NOT EXISTS franchise_requests (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  full_name varchar(255) NOT NULL,
+  email varchar(255) NOT NULL,
+  contact_number varchar(100) NOT NULL,
+  best_contact_time varchar(100),
+  estimated_annual_income varchar(255),
+  proposed_location varchar(255),
+  preferred_package varchar(100),
+  remarks text,
+  referral varchar(255),
+  created_at timestamptz NOT NULL DEFAULT now()
+)`,
+  'CREATE INDEX IF NOT EXISTS idx_franchise_requests_created_at ON franchise_requests(created_at)',
+  'CREATE INDEX IF NOT EXISTS idx_franchise_requests_email ON franchise_requests(lower(email))',
   `CREATE TABLE IF NOT EXISTS franchise_leads (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   full_name varchar(255) NOT NULL,
@@ -146,7 +162,7 @@ async function run() {
   for (let i = 0; i < statements.length; i++) {
     await pool.query(statements[i])
   }
-  console.log('Migrations 001..007 completed.')
+  console.log('Migrations completed (franchise_requests, CRM tables, settings, accounts, tracking).')
 }
 
 run()

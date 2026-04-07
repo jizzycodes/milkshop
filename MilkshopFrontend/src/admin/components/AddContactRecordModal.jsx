@@ -285,8 +285,7 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
 
   useEffect(() => {
     if (!open) return
-    const d = new Date()
-    setNow(d.toISOString().slice(0, 16))
+    setNow(localDatetimeLocalFloor())
     setResult("")
     setNextContactAt("")
     setRemarks("")

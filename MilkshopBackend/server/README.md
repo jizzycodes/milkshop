@@ -11,7 +11,7 @@ This folder contains the Express backend for the Milkshop brand site.
 - `models/` – database access helpers (franchise_requests, franchise_leads, lead_contact_logs, admin).
 - `middleware/` – reusable Express middleware (logging, errors, auth).
 - `utils/` – small utility helpers (environment loading, JWT).
-- `db/` – migrations and migration runner for franchise_leads CRM.
+- `db/` – migrations and migration runner (includes `franchise_requests`, CRM tables, settings, accounts, tracking).
 - `server.js` – application entrypoint.
 
 ### Phase 2 – Lead CRM (admin only)

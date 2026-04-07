@@ -160,7 +160,6 @@ const STYLES = `
 
   /* ── Rows ── */
   .drp-tr {
-    position: relative;
     transition: background 0.12s ease;
     animation: drp-row-in 0.25s ease both;
   }
@@ -168,18 +167,15 @@ const STYLES = `
   .drp-tr:not(:last-child) td { border-bottom: 1px solid #f0f6e8; }
   .drp-tr:hover { background: #fff8f8; }
 
-  .drp-tr::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--red);
-    opacity: 0;
-    transition: opacity 0.15s;
-    border-radius: 0 2px 2px 0;
+  /* Safe row accent (avoid tr::before because it can break table column alignment). */
+  .drp-tr td:first-child {
+    box-shadow: inset 3px 0 0 transparent;
+    transition: box-shadow 0.15s ease;
   }
 
-  .drp-tr:hover::before { opacity: 1; }
+  .drp-tr:hover td:first-child {
+    box-shadow: inset 3px 0 0 var(--red);
+  }
 
   .drp-tr:nth-child(1)   { animation-delay: 0.04s; }
   .drp-tr:nth-child(2)   { animation-delay: 0.08s; }
