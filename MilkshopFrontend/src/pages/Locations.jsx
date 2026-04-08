@@ -58,6 +58,7 @@ function LocationCard({ loc, index, onOpenImage }) {
   return (
     <div
       ref={ref}
+      data-track-section={`Location Branch: ${loc.name}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{

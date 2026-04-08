@@ -509,6 +509,37 @@ const STYLES = `
     opacity: 0.4;
   }
 
+  /* ── Menu clicks list ── */
+  .mo-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mo-menu-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--bg);
+  }
+
+  .mo-menu-label {
+    font-size: 12.5px;
+    color: var(--tp);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .mo-menu-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ts);
+    opacity: 0.8;
+  }
+
   /* ── Daily chart ── */
   .mo-chart-body { padding: 16px 22px; display: flex; flex-direction: column; gap: 8px; }
 
@@ -628,12 +659,12 @@ export default function Monitor() {
 
   async function handleResetMetrics() {
     if (!token) return;
-    if (!window.confirm("Delete all website tracking data? Totals and charts will go to zero. This cannot be undone.")) return;
+    if (!window.confirm("Delete ALL monitoring metrics data from database? This clears totals, sections, averages, and charts. This cannot be undone.")) return;
     setResetBusy(true); setResetMessage(""); setError("");
     try {
       await resetMonitorMetrics(token);
       window.localStorage.setItem(TRACKING_RESET_AT_KEY, new Date().toISOString());
-      setResetMessage("Metrics reset. All counts are now zero.");
+      setResetMessage("All monitoring metrics data deleted from database.");
       setRefreshKey((k) => k + 1);
     } catch (e) {
       setError(e?.message || "Failed to reset metrics");
@@ -679,7 +710,7 @@ export default function Monitor() {
                   <path d="M19 6l-1 14H6L5 6"/>
                   <path d="M10 11v6M14 11v6"/>
                 </svg>
-                {resetBusy ? "Resetting…" : "Reset Metrics"}
+                {resetBusy ? "Deleting…" : "Delete All Metrics Data"}
               </button>
             </div>
           </div>
@@ -857,6 +888,28 @@ export default function Monitor() {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* Menu Clicks */}
+              <div className="mo-panel">
+                <div className="mo-panel-header">
+                  <p className="mo-panel-title">Menu Clicks</p>
+                  <span className="mo-panel-count">{(data?.menuClicks || []).length} items</span>
+                </div>
+                <div className="mo-panel-body">
+                  {(data?.menuClicks || []).length === 0 ? (
+                    <p className="mo-section-empty">No menu clicks yet.</p>
+                  ) : (
+                    <div className="mo-menu-list">
+                      {(data?.menuClicks || []).map((item) => (
+                        <div key={item.menu_label} className="mo-menu-row">
+                          <span className="mo-menu-label">{item.menu_label}</span>
+                          <span className="mo-menu-count">{item.clicks} clicks</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </>

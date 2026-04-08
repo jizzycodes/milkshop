@@ -4,7 +4,11 @@ import { postTrackingEvents } from "../admin/services/api";
 
 const ENABLED = (import.meta.env.VITE_TRACKING_ENABLED || "true").toLowerCase() !== "false";
 const MIN_SECTION_DURATION_MS = 4000;
+const MAX_SECTION_DURATION_MS = 7 * 60 * 1000;
 const TRACKING_RESET_AT_KEY = "milkshop_tracking_reset_at";
+const SECTION_SELECTOR = "[data-track-section]";
+const SECTION_FALLBACK_SELECTOR = "section[id], section";
+const OBSERVER_THRESHOLD = 0.4;
 
 function getSessionId() {
   const key = "milkshop_track_session";
@@ -18,6 +22,25 @@ function getSessionId() {
 
 function nowIso() {
   return new Date().toISOString();
+}
+
+function normalizeSectionLabel(raw) {
+  if (!raw) return "";
+  return String(raw).trim().replace(/\s+/g, " ").slice(0, 80);
+}
+
+function resolveSectionKey(node) {
+  const fromData = normalizeSectionLabel(node.getAttribute("data-track-section"));
+  if (fromData) return fromData;
+
+  const fromId = normalizeSectionLabel(node.getAttribute("id"));
+  if (fromId) return fromId;
+
+  const heading = node.querySelector("h1, h2, h3, [data-track-title]");
+  const fromHeading = normalizeSectionLabel(
+    heading?.getAttribute?.("data-track-title") || heading?.textContent,
+  );
+  return fromHeading || "unknown section";
 }
 
 export function useWebsiteTracker() {
@@ -39,8 +62,6 @@ export function useWebsiteTracker() {
       flush();
       return;
     }
-    // Section dwell time is what Monitor cares about — send right away so
-    // admin dashboard is not 5s behind. Clicks batch briefly.
     if (event.eventType === "section_view_end") {
       flush();
       return;
@@ -64,33 +85,11 @@ export function useWebsiteTracker() {
       return eventMs > resetAtMs;
     });
     if (!events.length) return;
-    const payload = { events };
-    postTrackingEvents(payload);
+    postTrackingEvents({ events });
     if (flushTimerRef.current) {
       window.clearTimeout(flushTimerRef.current);
       flushTimerRef.current = null;
     }
-  }
-
-  function normalizeSectionLabel(raw) {
-    if (!raw) return "";
-    return String(raw).trim().replace(/\s+/g, " ").slice(0, 80);
-  }
-
-  function resolveSectionKey(node) {
-    const fromData = normalizeSectionLabel(node.getAttribute("data-track-section"));
-    if (fromData) return fromData;
-
-    const fromId = normalizeSectionLabel(node.getAttribute("id"));
-    if (fromId) return fromId;
-
-    const heading = node.querySelector("h1, h2, h3, [data-track-title]");
-    const fromHeading = normalizeSectionLabel(
-      heading?.getAttribute?.("data-track-title") || heading?.textContent,
-    );
-    if (fromHeading) return fromHeading;
-
-    return "unknown section";
   }
 
   function startWallClock() {
@@ -114,14 +113,24 @@ export function useWebsiteTracker() {
     });
   }
 
-  function enqueueSectionViewIfQualified(sectionKey, state) {
+  function enqueueSectionViewIfQualified(state) {
     if (!state) return;
     let durationMs = state.accumulatedMs || 0;
     if (state.startedAt != null) {
       durationMs += Math.max(0, Date.now() - state.startedAt);
     }
-    if (durationMs < MIN_SECTION_DURATION_MS) return;
-    enqueue({ eventType: "section_view_end", sectionKey, durationMs });
+    if (!Number.isFinite(durationMs) || durationMs < MIN_SECTION_DURATION_MS) return;
+    const trackedDurationMs = durationMs - MIN_SECTION_DURATION_MS;
+    if (trackedDurationMs <= 0) return;
+    const bounded = Math.min(Math.round(trackedDurationMs), MAX_SECTION_DURATION_MS);
+    enqueue({ eventType: "section_view_end", sectionKey: state.sectionKey, durationMs: bounded });
+  }
+
+  function flushAndClearActiveSections() {
+    activeSectionsRef.current.forEach((state) => {
+      enqueueSectionViewIfQualified(state);
+    });
+    activeSectionsRef.current.clear();
   }
 
   useEffect(() => {
@@ -130,48 +139,46 @@ export function useWebsiteTracker() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const sectionKey = resolveSectionKey(entry.target);
+          const node = entry.target;
+          const sectionKey = resolveSectionKey(node);
 
           if (entry.isIntersecting) {
-            if (!activeSectionsRef.current.has(sectionKey)) {
-              activeSectionsRef.current.set(sectionKey, {
+            if (!activeSectionsRef.current.has(node)) {
+              activeSectionsRef.current.set(node, {
+                sectionKey,
                 startedAt: startWallClock(),
                 accumulatedMs: 0,
               });
             }
-          } else if (activeSectionsRef.current.has(sectionKey)) {
-            const state = activeSectionsRef.current.get(sectionKey);
-            activeSectionsRef.current.delete(sectionKey);
-            enqueueSectionViewIfQualified(sectionKey, state);
+            return;
           }
+
+          const state = activeSectionsRef.current.get(node);
+          if (!state) return;
+          activeSectionsRef.current.delete(node);
+          enqueueSectionViewIfQualified(state);
         });
       },
-      { threshold: 0.4 },
+      { threshold: OBSERVER_THRESHOLD },
     );
 
-    const sectionNodes = Array.from(
-      document.querySelectorAll("[data-track-section], section, [id]"),
-    ).filter((node) => {
-      const tag = node.tagName.toLowerCase();
-      if (["html", "body", "main", "nav", "footer", "header"].includes(tag)) return false;
-      return true;
-    });
-    sectionNodes.forEach((n) => observer.observe(n));
+    const sectionNodes = Array.from(document.querySelectorAll(SECTION_SELECTOR));
+    const nodesToObserve = sectionNodes.length > 0
+      ? sectionNodes
+      : Array.from(document.querySelectorAll(SECTION_FALLBACK_SELECTOR));
+    nodesToObserve.forEach((node) => observer.observe(node));
 
     const onClick = (e) => {
       const a = e.target.closest("a");
       if (!a) return;
-      const label = (a.textContent || "").trim();
+      const label = normalizeSectionLabel(a.textContent || a.getAttribute("aria-label") || "");
       if (!label) return;
       enqueue({ eventType: "nav_click", sectionKey: label, durationMs: 0 });
     };
     document.addEventListener("click", onClick);
 
     const onBeforeUnload = () => {
-      activeSectionsRef.current.forEach((state, sectionKey) => {
-        enqueueSectionViewIfQualified(sectionKey, state);
-      });
-      activeSectionsRef.current.clear();
+      flushAndClearActiveSections();
       flush();
     };
     const onVisibilityChange = () => {
@@ -181,6 +188,7 @@ export function useWebsiteTracker() {
         resumeAllActiveSections();
       }
     };
+
     document.addEventListener("visibilitychange", onVisibilityChange);
     window.addEventListener("beforeunload", onBeforeUnload);
 
@@ -189,10 +197,7 @@ export function useWebsiteTracker() {
       document.removeEventListener("click", onClick);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("beforeunload", onBeforeUnload);
-      activeSectionsRef.current.forEach((state, sectionKey) => {
-        enqueueSectionViewIfQualified(sectionKey, state);
-      });
-      activeSectionsRef.current.clear();
+      flushAndClearActiveSections();
       flush();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -15,13 +15,16 @@ export default function FollowUpModal({ open, onClose, onSubmit }) {
 
   if (!open) return null;
 
+  const hasNextFollowupAt = Boolean(nextFollowupAt && String(nextFollowupAt).trim());
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!hasNextFollowupAt) return;
     onSubmit?.({
       contactType,
       outcome: outcome || null,
       notes,
-      nextFollowupAt: nextFollowupAt || null,
+      nextFollowupAt: nextFollowupAt.trim(),
     });
     setNotes("");
     setOutcome("");
@@ -86,7 +89,7 @@ export default function FollowUpModal({ open, onClose, onSubmit }) {
           {/* Next Contact Date */}
           <div>
             <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#374151]">
-              Next Contact <span className="normal-case font-normal text-[#9AA686]">(optional)</span>
+              Next Contact Date / Time
             </label>
             <input
               type="datetime-local"
@@ -128,7 +131,8 @@ export default function FollowUpModal({ open, onClose, onSubmit }) {
           <button
             type="button"
             onClick={handleSubmit}
-            className="rounded-full bg-[#5A9216] px-4 py-1.5 text-xs font-medium text-white hover:bg-[#3E6610] transition"
+            disabled={!hasNextFollowupAt}
+            className="rounded-full bg-[#5A9216] px-4 py-1.5 text-xs font-medium text-white hover:bg-[#3E6610] transition disabled:cursor-not-allowed disabled:opacity-50"
           >
             Save Record
           </button>

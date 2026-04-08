@@ -355,9 +355,10 @@ function CategorySection({ category, products }) {
   if (!products.length) return null;
   const seriesName = category.replace(" Series", "");
   const isBreak = category === "Bread";
+  const sectionLabel = isBreak ? "Products Series: Bread" : `Products Series: ${seriesName}`;
 
   return (
-    <Reveal as="section" style={{ marginBottom: "10px" }}>
+    <Reveal as="section" data-track-section={sectionLabel} style={{ marginBottom: "10px" }}>
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: "10px", padding: "0 24px" }}>
         <span style={{
@@ -407,7 +408,10 @@ function CategorySection({ category, products }) {
 function ReviewTicker({ reviews, direction = "left", speed = 38 }) {
   const doubled = [...reviews, ...reviews];
   return (
-    <div style={{ overflow: "hidden", padding: "8px 0" }}>
+    <div
+      data-track-section={`Review Ticker: ${direction === "left" ? "Top Row" : "Bottom Row"}`}
+      style={{ overflow: "hidden", padding: "8px 0" }}
+    >
       <div style={{
         display: "flex", gap: "20px", width: "max-content",
         animation: `${direction === "left" ? "marquee-left" : "marquee-right"} ${speed}s linear infinite`,
@@ -653,7 +657,12 @@ export default function Products() {
               </div>
             </Reveal>
 
-            <Reveal as="div" delay={80} style={{ flex: "1 1 380px" }}>
+            <Reveal
+              as="div"
+              delay={80}
+              data-track-section="Featured Review Comment"
+              style={{ flex: "1 1 380px" }}
+            >
               <div style={{
                 backgroundColor: "white", borderRadius: "24px", padding: "32px",
                 border: "1px solid #dde8cc",

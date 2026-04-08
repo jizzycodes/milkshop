@@ -11,6 +11,9 @@ const DEFAULT_RESULT_OPTIONS = [
   "Confirmed Schedule",
 ]
 
+/** Next contact date not used; field is disabled in the modal. */
+const SKIP_NEXT_CONTACT_RESULTS = new Set(["Drop", "Archive"])
+
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
 
@@ -298,9 +301,17 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
 
   const choices = Array.isArray(options) && options.length > 0 ? options : DEFAULT_RESULT_OPTIONS
 
+  const skipsNextContact = result && SKIP_NEXT_CONTACT_RESULTS.has(result)
+  const hasNextContactAt = Boolean(nextContactAt && String(nextContactAt).trim())
+  const canSaveRecord = Boolean(result) && (skipsNextContact || hasNextContactAt)
+
   const handleReview = () => {
     if (!result) {
       setError("Please select a result before saving.")
+      return
+    }
+    if (!skipsNextContact && !hasNextContactAt) {
+      setError("Please select next contact date and time.")
       return
     }
     setError("")
@@ -308,12 +319,17 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
   }
 
   const handleSave = async () => {
+    if (!skipsNextContact && !hasNextContactAt) {
+      setError("Please select next contact date and time.")
+      setConfirming(false)
+      return
+    }
     setSaving(true)
     setError("")
     try {
       await onSubmit?.({
         contactRecord: result,
-        nextContactAt: nextContactAt || null,
+        nextContactAt: skipsNextContact ? null : nextContactAt.trim(),
         notes: remarks,
       })
       onClose?.()
@@ -368,13 +384,14 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
                   <input
                     type="datetime-local"
                     min={localDatetimeLocalFloor()}
-                    value={nextContactAt || ""}
+                    disabled={skipsNextContact}
+                    value={skipsNextContact ? "" : (nextContactAt || "")}
                     onChange={(e) => {
                       const v = e.target.value
                       const min = localDatetimeLocalFloor()
                       setNextContactAt(!v || v >= min ? v : min)
                     }}
-                    className="acm-input"
+                    className={`acm-input${skipsNextContact ? " readonly" : ""}`}
                   />
                 </div>
 
@@ -383,7 +400,12 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
                   <label className="acm-label">Result</label>
                   <select
                     value={result}
-                    onChange={(e) => { setResult(e.target.value); setError("") }}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      setResult(v)
+                      setError("")
+                      if (v && SKIP_NEXT_CONTACT_RESULTS.has(v)) setNextContactAt("")
+                    }}
                     className="acm-select"
                   >
                     <option value="">Select a result...</option>
@@ -413,7 +435,12 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
                 <button type="button" className="acm-btn-cancel" onClick={onClose}>
                   Cancel
                 </button>
-                <button type="button" className="acm-btn-save" onClick={handleReview}>
+                <button
+                  type="button"
+                  className="acm-btn-save"
+                  onClick={handleReview}
+                  disabled={!canSaveRecord}
+                >
                   Save Record
                 </button>
               </div>
@@ -453,7 +480,7 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
                   type="button"
                   className="acm-btn-save"
                   onClick={handleSave}
-                  disabled={saving}
+                  disabled={saving || (!skipsNextContact && !hasNextContactAt)}
                 >
                   {saving ? "Saving..." : "Yes, save"}
                 </button>

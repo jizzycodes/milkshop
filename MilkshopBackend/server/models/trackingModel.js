@@ -1,5 +1,9 @@
 const { query } = require('../config/db')
 
+const ALLOWED_EVENT_TYPES = new Set(['section_view_end', 'section_view_heartbeat', 'nav_click'])
+const MIN_SECTION_DURATION_MS = 4000
+const MAX_STORED_DURATION_MS = 7 * 60 * 1000
+
 async function insertTrackingEvents(events) {
   if (!Array.isArray(events) || events.length === 0) return 0
   const capped = events.slice(0, 200)
@@ -7,12 +11,22 @@ async function insertTrackingEvents(events) {
 
   for (const e of capped) {
     const eventType = String(e.eventType || '').trim()
+    if (!eventType || !ALLOWED_EVENT_TYPES.has(eventType)) continue
+
     const sectionKey = String(e.sectionKey || '').trim() || null
     const path = String(e.path || '').trim() || null
     const durationMs = Number(e.durationMs || 0)
     const occurredAt = e.occurredAt ? new Date(e.occurredAt) : new Date()
-    if (!eventType) continue
+
     if (Number.isNaN(occurredAt.getTime())) continue
+
+    let normalizedDurationMs = Number.isFinite(durationMs) ? Math.max(0, Math.round(durationMs)) : 0
+    // Enforce "start counting after 4s" at DB level too.
+    // If client already sent post-threshold duration (<4s), keep it as-is.
+    if (eventType === 'section_view_end' && normalizedDurationMs >= MIN_SECTION_DURATION_MS) {
+      normalizedDurationMs -= MIN_SECTION_DURATION_MS
+    }
+    normalizedDurationMs = Math.min(MAX_STORED_DURATION_MS, normalizedDurationMs)
 
     await query(
       `INSERT INTO website_tracking_events
@@ -22,7 +36,7 @@ async function insertTrackingEvents(events) {
         eventType,
         sectionKey,
         path,
-        Number.isFinite(durationMs) ? Math.max(0, Math.round(durationMs)) : 0,
+        normalizedDurationMs,
         e.sessionId ? String(e.sessionId) : null,
         e.userAgent ? String(e.userAgent) : null,
         e.ipAddress ? String(e.ipAddress) : null,
@@ -79,7 +93,10 @@ async function getTrackingSummary({ days = 14, from, to, sectionSearch } = {}) {
     `SELECT
       COUNT(*)::int AS total_events,
       COUNT(DISTINCT session_id)::int AS total_sessions,
-      COALESCE(SUM(duration_ms), 0)::bigint AS total_duration_ms
+      COALESCE(SUM(CASE
+        WHEN event_type = 'section_view_end' THEN duration_ms
+        ELSE 0
+      END), 0)::bigint AS total_duration_ms
      FROM website_tracking_events
      ${whereSql}`,
     params,
@@ -94,7 +111,7 @@ async function getTrackingSummary({ days = 14, from, to, sectionSearch } = {}) {
       ROUND(COALESCE(AVG(NULLIF(duration_ms, 0)), 0)::numeric, 2) AS avg_duration_ms
      FROM website_tracking_events
      ${whereSql ? `${whereSql} AND` : 'WHERE'}
-       event_type IN ('section_view_end', 'section_view_heartbeat')
+       event_type = 'section_view_end'
      GROUP BY section_key
      ORDER BY duration_ms DESC
      LIMIT 20`,
@@ -105,7 +122,10 @@ async function getTrackingSummary({ days = 14, from, to, sectionSearch } = {}) {
     `SELECT
       to_char(date_trunc('day', occurred_at), 'YYYY-MM-DD') AS day,
       COUNT(*)::int AS events,
-      COALESCE(SUM(duration_ms), 0)::bigint AS duration_ms
+      COALESCE(SUM(CASE
+        WHEN event_type = 'section_view_end' THEN duration_ms
+        ELSE 0
+      END), 0)::bigint AS duration_ms
      FROM website_tracking_events
      ${whereSql}
      GROUP BY 1

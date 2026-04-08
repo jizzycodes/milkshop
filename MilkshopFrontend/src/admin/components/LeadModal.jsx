@@ -422,6 +422,11 @@ export default function LeadModal({ lead, onClose, contactOptions, onSaveContact
     const log = await onSaveContact({ contactRecord, nextContactAt, notes })
     if (onSaved) onSaved()
     setLogsRefreshKey((k) => k + 1)
+
+    if (contactRecord === "Drop" || contactRecord === "Archive") {
+      onClose?.()
+    }
+
     return log
   }
 

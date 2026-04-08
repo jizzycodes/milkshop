@@ -477,7 +477,7 @@ export default function Orientation({ initialSubStatus }) {
       const diffHours = (now.getTime() - d.getTime()) / (1000 * 60 * 60)
       if (subStatus === "remind")     return diffDays === 1
       if (subStatus === "attendance") return diffHours >= 1
-      if (subStatus === "confirmed")  return diffDays > 1
+      if (subStatus === "confirmed")  return d.getTime() > now.getTime() && diffDays !== 1
       return true
     })
 
