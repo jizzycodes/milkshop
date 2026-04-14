@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { formatDateTime } from "../utils/formatDateTime"
+import { formatDateTime, formatBestContactPref } from "../utils/formatDateTime"
 import { useAdminAuth } from "../context/AdminAuthContext"
 import { fetchLeadContactLogs } from "../services/leadService"
 import AddContactRecordModal from "./AddContactRecordModal"
@@ -490,7 +490,7 @@ export default function LeadModal({ lead, onClose, contactOptions, onSaveContact
               {bestContactLabel && (
                 <div className="lm-info-item">
                   <p className="lm-info-label">Best Contact Pref.</p>
-                  <p className="lm-info-value">{bestContactLabel}</p>
+                  <p className="lm-info-value">{formatBestContactPref(bestContactLabel)}</p>
                 </div>
               )}
 

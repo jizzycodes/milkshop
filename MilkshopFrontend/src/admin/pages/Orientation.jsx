@@ -390,7 +390,7 @@ export default function Orientation({ initialSubStatus }) {
     { key: "view", label: "" },
   ]
 
-  const remindOptions    = ["Remind Successfully","No response","Callback","Cancel","Archive","Drop"]
+  const remindOptions    = ["Remind Successfully","No response","Callback","Cancel Schedule","Archive","Drop"]
   const attendanceOptions = ["Present","Absent"]
   const defaultOptions   = ["No response","Callback","Confirmed Schedule","Archive","Drop"]
   const confirmedOptions = ["Cancel Schedule"]
@@ -453,7 +453,7 @@ export default function Orientation({ initialSubStatus }) {
       await updateLead(token, selectedLead.id, { status: "INACTIVE", next_followup_at: nextContactAt || null })
     } else if (subStatus === "reschedule" && contactRecord === "Confirmed Schedule") {
       await updateLead(token, selectedLead.id, { status: "ACTIVE", next_followup_at: nextContactAt || null })
-    } else if (subStatus === "confirmed" && contactRecord === "Cancel Schedule") {
+    } else if ((subStatus === "confirmed" || subStatus === "remind") && contactRecord === "Cancel Schedule") {
       await updateLead(token, selectedLead.id, { status: "INACTIVE", next_followup_at: nextContactAt || null })
     }
 
