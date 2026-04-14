@@ -26,6 +26,54 @@ const feedbacks = [
   { id: 10, name: "Sofia M.",     handle: "@sofiamph",      stars: 5, comment: "The freshness is unreal. No weird aftertaste, no powder taste — just clean, smooth, and so satisfying every single time." },
 ];
 
+const topDrinks = [
+  {
+    id: 1,
+    name: "Black Sugar Boba Milk Tea",
+    tag: "Best Seller",
+    tagColor: "bg-[#E8A020] text-white",
+    description: "A rich milk tea blended with caramelized brown sugar and chewy black sugar pearls for a deep, sweet flavor.",
+    price: "₱99",
+    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/milktea_series/A1.png",
+  },
+  {
+    id: 2,
+    name: "Signature Taiwanese Milk Tea",
+    tag: "Classic",
+    tagColor: "bg-[#97b64c] text-white",
+    description: "A smooth and classic Taiwanese milk tea made with fragrant tea and creamy milk for a perfectly balanced taste.",
+    price: "₱99",
+    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/milktea_series/A2.png",
+  },
+  {
+    id: 3,
+    name: "Milku Strawberry",
+    tag: "Fan Fave",
+    tagColor: "bg-pink-500 text-white",
+    description: "A creamy strawberry milk drink bursting with sweet berry flavor and fun popping boba.",
+    price: "₱105",
+    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/milku_series/M1.png",
+  },
+  {
+    id: 4,
+    name: "Cheese Cake Black Sugar Boba Milk Tea",
+    tag: "New",
+    tagColor: "bg-[#62840b] text-white",
+    description: "A bold black sugar boba milk tea combined with creamy cheesecake for a sweet and slightly salty finish",
+    price: "₱109",
+    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/cheesecake_series/K1.png",
+  },
+  {
+    id: 5,
+    name: "Passion Fruit Double Canon",
+    tag: "Summer Pick",
+    tagColor: "bg-rose-400 text-white",
+    description: "A refreshing passion fruit drink loaded with rainbow jelly for a tangy and juicy tropical kick.",
+    price: "₱109",
+    imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/fruit_series/C1.png",
+  },
+];
+
 const tagStyles = {
   "Best Seller": { bg: "linear-gradient(135deg,#62840b,#97b64c)", color: "#fff" },
   "Classic":     { bg: "linear-gradient(135deg,#97b64c,#b7cd7f)", color: "#fff" },
@@ -42,12 +90,12 @@ function ProductCard({ product, isCenter, isAdjacent }) {
   const [hovered, setHovered] = useState(false);
   const tag = product.tag ? tagStyles[product.tag] : null;
 
-  const scale    = hovered ? 1.04 : 1;
+  const scale    = hovered ? 1.01 : 1;
   const opacity  = 1;
-  const yShift   = hovered ? -8 : 0;
+  const yShift   = hovered ? -2 : 0;
   const shadow   = hovered
-    ? "0 32px 64px rgba(98,132,11,0.28), 0 8px 24px rgba(0,0,0,0.12)"
-    : "0 10px 26px rgba(98,132,11,0.14)";
+    ? "0 14px 28px rgba(98,132,11,0.2), 0 6px 18px rgba(0,0,0,0.1)"
+    : "0 8px 20px rgba(98,132,11,0.12)";
 
   return (
     <div
@@ -57,10 +105,9 @@ function ProductCard({ product, isCenter, isAdjacent }) {
         flexShrink: 0,
         width: "220px",
         cursor: "pointer",
-        transition: "transform 0.45s cubic-bezier(0.34,1.4,0.64,1), opacity 0.35s ease",
+        transition: "transform 0.18s ease, opacity 0.18s ease",
         transform: `scale(${scale}) translateY(${yShift}px)`,
         opacity,
-        willChange: "transform, opacity",
       }}
     >
       {/* Glass card */}
@@ -74,7 +121,7 @@ function ProductCard({ product, isCenter, isAdjacent }) {
         border: `1.5px solid ${hovered ? "rgba(151,182,76,0.6)" : "rgba(151,182,76,0.32)"}`,
         boxShadow: shadow,
         overflow: "hidden",
-        transition: "all 0.45s cubic-bezier(0.34,1.4,0.64,1)",
+        transition: "all 0.18s ease",
         position: "relative",
       }}>
 
@@ -116,11 +163,11 @@ function ProductCard({ product, isCenter, isAdjacent }) {
                 maxWidth: "150px",
                 objectFit: "contain",
                 position: "relative", zIndex: 2,
-                transition: "transform 0.5s cubic-bezier(0.34,1.4,0.64,1), filter 0.4s ease",
-                transform: hovered ? "scale(1.12) translateY(-6px)" : "scale(1) translateY(0)",
+                transition: "transform 0.18s ease, filter 0.18s ease",
+                transform: hovered ? "scale(1.03) translateY(-2px)" : "scale(1) translateY(0)",
                 filter: hovered
-                  ? "drop-shadow(0 20px 32px rgba(0,0,0,0.22))"
-                  : "drop-shadow(0 10px 18px rgba(0,0,0,0.12))",
+                  ? "drop-shadow(0 12px 20px rgba(0,0,0,0.18))"
+                  : "drop-shadow(0 8px 14px rgba(0,0,0,0.1))",
                 userSelect: "none",
               }}
             />
@@ -166,7 +213,7 @@ function ProductCard({ product, isCenter, isAdjacent }) {
             color: hovered ? "#62840b" : "#1e1e1e",
             letterSpacing: "-0.01em", lineHeight: 1.3,
             margin: 0,
-            transition: "color 0.25s ease",
+            transition: "color 0.15s ease",
           }}>
             {product.name}
           </p>
@@ -250,9 +297,8 @@ function PremiumCarousel({ products }) {
             gap: `${CARD_GAP}px`,
             paddingLeft: "calc(50% - 470px)", // center group of 4
             cursor: dragging ? "grabbing" : "grab",
-            transition: dragging ? "none" : "transform 0.55s cubic-bezier(0.34,1.2,0.64,1)",
+            transition: dragging ? "none" : "transform 0.22s ease",
             transform: `translateX(${translateX}px)`,
-            willChange: "transform",
           }}
         >
           {products.map((p, i) => {
@@ -350,6 +396,148 @@ function PremiumCarousel({ products }) {
   );
 }
 
+function DrinksCarousel() {
+  const [active, setActive] = useState(2);
+  const total = topDrinks.length;
+  const intervalRef = useRef(null);
+
+  const startAuto = () => {
+    intervalRef.current = setInterval(() => {
+      setActive((prev) => (prev + 1) % total);
+    }, 3000);
+  };
+
+  const stopAuto = () => clearInterval(intervalRef.current);
+
+  useEffect(() => {
+    startAuto();
+    return () => stopAuto();
+  }, []);
+
+  const getPos = (index) => {
+    const diff = (index - active + total) % total;
+    if (diff === 0) return "center";
+    if (diff === 1) return "right1";
+    if (diff === 2) return "right2";
+    if (diff === total - 2) return "left2";
+    if (diff === total - 1) return "left1";
+    return "hidden";
+  };
+
+  const posStyles = {
+    center:  "z-40 scale-110 opacity-100 translate-x-0",
+    right1:  "z-30 scale-50 opacity-35 translate-x-[70%]",
+    left1:   "z-30 scale-50 opacity-35 -translate-x-[70%]",
+    right2:  "z-20 scale-50 opacity-35 translate-x-[130%]",
+    left2:   "z-20 scale-50 opacity-35 -translate-x-[130%]",
+    hidden:  "z-10 scale-50 opacity-0 translate-x-0 pointer-events-none",
+  };
+
+  const current = topDrinks[active];
+
+  return (
+    <div
+      className="w-full"
+      onMouseEnter={stopAuto}
+      onMouseLeave={startAuto}
+    >
+      <div className="relative h-72 sm:h-80 flex items-center justify-center overflow-hidden">
+        {topDrinks.map((drink, i) => {
+          const pos = getPos(i);
+          const isCenter = pos === "center";
+          return (
+            <button
+              key={drink.id}
+              onClick={() => setActive(i)}
+              className={`absolute transition-all duration-500 ease-in-out flex flex-col items-center cursor-pointer ${posStyles[pos]}`}
+              aria-label={drink.name}
+            >
+              <img
+                src={drink.imageUrl}
+                alt={drink.name}
+                className={`object-contain drop-shadow-2xl select-none ${isCenter ? "h-64 sm:h-72" : "h-52 sm:h-60"}`}
+                draggable={false}
+              />
+            </button>
+          );
+        })}
+
+        {total > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => setActive((active - 1 + total) % total)}
+              className="hidden sm:flex items-center justify-center absolute left-4 md:left-10 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border text-xs transition-colors"
+              style={{
+                borderColor: "#b7cd7f",
+                backgroundColor: "rgba(183,205,127,0.18)",
+                color: "#b7cd7f",
+              }}
+              aria-label="Previous drink"
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              onClick={() => setActive((active + 1) % total)}
+              className="hidden sm:flex items-center justify-center absolute right-4 md:right-10 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border text-xs transition-colors"
+              style={{
+                borderColor: "#b7cd7f",
+                backgroundColor: "rgba(183,205,127,0.18)",
+                color: "#b7cd7f",
+              }}
+              aria-label="Next drink"
+            >
+              →
+            </button>
+          </>
+        )}
+      </div>
+
+      <div className="mt-6 flex flex-col items-center text-center gap-2 px-4 min-h-[120px] transition-all duration-300">
+        <span
+          className={`text-[11px] font-bold px-3 py-1 rounded-full ${current.tagColor}`}
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+        >
+          {current.tag}
+        </span>
+        <h3
+          className="text-xl sm:text-2xl font-bold text-[#1e1e1e]"
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+        >
+          {current.name}
+        </h3>
+        <p
+          className="text-[#5a5a5a] text-sm max-w-xs leading-relaxed"
+          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+        >
+          {current.description}
+        </p>
+        <span
+          className="text-xl font-bold text-[#97b64c] mt-1"
+          style={{ fontFamily: "'DM Mono', monospace" }}
+        >
+          {current.price}
+        </span>
+      </div>
+
+      <div className="flex justify-center gap-2 mt-5">
+        {topDrinks.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setActive(i)}
+            className={`rounded-full transition-all duration-300 ${
+              i === active
+                ? "w-6 h-2 bg-[#97b64c]"
+                : "w-2 h-2 bg-[#d0e0b0] hover:bg-[#b7cd7f]"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── CATEGORY SECTION ─────────────────────────────────────────────────────────
 function CategorySection({ category, products }) {
   if (!products.length) return null;
@@ -358,7 +546,7 @@ function CategorySection({ category, products }) {
   const sectionLabel = isBreak ? "Products Series: Bread" : `Products Series: ${seriesName}`;
 
   return (
-    <Reveal as="section" data-track-section={sectionLabel} style={{ marginBottom: "10px" }}>
+    <section data-track-section={sectionLabel} style={{ marginBottom: "10px" }}>
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: "10px", padding: "0 24px" }}>
         <span style={{
@@ -400,7 +588,7 @@ function CategorySection({ category, products }) {
         margin: "0 48px", height: "1px",
         background: "linear-gradient(to right, transparent, rgba(151,182,76,0.3) 30%, rgba(151,182,76,0.3) 70%, transparent)",
       }} />
-    </Reveal>
+    </section>
   );
 }
 
@@ -584,6 +772,29 @@ export default function Products() {
         }} />
       </section>
 
+      <Reveal as="section" data-track-section="Fan Favorites" className="bg-white py-20 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+            <div>
+              <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+                Top 5 Picks
+              </p>
+              <h2 className="text-4xl lg:text-5xl font-bold text-[#1e1e1e] leading-tight" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+                Fan Favorites
+              </h2>
+            </div>
+            <Link
+              to="/products"
+              className="text-sm font-semibold text-[#97b64c] hover:text-[#62840b] transition-colors"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+            >
+              View Full Menu →
+            </Link>
+          </div>
+          <DrinksCarousel />
+        </div>
+      </Reveal>
+
       {/* ══ ALL SERIES ══════════════════════════════════════════════ */}
       <section data-track-section="All Series" style={{ paddingTop: "80px", paddingBottom: "40px" }}>
         {loading ? (
@@ -614,59 +825,46 @@ export default function Products() {
         overflow: "hidden", padding: "96px 0",
         backgroundColor: "#ffffff", borderTop: "1px solid #dde8cc",
       }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 48px", marginBottom: "64px" }}>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "48px", alignItems: "flex-start" }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 48px", marginBottom: "24px" }}>
+          <div style={{ display: "flex", flexWrap: "nowrap", gap: "28px", alignItems: "stretch", justifyContent: "space-between" }}>
 
-            <Reveal as="div" style={{ flex: "1 1 300px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-                <div style={{ width: "32px", height: "1px", backgroundColor: "#97b64c" }} />
+            <Reveal as="div" style={{ flex: "0 0 360px", minWidth: "320px", textAlign: "left" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: "12px", marginBottom: "14px" }}>
+                <div style={{ width: "34px", height: "2px", backgroundColor: "#97b64c" }} />
                 <span style={{
-                  fontSize: "11px", fontWeight: 700, letterSpacing: "0.25em",
-                  textTransform: "uppercase", color: "#97b64c", fontFamily: "'DM Sans', sans-serif",
-                }}>What They Say</span>
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  letterSpacing: "0.22em",
+                  textTransform: "uppercase",
+                  color: "#97b64c",
+                  fontFamily: "'DM Sans', sans-serif",
+                }}>Customer Feedbacks</span>
               </div>
               <h2 style={{
-                fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 900,
-                letterSpacing: "-0.03em", color: "#1e1e1e", lineHeight: 1.05,
-                margin: "0 0 24px", fontFamily: "'DM Sans', sans-serif",
+                fontSize: "clamp(2rem,4vw,3rem)",
+                fontWeight: 900,
+                letterSpacing: "-0.03em",
+                color: "#1e1e1e",
+                lineHeight: 1.05,
+                margin: "0 0 16px",
+                fontFamily: "'DM Sans', sans-serif",
               }}>
-                Loved by<br /><span style={{ color: "#97b64c" }}>Thousands.</span>
+                What they<span style={{ color: "#97b64c" }}> Say</span>
               </h2>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                {[
-                  { value: "4.9★", label: "Avg Rating"  },
-                  { value: "15+",  label: "Branches"    },
-                  { value: "2K+",  label: "Reviews"     },
-                  { value: "2015", label: "Est. Taiwan" },
-                ].map(s => (
-                  <div key={s.label} style={{
-                    borderRadius: "14px", padding: "14px 12px",
-                    backgroundColor: "#f7faf2", border: "1px solid #dde8cc",
-                    textAlign: "center",
-                  }}>
-                    <p style={{
-                      fontSize: "1.2rem", fontWeight: 900, lineHeight: 1,
-                      marginBottom: "4px", color: "#1e1e1e", fontFamily: "'DM Mono', monospace",
-                    }}>{s.value}</p>
-                    <p style={{
-                      fontSize: "9px", textTransform: "uppercase",
-                      letterSpacing: "0.12em", color: "#8a9a7a", fontFamily: "'DM Sans', sans-serif",
-                    }}>{s.label}</p>
-                  </div>
-                ))}
-              </div>
+             
+              
             </Reveal>
 
             <Reveal
               as="div"
               delay={80}
               data-track-section="Featured Review Comment"
-              style={{ flex: "1 1 380px" }}
+              style={{ flex: "1 1 auto", minWidth: "0" }}
             >
               <div style={{
                 backgroundColor: "white", borderRadius: "24px", padding: "32px",
                 border: "1px solid #dde8cc",
-                boxShadow: "0 4px 24px rgba(151,182,76,0.08)",
+                boxShadow: "0 10px 34px rgba(151,182,76,0.12)",
               }}>
                 <span style={{
                   fontSize: "4rem", lineHeight: 1,
@@ -674,8 +872,8 @@ export default function Products() {
                   userSelect: "none", display: "block", marginBottom: "8px",
                 }}>"</span>
                 <p key={activeReview} className="review-fadein" style={{
-                  fontSize: "1rem", lineHeight: 1.75, fontWeight: 500,
-                  color: "#1e1e1e", minHeight: "90px", fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "1rem", lineHeight: 1.8, fontWeight: 500,
+                  color: "#1e1e1e", minHeight: "110px", fontFamily: "'DM Sans', sans-serif",
                 }}>
                   {featured.comment}
                 </p>
@@ -713,78 +911,9 @@ export default function Products() {
             </Reveal>
           </div>
         </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {[{ reviews: row1, dir: "left", speed: 35 }, { reviews: row2, dir: "right", speed: 42 }].map(({ reviews, dir, speed }, ri) => (
-            <div key={ri} style={{ position: "relative" }}>
-              <div style={{
-                position: "absolute", left: 0, top: 0, bottom: 0, width: "80px", zIndex: 10,
-                background: "linear-gradient(to right, #ffffff, transparent)", pointerEvents: "none",
-              }} />
-              <div style={{
-                position: "absolute", right: 0, top: 0, bottom: 0, width: "80px", zIndex: 10,
-                background: "linear-gradient(to left, #ffffff, transparent)", pointerEvents: "none",
-              }} />
-              <ReviewTicker reviews={reviews} direction={dir} speed={speed} />
-            </div>
-          ))}
-        </div>
       </section>
 
-      {/* ══ BOTTOM CTA ════════════════════════════════════════════ */}
-      <section data-track-section="Products CTA" style={{
-        padding: "64px 40px", backgroundColor: "#1e1e1e",
-        position: "relative", overflow: "hidden",
-      }}>
-        <div style={{
-          position: "absolute", top: "-80px", right: "-80px",
-          width: "320px", height: "320px", borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(151,182,76,0.12), transparent 70%)",
-          pointerEvents: "none",
-        }} />
-        <div style={{
-          maxWidth: "1100px", margin: "0 auto",
-          display: "flex", flexWrap: "wrap", alignItems: "center",
-          justifyContent: "space-between", gap: "32px",
-          position: "relative", zIndex: 1,
-        }}>
-          <div>
-            <h2 style={{
-              fontSize: "1.875rem", fontWeight: 900, color: "white",
-              letterSpacing: "-0.03em", marginBottom: "6px", fontFamily: "'DM Sans', sans-serif",
-            }}>
-              Can't decide? 🧋
-            </h2>
-            <p style={{ fontSize: "0.875rem", color: "#b7cd7f", fontFamily: "'DM Sans', sans-serif" }}>
-              Visit a branch — our crew will help you find your new favorite.
-            </p>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-            <Link to="/locations" style={{
-              fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: "0.875rem",
-              padding: "14px 32px", borderRadius: "999px",
-              backgroundColor: "#97b64c", color: "white", textDecoration: "none",
-              boxShadow: "0 6px 24px rgba(151,182,76,0.3)", transition: "all 0.2s ease",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#62840b"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-              onMouseLeave={e => { e.currentTarget.style.backgroundColor = "#97b64c"; e.currentTarget.style.transform = "translateY(0)"; }}
-            >
-              Find a Branch
-            </Link>
-            <Link to="/franchise#inquiry" style={{
-              fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: "0.875rem",
-              padding: "14px 32px", borderRadius: "999px",
-              border: "1.5px solid #97b64c", color: "#b7cd7f",
-              textDecoration: "none", backgroundColor: "transparent", transition: "all 0.2s ease",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.backgroundColor = "rgba(151,182,76,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-              onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.transform = "translateY(0)"; }}
-            >
-              Franchise Now →
-            </Link>
-          </div>
-        </div>
-      </section>
+    
 
       <style>{`
         @keyframes marquee-left  { 0% { transform: translateX(0); }    100% { transform: translateX(-50%); } }
