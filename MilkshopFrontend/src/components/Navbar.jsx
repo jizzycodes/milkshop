@@ -243,9 +243,8 @@ export default function Navbar() {
 
           {/* ── DESKTOP LINKS — centered, larger ── */}
           <ul
-            className="md:flex hidden"
             style={{
-              display: "flex",
+              display: isMobile ? "none" : "flex",
               gap: "36px",
               listStyle: "none",
               margin: 0, padding: 0,
@@ -273,48 +272,51 @@ export default function Navbar() {
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
 
             {/* Desktop CTA */}
-            <Link
-              to="/franchise#inquiry"
-              className="cta-btn-v2 md:inline-flex hidden"
-            >
-              <span>Franchise Now</span>
-              <span style={{ fontSize: "0.8rem", opacity: 0.9, fontWeight: 900 }}>→</span>
-            </Link>
+            {!isMobile && (
+              <Link
+                to="/franchise#inquiry"
+                className="cta-btn-v2"
+              >
+                <span>Franchise Now</span>
+                <span style={{ fontSize: "0.8rem", opacity: 0.9, fontWeight: 900 }}>→</span>
+              </Link>
+            )}
 
             {/* ── Hamburger ── */}
-            <button
-              onClick={() => setMenuOpen(v => !v)}
-              aria-label="Toggle menu"
-              className="md:hidden"
-              style={{
-                width: "44px", height: "44px",
-                border: `1.5px solid ${menuOpen ? "rgba(151,182,76,0.5)" : "rgba(151,182,76,0.25)"}`,
-                cursor: "pointer",
-                background: menuOpen
-                  ? "linear-gradient(135deg, rgba(151,182,76,0.15), rgba(98,132,11,0.08))"
-                  : "rgba(255,255,255,0.5)",
-                borderRadius: "14px",
-                display: "flex", flexDirection: "column",
-                alignItems: "center", justifyContent: "center", gap: "5px",
-                transition: "all 0.25s ease",
-                flexShrink: 0,
-                backdropFilter: "blur(8px)",
-              }}
-            >
-              <span className="hb-line" style={{
-                transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : "none",
-              }} />
-              <span className="hb-line" style={{ opacity: menuOpen ? 0 : 1, width: menuOpen ? "22px" : "15px" }} />
-              <span className="hb-line" style={{
-                transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : "none",
-              }} />
-            </button>
+            {isMobile && (
+              <button
+                onClick={() => setMenuOpen(v => !v)}
+                aria-label="Toggle menu"
+                style={{
+                  width: "44px", height: "44px",
+                  border: `1.5px solid ${menuOpen ? "rgba(151,182,76,0.5)" : "rgba(151,182,76,0.25)"}`,
+                  cursor: "pointer",
+                  background: menuOpen
+                    ? "linear-gradient(135deg, rgba(151,182,76,0.15), rgba(98,132,11,0.08))"
+                    : "rgba(255,255,255,0.5)",
+                  borderRadius: "14px",
+                  display: "flex", flexDirection: "column",
+                  alignItems: "center", justifyContent: "center", gap: "5px",
+                  transition: "all 0.25s ease",
+                  flexShrink: 0,
+                  backdropFilter: "blur(8px)",
+                }}
+              >
+                <span className="hb-line" style={{
+                  transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : "none",
+                }} />
+                <span className="hb-line" style={{ opacity: menuOpen ? 0 : 1, width: menuOpen ? "22px" : "15px" }} />
+                <span className="hb-line" style={{
+                  transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : "none",
+                }} />
+              </button>
+            )}
           </div>
 
           {/* ── MOBILE DROPDOWN ── */}
-          {menuOpen && (
+          {isMobile && menuOpen && (
             <div
-              className="mobile-menu-v2 md:hidden"
+              className="mobile-menu-v2"
               style={{
                 animation: "mobileMenuIn 0.32s cubic-bezier(0.16,1,0.3,1) forwards",
                 position: "absolute",

@@ -97,25 +97,26 @@ export default function Hero() {
     <>
       <style>{heroStyles}</style>
 
-      <section className="relative w-full min-h-[560px] lg:min-h-[760px] overflow-hidden bg-[#0a0a0a]">
+      <section className="relative w-full min-h-[500px] sm:min-h-[560px] lg:min-h-[760px] overflow-hidden bg-[#0a0a0a]">
 
         {/* Animated Background Image */}
         <img
           src={HERO_IMAGE}
           alt="Milkshop signature drinks"
           className="hero-image absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: isMobile ? "62% center" : "center center" }}
         />
 
         {/* Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/88 via-black/55 to-black/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/72 via-black/45 to-black/8 lg:from-black/88 lg:via-black/55 lg:to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-transparent to-black/18 lg:from-black/80 lg:to-black/20" />
 
         {/* Green glow accent */}
         <div className="hero-overlay-pulse absolute inset-0 bg-[radial-gradient(ellipse_at_0%_100%,rgba(98,132,11,0.38),transparent_55%)]" />
 
         {/* Content */}
-        <div className="relative z-10 h-full min-h-[560px] lg:min-h-[760px] flex items-end">
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pb-10 sm:pb-12 lg:pb-24">
+        <div className="relative z-10 h-full min-h-[500px] sm:min-h-[560px] lg:min-h-[760px] flex items-end">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pb-8 sm:pb-12 lg:pb-24">
 
         
          
@@ -123,8 +124,11 @@ export default function Hero() {
 
             {/* Buttons */}
             <div
-              className="flex flex-wrap items-center justify-start gap-4"
-              style={{ transform: isMobile ? "translateX(0)" : "translateX(-120px)" }}
+              className="flex flex-wrap items-center gap-3 sm:gap-4"
+              style={{
+                transform: isMobile ? "translateX(0)" : "translateX(-120px)",
+                justifyContent: isMobile ? "center" : "flex-start",
+              }}
             >
               <Link
                 to="/franchise#inquiry"

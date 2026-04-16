@@ -418,6 +418,7 @@ function WhySection() {
   const sectionRef = useRef(null)
   const whyLockRef = useRef(false)
   const whyWheelDeltaRef = useRef(0)
+  const whyTouchYRef = useRef(null)
   const [inView, setInView] = useState(false)
   const { isMobile, isTablet } = useViewport()
  
@@ -438,6 +439,15 @@ function WhySection() {
 
     const THRESHOLD = 95
 
+    const setLocked = (locked) => {
+      whyLockRef.current = locked
+      if (locked) {
+        document.body.style.overflow = "hidden"
+      } else {
+        document.body.style.overflow = ""
+      }
+    }
+
     const isSectionCentered = () => {
       const rect = section.getBoundingClientRect()
       return rect.top <= window.innerHeight * 0.25 && rect.bottom >= window.innerHeight * 0.75
@@ -445,8 +455,9 @@ function WhySection() {
 
     const syncLockState = () => {
       if (!isSectionCentered()) {
-        whyLockRef.current = false
+        setLocked(false)
         whyWheelDeltaRef.current = 0
+        whyTouchYRef.current = null
       }
     }
 
@@ -454,14 +465,14 @@ function WhySection() {
       const isTryingToLeaveForward = activeIndex === whyProps.length - 1 && e.deltaY > 0
       const isTryingToLeaveBackward = activeIndex === 0 && e.deltaY < 0
       if (isTryingToLeaveForward || isTryingToLeaveBackward) {
-        whyLockRef.current = false
+        setLocked(false)
         whyWheelDeltaRef.current = 0
         return
       }
 
       if (!whyLockRef.current) {
         if (!isSectionCentered()) return
-        whyLockRef.current = true
+        setLocked(true)
       }
 
       e.preventDefault()
@@ -475,11 +486,59 @@ function WhySection() {
       setActiveIndex((prev) => {
         const next = prev + direction
         if (next < 0) {
-          whyLockRef.current = false
+          setLocked(false)
           return 0
         }
         if (next >= whyProps.length) {
-          whyLockRef.current = false
+          setLocked(false)
+          return whyProps.length - 1
+        }
+        return next
+      })
+      setStatKey((k) => k + 1)
+    }
+
+    const onTouchStart = (e) => {
+      whyTouchYRef.current = e.touches[0]?.clientY ?? null
+    }
+
+    const onTouchMove = (e) => {
+      const currentY = e.touches[0]?.clientY
+      const startY = whyTouchYRef.current
+      if (typeof currentY !== "number" || typeof startY !== "number") return
+
+      const deltaY = startY - currentY
+      whyTouchYRef.current = currentY
+
+      const isTryingToLeaveForward = activeIndex === whyProps.length - 1 && deltaY > 0
+      const isTryingToLeaveBackward = activeIndex === 0 && deltaY < 0
+      if (isTryingToLeaveForward || isTryingToLeaveBackward) {
+        setLocked(false)
+        whyWheelDeltaRef.current = 0
+        return
+      }
+
+      if (!whyLockRef.current) {
+        if (!isSectionCentered()) return
+        setLocked(true)
+      }
+
+      e.preventDefault()
+      whyWheelDeltaRef.current += deltaY
+
+      if (Math.abs(whyWheelDeltaRef.current) < THRESHOLD) return
+
+      const direction = whyWheelDeltaRef.current > 0 ? 1 : -1
+      whyWheelDeltaRef.current = 0
+
+      setActiveIndex((prev) => {
+        const next = prev + direction
+        if (next < 0) {
+          setLocked(false)
+          return 0
+        }
+        if (next >= whyProps.length) {
+          setLocked(false)
           return whyProps.length - 1
         }
         return next
@@ -488,10 +547,15 @@ function WhySection() {
     }
 
     window.addEventListener("wheel", onWheel, { passive: false })
+    window.addEventListener("touchstart", onTouchStart, { passive: true })
+    window.addEventListener("touchmove", onTouchMove, { passive: false })
     window.addEventListener("scroll", syncLockState, { passive: true })
     window.addEventListener("resize", syncLockState)
     return () => {
+      setLocked(false)
       window.removeEventListener("wheel", onWheel)
+      window.removeEventListener("touchstart", onTouchStart)
+      window.removeEventListener("touchmove", onTouchMove)
       window.removeEventListener("scroll", syncLockState)
       window.removeEventListener("resize", syncLockState)
     }

@@ -100,6 +100,7 @@ export default function Franchise() {
   const processSectionRef = useRef(null);
   const processLockRef = useRef(false);
   const processWheelDeltaRef = useRef(0);
+  const processTouchYRef = useRef(null);
 
   useEffect(() => {
     if (window.location.hash !== `#${FRANCHISE_FORM_ID}`) return;
@@ -119,6 +120,15 @@ export default function Franchise() {
 
     const THRESHOLD = 90;
 
+    const setLocked = (locked) => {
+      processLockRef.current = locked;
+      if (locked) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
+    };
+
     const isSectionCentered = () => {
       const rect = section.getBoundingClientRect();
       return rect.top <= window.innerHeight * 0.25 && rect.bottom >= window.innerHeight * 0.75;
@@ -126,8 +136,9 @@ export default function Franchise() {
 
     const syncLockState = () => {
       if (!isSectionCentered()) {
-        processLockRef.current = false;
+        setLocked(false);
         processWheelDeltaRef.current = 0;
+        processTouchYRef.current = null;
       }
     };
 
@@ -135,14 +146,14 @@ export default function Franchise() {
       const isTryingToLeaveForward = activeStep === steps.length - 1 && e.deltaY > 0;
       const isTryingToLeaveBackward = activeStep === 0 && e.deltaY < 0;
       if (isTryingToLeaveForward || isTryingToLeaveBackward) {
-        processLockRef.current = false;
+        setLocked(false);
         processWheelDeltaRef.current = 0;
         return;
       }
 
       if (!processLockRef.current) {
         if (!isSectionCentered()) return;
-        processLockRef.current = true;
+        setLocked(true);
       }
 
       e.preventDefault();
@@ -156,11 +167,57 @@ export default function Franchise() {
       setActiveStep((prev) => {
         const next = prev + direction;
         if (next < 0) {
-          processLockRef.current = false;
+          setLocked(false);
           return 0;
         }
         if (next >= steps.length) {
-          processLockRef.current = false;
+          setLocked(false);
+          return steps.length - 1;
+        }
+        return next;
+      });
+    };
+
+    const onTouchStart = (e) => {
+      processTouchYRef.current = e.touches[0]?.clientY ?? null;
+    };
+
+    const onTouchMove = (e) => {
+      const currentY = e.touches[0]?.clientY;
+      const startY = processTouchYRef.current;
+      if (typeof currentY !== "number" || typeof startY !== "number") return;
+
+      const deltaY = startY - currentY;
+      processTouchYRef.current = currentY;
+
+      const isTryingToLeaveForward = activeStep === steps.length - 1 && deltaY > 0;
+      const isTryingToLeaveBackward = activeStep === 0 && deltaY < 0;
+      if (isTryingToLeaveForward || isTryingToLeaveBackward) {
+        setLocked(false);
+        processWheelDeltaRef.current = 0;
+        return;
+      }
+
+      if (!processLockRef.current) {
+        if (!isSectionCentered()) return;
+        setLocked(true);
+      }
+
+      e.preventDefault();
+      processWheelDeltaRef.current += deltaY;
+
+      if (Math.abs(processWheelDeltaRef.current) < THRESHOLD) return;
+
+      const direction = processWheelDeltaRef.current > 0 ? 1 : -1;
+      processWheelDeltaRef.current = 0;
+      setActiveStep((prev) => {
+        const next = prev + direction;
+        if (next < 0) {
+          setLocked(false);
+          return 0;
+        }
+        if (next >= steps.length) {
+          setLocked(false);
           return steps.length - 1;
         }
         return next;
@@ -168,10 +225,15 @@ export default function Franchise() {
     };
 
     window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("scroll", syncLockState, { passive: true });
     window.addEventListener("resize", syncLockState);
     return () => {
+      setLocked(false);
       window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("scroll", syncLockState);
       window.removeEventListener("resize", syncLockState);
     };
