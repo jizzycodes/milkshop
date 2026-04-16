@@ -1,68 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+﻿import { useState, useEffect, useRef } from "react"
 import { Link } from "react-router-dom"
 import { createFranchiseRequest } from "../services/api"
 import { localDatetimeLocalFloor } from "../utils/dateInputConstraints"
 
-// ─── DATA (unchanged) ────────────────────────────────────────────────────────
 
-const packages = [
-  {
-    id: 1,
-    name: "Cart / Mobile",
-    emoji: "🛒",
-    tag: "Most Affordable",
-    tagColor: { bg: "#FEF3C7", color: "#D97706" },
-    size: "2–3 sqm",
-    popular: false,
-    highlight: "Perfect starter for events & pop-ups",
-    inclusions: [
-      "Brand license (2 years)",
-      "Branded mobile cart",
-      "Initial product inventory",
-      "Staff training (2 days)",
-      "Marketing starter kit",
-      "Basic support",
-    ],
-  },
-  {
-    id: 2,
-    name: "Kiosk",
-    emoji: "🏪",
-    tag: "Entry Level",
-    tagColor: { bg: "#ECFDF5", color: "#059669" },
-    size: "4–6 sqm",
-    popular: false,
-    highlight: "Ideal for malls & high-foot-traffic areas",
-    inclusions: [
-      "Brand license (3 years)",
-      "Kiosk structure & equipment",
-      "Initial product inventory",
-      "Staff training (3 days)",
-      "Marketing starter kit",
-      "Ongoing support",
-    ],
-  },
-  {
-    id: 3,
-    name: "In-Line Store",
-    emoji: "🏬",
-    tag: "Best Value",
-    tagColor: { bg: "#F0FDF4", color: "#62840b" },
-    size: "15–25 sqm",
-    popular: true,
-    highlight: "Maximum ROI. Full brand experience.",
-    inclusions: [
-      "Brand license (5 years)",
-      "Full store fit-out & equipment",
-      "Initial product inventory",
-      "Staff training (5 days)",
-      "Grand opening support",
-      "Full marketing package",
-      "Dedicated account manager",
-      "Priority product restocking",
-    ],
-  },
-];
+// ─── DATA (unchanged) ────────────────────────────────────────────────────────
 
 const steps = [
   { step: "01", icon: "📋", title: "Submit Inquiry",    desc: "Fill out the form below. Our franchise team reviews every application within 3–5 business days." },
@@ -87,13 +29,6 @@ const whyUs = [
   { icon: "🫧",  title: "Unique Product",           desc: "The only brand in PH offering Taiwanese Popping Boba milk products. No direct competition in this niche." },
   { icon: "📦",  title: "Turnkey System",           desc: "Equipment, training, supply chain, marketing — all provided. You run the business, we back you up completely." },
   { icon: "📈",  title: "Proven ROI",               desc: "Current franchisees recover investment in 12–18 months. Our model is built for profitability, not just presence." },
-];
-
-const heroStats = [
-  { value: "15+",   label: "Active Branches",    icon: "📍", sub: "Nationwide & growing" },
-  { value: "3",     label: "Franchise Packages", icon: "📦", sub: "For every budget" },
-  { value: "12–18", label: "Months to ROI",      icon: "📈", sub: "Based on branch avg." },
-  { value: "100%",  label: "Brand Support",      icon: "🤝", sub: "We grow together" },
 ];
 
 // ─── ANIMATION HOOK ───────────────────────────────────────────────────────────
@@ -157,12 +92,80 @@ export default function Franchise() {
   const [submitted, setSubmitted]       = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [activeStep, setActiveStep] = useState(0);
+  const processSectionRef = useRef(null);
+  const processLockRef = useRef(false);
+  const processWheelDeltaRef = useRef(0);
 
   useEffect(() => {
     if (window.location.hash !== `#${FRANCHISE_FORM_ID}`) return;
     const el = document.getElementById(FRANCHISE_FORM_ID);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
+
+  useEffect(() => {
+    const section = processSectionRef.current;
+    if (!section) return;
+
+    const THRESHOLD = 90;
+
+    const isSectionCentered = () => {
+      const rect = section.getBoundingClientRect();
+      return rect.top <= window.innerHeight * 0.25 && rect.bottom >= window.innerHeight * 0.75;
+    };
+
+    const syncLockState = () => {
+      if (!isSectionCentered()) {
+        processLockRef.current = false;
+        processWheelDeltaRef.current = 0;
+      }
+    };
+
+    const onWheel = (e) => {
+      const isTryingToLeaveForward = activeStep === steps.length - 1 && e.deltaY > 0;
+      const isTryingToLeaveBackward = activeStep === 0 && e.deltaY < 0;
+      if (isTryingToLeaveForward || isTryingToLeaveBackward) {
+        processLockRef.current = false;
+        processWheelDeltaRef.current = 0;
+        return;
+      }
+
+      if (!processLockRef.current) {
+        if (!isSectionCentered()) return;
+        processLockRef.current = true;
+      }
+
+      e.preventDefault();
+      processWheelDeltaRef.current += e.deltaY;
+
+      if (Math.abs(processWheelDeltaRef.current) < THRESHOLD) return;
+
+      const direction = processWheelDeltaRef.current > 0 ? 1 : -1;
+      processWheelDeltaRef.current = 0;
+
+      setActiveStep((prev) => {
+        const next = prev + direction;
+        if (next < 0) {
+          processLockRef.current = false;
+          return 0;
+        }
+        if (next >= steps.length) {
+          processLockRef.current = false;
+          return steps.length - 1;
+        }
+        return next;
+      });
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("scroll", syncLockState, { passive: true });
+    window.addEventListener("resize", syncLockState);
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("scroll", syncLockState);
+      window.removeEventListener("resize", syncLockState);
+    };
+  }, [activeStep]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -213,268 +216,637 @@ export default function Franchise() {
   return (
     <main style={{ backgroundColor: "#fafaf8", fontFamily: "'DM Sans', sans-serif", minHeight: "100vh" }}>
 
-      {/* ══════════════════════════════════════
-          SLIDE 1 — HERO
-      ══════════════════════════════════════ */}
-      <section data-track-section="Franchise Hero" className="relative overflow-hidden" style={{
-        background: "linear-gradient(160deg, #f5f8ef 0%, #ffffff 50%, #fffdf5 100%)",
-        minHeight: "100vh",
-        display: "flex", flexDirection: "column", justifyContent: "center",
-      }}>
-        {/* Dot grid */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.22) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-          maskImage: "radial-gradient(ellipse at 30% 60%, black 10%, transparent 70%)",
-          WebkitMaskImage: "radial-gradient(ellipse at 30% 60%, black 10%, transparent 70%)",
-        }} />
-        {/* Large circle accent */}
-        <div className="absolute -right-32 -top-32 pointer-events-none" style={{
-          width: "700px", height: "700px",
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(151,182,76,0.08) 0%, transparent 70%)",
-        }} />
-        {/* Bottom accent line */}
-        <div className="absolute bottom-0 left-0 right-0 h-px" style={{
-          background: "linear-gradient(to right, transparent, rgba(151,182,76,0.3), transparent)",
-        }} />
 
-        <div className="relative max-w-7xl mx-auto px-8 lg:px-16 py-28 z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-20">
+ {/* ══════════════════════════════════════
+      SLIDE 1 — HERO (PREMIUM UPGRADE)
+══════════════════════════════════════ */}
+<section
+  data-track-section="Franchise Hero"
+  className="relative overflow-hidden"
+  style={{
+    background: "linear-gradient(160deg, #f5f8ef 0%, #ffffff 60%, #fffdf5 100%)",
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+  }}
+>
 
-            {/* LEFT — Copy */}
-            <div className="flex-1 flex flex-col gap-6">
-              <Slide direction="left" delay={0}>
-                <span className="self-start inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full" style={{ backgroundColor: "rgba(151,182,76,0.12)", color: "#62840b", border: "1px solid rgba(151,182,76,0.25)" }}>
-                  🇹🇼 Franchise Opportunities
-                </span>
-              </Slide>
+  {/* Softer pattern */}
+  <div
+    className="absolute inset-0 pointer-events-none"
+    style={{
+      backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.12) 1px, transparent 1px)",
+      backgroundSize: "34px 34px",
+      maskImage: "radial-gradient(ellipse at 30% 50%, black 20%, transparent 75%)",
+      WebkitMaskImage: "radial-gradient(ellipse at 30% 50%, black 20%, transparent 75%)",
+    }}
+  />
 
-              <Slide direction="left" delay={80}>
-                <h1 style={{ fontSize: "clamp(3rem, 6vw, 5.5rem)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.0, color: "#1e1e1e" }}>
-                  Own a Milkshop.<br />
-                  <span style={{ color: "#97b64c" }}>Build Your Future.</span>
-                </h1>
-              </Slide>
+  {/* Ambient glow */}
+  <div
+    className="absolute -right-32 -top-24 pointer-events-none"
+    style={{
+      width: "600px",
+      height: "600px",
+      borderRadius: "50%",
+      background: "radial-gradient(circle, rgba(151,182,76,0.10) 0%, transparent 70%)",
+    }}
+  />
 
-              <Slide direction="left" delay={160}>
-                <p className="text-base leading-relaxed max-w-lg" style={{ color: "#5a6a4a" }}>
-                  Join the Philippines' fastest-growing Taiwanese beverage brand. Proven system, full support, real ROI — everything you need to run a business you're proud of.
-                </p>
-              </Slide>
+  <div className="relative max-w-7xl mx-auto px-8 lg:px-16 py-28 z-10 w-full">
+    <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
 
-              <Slide direction="left" delay={220}>
-                <ul className="flex flex-col gap-2.5">
-                  {["No food experience required", "Recover investment in 12–18 months", "Exclusive territory per franchisee", "Full brand & operations support"].map((item) => (
-                    <li key={item} className="flex items-center gap-2.5 text-sm" style={{ color: "#3a4a2a" }}>
-                      <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-white text-[10px] font-bold" style={{ backgroundColor: "#97b64c" }}>✓</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </Slide>
+      {/* LEFT */}
+      <div className="flex flex-col gap-7">
 
-              <Slide direction="left" delay={300}>
-                <div className="flex flex-wrap gap-3 mt-2">
-                  <a href="#inquiry" className="font-bold text-sm px-8 py-3.5 rounded-full transition-all duration-200 active:scale-95" style={{ backgroundColor: "#E8A020", color: "#ffffff", boxShadow: "0 6px 24px rgba(232,160,32,0.3)" }}>
-                    Apply Now →
-                  </a>
-                  <a href="#packages" className="font-bold text-sm px-8 py-3.5 rounded-full transition-all duration-200" style={{ border: "1.5px solid #d0e0b0", color: "#62840b", backgroundColor: "transparent" }}>
-                    View Packages
-                  </a>
-                </div>
-              </Slide>
+        <span
+          className="self-start inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.25em] uppercase px-4 py-2 rounded-full"
+          style={{
+            backgroundColor: "rgba(151,182,76,0.10)",
+            color: "#62840b",
+            border: "1px solid rgba(151,182,76,0.22)"
+          }}
+        >
+          🇹🇼 Franchise Opportunity
+        </span>
+
+        <h1
+          style={{
+            fontSize: "clamp(3.2rem, 6vw, 5.4rem)",
+            fontWeight: 900,
+            lineHeight: 0.95,
+            letterSpacing: "-0.05em",
+            color: "#1e1e1e",
+          }}
+        >
+          Own a Milkshop.<br />
+          <span style={{ color: "#97b64c" }}>Build Your Future.</span>
+        </h1>
+
+        <p className="text-base leading-relaxed max-w-xl"
+          style={{ color: "#5a6a4a" }}>
+          Proven system, fast setup, and full support from day one. Start your business with a brand trusted by Filipino milk tea customers.
+        </p>
+
+        {/* KEY POINTS */}
+        <ul className="flex flex-col gap-2 text-sm" style={{ color: "#3a4a2a" }}>
+          {["No experience required", "12–18 months ROI target", "Exclusive territory available"].map((item) => (
+            <li key={item} className="flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full text-white text-[10px] font-bold flex items-center justify-center"
+                style={{ backgroundColor: "#97b64c" }}>
+                ✓
+              </span>
+              {item}
+            </li>
+          ))}
+        </ul>
+
+        {/* CTA (MORE DOMINANT) */}
+        <div className="flex flex-wrap gap-4 mt-2">
+          <a
+            href="#inquiry"
+            className="px-10 py-4 rounded-full font-bold text-sm transition-all duration-300 hover:scale-[1.04] active:scale-95"
+            style={{
+              backgroundColor: "#97b64c",
+              color: "#fff",
+              boxShadow: "0 12px 32px rgba(151,182,76,0.35)",
+            }}
+          >
+            Apply for Franchise →
+          </a>
+
+          <a
+            href="#process"
+            className="px-8 py-4 rounded-full font-bold text-sm transition-all duration-200"
+            style={{
+              border: "1.5px solid #d0e0b0",
+              color: "#62840b",
+              backgroundColor: "transparent"
+            }}
+          >
+            View Process
+          </a>
+        </div>
+
+        {/* TRUST METRICS (MORE PREMIUM) */}
+        <div className="flex gap-6 mt-6 text-sm">
+
+          {[
+            { label: "Branches", value: "15+" },
+            { label: "Partners", value: "100+" },
+            { label: "Support", value: "Nationwide" }
+          ].map((m) => (
+            <div key={m.label} className="flex flex-col">
+              <span className="text-xl font-extrabold" style={{ color: "#1e1e1e" }}>
+                {m.value}
+              </span>
+              <span className="text-xs" style={{ color: "#62840b" }}>
+                {m.label}
+              </span>
             </div>
+          ))}
 
-            {/* RIGHT — Stats grid */}
-            <div className="flex-1 grid grid-cols-2 gap-4 w-full">
-              {heroStats.map((s, i) => (
-                <Slide key={s.label} direction="right" delay={i * 70}
-                  className="rounded-2xl p-5 flex flex-col gap-2"
-                  style={{ backgroundColor: "white", border: "1px solid #e8f0dc", boxShadow: "0 2px 16px rgba(151,182,76,0.08)" }}
-                >
-                  <span className="text-2xl">{s.icon}</span>
-                  <span className="text-3xl font-black leading-none" style={{ color: "#1e1e1e", fontFamily: "'DM Mono', monospace" }}>{s.value}</span>
-                  <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "#62840b" }}>{s.label}</span>
-                  <span className="text-xs" style={{ color: "#9aaa8a" }}>{s.sub}</span>
-                </Slide>
-              ))}
+        </div>
+
+      </div>
+
+      {/* RIGHT */}
+      <div className="relative w-full max-w-xl mx-auto lg:mx-0">
+
+        <div
+          className="rounded-3xl overflow-hidden"
+          style={{
+            border: "1px solid #d0e0b0",
+            boxShadow: "0 25px 70px rgba(0,0,0,0.12)"
+          }}
+        >
+          <img
+            src="/images/store.jpg"
+            alt="Milkshop Store"
+            className="w-full h-[460px] object-cover"
+          />
+        </div>
+
+        {/* FLOATING METRICS (REFINED) */}
+        <div
+          className="absolute -bottom-6 -left-6 bg-white px-5 py-4 rounded-2xl text-sm"
+          style={{
+            border: "1px solid #d0e0b0",
+            boxShadow: "0 14px 34px rgba(0,0,0,0.10)"
+          }}
+        >
+          <p className="font-bold" style={{ color: "#1e1e1e" }}>ROI</p>
+          <p style={{ color: "#62840b", fontWeight: 800 }}>12–18 Months</p>
+        </div>
+
+        <div
+          className="absolute -top-6 -right-6 bg-white px-5 py-4 rounded-2xl text-sm"
+          style={{
+            border: "1px solid #d0e0b0",
+            boxShadow: "0 14px 34px rgba(0,0,0,0.10)"
+          }}
+        >
+          <p className="font-bold" style={{ color: "#1e1e1e" }}>Support</p>
+          <p style={{ color: "#62840b", fontWeight: 800 }}>Full Training</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+      {/* ══════════════════════════════════════
+      SLIDE 2 — WHY MILKSHOP (SPOTLIGHT)
+══════════════════════════════════════ */}
+<section
+  data-track-section="Why Milkshop"
+  className="relative py-32 bg-white overflow-hidden"
+>
+
+  {/* Watermark */}
+  <div
+    className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+    style={{
+      fontSize: "30vw",
+      fontWeight: 900,
+      color: "rgba(151,182,76,0.04)",
+      fontFamily: "serif",
+    }}
+  >
+    侠
+  </div>
+
+  <div className="relative max-w-7xl mx-auto px-8 lg:px-16 z-10">
+
+    {/* HEADER */}
+    <p
+      className="text-[11px] font-bold tracking-[0.28em] uppercase mb-3"
+      style={{ color: "#97b64c" }}
+    >
+      Why Partner With Us
+    </p>
+
+    <h2
+      className="mb-20"
+      style={{
+        fontSize: "clamp(3rem, 6vw, 4.5rem)",
+        fontWeight: 900,
+        letterSpacing: "-0.04em",
+        color: "#1e1e1e",
+        lineHeight: 1.05,
+      }}
+    >
+      What Makes Milkshop Different
+    </h2>
+
+    {/* SPOTLIGHT GRID */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      {whyUs.map((w, i) => (
+        <div
+          key={w.title}
+          className="group relative rounded-3xl p-8 transition-all duration-500 cursor-pointer"
+          style={{
+            background: "rgba(245,248,239,0.5)",
+            border: "1px solid #e0ebd0",
+          }}
+        >
+
+          {/* DIM OTHERS ON HOVER */}
+          <div className="absolute inset-0 rounded-3xl bg-white opacity-0 group-hover:opacity-0 peer-hover:opacity-60 transition-all duration-500 pointer-events-none" />
+
+          {/* ICON */}
+          <div className="text-4xl mb-6 transition-all duration-500 group-hover:scale-125 group-hover:-translate-y-2">
+            {w.icon}
+          </div>
+
+          {/* TITLE */}
+          <h3
+            className="font-bold text-lg mb-3 transition-all duration-500"
+            style={{
+              color: "#1e1e1e",
+            }}
+          >
+            {w.title}
+          </h3>
+
+          {/* DIVIDER */}
+          <div
+            className="h-[2px] w-8 mb-4 transition-all duration-500 group-hover:w-16"
+            style={{ backgroundColor: "#97b64c" }}
+          />
+
+          {/* DESC */}
+          <p
+            className="text-sm leading-relaxed transition-all duration-500 opacity-70 group-hover:opacity-100 group-hover:translate-y-1"
+            style={{ color: "#5a6a4a" }}
+          >
+            {w.desc}
+          </p>
+
+          {/* ACTIVE SPOTLIGHT EFFECT */}
+          <div
+            className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none"
+            style={{
+              boxShadow: "0 40px 100px rgba(151,182,76,0.25)",
+              border: "1px solid #97b64c",
+            }}
+          />
+
+        </div>
+      ))}
+
+    </div>
+  </div>
+</section>
+
+      {/* ══════════════════════════════════════
+          SLIDE 3 — THE PROCESS
+      ══════════════════════════════════════ */}
+
+ 
+<section
+  ref={processSectionRef}
+  id="process"
+  className="relative py-24 bg-[#f7f9f4] overflow-hidden"
+  style={{ minHeight: "100vh" }}           /* keeps section tall enough to trigger lock */
+>
+  <div className="max-w-7xl mx-auto px-6">
+ 
+    {/* HEADER */}
+    <div className="text-center mb-16">
+      <p
+        className="text-[11px] tracking-[0.3em] font-bold uppercase mb-3"
+        style={{ color: "#97b64c" }}
+      >
+        THE PROCESS
+      </p>
+ 
+      <h2
+        style={{
+          fontSize: "clamp(2.5rem,5vw,4rem)",
+          fontWeight: 900,
+          letterSpacing: "-0.03em",
+          color: "#1e1e1e",
+        }}
+      >
+        From Inquiry to Opening Day
+      </h2>
+ 
+      {/* SCROLL HINT — fades out once user has started stepping */}
+      <p
+        className="mt-4 text-sm transition-all duration-500"
+        style={{
+          color: "#97b64c",
+          opacity: activeStep === 0 ? 1 : 0,
+          transform: activeStep === 0 ? "translateY(0)" : "translateY(-8px)",
+        }}
+      >
+        ↓ Scroll to walk through each step
+      </p>
+    </div>
+ 
+    {/* GRID */}
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {steps.map((s, i) => {
+        const isActive = activeStep === i;
+        const isPast   = i < activeStep;
+ 
+        return (
+          <div
+            key={i}
+            onClick={() => setActiveStep(i)}
+            className="group relative rounded-2xl p-6 cursor-pointer transition-all duration-500"
+            style={{
+              background: isActive ? "#ffffff" : isPast ? "#f0f7e4" : "#eef5e6",
+              border: `1px solid ${isActive ? "#97b64c" : isPast ? "#b8d98a" : "#dce8c8"}`,
+              transform: isActive ? "scale(1.03)" : "scale(1)",
+              opacity: isPast ? 0.75 : 1,
+            }}
+          >
+ 
+            {/* BIG NUMBER */}
+            <span
+              className="absolute top-4 right-5 text-5xl font-black transition-all duration-500"
+              style={{
+                color: "#62840b",
+                opacity: isActive ? 0.2 : 0.08,
+                transform: isActive ? "scale(1.2)" : "scale(1)",
+              }}
+            >
+              {String(i + 1).padStart(2, "0")}
+            </span>
+ 
+            {/* CHECKMARK FOR PAST STEPS */}
+            {isPast && (
+              <span
+                className="absolute top-4 left-5 text-base transition-all duration-300"
+                style={{ color: "#97b64c" }}
+              >
+                ✓
+              </span>
+            )}
+ 
+            {/* ICON */}
+            <div
+              className="text-2xl mb-3 transition-all duration-500"
+              style={{
+                transform: isActive ? "translateY(-6px) scale(1.15)" : "none",
+              }}
+            >
+              {s.icon}
             </div>
+ 
+            {/* TITLE */}
+            <h3
+              className="font-bold mb-2 transition-all duration-300"
+              style={{
+                color: "#1e1e1e",
+                transform: isActive ? "translateX(4px)" : "none",
+              }}
+            >
+              {s.title}
+            </h3>
+ 
+            {/* DESC (EXPAND on active) */}
+            <div
+              className="overflow-hidden transition-all duration-500"
+              style={{
+                maxHeight: isActive ? "200px" : "0px",
+                opacity: isActive ? 1 : 0,
+              }}
+            >
+              <p
+                className="text-sm leading-relaxed mt-2"
+                style={{ color: "#5a6a4a" }}
+              >
+                {s.desc}
+              </p>
+            </div>
+ 
+            {/* HOVER GLOW */}
+            <div
+              className="absolute inset-0 rounded-2xl pointer-events-none transition-all duration-500"
+              style={{
+                boxShadow: isActive
+                  ? "0 25px 60px rgba(151,182,76,0.35)"
+                  : "0 0 0 rgba(0,0,0,0)",
+              }}
+            />
+ 
+            {/* ACTIVE BAR */}
+            <div
+              className="absolute bottom-0 left-0 h-[3px] rounded-full transition-all duration-500"
+              style={{
+                width: isActive ? "100%" : "0%",
+                background: "#97b64c",
+              }}
+            />
+ 
           </div>
-        </div>
+        );
+      })}
+    </div>
+ 
+    {/* PROGRESS DOTS */}
+    <div className="flex justify-center gap-2 mt-10">
+      {steps.map((_, i) => (
+        <button
+          key={i}
+          onClick={() => setActiveStep(i)}
+          className="h-2 rounded-full transition-all duration-300"
+          style={{
+            width: activeStep === i ? "24px" : "8px",
+            background: activeStep === i ? "#62840b" : "#c8dfa8",
+          }}
+        />
+      ))}
+    </div>
+ 
+    {/* SCROLL COMPLETE HINT */}
+    <p
+      className="text-center text-sm mt-6 transition-all duration-500"
+      style={{
+        color: "#97b64c",
+        opacity: activeStep === steps.length - 1 ? 1 : 0,
+        transform: activeStep === steps.length - 1 ? "translateY(0)" : "translateY(8px)",
+      }}
+    >
+      ↓ Continue scrolling
+    </p>
+ 
+  </div>
+</section>
 
-        {/* Scroll cue */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2" style={{ opacity: 0.4 }}>
-          <div className="w-px h-12 relative overflow-hidden" style={{ backgroundColor: "rgba(151,182,76,0.3)" }}>
-            <div className="absolute top-0 w-full" style={{ height: "40%", backgroundColor: "#97b64c", animation: "scrollDown 1.8s ease-in-out infinite" }} />
-          </div>
-          <span className="text-[9px] tracking-[0.2em] uppercase" style={{ color: "#97b64c" }}>Scroll</span>
-        </div>
-      </section>
+
 
       {/* ══════════════════════════════════════
-          SLIDE 2 — WHY MILKSHOP
+          SLIDE 4 — FRANCHISE INQUIRY
       ══════════════════════════════════════ */}
-      <section data-track-section="Why Milkshop" className="relative py-28 overflow-hidden bg-white">
-        {/* Large watermark text */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none select-none" style={{
-          fontSize: "28vw", fontWeight: 900, lineHeight: 1,
-          color: "rgba(151,182,76,0.04)", fontFamily: "serif",
-        }}>侠</div>
+<section id="inquiry" className="relative py-28 bg-[#f7f9f4] overflow-hidden">
 
-        <div className="relative max-w-7xl mx-auto px-8 lg:px-16 z-10">
-          <Slide direction="up" className="mb-3">
-            <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>Why Partner With Us</p>
-          </Slide>
-          <Slide direction="up" delay={60} className="mb-16">
-            <h2 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 900, letterSpacing: "-0.03em", color: "#1e1e1e", lineHeight: 1.05 }}>
-              What Makes Milkshop Different
-            </h2>
-          </Slide>
+{/* Soft background */}
+<div className="absolute inset-0 pointer-events-none"
+  style={{
+    background: "radial-gradient(circle at 10% 20%, rgba(151,182,76,0.08), transparent 60%)"
+  }}
+/>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {whyUs.map((w, i) => (
-              <Slide key={w.title} direction="up" delay={i * 80}
-                className="group rounded-2xl p-7 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-                style={{ backgroundColor: "#f5f8ef", border: "1px solid #e0ebd0" }}
-              >
-                <span className="text-4xl">{w.icon}</span>
-                <div className="w-8 h-px" style={{ backgroundColor: "#97b64c" }} />
-                <h3 className="font-bold text-base" style={{ color: "#1e1e1e" }}>{w.title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: "#5a6a4a" }}>{w.desc}</p>
-              </Slide>
-            ))}
-          </div>
-        </div>
-      </section>
+<div className="relative max-w-6xl mx-auto px-6 lg:px-16 z-10">
 
-      {/* ══════════════════════════════════════
-          SLIDE 3 — PACKAGES
-      ══════════════════════════════════════ */}
-      <section id="packages" data-track-section="Franchise Packages" className="relative py-28 overflow-hidden" style={{
-        background: "linear-gradient(180deg, #f5f8ef 0%, #ffffff 100%)",
-      }}>
-        {/* Subtle grid */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: "linear-gradient(rgba(151,182,76,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.06) 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
-        }} />
+  {/* HEADER */}
+  <div className="text-center mb-12">
+    <p className="text-[11px] tracking-[0.3em] font-bold uppercase mb-3"
+      style={{ color: "#97b64c" }}>
+      Start Your Journey
+    </p>
 
-        <div className="relative max-w-7xl mx-auto px-8 lg:px-16 z-10">
-          <Slide direction="up" className="text-center mb-3">
-            <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>Investment Options</p>
-          </Slide>
-          <Slide direction="up" delay={60} className="text-center mb-4">
-            <h2 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 900, letterSpacing: "-0.03em", color: "#1e1e1e" }}>
-              Choose Your Package
-            </h2>
-          </Slide>
-          <Slide direction="up" delay={100} className="text-center mb-14">
-            <p className="text-sm max-w-md mx-auto leading-relaxed" style={{ color: "#5a6a4a" }}>
-              Three flexible packages to match your budget and goals. Inquire to receive full investment details.
-            </p>
-          </Slide>
+    <h2 style={{
+      fontSize: "clamp(2.5rem,5vw,3.5rem)",
+      fontWeight: 900,
+      letterSpacing: "-0.03em",
+      color: "#1e1e1e"
+    }}>
+      Franchise Application
+    </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {packages.map((pkg, i) => (
-              <Slide key={pkg.id} direction="up" delay={i * 90}
-                className={`relative flex flex-col rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-2xl ${pkg.popular ? "scale-[1.03] shadow-xl" : "hover:-translate-y-1"}`}
-                style={{ border: pkg.popular ? "2px solid #97b64c" : "1px solid #e0ebd0", backgroundColor: "white" }}
-              >
-                {pkg.popular && (
-                  <div className="py-2.5 text-center text-xs font-bold tracking-widest uppercase text-white" style={{ backgroundColor: "#97b64c" }}>
-                    ⭐ Most Recommended
-                  </div>
-                )}
+    <p className="text-sm mt-3 max-w-md mx-auto"
+      style={{ color: "#5a6a4a" }}>
+      Modern, simple, and fast. Takes less than 2 minutes.
+    </p>
+  </div>
 
-                {/* Card top */}
-                <div className="p-7 pb-5 flex flex-col gap-4" style={{ backgroundColor: pkg.popular ? "#f5f8ef" : "#fafaf8" }}>
-                  <div className="flex items-start justify-between">
-                    <span className="text-5xl">{pkg.emoji}</span>
-                    <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ backgroundColor: pkg.tagColor.bg, color: pkg.tagColor.color }}>
-                      {pkg.tag}
-                    </span>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-black" style={{ color: "#1e1e1e", letterSpacing: "-0.02em" }}>{pkg.name}</h3>
-                    <p className="text-sm mt-1 italic" style={{ color: "#5a6a4a" }}>{pkg.highlight}</p>
-                  </div>
-                  <div className="flex items-center justify-between py-3 px-4 rounded-xl" style={{ backgroundColor: "rgba(151,182,76,0.08)", border: "1px solid rgba(151,182,76,0.15)" }}>
-                    <span className="text-xs font-medium" style={{ color: "#5a6a4a" }}>Investment details</span>
-                    <a href="#inquiry" className="text-xs font-bold transition-colors" style={{ color: "#97b64c" }}>Inquire →</a>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs" style={{ color: "#9aaa8a" }}>
-                    <span>📐</span> {pkg.size} floor area
-                  </div>
-                </div>
+  {/* GLASS CARD */}
+  <div className="rounded-[28px] p-6 lg:p-10 backdrop-blur-xl"
+    style={{
+      background: "rgba(255,255,255,0.75)",
+      border: "1px solid #dce8c8",
+      boxShadow: "0 20px 60px rgba(0,0,0,0.06)"
+    }}>
 
-                {/* Divider */}
-                <div className="h-px mx-6" style={{ backgroundColor: "#e8f0dc" }} />
+    {/* PROGRESS BAR */}
+    <div className="mb-8">
+      <div className="flex justify-between text-[11px] mb-2"
+        style={{ color: "#62840b" }}>
+        <span>Step 1 of 2</span>
+        <span>50%</span>
+      </div>
+      <div className="w-full h-2 rounded-full bg-[#e8f0dc]">
+        <div className="h-full rounded-full"
+          style={{ width: "50%", background: "#97b64c" }} />
+      </div>
+    </div>
 
-                {/* Inclusions */}
-                <div className="p-7 pt-5 flex flex-col gap-4 flex-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#97b64c" }}>What's Included</p>
-                  <ul className="flex flex-col gap-2.5 flex-1">
-                    {pkg.inclusions.map((inc) => (
-                      <li key={inc} className="flex items-start gap-2.5">
-                        <span className="font-bold text-sm mt-0.5 shrink-0" style={{ color: "#97b64c" }}>✓</span>
-                        <span className="text-sm" style={{ color: "#5a6a4a" }}>{inc}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <a href="#inquiry"
-                    className="mt-4 w-full text-center font-bold text-sm py-3.5 rounded-2xl transition-all duration-200 active:scale-95"
-                    style={pkg.popular
-                      ? { backgroundColor: "#97b64c", color: "#ffffff", boxShadow: "0 4px 16px rgba(151,182,76,0.3)" }
-                      : { border: "1.5px solid #97b64c", color: "#62840b", backgroundColor: "transparent" }
-                    }
-                  >
-                    Apply for This Package
-                  </a>
-                </div>
-              </Slide>
-            ))}
-          </div>
-        </div>
-      </section>
+    {/* FORM GRID */}
+    <div className="grid lg:grid-cols-2 gap-6">
 
-      {/* ══════════════════════════════════════
-          SLIDE 4 — HOW IT WORKS
-      ══════════════════════════════════════ */}
-      <section data-track-section="How It Works" className="relative py-28 overflow-hidden bg-white">
-        {/* Connecting line */}
-        <div className="absolute top-[19rem] left-0 right-0 h-px hidden lg:block" style={{
-          background: "linear-gradient(to right, transparent 5%, #d0e0b0 20%, #d0e0b0 80%, transparent 95%)",
-        }} />
+      {/* LEFT */}
+      <div className="flex flex-col gap-5">
 
-        <div className="relative max-w-7xl mx-auto px-8 lg:px-16 z-10">
-          <Slide direction="up" className="text-center mb-3">
-            <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>The Process</p>
-          </Slide>
-          <Slide direction="up" delay={60} className="text-center mb-16">
-            <h2 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 900, letterSpacing: "-0.03em", color: "#1e1e1e" }}>
-              From Inquiry to Opening Day
-            </h2>
-          </Slide>
+        <Field label="Full Name" required error={fieldErrors.name}>
+          <input name="name" value={formData.name} onChange={handleChange}
+            placeholder="Juan dela Cruz"
+            className={`${inputBase} ${inputIdle}`} />
+        </Field>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {steps.map((s, i) => (
-              <Slide key={s.step} direction="up" delay={i * 70}
-                className="relative rounded-2xl p-7 flex flex-col gap-3 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-                style={{ backgroundColor: "#f5f8ef", border: "1px solid #e0ebd0" }}
-              >
-                {/* Step number watermark */}
-                <span className="absolute -top-2 -right-1 text-8xl font-black leading-none select-none pointer-events-none" style={{ color: "rgba(151,182,76,0.1)", fontFamily: "'DM Mono', monospace" }}>
-                  {s.step}
-                </span>
-                <span className="text-3xl relative z-10">{s.icon}</span>
-                <h3 className="font-bold text-base relative z-10" style={{ color: "#1e1e1e" }}>{s.title}</h3>
-                <p className="text-sm leading-relaxed relative z-10" style={{ color: "#5a6a4a" }}>{s.desc}</p>
-              </Slide>
-            ))}
-          </div>
-        </div>
-      </section>
+        <Field label="Email Address" required error={fieldErrors.email}>
+          <input type="email" name="email" value={formData.email} onChange={handleChange}
+            placeholder="you@email.com"
+            className={`${inputBase} ${inputIdle}`} />
+        </Field>
+
+        <Field label="Contact Number" required error={fieldErrors.contactNumber}>
+          <input name="contactNumber" value={formData.contactNumber} onChange={handleChange}
+            placeholder="09XX XXX XXXX"
+            className={`${inputBase} ${inputIdle}`} />
+        </Field>
+
+        <Field label="Preferred Contact Time" required error={fieldErrors.bestContactTime}>
+          <input type="datetime-local" name="bestContactTime"
+            value={formData.bestContactTime}
+            min={localDatetimeLocalFloor()}
+            onChange={handleChange}
+            className={`${inputBase} ${inputIdle}`} />
+        </Field>
+
+      </div>
+
+      {/* RIGHT */}
+      <div className="flex flex-col gap-5">
+
+        <Field label="Estimated Income" required error={fieldErrors.estimatedAnnualIncome}>
+          <input name="estimatedAnnualIncome"
+            value={formData.estimatedAnnualIncome}
+            onChange={handleChange}
+            placeholder="₱800k – ₱1.2M"
+            className={`${inputBase} ${inputIdle}`} />
+        </Field>
+
+        <Field label="Proposed Location" required error={fieldErrors.proposedLocation}>
+          <input name="proposedLocation"
+            value={formData.proposedLocation}
+            onChange={handleChange}
+            placeholder="City / Mall"
+            className={`${inputBase} ${inputIdle}`} />
+        </Field>
+
+        <Field label="Preferred Package" required error={fieldErrors.preferredPackage}>
+          <select name="preferredPackage"
+            value={formData.preferredPackage}
+            onChange={handleChange}
+            className={`${inputBase} ${inputIdle}`}>
+            <option value="">Select package</option>
+            <option value="cart">Cart</option>
+            <option value="kiosk">Kiosk</option>
+            <option value="inline">In-line</option>
+            <option value="unsure">Not sure</option>
+          </select>
+        </Field>
+
+        <Field label="Additional Info" required error={fieldErrors.remarks}>
+          <textarea name="remarks"
+            rows={3}
+            value={formData.remarks}
+            onChange={handleChange}
+            placeholder="Tell us your plan..."
+            className={`${inputBase} ${inputIdle}`} />
+        </Field>
+
+      </div>
+    </div>
+
+    {/* CTA */}
+    <div className="mt-10 flex flex-col lg:flex-row items-center justify-between gap-4">
+
+      {/* TRUST */}
+      <div className="flex gap-3 text-xs"
+        style={{ color: "#62840b" }}>
+        <span>🔒 Secure</span>
+        <span>⚡ Fast</span>
+        <span>📞 We call you</span>
+      </div>
+
+      <button
+        onClick={handleSubmit}
+        disabled={isSubmitting}
+        className="w-full lg:w-auto px-10 py-4 rounded-full font-bold text-sm transition-all active:scale-95"
+        style={{
+          background: isSubmitting ? "#b7cd7f" : "#62840b",
+          color: "#fff",
+          boxShadow: "0 10px 30px rgba(98,132,11,0.3)"
+        }}
+      >
+        {isSubmitting ? "Submitting..." : "Continue →"}
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+</section>
 
       {/* ══════════════════════════════════════
           SLIDE 5 — FAQ
@@ -519,183 +891,6 @@ export default function Franchise() {
               </Slide>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════
-          SLIDE 6 — INQUIRY FORM
-      ══════════════════════════════════════ */}
-      <section id="inquiry" data-track-section="Franchise Inquiry" className="relative py-28 overflow-hidden bg-white">
-        {/* Corner accents */}
-        <div className="absolute top-0 left-0 w-64 h-64 pointer-events-none" style={{
-          background: "radial-gradient(circle at top left, rgba(151,182,76,0.08) 0%, transparent 70%)",
-        }} />
-        <div className="absolute bottom-0 right-0 w-64 h-64 pointer-events-none" style={{
-          background: "radial-gradient(circle at bottom right, rgba(232,160,32,0.06) 0%, transparent 70%)",
-        }} />
-
-        <div className="relative max-w-2xl mx-auto px-8 lg:px-16 z-10">
-          <Slide direction="up" className="text-center mb-3">
-            <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>Take the First Step</p>
-          </Slide>
-          <Slide direction="up" delay={60} className="text-center mb-4">
-            <h2 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 900, letterSpacing: "-0.03em", color: "#1e1e1e" }}>
-              Franchise Inquiry
-            </h2>
-          </Slide>
-          <Slide direction="up" delay={100} className="text-center mb-8">
-            <p className="text-sm leading-relaxed max-w-sm mx-auto" style={{ color: "#5a6a4a" }}>
-              Fill out the form and our franchise team will reach out within <strong>3–5 business days</strong>.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3 mt-5">
-              {["🔒 Confidential", "📞 We call you", "⚡ Fast response"].map((t) => (
-                <span key={t} className="text-xs px-3 py-1.5 rounded-full" style={{ backgroundColor: "#f5f8ef", border: "1px solid #d0e0b0", color: "#5a6a4a" }}>{t}</span>
-              ))}
-            </div>
-          </Slide>
-
-          {submitted ? (
-            <Slide direction="up">
-              <div className="rounded-3xl p-12 flex flex-col items-center gap-5 text-center" style={{ backgroundColor: "white", border: "2px solid #97b64c", boxShadow: "0 8px 40px rgba(151,182,76,0.15)" }}>
-                <div className="w-20 h-20 rounded-full flex items-center justify-center text-4xl" style={{ backgroundColor: "#e8f0dc", border: "4px solid #b7cd7f" }}>🎉</div>
-                <div>
-                  <h3 className="text-2xl font-black" style={{ color: "#1e1e1e", letterSpacing: "-0.02em" }}>Inquiry Submitted!</h3>
-                  <p className="text-sm mt-2 leading-relaxed max-w-xs mx-auto" style={{ color: "#5a6a4a" }}>
-                    Thank you for your interest in Milkshop! Our franchise team will contact you within <strong>3–5 business days</strong>.
-                  </p>
-                </div>
-                <div className="w-full rounded-2xl px-6 py-4 text-sm text-left" style={{ backgroundColor: "#f5f8ef", border: "1px solid #d0e0b0" }}>
-                  <p className="font-bold text-xs uppercase tracking-widest mb-3" style={{ color: "#1e1e1e" }}>What happens next?</p>
-                  <ul className="flex flex-col gap-2">
-                    {["We review your inquiry internally", "A franchise team member calls you within 3–5 days", "Initial interview is scheduled at your convenience"].map((step, i) => (
-                      <li key={i} className="flex items-center gap-2 text-sm" style={{ color: "#5a6a4a" }}>
-                        <span className="w-5 h-5 rounded-full text-white text-[10px] font-bold flex items-center justify-center shrink-0" style={{ backgroundColor: "#97b64c" }}>{i + 1}</span>
-                        {step}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="flex flex-wrap gap-3 justify-center">
-                  <Link to="/" className="font-bold text-sm px-7 py-3 rounded-full transition-all duration-200 active:scale-95" style={{ backgroundColor: "#97b64c", color: "#ffffff" }}>Back to Home</Link>
-                  <Link to="/products" className="font-bold text-sm px-7 py-3 rounded-full transition-all duration-200" style={{ border: "1.5px solid #97b64c", color: "#62840b", backgroundColor: "transparent" }}>Explore Our Menu</Link>
-                </div>
-              </div>
-            </Slide>
-          ) : (
-            <Slide direction="up" delay={140}>
-              <div className="rounded-3xl p-8 flex flex-col gap-6" style={{ backgroundColor: "white", border: "1px solid #e0ebd0", boxShadow: "0 4px 32px rgba(0,0,0,0.06)" }}>
-
-                {errorMessage && (
-                  <div className="flex items-start gap-3 rounded-2xl px-4 py-4" style={{ backgroundColor: "#fef2f2", border: "1px solid #fecaca" }}>
-                    <span className="text-xl shrink-0">⚠️</span>
-                    <div>
-                      <p className="font-bold text-sm" style={{ color: "#dc2626" }}>Submission failed</p>
-                      <p className="text-sm mt-0.5" style={{ color: "#dc2626" }}>{errorMessage}</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Field label="Full Name" required error={fieldErrors.name}>
-                    <input id="name" name="name" value={formData.name} onChange={handleChange} placeholder="Juan dela Cruz" className={`${inputBase} ${fieldErrors.name ? inputErr : inputIdle}`} />
-                  </Field>
-                  <Field label="Email Address" required error={fieldErrors.email}>
-                    <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="juan@email.com" className={`${inputBase} ${fieldErrors.email ? inputErr : inputIdle}`} />
-                  </Field>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Field label="Contact Number" required error={fieldErrors.contactNumber}>
-                    <input id="contactNumber" name="contactNumber" value={formData.contactNumber} onChange={handleChange} placeholder="09XX XXX XXXX" className={`${inputBase} ${fieldErrors.contactNumber ? inputErr : inputIdle}`} style={{ fontFamily: "'DM Mono', monospace" }} />
-                  </Field>
-                  <Field label="Best Contact Date / Time" required error={fieldErrors.bestContactTime}>
-                    <input
-                      id="bestContactTime"
-                      name="bestContactTime"
-                      type="datetime-local"
-                      min={localDatetimeLocalFloor()}
-                      value={formData.bestContactTime}
-                      onChange={handleChange}
-                      className={`${inputBase} ${fieldErrors.bestContactTime ? inputErr : inputIdle}`}
-                    />
-                  </Field>
-                </div>
-
-                <Field label="Estimated Annual Income" required error={fieldErrors.estimatedAnnualIncome}>
-                  <input id="estimatedAnnualIncome" name="estimatedAnnualIncome" value={formData.estimatedAnnualIncome} onChange={handleChange} placeholder="e.g. ₱800,000 – ₱1,200,000" className={`${inputBase} ${fieldErrors.estimatedAnnualIncome ? inputErr : inputIdle}`} />
-                </Field>
-
-                <Field label="Proposed Franchise Location" required error={fieldErrors.proposedLocation}>
-                  <input id="proposedLocation" name="proposedLocation" value={formData.proposedLocation} onChange={handleChange} placeholder="City, mall or area (e.g. Cebu City, Ayala Center)" className={`${inputBase} ${fieldErrors.proposedLocation ? inputErr : inputIdle}`} />
-                </Field>
-
-                <Field label="Preferred Package" required error={fieldErrors.preferredPackage}>
-                  <select id="preferredPackage" name="preferredPackage" value={formData.preferredPackage} onChange={handleChange} className={`${inputBase} ${fieldErrors.preferredPackage ? inputErr : inputIdle} cursor-pointer`}>
-                    <option value="">Select a package...</option>
-                    <option value="cart">Cart / Mobile</option>
-                    <option value="kiosk">Kiosk</option>
-                    <option value="inline">In-Line Store</option>
-                    <option value="unsure">Not sure yet — advise me</option>
-                  </select>
-                </Field>
-
-                <Field label="Additional Information" required error={fieldErrors.remarks}>
-                  <textarea id="remarks" name="remarks" value={formData.remarks} onChange={handleChange} rows={4} placeholder="Tell us about your planned location, your background, or any questions you have..." className={`${inputBase} ${fieldErrors.remarks ? inputErr : inputIdle} resize-none`} />
-                </Field>
-
-                <div className="pt-2" style={{ borderTop: "1px solid #e8f0dc" }}>
-                  <Field label="Referral (optional)" error={null}>
-                    <input name="referral" value={formData.referral} onChange={handleChange} placeholder="Friend, social media, franchise expo, etc." className={`${inputBase} ${inputIdle}`} />
-                  </Field>
-                </div>
-
-                <button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="w-full font-bold text-base py-4 rounded-2xl transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
-                  style={{ backgroundColor: isSubmitting ? "#a8c26a" : "#97b64c", color: "#ffffff", boxShadow: "0 4px 20px rgba(151,182,76,0.3)", cursor: isSubmitting ? "not-allowed" : "pointer" }}
-                >
-                  {isSubmitting ? (
-                    <><svg className="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>Submitting...</>
-                  ) : "Submit Franchise Inquiry →"}
-                </button>
-
-                <p className="text-center text-xs" style={{ color: "#9aaa8a" }}>🔒 Your information is kept strictly confidential.</p>
-              </div>
-            </Slide>
-          )}
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════
-          SLIDE 7 — BOTTOM CTA
-      ══════════════════════════════════════ */}
-      <section data-track-section="Franchise CTA" className="relative py-24 overflow-hidden" style={{ backgroundColor: "#f5f8ef", borderTop: "1px solid #d0e0b0" }}>
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: "linear-gradient(rgba(151,182,76,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.06) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }} />
-
-        <div className="relative max-w-7xl mx-auto px-8 lg:px-16 z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
-          <Slide direction="left">
-            <h2 className="font-black" style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)", color: "#1e1e1e", letterSpacing: "-0.03em", lineHeight: 1.1 }}>
-              Ready to own<br />a Milkshop? 🧋
-            </h2>
-            <p className="text-sm mt-4" style={{ color: "#5a6a4a" }}>
-              Own a branch. Join the movement. Build something that lasts.
-            </p>
-          </Slide>
-
-          <Slide direction="right" delay={100}>
-            <div className="flex flex-wrap gap-3">
-              <a href="#inquiry" className="font-bold text-sm px-8 py-4 rounded-full transition-all duration-200 active:scale-95" style={{ backgroundColor: "#97b64c", color: "#ffffff", boxShadow: "0 6px 24px rgba(151,182,76,0.3)" }}>
-                Start Your Inquiry →
-              </a>
-              <Link to="/locations" className="font-bold text-sm px-8 py-4 rounded-full transition-all duration-200" style={{ border: "1.5px solid #97b64c", color: "#62840b", backgroundColor: "transparent" }}>
-                Find a Branch
-              </Link>
-            </div>
-          </Slide>
         </div>
       </section>
 

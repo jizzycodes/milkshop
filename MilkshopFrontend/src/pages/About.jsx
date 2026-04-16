@@ -4,13 +4,6 @@ import logo from "../assets/milkshop-logo.png"
 
 // ─── DATA (unchanged) ────────────────────────────────────────────────────────
 
-const values = [
-  { icon: "🇹🇼", title: "Taiwanese Heritage",     desc: "Rooted in Taiwan's iconic bubble tea culture — every recipe is authentic and time-tested." },
-  { icon: "🫧", title: "Popping Boba Pioneer",    desc: "We're the first Taiwanese brand to bring Popping Boba milk products to the Philippines." },
-  { icon: "🥛", title: "Real Milk, Always",       desc: "No powder shortcuts. We use fresh milk in every cup for a creamier, cleaner taste." },
-  { icon: "🌿", title: "Natural Ingredients",     desc: "No artificial preservatives. Just clean, real flavors you can taste in every sip." },
-];
-
 const milestones = [
   { year: "2015", label: "Founded in Taiwan",      desc: "Milkshop 秘客侠 opens its first store in Taiwan with a singular mission — to redefine what milk tea could be. Real milk. Real flavor. No shortcuts.", icon: "🏪" },
   { year: "2018", label: "Popping Boba Born",      desc: "After 3 years of R&D, Milkshop introduces the Popping Boba series — a first in Taiwanese beverage culture. Each boba bursts with real fruit juice on first bite.", icon: "🫧" },
@@ -25,12 +18,6 @@ const rawMaterials = [
   { icon: "🥛", title: "Fresh Dairy Milk",         origin: "Certified Local Farms",       desc: "We never use powder. Every cup is made with fresh, full-cream dairy milk from certified partner farms — richer, creamier, cleaner." },
   { icon: "🫧", title: "Taiwanese Popping Boba",   origin: "Proprietary Factory, Taiwan", desc: "Our signature boba is produced in our own facility using natural fruit juice fills — no artificial flavoring, no shortcuts." },
   { icon: "🍬", title: "Black Sugar Syrup",        origin: "Traditional Recipe, Taiwan",  desc: "Slow-cooked brown sugar syrup following a traditional Taiwanese formula. The same recipe that created our iconic tiger-stripe milk tea." },
-];
-
-const team = [
-  { emoji: "👨‍🍳", name: "Chef Lin",       role: "Head of R&D"         },
-  { emoji: "👩‍💼", name: "Maria Santos", role: "PH Operations Lead"  },
-  { emoji: "🧑‍🎨", name: "Kai Chen",     role: "Brand & Design"      },
 ];
 
 // ─── HOOK: Intersection Observer ─────────────────────────────────────────────
@@ -74,26 +61,6 @@ function Slide({ children, className = "", style = {}, delay = 0, direction = "u
       {children}
     </div>
   );
-}
-
-// ─── COUNTER ANIMATION ────────────────────────────────────────────────────────
-
-function CountUp({ target, suffix = "", duration = 1800 }) {
-  const [count, setCount] = useState(0);
-  const [ref, inView] = useInView();
-  useEffect(() => {
-    if (!inView) return;
-    let start = 0;
-    const num = parseFloat(target);
-    const step = num / (duration / 16);
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= num) { setCount(num); clearInterval(timer); }
-      else setCount(Math.floor(start));
-    }, 16);
-    return () => clearInterval(timer);
-  }, [inView]);
-  return <span ref={ref}>{count}{suffix}</span>;
 }
 
 // ─── MAIN ────────────────────────────────────────────────────────────────────
@@ -250,67 +217,7 @@ export default function About() {
       </section>
 
       {/* ══════════════════════════════════════════════
-          SLIDE 3 — CORE VALUES
-      ══════════════════════════════════════════════ */}
-      <section data-track-section="Core Values" className="relative py-28 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: "linear-gradient(135deg, rgba(151,182,76,0.06) 0%, transparent 60%)",
-        }} />
-
-        <div className="relative max-w-6xl mx-auto px-8 lg:px-16 z-10">
-          <Slide direction="up" delay={0} className="mb-3">
-            <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>What We Stand For</p>
-          </Slide>
-          <Slide direction="up" delay={60} className="mb-16">
-            <h2 className="font-black" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", color: "#ffffff", letterSpacing: "-0.03em", lineHeight: 1.05 }}>
-              Our Core Values
-            </h2>
-          </Slide>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {values.map((v, i) => (
-              <Slide key={v.title} direction="up" delay={i * 80}
-                className="group rounded-2xl p-6 flex flex-col gap-4 cursor-default transition-all duration-300"
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                }}
-              >
-                <span className="text-4xl">{v.icon}</span>
-                <div className="w-8 h-px" style={{ backgroundColor: "#97b64c" }} />
-                <h3 className="font-bold text-white text-base">{v.title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>{v.desc}</p>
-              </Slide>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════
-          SLIDE 4 — STATS BAR
-      ══════════════════════════════════════════════ */}
-      <section data-track-section="Company Stats" className="py-20" style={{ backgroundColor: "#97b64c" }}>
-        <div className="max-w-6xl mx-auto px-8 lg:px-16 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-          {[
-            { value: "2015", suffix: "", label: "Year Founded" },
-            { value: "20",   suffix: "+", label: "Menu Items"  },
-            { value: "15",   suffix: "+", label: "PH Branches" },
-            { value: "5",    suffix: "★", label: "Avg Rating"  },
-          ].map((s, i) => (
-            <Slide key={s.label} direction="up" delay={i * 80} className="flex flex-col items-center gap-1">
-              <span className="text-4xl lg:text-5xl font-black text-white" style={{ fontFamily: "'DM Mono', monospace" }}>
-                <CountUp target={parseInt(s.value)} suffix={s.suffix} />
-              </span>
-              <span className="text-xs tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.7)" }}>
-                {s.label}
-              </span>
-            </Slide>
-          ))}
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════
-          SLIDE 5 — TIMELINE
+          SLIDE 3 — TIMELINE
       ══════════════════════════════════════════════ */}
       <section data-track-section="Company Timeline" className="relative py-28 bg-white overflow-hidden">
         {/* Vertical line */}
@@ -369,7 +276,7 @@ export default function About() {
       </section>
 
       {/* ══════════════════════════════════════════════
-          SLIDE 6 — RAW MATERIALS
+          SLIDE 4 — QUALITY AT THE SOURCE
       ══════════════════════════════════════════════ */}
       <section data-track-section="Raw Materials" className="relative py-28 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
         <div className="absolute inset-0 pointer-events-none" style={{
@@ -394,7 +301,7 @@ export default function About() {
             </p>
           </Slide>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {rawMaterials.map((r, i) => (
               <Slide key={r.title} direction="up" delay={i * 80}
                 className="rounded-2xl p-6 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1"
@@ -411,13 +318,19 @@ export default function About() {
               </Slide>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Video placeholder */}
+      {/* ══════════════════════════════════════════════
+          SLIDE 5 — FROM FARM TO CUP
+      ══════════════════════════════════════════════ */}
+      <section data-track-section="From Farm to Cup" className="relative py-28 overflow-hidden bg-white border-t border-[#e8eee0]">
+        <div className="relative max-w-6xl mx-auto px-8 lg:px-16 z-10">
           <Slide direction="up" delay={100}>
             <div className="text-center mb-8">
               <p className="text-[11px] font-bold tracking-[0.28em] uppercase mb-2" style={{ color: "#97b64c" }}>See It Yourself</p>
-              <h3 className="text-3xl font-black text-white" style={{ letterSpacing: "-0.03em" }}>From Farm to Cup</h3>
-              <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "rgba(255,255,255,0.35)" }}>
+              <h3 className="text-3xl font-black" style={{ letterSpacing: "-0.03em", color: "#1e1e1e" }}>From Farm to Cup</h3>
+              <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "#5a5a5a" }}>
                 Watch how our raw materials are selected, processed, and transformed into the drinks you love.
               </p>
             </div>
@@ -444,45 +357,7 @@ export default function About() {
       </section>
 
       {/* ══════════════════════════════════════════════
-          SLIDE 7 — TEAM
-      ══════════════════════════════════════════════ */}
-      <section data-track-section="Team" className="relative py-28 bg-white overflow-hidden">
-        {/* Large watermark */}
-        <div className="absolute bottom-0 left-0 pointer-events-none select-none" style={{
-          fontSize: "30vw", fontWeight: 900, lineHeight: 1,
-          color: "rgba(151,182,76,0.04)", fontFamily: "serif",
-        }}>人</div>
-
-        <div className="relative max-w-6xl mx-auto px-8 lg:px-16 z-10">
-          <Slide direction="up" className="text-center mb-3">
-            <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>The People</p>
-          </Slide>
-          <Slide direction="up" delay={60} className="text-center mb-16">
-            <h2 className="font-black" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", color: "#1e1e1e", letterSpacing: "-0.03em" }}>
-              Behind Every Cup
-            </h2>
-          </Slide>
-
-          <div className="flex flex-wrap justify-center gap-6">
-            {team.map((t, i) => (
-              <Slide key={t.name} direction="up" delay={i * 100}
-                className="group flex flex-col items-center gap-4 w-52 p-8 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
-                style={{ backgroundColor: "#f5f8ef", border: "1px solid #e0ebd0" }}
-              >
-                <span className="text-5xl">{t.emoji}</span>
-                <div className="w-8 h-px" style={{ backgroundColor: "#97b64c" }} />
-                <div className="text-center">
-                  <p className="font-bold text-sm" style={{ color: "#1e1e1e" }}>{t.name}</p>
-                  <p className="text-xs mt-0.5" style={{ color: "#5a5a5a" }}>{t.role}</p>
-                </div>
-              </Slide>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════
-          SLIDE 8 — BOTTOM CTA
+          SLIDE 6 — BOTTOM CTA
       ══════════════════════════════════════════════ */}
       <section data-track-section="About CTA" className="relative py-24 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
         <div className="absolute inset-0 pointer-events-none" style={{

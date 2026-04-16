@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom";
 import logo from "../assets/milkshop-logo.png";
 
-// ── Dead links removed: /promotions and /contact don't exist yet
 const navLinks = [
-  { label: "Home",      path: "/"          },
-  { label: "Menu",      path: "/products"  },
+  { label: "Home", path: "/" },
+  { label: "Menu", path: "/products" },
   { label: "Locations", path: "/locations" },
-  { label: "About",     path: "/about"     },
+  { label: "About", path: "/about" },
   { label: "Franchise", path: "/franchise#inquiry" },
 ];
 
@@ -25,7 +24,7 @@ const socials = [
     href: "https://www.instagram.com/milkshopph",
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+        <rect x="2" y="2" width="20" height="20" rx="5" />
         <circle cx="12" cy="12" r="4" />
         <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" />
       </svg>
@@ -44,199 +43,109 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#1e1e1e]">
-      {/* ── MAIN FOOTER BODY ── */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-14 pb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+    <footer className="bg-[#0a0a0a] text-white">
 
-        {/* ── BRAND COLUMN ── */}
-        <div className="flex flex-col gap-5 lg:col-span-1">
-          <Link to="/" className="flex items-center gap-2.5 group w-fit">
-            <img
-              src={logo}
-              alt="Milkshop logo"
-              className="w-10 h-10 object-contain transition-transform duration-200 group-hover:scale-110"
-            />
-            <div className="flex flex-col leading-none">
-              <span className="font-bold text-white text-base tracking-tight"
-                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-                Milkshop
-              </span>
-              <span className="text-[#97b64c] text-[10px] tracking-widest uppercase">
-                秘客侠
-              </span>
+      {/* MAIN */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16 flex flex-col gap-12">
+
+        {/* TOP ROW */}
+        <div className="flex flex-col lg:flex-row items-start justify-between gap-10">
+
+          {/* BRAND */}
+          <div className="max-w-sm flex flex-col gap-5">
+            <Link to="/" className="flex items-center gap-3 group w-fit">
+              <img
+                src={logo}
+                alt="Milkshop logo"
+                className="w-10 h-10 object-contain group-hover:scale-105 transition"
+              />
+              <div>
+                <p className="font-bold text-white text-base tracking-tight"
+                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+                  Milkshop
+                </p>
+                <p className="text-[#97b64c] text-[10px] tracking-widest uppercase">
+                  秘客侠
+                </p>
+              </div>
+            </Link>
+
+            <p className="text-white/60 text-sm leading-relaxed"
+              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+              The first Taiwanese Popping Boba brand in the Philippines. Crafted with real milk and authentic recipes.
+            </p>
+
+            {/* SOCIALS */}
+            <div className="flex items-center gap-2 pt-2">
+              {socials.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-full border border-white/10 text-white/60 hover:text-white hover:border-[#97b64c] hover:bg-[#97b64c]/10 flex items-center justify-center transition"
+                >
+                  {s.icon}
+                </a>
+              ))}
             </div>
-          </Link>
-
-          <p className="text-[#b7cd7f] text-sm leading-relaxed"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-            The first Taiwanese Popping Boba brand in the Philippines. Every cup is crafted with real milk, authentic Taiwanese recipes, and a burst of joy.
-          </p>
-
-          {/* Trust badges */}
-          <div className="flex flex-wrap gap-2">
-            {["🇹🇼 Taiwan Original", "🥛 Real Milk", "🫧 Popping Boba"].map((badge) => (
-              <span
-                key={badge}
-                className="text-[10px] font-semibold text-[#97b64c] bg-[#97b64c]/10 border border-[#97b64c]/20 px-2.5 py-1 rounded-full"
-                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
-              >
-                {badge}
-              </span>
-            ))}
           </div>
 
-          {/* Social icons */}
-          <div className="flex items-center gap-2">
-            {socials.map((s) => (
-              <a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={s.label}
-                className="w-9 h-9 rounded-full border border-white/10 text-[#b7cd7f] hover:bg-[#97b64c] hover:border-[#97b64c] hover:text-white flex items-center justify-center transition-all duration-200"
-              >
-                {s.icon}
-              </a>
-            ))}
-          </div>
-        </div>
+          {/* RIGHT SIDE */}
+          <div className="flex flex-col gap-8">
 
-        {/* ── QUICK LINKS ── */}
-        <div className="flex flex-col gap-4">
-          <h4 className="text-xs font-bold tracking-widest uppercase text-[#97b64c]"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-            Quick Links
-          </h4>
-          <ul className="flex flex-col gap-2.5">
-            {navLinks.map((link) => (
-              <li key={link.path}>
+            {/* NAV LINKS */}
+            <div className="flex flex-wrap gap-x-6 gap-y-3">
+              {navLinks.map((link) => (
                 <Link
+                  key={link.path}
                   to={link.path}
-                  className="text-[#b7cd7f] hover:text-white text-sm transition-colors duration-200 flex items-center gap-2 group"
+                  className="text-white/60 hover:text-white text-sm transition"
                   style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
                 >
-                  <span className="w-1 h-1 rounded-full bg-[#97b64c] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   {link.label}
                 </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* ── CONTACT INFO ── */}
-        <div className="flex flex-col gap-4">
-          <h4 className="text-xs font-bold tracking-widest uppercase text-[#97b64c]"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-            Contact Us
-          </h4>
-          <ul className="flex flex-col gap-4">
-            <li className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#97b64c]/10 border border-[#97b64c]/20 flex items-center justify-center shrink-0 text-sm">
-                📞
-              </div>
-              <div>
-                <p className="text-white text-sm font-semibold"
-                  style={{ fontFamily: "'DM Mono', monospace" }}>
-                  0995 290 8161
-                </p>
-                <p className="text-[#b7cd7f] text-xs mt-0.5"
-                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-                  Call or text — Mon to Sun
-                </p>
-              </div>
-            </li>
-            <li className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#97b64c]/10 border border-[#97b64c]/20 flex items-center justify-center shrink-0 text-sm">
-                📧
-              </div>
-              <div>
-                <p className="text-white text-sm font-semibold"
-                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-                  franchise@milkshop.ph
-                </p>
-                <p className="text-[#b7cd7f] text-xs mt-0.5"
-                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-                  Franchise inquiries
-                </p>
-              </div>
-            </li>
-            <li className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#97b64c]/10 border border-[#97b64c]/20 flex items-center justify-center shrink-0 text-sm">
-                🕐
-              </div>
-              <div>
-                <p className="text-white text-sm font-semibold"
-                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-                  10:00 AM – 10:00 PM
-                </p>
-                <p className="text-[#b7cd7f] text-xs mt-0.5"
-                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-                  Daily, including holidays
-                </p>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        {/* ── FRANCHISE COLUMN ── */}
-        <div className="flex flex-col gap-4">
-          <h4 className="text-xs font-bold tracking-widest uppercase text-[#97b64c]"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-            Franchise
-          </h4>
-          <div className="bg-[#97b64c]/10 border border-[#97b64c]/20 rounded-2xl p-4 flex flex-col gap-3">
-            <p className="text-white text-sm font-bold"
-              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-              Own a branch in your city.
-            </p>
-            <ul className="flex flex-col gap-2">
-              {[
-                "3 flexible packages",
-                "ROI in 12–18 months",
-                "Exclusive territory",
-                "Full training & support",
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-2 text-[#b7cd7f] text-xs"
-                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-                  <span className="text-[#97b64c] font-bold shrink-0">✓</span>
-                  {item}
-                </li>
               ))}
-            </ul>
-            <Link
-              to="/franchise#inquiry"
-              className="mt-1 w-full text-center bg-[#E8A020] hover:bg-[#CF8E18] text-white font-bold text-xs py-2.5 rounded-xl transition-all duration-200 active:scale-95"
-              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
-            >
-              Learn More →
-            </Link>
+            </div>
+
+            {/* CONTACT + CTA */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+
+              {/* CONTACT */}
+              <div className="text-sm text-white/60 flex flex-col gap-1"
+                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+                <span>📞 0995 290 8161</span>
+                <span>📧 franchise@milkshop.ph</span>
+              </div>
+
+              {/* CTA */}
+              <Link
+                to="/franchise#inquiry"
+                className="px-6 py-3 rounded-full bg-[#E8A020] hover:bg-[#CF8E18] text-white text-sm font-semibold transition-all duration-200 active:scale-95 shadow-lg"
+                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+              >
+                Start Franchise →
+              </Link>
+            </div>
+
           </div>
         </div>
-      </div>
 
-      {/* ── DIVIDER ── */}
-      <div className="border-t border-white/5" />
+        {/* DIVIDER */}
+        <div className="border-t border-white/10" />
 
-      {/* ── BOTTOM BAR ── */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p className="text-[#5a5a5a] text-xs"
+        {/* BOTTOM */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40"
           style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-          © {new Date().getFullYear()} Milkshop 秘客侠 Philippines. All rights reserved.
-        </p>
-        <div className="flex items-center gap-3">
-          <span className="text-[#5a5a5a] text-xs"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-            🇹🇼 Taiwanese Original
-          </span>
-          <span className="text-[#5a5a5a]">·</span>
-          <span className="text-[#5a5a5a] text-xs"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-            🇵🇭 Proudly in the Philippines
-          </span>
+          <span>© {new Date().getFullYear()} Milkshop 秘客侠 Philippines</span>
+          <div className="flex items-center gap-2">
+            <span>🇹🇼 Taiwanese Original</span>
+            <span>·</span>
+            <span>🇵🇭 Philippines</span>
+          </div>
         </div>
-      </div>
 
+      </div>
     </footer>
   );
 }

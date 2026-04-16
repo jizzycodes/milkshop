@@ -1,183 +1,392 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-// Regular nav links — Franchise is handled separately as a CTA button
 const navLinks = [
   { label: "Home",      path: "/"          },
-  { label: "Menu",      path: "/products"  },
-  { label: "Locations", path: "/locations" },
+  { label: "Franchise", path: "/franchise" },
   { label: "About",     path: "/about"     },
+  { label: "Locations", path: "/locations" },
+  { label: "Our Menu",  path: "/products"  },
 ];
 
-const PROMO_MESSAGES = [
-  "🇹🇼 First Taiwanese Popping Boba Brand in the Philippines",
-  "20% off — Valentine's Special! Limited time only.",
-  "New branch opening soon. Follow us for updates.",
-];
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800;900&family=DM+Mono:wght@700&display=swap');
+
+  @keyframes navSlideDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes mobileMenuIn {
+    from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes ctaShine {
+    0%   { transform: translateX(-100%) skewX(-15deg); }
+    100% { transform: translateX(250%) skewX(-15deg); }
+  }
+
+  .nav-root {
+    animation: navSlideDown 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* ── Desktop nav link ── */
+  .nav-link-v2 {
+    position: relative;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #4a5a30;
+    text-decoration: none;
+    padding: 6px 0;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+  }
+  .nav-link-v2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #62840b, #97b64c);
+    border-radius: 2px;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .nav-link-v2:hover { color: #1e1e1e; }
+  .nav-link-v2:hover::after { transform: scaleX(1); }
+  .nav-link-v2.active { color: #62840b; }
+  .nav-link-v2.active::after { transform: scaleX(1); }
+
+  /* ── CTA button ── */
+  .cta-btn-v2 {
+    position: relative;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #fff;
+    text-decoration: none;
+    padding: 13px 26px;
+    border-radius: 100px;
+    background: linear-gradient(135deg, #E8A020 0%, #CF8E18 100%);
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(232,160,32,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition: transform 0.25s cubic-bezier(0.16,1,0.3,1),
+                box-shadow 0.25s ease;
+  }
+  .cta-btn-v2::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+    transform: translateX(-100%) skewX(-15deg);
+  }
+  .cta-btn-v2:hover::before {
+    animation: ctaShine 0.55s ease forwards;
+  }
+  .cta-btn-v2:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 36px rgba(232,160,32,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .cta-btn-v2:active { transform: translateY(0) scale(0.97); }
+
+  /* ── Mobile link ── */
+  .mobile-link-v2 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.04rem;
+    font-weight: 700;
+    color: #4a5a30;
+    text-decoration: none;
+    padding: 15px 18px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.18s ease, color 0.18s ease;
+    letter-spacing: 0.005em;
+  }
+  .mobile-link-v2:hover { background: rgba(151,182,76,0.1); color: #1e1e1e; }
+  .mobile-link-v2.active {
+    background: linear-gradient(135deg, rgba(151,182,76,0.15), rgba(98,132,11,0.08));
+    color: #62840b;
+  }
+
+  /* ── Hamburger ── */
+  .hb-line {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #2a3a18;
+    border-radius: 4px;
+    transition: transform 0.32s cubic-bezier(0.16,1,0.3,1), opacity 0.2s ease;
+    transform-origin: center;
+  }
+`;
 
 export default function Navbar() {
   const [scrolled,  setScrolled]  = useState(false);
   const [menuOpen,  setMenuOpen]  = useState(false);
   const location = useLocation();
-
-  const isFranchise = location.pathname === "/franchise";
+  const menuRef  = useRef(null);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => { setMenuOpen(false); }, [location]);
+
   useEffect(() => {
-    setMenuOpen(false);
-  }, [location]);
+    if (!menuOpen) return;
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpen]);
 
   return (
     <>
-      {/* ── TOP BRAND BAR (scrolling promos) ── */}
-      <div className="bg-[#1e1e1e] text-[#b7cd7f] text-xs py-2 font-medium tracking-widest uppercase overflow-hidden">
-        <div className="flex animate-nav-marquee whitespace-nowrap">
-          {[...PROMO_MESSAGES, ...PROMO_MESSAGES].map((msg, i) => (
-            <span key={i} className="mx-8 inline-block">
-              {msg}
-            </span>
-          ))}
-        </div>
-      </div>
-      <style>{`
-        @keyframes nav-marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-nav-marquee { animation: nav-marquee 28s linear infinite; }
-      `}</style>
+      <style>{styles}</style>
 
-      {/* ── MAIN NAVBAR ── */}
-      <nav
-        className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-          scrolled
-            ? "bg-white/95 backdrop-blur-md shadow-md border-b border-[#d0e0b0]"
-            : "bg-white border-b border-[#d0e0b0]"
-        }`}
+      <header
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 50,
+          // Subtle green-tinted top border glow when scrolled
+          borderBottom: scrolled
+            ? "1px solid rgba(151,182,76,0.22)"
+            : "1px solid transparent",
+          transition: "border-color 0.4s ease, background 0.4s ease, box-shadow 0.4s ease",
+          background: scrolled
+            ? "rgba(255,255,255,0.88)"
+            : "rgba(255,255,255,0.72)",
+          backdropFilter: "blur(24px) saturate(180%)",
+          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          boxShadow: scrolled
+            ? "0 4px 32px rgba(98,132,11,0.10), 0 1px 0 rgba(151,182,76,0.08)"
+            : "none",
+        }}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-16 gap-6">
+        {/* Top green accent line */}
+        <div style={{
+          height: "3px",
+          background: "linear-gradient(90deg, #62840b 0%, #97b64c 40%, #b7cd7f 70%, #97b64c 100%)",
+          opacity: scrolled ? 1 : 0.7,
+          transition: "opacity 0.4s ease",
+        }} />
 
-          {/* ── LOGO (clickable; standard ~60–70% of bar height, with spacing) ── */}
+        <nav
+          ref={menuRef}
+          className="nav-root"
+          style={{
+            maxWidth: "1280px",
+            margin: "0 auto",
+            padding: "0 40px",
+            height: scrolled ? "68px" : "78px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            transition: "height 0.35s cubic-bezier(0.16,1,0.3,1)",
+            position: "relative",
+          }}
+        >
+          {/* ── LOGO — maximized ── */}
           <Link
             to="/"
-            className="flex items-center justify-center shrink-0 mr-6 group"
             aria-label="Milkshop home"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexShrink: 0,
+              textDecoration: "none",
+              transition: "opacity 0.2s ease, transform 0.2s ease",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.opacity = "0.82"; e.currentTarget.style.transform = "scale(0.98)"; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1)"; }}
           >
             <img
               src="/logo-landscape.png"
               alt="Milkshop"
-              className="h-10 w-auto max-h-12 object-contain object-left sm:h-11 block transition-transform duration-200 group-hover:scale-[1.02]"
+              style={{
+                height: scrolled ? "44px" : "52px",
+                width: "auto",
+                objectFit: "contain",
+                display: "block",
+                transition: "height 0.35s cubic-bezier(0.16,1,0.3,1)",
+              }}
             />
           </Link>
 
-          {/* ── DESKTOP NAV ── */}
-          <ul className="hidden md:flex items-center gap-1 flex-1 justify-center">
+          {/* ── DESKTOP LINKS — centered, larger ── */}
+          <ul
+            className="md:flex hidden"
+            style={{
+              display: "flex",
+              gap: "36px",
+              listStyle: "none",
+              margin: 0, padding: 0,
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+            }}
+          >
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className={`relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 ${
-                      isActive
-                        ? "text-[#97b64c] bg-[#e8f0dc]"
-                        : "text-[#5a5a5a] hover:text-[#97b64c] hover:bg-[#e8f0dc]"
-                    }`}
-                    style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+                    className={`nav-link-v2 ${isActive ? "active" : ""}`}
                   >
                     {link.label}
-                    {isActive && (
-                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#97b64c]" />
-                    )}
                   </Link>
                 </li>
               );
             })}
           </ul>
 
-          {/* ── FRANCHISE CTA BUTTON (desktop) ── */}
-          <div className="hidden md:flex items-center shrink-0">
+          {/* ── RIGHT SIDE ── */}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
+
+            {/* Desktop CTA */}
             <Link
               to="/franchise#inquiry"
-              className={`relative group flex items-center gap-2 font-bold text-sm px-5 py-2.5 rounded-full transition-all duration-200 active:scale-95 ${
-                isFranchise
-                  ? "bg-[#CF8E18] text-white shadow-md"
-                  : "bg-[#E8A020] hover:bg-[#CF8E18] text-white shadow-md hover:shadow-lg"
-              }`}
-              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+              className="cta-btn-v2 md:inline-flex hidden"
             >
-              {/* Ping ring — only when NOT already on franchise page */}
-              {!isFranchise && (
-                <span className="absolute -inset-0.5 rounded-full bg-[#E8A020]/40 animate-ping opacity-0 group-hover:opacity-100 pointer-events-none" />
-              )}
-              <span className="relative">Franchise Now</span>
-              <span className="relative text-yellow-200">→</span>
+              <span>Franchise Now</span>
+              <span style={{ fontSize: "0.8rem", opacity: 0.9, fontWeight: 900 }}>→</span>
             </Link>
+
+            {/* ── Hamburger ── */}
+            <button
+              onClick={() => setMenuOpen(v => !v)}
+              aria-label="Toggle menu"
+              className="md:hidden"
+              style={{
+                width: "44px", height: "44px",
+                border: `1.5px solid ${menuOpen ? "rgba(151,182,76,0.5)" : "rgba(151,182,76,0.25)"}`,
+                cursor: "pointer",
+                background: menuOpen
+                  ? "linear-gradient(135deg, rgba(151,182,76,0.15), rgba(98,132,11,0.08))"
+                  : "rgba(255,255,255,0.5)",
+                borderRadius: "14px",
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center", gap: "5px",
+                transition: "all 0.25s ease",
+                flexShrink: 0,
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              <span className="hb-line" style={{
+                transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : "none",
+              }} />
+              <span className="hb-line" style={{ opacity: menuOpen ? 0 : 1, width: menuOpen ? "22px" : "15px" }} />
+              <span className="hb-line" style={{
+                transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : "none",
+              }} />
+            </button>
           </div>
 
-          {/* ── MOBILE HAMBURGER ── */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden flex flex-col justify-center items-center gap-1.5 w-10 h-10 rounded-full hover:bg-[#e8f0dc] transition-colors shrink-0"
-            aria-label="Toggle menu"
-          >
-            <span className={`block w-5 h-0.5 bg-[#1e1e1e] transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
-            <span className={`block w-5 h-0.5 bg-[#1e1e1e] transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
-            <span className={`block w-5 h-0.5 bg-[#1e1e1e] transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
-          </button>
-        </div>
+          {/* ── MOBILE DROPDOWN ── */}
+          {menuOpen && (
+            <div
+              className="mobile-menu-v2 md:hidden"
+              style={{
+                animation: "mobileMenuIn 0.32s cubic-bezier(0.16,1,0.3,1) forwards",
+                position: "absolute",
+                top: "calc(100% + 10px)",
+                left: "16px", right: "16px",
+                padding: "10px",
+                zIndex: 100,
+                background: "rgba(255,255,255,0.96)",
+                backdropFilter: "blur(28px) saturate(180%)",
+                WebkitBackdropFilter: "blur(28px) saturate(180%)",
+                border: "1px solid rgba(151,182,76,0.28)",
+                borderRadius: "24px",
+                boxShadow: "0 24px 60px rgba(0,0,0,0.12), 0 4px 16px rgba(98,132,11,0.08)",
+                overflow: "hidden",
+              }}
+            >
+              {/* Green top accent line inside mobile menu */}
+              <div style={{
+                height: "2px",
+                background: "linear-gradient(90deg, #62840b, #97b64c, #b7cd7f)",
+                borderRadius: "2px",
+                marginBottom: "8px",
+              }} />
 
-        {/* ── MOBILE MENU ── */}
-        <div
-          className={`md:hidden overflow-hidden transition-all duration-300 ${
-            menuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-          }`}
-        >
-          <div className="bg-white border-t border-[#d0e0b0] px-6 py-4 flex flex-col gap-1">
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                {navLinks.map((link) => {
+                  const isActive = location.pathname === link.path;
+                  return (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      className={`mobile-link-v2 ${isActive ? "active" : ""}`}
+                    >
+                      {link.label}
+                      {isActive && (
+                        <span style={{
+                          width: "7px", height: "7px", borderRadius: "50%",
+                          background: "linear-gradient(135deg, #97b64c, #62840b)",
+                          display: "block", flexShrink: 0,
+                          boxShadow: "0 0 8px rgba(151,182,76,0.6)",
+                        }} />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
 
-            {/* Regular links */}
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.path;
-              return (
+              {/* Mobile CTA */}
+              <div style={{
+                padding: "10px 0 2px",
+                marginTop: "8px",
+                borderTop: "1px solid rgba(151,182,76,0.15)",
+              }}>
                 <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-200 ${
-                    isActive
-                      ? "bg-[#e8f0dc] text-[#97b64c]"
-                      : "text-[#5a5a5a] hover:bg-[#e8f0dc] hover:text-[#97b64c]"
-                  }`}
-                  style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+                  to="/franchise#inquiry"
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    background: "linear-gradient(135deg, #E8A020 0%, #CF8E18 100%)",
+                    color: "#fff", textDecoration: "none",
+                    padding: "18px 22px", borderRadius: "18px",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontWeight: 800, fontSize: "0.92rem",
+                    boxShadow: "0 8px 24px rgba(232,160,32,0.38), inset 0 1px 0 rgba(255,255,255,0.2)",
+                    letterSpacing: "0.01em",
+                  }}
                 >
-                  {link.label}
+                  <div>
+                    <div>Franchise Now →</div>
+                    <div style={{
+                      fontSize: "0.74rem", fontWeight: 500,
+                      color: "rgba(255,255,255,0.78)", marginTop: "4px",
+                    }}>
+                      ROI in 12–18 months · Full support
+                    </div>
+                  </div>
+                  <span style={{ fontSize: "1.8rem", lineHeight: 1 }}>🧋</span>
                 </Link>
-              );
-            })}
-
-            {/* Franchise CTA — highlighted in mobile menu */}
-            <div className="mt-3 pt-3 border-t border-[#d0e0b0]">
-              <Link
-                to="/franchise#inquiry"
-                className="flex items-center justify-between bg-[#E8A020] hover:bg-[#CF8E18] text-white font-bold text-sm px-5 py-3.5 rounded-2xl transition-all duration-200 active:scale-95 shadow-md"
-                style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
-              >
-                <div className="flex flex-col gap-0.5">
-                  <span>Franchise Now →</span>
-                  <span className="text-yellow-200 text-[10px] font-medium">
-                    ROI in 12–18 months · Full support
-                  </span>
-                </div>
-                <span className="text-2xl">🧋</span>
-              </Link>
+              </div>
             </div>
-          </div>
-        </div>
-      </nav>
+          )}
+        </nav>
+      </header>
     </>
   );
 }

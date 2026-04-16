@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-import FranchiseCTAFloating from './components/FranchiseCTAFloating'
 import Home from './pages/Home'
 import Products from './pages/Products'
 import About from './pages/About'
@@ -126,8 +125,6 @@ function AppRoutes() {
               </Routes>
             </div>
             <Footer />
-            {/* ── FLOATING FRANCHISE CTA — visible on all public pages ── */}
-            <FranchiseCTAFloating />
           </>
         }
       />

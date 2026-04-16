@@ -1,570 +1,1316 @@
-import { useEffect, useState, useRef } from "react"
 import { Link } from "react-router-dom"
+import { useEffect, useRef, useState } from "react"
 import Hero from "../components/Hero"
 
-// ─── DATA ─────────────────────────────────────────────────────────────────────
-
-const stats = [
-  { value: "15+",    label: "Active Branches",  detail: "Across the Philippines" },
-  { value: "2015",   label: "Est. in Taiwan",   detail: "Decade-proven formula"  },
-  { value: "12–18",  label: "Months to ROI",    detail: "Based on franchisee avg." },
-  { value: "₱800K+", label: "Entry Capital",    detail: "Full support included"  },
-];
-
-const pillars = [
-  {
-    tag: "Market Position",
-    headline: "First Mover.\nZero Direct\nCompetition.",
-    body: "Milkshop owns the Taiwanese Popping Boba category in the Philippines — unchallenged. You're not entering a crowded market. You're defining one.",
-    accent: "#97B64C",
-    bg: "#F4F8EC",
-    border: "#D6E8A8",
-  },
-  {
-    tag: "Returns",
-    headline: "ROI in\n12–18 Months.\nConsistently.",
-    body: "Not a projection — a pattern. Across 15+ franchisees, capital recovery within 12 to 18 months of opening day. Every single time.",
-    accent: "#E8A020",
-    bg: "#FDF6E8",
-    border: "#F5D98A",
-  },
-  {
-    tag: "Operations",
-    headline: "No F&B\nExperience\nRequired.",
-    body: "Training, supply chain, hiring playbooks, and ongoing ops support are fully built in. You own the business. We make it run.",
-    accent: "#97B64C",
-    bg: "#F4F8EC",
-    border: "#D6E8A8",
-  },
-  {
-    tag: "Product",
-    headline: "Taiwan Recipe.\nCustomers\nReturn Weekly.",
-    body: "Real milk, proprietary popping boba, zero shortcuts. A product that builds daily habits — not one-time visits.",
-    accent: "#E8A020",
-    bg: "#FDF6E8",
-    border: "#F5D98A",
-  },
-];
-
-const testimonials = [
-  {
-    name: "Maria Santos",
-    location: "SM Mall of Asia",
-    result: "ROI: 13 months",
-    quote: "The support from the team is unmatched. The brand sells itself — I just had to show up and run it well.",
-    initials: "MS",
-    accentColor: "#97B64C",
-  },
-  {
-    name: "Carlo Reyes",
-    location: "Cebu City",
-    result: "ROI: 14 months",
-    quote: "Within 14 months I fully recovered my investment. Consistent product, loyal customers — they come back every single day.",
-    initials: "CR",
-    accentColor: "#E8A020",
-  },
-  {
-    name: "Jennelyn Cruz",
-    location: "BGC Taguig",
-    result: "2nd branch incoming",
-    quote: "Zero food industry background. Milkshop's program gave me everything I needed. Now I'm opening branch number two.",
-    initials: "JC",
-    accentColor: "#97B64C",
-  },
-];
-
-// ─── STAT BAR ─────────────────────────────────────────────────────────────────
-
-function StatBar() {
-  return (
-    <section className="bg-white border-y border-[#E8E8E0]">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-[#E8E8E0]">
-          {stats.map((s, i) => (
-            <div key={i} className="px-8 py-10 flex flex-col gap-1.5 group hover:bg-[#FAFAF5] transition-colors duration-200">
-              <span
-                className="font-black leading-none tracking-tight"
-                style={{
-                  fontFamily: "'DM Mono', monospace",
-                  fontSize: "clamp(2rem, 3.5vw, 2.8rem)",
-                  color: i % 2 === 0 ? "#97B64C" : "#E8A020",
-                }}
-              >
-                {s.value}
-              </span>
-              <span
-                className="text-[10px] font-bold tracking-[0.22em] uppercase text-[#1E1E1E]"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              >
-                {s.label}
-              </span>
-              <span className="text-[#9a9a8a] text-[11px]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                {s.detail}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+// ─── DESIGN TOKENS ────────────────────────────────────────────────────────────
+const T = {
+  green:      "#97b64c",
+  greenDark:  "#62840b",
+  greenLight: "#b7cd7f",
+  greenFade:  "#eef5e2",
+  amber:      "#E8A020",
+  surface:    "#f7f9f3",
+  border: "rgba(151,182,76,0.18)",
+  borderDark: "#c8dba0",
+  ink:        "#1e1e1e",
+  muted:      "#6b7280",
+  white:      "#ffffff",
+  bg: "#f9fbf4",
 }
 
-// ─── WHY NOW ──────────────────────────────────────────────────────────────────
+
+
+
+// ─── GLOBAL STYLES ────────────────────────────────────────────────────────────
+const globalStyles = `
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes sceneSwitch {
+    from { opacity: 0; transform: translateY(12px) scale(0.992); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes popIn {
+    0%   { transform: scale(0.85); opacity: 0; }
+    60%  { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  @keyframes floatDrift {
+    0%   { transform: translate3d(0, 0, 0); }
+    50%  { transform: translate3d(0, -10px, 0); }
+    100% { transform: translate3d(0, 0, 0); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .reveal { opacity: 0; }
+  .reveal.visible {
+    animation: fadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .reveal-fade { opacity: 0; }
+  .reveal-fade.visible {
+    animation: fadeIn 0.6s ease forwards;
+  }
+  .card-hover {
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1),
+                box-shadow 0.3s cubic-bezier(0.16,1,0.3,1),
+                border-color 0.3s ease,
+                background 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px rgba(97,132,11,0.12), 0 4px 16px rgba(0,0,0,0.06);
+    border-color: ${T.greenLight} !important;
+    background: ${T.greenFade} !important;
+  }
+  .row-hover {
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1),
+                box-shadow 0.3s ease,
+                border-color 0.3s ease,
+                background 0.3s ease;
+  }
+  .row-hover:hover {
+    transform: translateX(10px);
+    box-shadow: 0 8px 32px rgba(97,132,11,0.10);
+    border-color: ${T.greenLight} !important;
+    background: ${T.greenFade} !important;
+  }
+  .btn-primary {
+    transition: transform 0.25s cubic-bezier(0.16,1,0.3,1),
+                box-shadow 0.25s ease,
+                background 0.2s ease;
+  }
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px ${T.green}60 !important;
+    background: ${T.greenDark} !important;
+  }
+  .btn-ghost {
+    transition: transform 0.25s cubic-bezier(0.16,1,0.3,1),
+                border-color 0.2s ease,
+                color 0.2s ease;
+  }
+  .btn-ghost:hover {
+    transform: translateY(-3px);
+    border-color: ${T.green} !important;
+    color: ${T.greenDark} !important;
+  }
+  .btn-outline-light {
+    transition: transform 0.25s cubic-bezier(0.16,1,0.3,1),
+                background 0.2s ease,
+                border-color 0.2s ease;
+  }
+  .btn-outline-light:hover {
+    transform: translateY(-3px);
+    background: rgba(255,255,255,0.1) !important;
+    border-color: rgba(255,255,255,0.7) !important;
+  }
+  .stat-block {
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+  }
+  .stat-block:hover {
+    transform: translateY(-4px);
+  }
+  .dot-btn {
+    transition: width 0.22s ease, background 0.22s ease, transform 0.22s ease;
+  }
+  .dot-btn:hover { transform: scaleY(1.3); }
+  .panel-switch {
+    animation: sceneSwitch 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .ambient-float {
+    animation: floatDrift 9s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .reveal.visible, .reveal-fade, .reveal-fade.visible, .panel-switch, .ambient-float {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+    .card-hover, .row-hover, .btn-primary, .btn-ghost, .btn-outline-light, .dot-btn, .stat-block {
+      transition: none !important;
+    }
+  }
+`
+
+const whySectionStyles = `
+  @keyframes countUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+ 
+  @keyframes drawLine {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+ 
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+ 
+  @keyframes pulseRing {
+    0%   { box-shadow: 0 0 0 0 rgba(151,182,76,0.35); }
+    70%  { box-shadow: 0 0 0 14px rgba(151,182,76,0); }
+    100% { box-shadow: 0 0 0 0 rgba(151,182,76,0); }
+  }
+ 
+  @keyframes floatGlow {
+    0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
+    50%       { transform: translateY(-18px) scale(1.06); opacity: 1; }
+  }
+ 
+  .why-reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .why-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+ 
+  .why-row {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+ 
+  .why-row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #97b64c;
+    border-radius: 999px;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+  }
+ 
+  .why-row.active::before,
+  .why-row:hover::before {
+    transform: scaleY(1);
+  }
+ 
+  .why-row.active {
+    background: linear-gradient(90deg, rgba(151,182,76,0.07) 0%, transparent 100%);
+    border-radius: 0 14px 14px 0;
+  }
+ 
+  .stat-block {
+    animation: countUp 0.6s ease forwards;
+  }
+ 
+  .glow-orb {
+    animation: floatGlow 6s ease-in-out infinite;
+  }
+ 
+  .pulse-dot {
+    animation: pulseRing 2.4s ease-in-out infinite;
+  }
+ 
+  .line-draw {
+    transform-origin: left;
+    animation: drawLine 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
+  }
+`
+
+// ─── REVEAL HOOK ──────────────────────────────────────────────────────────────
+function useReveal() {
+  const ref = useRef(null)
+  useEffect(() => {
+    const el = ref.current; if (!el) return
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { el.classList.add("visible"); obs.disconnect() } },
+      { threshold: 0.08 }
+    )
+    obs.observe(el); return () => obs.disconnect()
+  }, [])
+  return ref
+}
+
+function Reveal({ children, delay = 0, fade = false, style = {}, className = "" }) {
+  const ref = useReveal()
+  return (
+    <div
+      ref={ref}
+      className={`${fade ? "reveal-fade" : "reveal"} ${className}`}
+      style={{ animationDelay: `${delay}ms`, ...style }}
+    >
+      {children}
+    </div>
+  )
+}
+
+function useCountUp(target, duration = 1600, active = false) {
+  const [count, setCount] = useState(0)
+ 
+  useEffect(() => {
+    if (!active) return
+    let start = 0
+    const steps = 60
+    const increment = target / steps
+    const interval = duration / steps
+ 
+    const timer = setInterval(() => {
+      start += increment
+      if (start >= target) {
+        setCount(target)
+        clearInterval(timer)
+      } else {
+        setCount(Math.floor(start))
+      }
+    }, interval)
+ 
+    return () => clearInterval(timer)
+  }, [target, active])
+ 
+  return count
+}
+ 
+function AnimatedStat({ value, suffix, label, active }) {
+  const num = useCountUp(parseInt(value), 1400, active)
+ 
+  return (
+    <div className="stat-block" key={active ? "active" : "idle"}>
+      <div
+        style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "clamp(5rem, 10vw, 8.5rem)",
+          fontWeight: 900,
+          lineHeight: 0.85,
+          letterSpacing: "-0.05em",
+          color: T.ink,
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 4,
+        }}
+      >
+        <span>{num}</span>
+        <span style={{ color: T.green, fontSize: "55%", marginTop: "0.15em" }}>
+          {suffix}
+        </span>
+      </div>
+      <p
+        style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "0.8rem",
+          fontWeight: 600,
+          letterSpacing: "0.14em",
+          textTransform: "uppercase",
+          color: T.muted,
+          marginTop: 10,
+        }}
+      >
+        {label}
+      </p>
+    </div>
+  )
+}
+
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const whyProps = [
+  {
+    icon: "📈",
+    title: "Quick ROI",
+    stat: "24",
+    statSuffix: "mo",
+    statLabel: "Average Payback Period",
+    body: "Based on actual franchisee data — not projections. Most partners recover full capital within their second year of operations.",
+  },
+  {
+    icon: "⚙️",
+    title: "Easy to Manage",
+    stat: "98",
+    statSuffix: "%",
+    statLabel: "Franchisee Satisfaction Rate",
+    body: "Streamlined operations, centralized supply chain, and a proven playbook mean you spend less time managing and more time growing.",
+  },
+  {
+    icon: "🤝",
+    title: "End-to-End Support",
+    stat: "50",
+    statSuffix: "+",
+    statLabel: "Active Franchise Branches",
+    body: "From site selection to grand opening and beyond — our team is with you at every stage of your franchise journey.",
+  },
+]
+
+const franchiseTestimonials = [
+  { quote: "I had zero F&B background, but the Milkshop team gave me a clear system and stayed with me from setup to opening.", name: "Carlo M.", location: "Quezon City", result: "ROI in 14 months" },
+  { quote: "Daily operations became easy because training and supply support were already structured. We are now preparing our second branch.", name: "Alyssa R.", location: "Cebu City", result: "Opening 2nd branch" },
+  { quote: "The brand pull is strong, and the team responds fast whenever we need help. It feels like a true partnership.", name: "John P.", location: "Davao City", result: "Consistent monthly growth" },
+]
+
+const stats = [
+  { value: "12–18", unit: "mo", label: "ROI Payback",    desc: "Avg. across all branches" },
+  { value: "15",    unit: "+",  label: "Active Branches", desc: "Nationwide & growing" },
+  { value: "2015",  unit: "",   label: "Est. Year",       desc: "A decade of trust" },
+  { value: "100",   unit: "%",  label: "Ops Support",     desc: "We grow together" },
+]
+
+// ─── EYEBROW ──────────────────────────────────────────────────────────────────
+function Eyebrow({ text, light = false, large = false }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+      <span style={{
+        width: large ? 36 : 28, height: 1.5,
+        backgroundColor: light ? T.greenLight : T.green,
+        display: "block", flexShrink: 0,
+      }} />
+      <span style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: large ? 12 : 9, fontWeight: 800,
+        letterSpacing: large ? "0.24em" : "0.3em", textTransform: "uppercase",
+        color: light ? T.greenLight : T.green,
+        lineHeight: 1.2,
+      }}>{text}</span>
+    </div>
+  )
+}
+
+// ─── DIVIDER ──────────────────────────────────────────────────────────────────
+function SectionDivider({ flip = false }) {
+  return (
+    <div style={{
+      width: "100%", height: 1,
+      background: flip
+        ? `linear-gradient(to right, transparent, rgba(255,255,255,0.06), transparent)`
+        : `linear-gradient(to right, transparent, ${T.border}, transparent)`,
+    }} />
+  )
+}
 
 function WhySection() {
-  return (
-    <section className="bg-[#FAFAF7] py-24 lg:py-32 overflow-hidden relative">
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [statKey, setStatKey] = useState(0)
+  const sectionRef = useRef(null)
+  const whyLockRef = useRef(false)
+  const whyWheelDeltaRef = useRef(0)
+  const [inView, setInView] = useState(false)
+ 
+  const active = whyProps[activeIndex]
+ 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setInView(true) },
+      { threshold: 0.15 }
+    )
+    if (sectionRef.current) observer.observe(sectionRef.current)
+    return () => observer.disconnect()
+  }, [])
+ 
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
 
-      {/* Subtle dot texture */}
-      <div
-        className="absolute inset-0 pointer-events-none"
+    const THRESHOLD = 95
+
+    const isSectionCentered = () => {
+      const rect = section.getBoundingClientRect()
+      return rect.top <= window.innerHeight * 0.25 && rect.bottom >= window.innerHeight * 0.75
+    }
+
+    const syncLockState = () => {
+      if (!isSectionCentered()) {
+        whyLockRef.current = false
+        whyWheelDeltaRef.current = 0
+      }
+    }
+
+    const onWheel = (e) => {
+      const isTryingToLeaveForward = activeIndex === whyProps.length - 1 && e.deltaY > 0
+      const isTryingToLeaveBackward = activeIndex === 0 && e.deltaY < 0
+      if (isTryingToLeaveForward || isTryingToLeaveBackward) {
+        whyLockRef.current = false
+        whyWheelDeltaRef.current = 0
+        return
+      }
+
+      if (!whyLockRef.current) {
+        if (!isSectionCentered()) return
+        whyLockRef.current = true
+      }
+
+      e.preventDefault()
+      whyWheelDeltaRef.current += e.deltaY
+
+      if (Math.abs(whyWheelDeltaRef.current) < THRESHOLD) return
+
+      const direction = whyWheelDeltaRef.current > 0 ? 1 : -1
+      whyWheelDeltaRef.current = 0
+
+      setActiveIndex((prev) => {
+        const next = prev + direction
+        if (next < 0) {
+          whyLockRef.current = false
+          return 0
+        }
+        if (next >= whyProps.length) {
+          whyLockRef.current = false
+          return whyProps.length - 1
+        }
+        return next
+      })
+      setStatKey((k) => k + 1)
+    }
+
+    window.addEventListener("wheel", onWheel, { passive: false })
+    window.addEventListener("scroll", syncLockState, { passive: true })
+    window.addEventListener("resize", syncLockState)
+    return () => {
+      window.removeEventListener("wheel", onWheel)
+      window.removeEventListener("scroll", syncLockState)
+      window.removeEventListener("resize", syncLockState)
+    }
+  }, [activeIndex])
+ 
+  const handleRowClick = (i) => {
+    setActiveIndex(i)
+    setStatKey((k) => k + 1)
+  }
+ 
+  return (
+    <>
+      <style>{whySectionStyles}</style>
+ 
+      <section
+        ref={sectionRef}
         style={{
-          backgroundImage: "radial-gradient(circle, #97B64C18 1px, transparent 1px)",
-          backgroundSize: "36px 36px",
-          maskImage: "radial-gradient(ellipse at 80% 50%, black 0%, transparent 60%)",
-          WebkitMaskImage: "radial-gradient(ellipse at 80% 50%, black 0%, transparent 60%)",
+          backgroundColor: T.white,
+          padding: "120px 0 110px",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Background texture */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(ellipse at 80% 50%, rgba(183,205,127,0.13) 0%, transparent 60%), radial-gradient(ellipse at 10% 80%, rgba(151,182,76,0.07) 0%, transparent 50%)",
+            pointerEvents: "none",
+          }}
+        />
+ 
+        {/* Floating orbs */}
+        <div
+          aria-hidden
+          className="glow-orb"
+          style={{
+            position: "absolute",
+            right: "8%",
+            top: "15%",
+            width: 320,
+            height: 320,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(183,205,127,0.22) 0%, transparent 70%)",
+            filter: "blur(40px)",
+            pointerEvents: "none",
+          }}
+        />
+ 
+        <div
+          style={{
+            maxWidth: 1160,
+            margin: "0 auto",
+            padding: "0 48px",
+            display: "grid",
+            gridTemplateColumns: "1.1fr 1fr",
+            gap: 80,
+            alignItems: "center",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+ 
+          {/* LEFT: Cinematic Stat Panel */}
+          <div
+            className={`why-reveal ${inView ? "visible" : ""}`}
+            style={{ transitionDelay: "0.1s" }}
+          >
+            {/* Eyebrow */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                marginBottom: 20,
+              }}
+            >
+              <div
+                className="line-draw"
+                style={{
+                  height: 2,
+                  width: 32,
+                  background: T.green,
+                  borderRadius: 2,
+                  display: "inline-block",
+                }}
+              />
+              <span
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "0.72rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: T.darkGreen,
+                }}
+              >
+                Why Franchise With Us
+              </span>
+            </div>
+ 
+            {/* Headline */}
+            <h2
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "clamp(2.6rem, 4.8vw, 4.2rem)",
+                fontWeight: 900,
+                color: T.ink,
+                lineHeight: 0.95,
+                letterSpacing: "-0.04em",
+                marginBottom: 20,
+              }}
+            >
+              Built for<br />
+              Franchisee{" "}
+              <span style={{ color: T.green }}>Success.</span>
+            </h2>
+ 
+            <p
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "1rem",
+                lineHeight: 1.8,
+                color: T.muted,
+                marginBottom: 52,
+                maxWidth: 380,
+              }}
+            >
+              A simple, structured system that removes complexity and lets you focus on growth.
+            </p>
+ 
+            {/* Animated Stat */}
+            <div
+              style={{
+                marginBottom: 52,
+                paddingBottom: 40,
+                borderBottom: `1px solid ${T.border}`,
+              }}
+            >
+              <AnimatedStat
+                key={statKey}
+                value={active.stat}
+                suffix={active.statSuffix}
+                label={active.statLabel}
+                active={inView}
+              />
+            </div>
+ 
+            {/* Stacked Rows */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              {whyProps.map((item, i) => {
+                const isActive = i === activeIndex
+                return (
+                  <div
+                    key={item.title}
+                    className={`why-row ${isActive ? "active" : ""}`}
+                    onClick={() => handleRowClick(i)}
+                    style={{ padding: "18px 20px 18px 24px" }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <span style={{ fontSize: "1.15rem" }}>{item.icon}</span>
+                        <span
+                          style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: "0.95rem",
+                            fontWeight: 700,
+                            color: isActive ? T.ink : T.muted,
+                            letterSpacing: "-0.01em",
+                            transition: "color 0.3s ease",
+                          }}
+                        >
+                          {item.title}
+                        </span>
+                      </div>
+ 
+                      <div
+                        className={isActive ? "pulse-dot" : ""}
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: 999,
+                          background: isActive ? T.green : "#d9e2c6",
+                          transition: "background 0.3s ease",
+                        }}
+                      />
+                    </div>
+ 
+                    {/* Expandable body */}
+                    <div
+                      style={{
+                        maxHeight: isActive ? 80 : 0,
+                        overflow: "hidden",
+                        transition: "max-height 0.45s cubic-bezier(0.16,1,0.3,1)",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: "0.875rem",
+                          lineHeight: 1.75,
+                          color: T.muted,
+                          marginTop: 8,
+                          paddingLeft: 28,
+                        }}
+                      >
+                        {item.body}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+ 
+          {/* RIGHT: Visual Feature Card */}
+          <div
+            className={`why-reveal ${inView ? "visible" : ""}`}
+            style={{ transitionDelay: "0.28s" }}
+          >
+            <div
+              style={{
+                position: "relative",
+                borderRadius: 32,
+                overflow: "hidden",
+                background: "linear-gradient(145deg, #f4f9ea 0%, #ffffff 60%, #eef5d8 100%)",
+                border: `1px solid ${T.border}`,
+                boxShadow: "0 40px 100px rgba(98,132,11,0.1), 0 8px 24px rgba(0,0,0,0.04)",
+                padding: "56px 52px 48px",
+                minHeight: 500,
+              }}
+            >
+              {/* Decorative corner accent */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: -60,
+                  right: -60,
+                  width: 200,
+                  height: 200,
+                  borderRadius: "50%",
+                  background: "rgba(151,182,76,0.12)",
+                  filter: "blur(50px)",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: -40,
+                  left: -40,
+                  width: 160,
+                  height: 160,
+                  borderRadius: "50%",
+                  background: "rgba(183,205,127,0.18)",
+                  filter: "blur(40px)",
+                }}
+              />
+ 
+              {/* Inner content — keyed to trigger re-animation */}
+              <div
+                key={activeIndex}
+                style={{
+                  position: "relative",
+                  zIndex: 2,
+                  animation: "fadeSlideUp 0.5s ease forwards",
+                }}
+              >
+                {/* Counter badge */}
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    background: "rgba(151,182,76,0.1)",
+                    border: `1px solid rgba(151,182,76,0.3)`,
+                    borderRadius: 999,
+                    padding: "6px 14px",
+                    marginBottom: 32,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      letterSpacing: "0.15em",
+                      color: T.darkGreen,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    0{activeIndex + 1} / 0{whyProps.length}
+                  </span>
+                </div>
+ 
+                {/* Icon circle */}
+                <div
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: "50%",
+                    background: `linear-gradient(135deg, ${T.green}, ${T.lightGreen})`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "1.6rem",
+                    marginBottom: 24,
+                    boxShadow: "0 12px 32px rgba(151,182,76,0.3)",
+                  }}
+                >
+                  {active.icon}
+                </div>
+ 
+                <h3
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "clamp(1.8rem, 3vw, 2.4rem)",
+                    fontWeight: 900,
+                    color: T.ink,
+                    letterSpacing: "-0.03em",
+                    marginBottom: 16,
+                    lineHeight: 1.05,
+                  }}
+                >
+                  {active.title}
+                </h3>
+ 
+                <p
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "1rem",
+                    lineHeight: 1.9,
+                    color: T.muted,
+                    maxWidth: 380,
+                    marginBottom: 40,
+                  }}
+                >
+                  {active.body}
+                </p>
+ 
+                {/* Progress bar */}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 6,
+                    alignItems: "center",
+                  }}
+                >
+                  {whyProps.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleRowClick(i)}
+                      style={{
+                        all: "unset",
+                        cursor: "pointer",
+                        height: 4,
+                        width: i === activeIndex ? 40 : 10,
+                        borderRadius: 999,
+                        background: i === activeIndex ? T.green : "#d7e2c7",
+                        transition: "all 0.35s ease",
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+ 
+        </div>
+      </section>
+    </>
+  )
+}
+
+function InvestorProofSection() {
+  return (
+    <section
+      style={{
+        background: "linear-gradient(180deg, #f4f7ed 0%, #eef3e3 100%)",
+        padding: "90px 0",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* ambient glow */}
+      <div
+        className="ambient-float"
+        style={{
+          position: "absolute",
+          top: "-10%",
+          left: "-10%",
+          width: 400,
+          height: 400,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(151,182,76,0.18), transparent 70%)",
+          filter: "blur(40px)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: "-15%",
+          right: "-10%",
+          width: 350,
+          height: 350,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(98,132,11,0.2), transparent 70%)",
+          filter: "blur(50px)",
         }}
       />
 
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-16 z-10">
+      <div
+        style={{
+          maxWidth: 1080,
+          margin: "0 auto",
+          padding: "0 40px",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        {/* HEADER */}
+        <Reveal>
+          <div style={{ marginBottom: 50 }}>
+            <Eyebrow text="Investor Proof" />
 
-        {/* Section header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-px w-8 bg-[#97B64C]" />
-              <span
-                className="text-[10px] font-bold tracking-[0.28em] uppercase text-[#97B64C]"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              >
-                The Opportunity
-              </span>
-            </div>
             <h2
-              className="font-black text-[#1E1E1E] leading-[0.93] tracking-tight"
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: "clamp(2.8rem, 5.5vw, 5rem)",
+                fontSize: "clamp(2rem, 3vw, 2.6rem)",
+                fontWeight: 900,
+                color: "#1e1e1e",
+                letterSpacing: "-0.03em",
+                margin: 0,
               }}
             >
-              Why Milkshop.<br />
-              <span style={{ color: "#97B64C" }}>Why Now.</span>
+              Built to Perform.{" "}
+              <span style={{ color: "#62840b" }}>Backed by Numbers.</span>
             </h2>
           </div>
-          <p
-            className="text-[#6b6b5a] text-base max-w-sm leading-relaxed lg:text-right"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
+        </Reveal>
+
+        {/* STATS — compact horizontal ticker style */}
+        <div
+          style={{
+            borderRadius: 22,
+            padding: "10px",
+            background: "linear-gradient(135deg, rgba(255,255,255,0.72), rgba(245,250,235,0.86))",
+            border: "1px solid rgba(151,182,76,0.26)",
+            boxShadow: "0 12px 28px rgba(98,132,11,0.08)",
+            overflowX: "auto",
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, minmax(180px, 1fr))",
+              gap: 10,
+              minWidth: 760,
+            }}
           >
-            Four reasons high-net-worth investors are choosing Milkshop over every other F&B franchise in the market today.
-          </p>
-        </div>
+            {stats.map((s, i) => (
+              <Reveal key={s.label} delay={i * 80}>
+                <div
+                  className="stat-card"
+                  style={{
+                    padding: "14px 14px 12px",
+                    borderRadius: 14,
+                    background: "rgba(255,255,255,0.82)",
+                    border: "1px solid rgba(151,182,76,0.2)",
+                    transition: "all 260ms cubic-bezier(0.22, 1, 0.36, 1)",
+                    cursor: "default",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-4px)"
+                    e.currentTarget.style.boxShadow = "0 14px 28px rgba(98,132,11,0.16)"
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)"
+                    e.currentTarget.style.boxShadow = "none"
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: 2,
+                      background: "linear-gradient(90deg, #97b64c, #62840b)",
+                      opacity: 0.85,
+                    }}
+                  />
 
-        {/* Pillar grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {pillars.map((p, i) => (
-            <div
-              key={i}
-              className="group relative rounded-2xl p-8 lg:p-10 border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 overflow-hidden"
-              style={{ backgroundColor: p.bg, borderColor: p.border }}
-            >
-              {/* Tag */}
-              <span
-                className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-[0.2em] uppercase px-3 py-1.5 rounded-full mb-6"
-                style={{
-                  backgroundColor: p.accent + "20",
-                  color: p.accent,
-                  border: `1px solid ${p.accent}40`,
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-              >
-                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: p.accent }} />
-                {p.tag}
-              </span>
+                  {/* LABEL */}
+                  <p
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.62rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.16em",
+                      textTransform: "uppercase",
+                      color: "#62840b",
+                      margin: "0 0 8px",
+                    }}
+                  >
+                    {s.label}
+                  </p>
 
-              {/* Headline */}
-              <h3
-                className="font-black text-[#1E1E1E] leading-tight tracking-tight mb-4 whitespace-pre-line"
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "clamp(1.5rem, 2.2vw, 2rem)",
-                }}
-              >
-                {p.headline}
-              </h3>
+                  {/* VALUE */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-end",
+                      gap: 3,
+                      marginBottom: 4,
+                    }}
+                  >
+                    <span
+                      className="stat-number"
+                      style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "clamp(1.75rem, 2.3vw, 2.25rem)",
+                        fontWeight: 900,
+                        color: "#1e1e1e",
+                        lineHeight: 0.95,
+                        letterSpacing: "-0.04em",
+                      }}
+                    >
+                      {s.value}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "0.92rem",
+                        fontWeight: 800,
+                        color: "#62840b",
+                        lineHeight: 1.1,
+                      }}
+                    >
+                      {s.unit}
+                    </span>
+                  </div>
 
-              {/* Divider */}
-              <div className="w-8 h-[2px] rounded-full mb-4" style={{ backgroundColor: p.accent }} />
-
-              {/* Body */}
-              <p className="text-[#5a5a4a] text-sm leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                {p.body}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Link to franchise */}
-        <div className="flex justify-center mt-12">
-          <Link
-            to="/franchise"
-            className="group inline-flex items-center gap-2 text-sm font-bold text-[#97B64C] hover:text-[#62840B] transition-colors duration-200"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            See the full investment breakdown
-            <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-          </Link>
+                  {/* DESC */}
+                  <p
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.72rem",
+                      color: "#6f7a5c",
+                      margin: 0,
+                      lineHeight: 1.45,
+                    }}
+                  >
+                    {s.desc}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </div>
+
     </section>
-  );
+  )
 }
 
 // ─── TESTIMONIALS ─────────────────────────────────────────────────────────────
-
-function TestimonialsSection() {
-  const [active, setActive] = useState(0);
-  const timerRef = useRef(null);
-
-  const go = (i) => {
-    setActive(i);
-    clearInterval(timerRef.current);
-    timerRef.current = setInterval(tick, 5500);
-  };
-
-  const tick = () => setActive(p => (p + 1) % testimonials.length);
+function FranchiseTestimonialsSection() {
+  const [active, setActive] = useState(0)
 
   useEffect(() => {
-    timerRef.current = setInterval(tick, 5500);
-    return () => clearInterval(timerRef.current);
-  }, []);
+    const t = setInterval(() => setActive(p => (p + 1) % franchiseTestimonials.length), 4500)
+    return () => clearInterval(t)
+  }, [])
 
-  const t = testimonials[active];
+  const item = franchiseTestimonials[active]
 
   return (
-    <section className="bg-white py-24 lg:py-32">
-      <div className="max-w-7xl mx-auto px-6 lg:px-16">
+    <section style={{
+      backgroundColor: T.surface,
+      padding: "120px 0 108px",
+      position: "relative", overflow: "hidden",
+    }}>
+      {/* Subtle top ring decoration */}
+      <div aria-hidden style={{
+        position: "absolute", left: "50%", top: -200,
+        transform: "translateX(-50%)",
+        width: 600, height: 600, borderRadius: "50%",
+        border: `1px solid ${T.border}`,
+        pointerEvents: "none",
+      }} />
+
+      <div style={{ maxWidth: 1160, margin: "0 auto", padding: "0 48px", position: "relative", zIndex: 1 }}>
 
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="h-px w-8 bg-[#E8A020]" />
-            <span
-              className="text-[10px] font-bold tracking-[0.28em] uppercase text-[#E8A020]"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
-            >
-              From Our Franchisees
-            </span>
-            <div className="h-px w-8 bg-[#E8A020]" />
-          </div>
-          <h2
-            className="font-black text-[#1E1E1E] leading-tight tracking-tight mb-3"
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "clamp(2.2rem, 4.5vw, 4rem)",
-            }}
-          >
-            Real People.<br />Real Returns.
-          </h2>
-          <p className="text-[#6b6b5a] text-base max-w-md mx-auto" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Entrepreneurs who took the leap — and haven't looked back.
+        <Reveal style={{ textAlign: "center", marginBottom: 56 }}>
+          <Eyebrow text="From Our Partners" large />
+          <h2 style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "clamp(2.4rem, 4.8vw, 4.2rem)",
+            fontWeight: 900, letterSpacing: "-0.04em",
+            lineHeight: 1.0, color: T.ink, margin: "0 0 18px",
+          }}>Real Stories. Real Success.</h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "clamp(1rem, 1.8vw, 1.15rem)",
+            lineHeight: 1.7, color: T.muted,
+            maxWidth: 540, margin: "0 auto",
+          }}>
+            Hear from the franchisees who took the leap and have not looked back since.
           </p>
-        </div>
+        </Reveal>
 
-        {/* Cards row — show all 3 on desktop, active on mobile */}
-        <div className="hidden lg:grid grid-cols-3 gap-5 mb-10">
-          {testimonials.map((item, i) => (
-            <div
-              key={i}
-              onClick={() => go(i)}
-              className="relative rounded-2xl p-8 border cursor-pointer transition-all duration-300"
-              style={{
-                backgroundColor: i === active ? "#F4F8EC" : "#FAFAF7",
-                borderColor: i === active ? "#97B64C" : "#E8E4DC",
-                boxShadow: i === active ? "0 8px 32px rgba(151,182,76,0.12)" : "none",
-                transform: i === active ? "translateY(-4px)" : "none",
-              }}
-            >
-              {/* Result pill */}
-              <div
-                className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-[0.2em] uppercase px-3 py-1.5 rounded-full mb-6"
-                style={{
-                  backgroundColor: item.accentColor + "18",
-                  color: item.accentColor,
-                  border: `1px solid ${item.accentColor}35`,
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-              >
-                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.accentColor }} />
-                {item.result}
-              </div>
+        {/* Testimonial card */}
+        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          <div style={{
+            position: "relative",
+            backgroundColor: T.white,
+            border: `1px solid ${T.border}`,
+            borderRadius: 28,
+            padding: "60px 64px 52px",
+            boxShadow: "0 24px 80px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04)",
+            minHeight: 280,
+            overflow: "hidden",
+          }}>
+            {/* Decorative quote mark */}
+            <div aria-hidden style={{
+              position: "absolute", top: 28, right: 44,
+              fontFamily: "Georgia, serif", fontSize: "8rem",
+              color: T.green, opacity: 0.07, lineHeight: 1,
+              userSelect: "none", pointerEvents: "none",
+            }}>"</div>
 
-              {/* Stars */}
-              <div className="flex gap-0.5 mb-4">
-                {[...Array(5)].map((_, si) => (
-                  <span key={si} className="text-[#E8A020] text-sm">★</span>
-                ))}
-              </div>
-
-              {/* Quote */}
-              <p
-                className="text-[#1E1E1E] text-sm leading-relaxed mb-6 italic"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              >
-                "{item.quote}"
-              </p>
-
-              {/* Author */}
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-black text-xs shrink-0"
-                  style={{
-                    backgroundColor: item.accentColor + "20",
-                    color: item.accentColor,
-                    fontFamily: "'DM Mono', monospace",
-                  }}
-                >
-                  {item.initials}
-                </div>
-                <div>
-                  <p className="font-bold text-[#1E1E1E] text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                    {item.name}
-                  </p>
-                  <p className="text-[#9a9a8a] text-xs" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                    Franchisee · {item.location}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Mobile: single active card */}
-        <div className="lg:hidden mb-8">
-          <div
-            key={active}
-            className="rounded-2xl p-8 border"
-            style={{
-              backgroundColor: "#F4F8EC",
-              borderColor: "#97B64C",
-              animation: "fadeUp 0.45s ease forwards",
-            }}
-          >
-            <div
-              className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-[0.2em] uppercase px-3 py-1.5 rounded-full mb-5"
-              style={{
-                backgroundColor: t.accentColor + "18",
-                color: t.accentColor,
-                border: `1px solid ${t.accentColor}35`,
-                fontFamily: "'DM Sans', sans-serif",
-              }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: t.accentColor }} />
-              {t.result}
-            </div>
-            <div className="flex gap-0.5 mb-4">
-              {[...Array(5)].map((_, si) => (
-                <span key={si} className="text-[#E8A020] text-sm">★</span>
+            {/* Stars */}
+            <div style={{ display: "flex", gap: 4, marginBottom: 28 }}>
+              {[...Array(5)].map((_, j) => (
+                <span key={j} style={{ color: T.amber, fontSize: "0.9rem" }}>★</span>
               ))}
             </div>
-            <p className="text-[#1E1E1E] text-base leading-relaxed mb-6 italic" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              "{t.quote}"
+
+            {/* Quote — animated on change */}
+            <p
+              key={active}
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "clamp(1.2rem, 2.2vw, 1.7rem)",
+                fontWeight: 600, lineHeight: 1.5,
+                color: "#1e2319", margin: "0 0 36px",
+                animation: "fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards",
+              }}
+            >
+              {item.quote}
             </p>
-            <div className="flex items-center gap-3">
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center font-black text-xs"
-                style={{ backgroundColor: t.accentColor + "20", color: t.accentColor, fontFamily: "'DM Mono', monospace" }}
-              >
-                {t.initials}
+
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{
+                  width: 46, height: 46, borderRadius: "50%",
+                  display: "grid", placeItems: "center",
+                  backgroundColor: T.greenFade,
+                  fontSize: "1.1rem",
+                }}>👨‍💼</div>
+                <div>
+                  <p style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontWeight: 800, fontSize: "1rem",
+                    color: T.ink, margin: 0,
+                  }}>{item.name}</p>
+                  <p style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.85rem", color: T.muted, margin: "3px 0 0",
+                  }}>Franchisee · {item.location}</p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-[#1E1E1E] text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>{t.name}</p>
-                <p className="text-[#9a9a8a] text-xs" style={{ fontFamily: "'DM Sans', sans-serif" }}>Franchisee · {t.location}</p>
-              </div>
+              <span style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.75rem", fontWeight: 700,
+                letterSpacing: "0.14em", textTransform: "uppercase",
+                color: T.green,
+                padding: "6px 14px",
+                border: `1px solid ${T.border}`,
+                borderRadius: 100,
+                backgroundColor: T.greenFade,
+              }}>{item.result}</span>
             </div>
           </div>
-        </div>
 
-        {/* Dots */}
-        <div className="flex justify-center gap-2 mb-10">
-          {testimonials.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => go(i)}
-              className="rounded-full transition-all duration-300"
+          {/* Dots */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 28 }}>
+            {franchiseTestimonials.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActive(i)}
+                className="dot-btn"
+                aria-label={`Show testimonial ${i + 1}`}
+                style={{
+                  width: i === active ? 28 : 8,
+                  height: 8, border: 0, borderRadius: 999, padding: 0, cursor: "pointer",
+                  backgroundColor: i === active ? T.green : T.borderDark,
+                }}
+              />
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 52 }}>
+            <Link
+              to="/franchise#inquiry"
+              className="btn-primary"
               style={{
-                width: i === active ? "32px" : "8px",
-                height: "8px",
-                backgroundColor: i === active ? "#97B64C" : "#D0E0B0",
+                fontFamily: "'DM Sans', sans-serif",
+                fontWeight: 700, fontSize: "0.88rem",
+                padding: "16px 40px", borderRadius: 100,
+                backgroundColor: T.green, color: T.white,
+                textDecoration: "none",
+                boxShadow: `0 8px 24px ${T.green}40`,
+                display: "inline-block",
               }}
-            />
-          ))}
-        </div>
-
-        {/* CTA */}
-        <div className="flex justify-center">
-          <Link
-            to="/franchise#inquiry"
-            className="group inline-flex items-center gap-3 font-black text-sm px-10 py-4 rounded-full text-white transition-all duration-200 active:scale-95"
-            style={{
-              backgroundColor: "#97B64C",
-              boxShadow: "0 6px 28px rgba(151,182,76,0.28)",
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            Start Your Franchise Journey
-            <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-          </Link>
+            >
+              Start Your Franchise Journey →
+            </Link>
+          </div>
         </div>
       </div>
     </section>
-  );
+  )
 }
 
-// ─── SCARCITY STRIP ───────────────────────────────────────────────────────────
-
-function ScarcityStrip() {
+// ─── FINAL CTA ─────────────────────────────────────────────────────────────────
+function FinalCTASection() {
   return (
-    <div
-      className="relative py-5 overflow-hidden border-y border-[#F0D080]"
-      style={{ backgroundColor: "#FFFBF0" }}
-    >
-      <div
-        className="absolute inset-0 pointer-events-none opacity-60"
-        style={{
-          backgroundImage: "repeating-linear-gradient(90deg, transparent, transparent 80px, #E8A02010 80px, #E8A02010 81px)",
-        }}
-      />
-    
-    </div>
-  );
-}
+    <section style={{
+      background: T.white,
+      padding: "64px 0 60px",
+      position: "relative", overflow: "hidden",
+    }}>
+      <div aria-hidden style={{
+        position: "absolute", left: "22%", top: "50%",
+        transform: "translateY(-50%)",
+        width: 260, height: 260, borderRadius: "50%",
+        background: `radial-gradient(circle, ${T.green}16 0%, transparent 70%)`,
+        filter: "blur(8px)",
+        pointerEvents: "none",
+      }} />
 
-// ─── FINAL CTA ────────────────────────────────────────────────────────────────
+      <div style={{
+        maxWidth: 940,
+        margin: "0 auto",
+        padding: "34px 38px",
+        position: "relative",
+        zIndex: 1,
+        borderRadius: 24,
+        background: `linear-gradient(105deg, #4e6f07 0%, ${T.greenDark} 46%, #1b3004 100%)`,
+        border: "1px solid rgba(183,205,127,0.22)",
+        boxShadow: "0 16px 36px rgba(17,22,19,0.18)",
+      }}>
+        <div style={{
+          display: "grid", gridTemplateColumns: "1fr auto",
+          gap: "0 52px", alignItems: "center",
+        }}>
 
-function FinalCTA() {
-  return (
-    <section
-      className="relative py-28 lg:py-36 overflow-hidden"
-      style={{ backgroundColor: "#F4F8EC" }}
-    >
-      {/* Green glow bottom */}
-      <div
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none"
-        style={{
-          width: "700px",
-          height: "300px",
-          background: "radial-gradient(ellipse, rgba(151,182,76,0.18) 0%, transparent 70%)",
-          filter: "blur(60px)",
-        }}
-      />
-
-      {/* Dot texture */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: "radial-gradient(circle, #97B64C20 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-          maskImage: "radial-gradient(ellipse at 50% 100%, black 0%, transparent 55%)",
-          WebkitMaskImage: "radial-gradient(ellipse at 50% 100%, black 0%, transparent 55%)",
-        }}
-      />
-
-      <div className="relative max-w-4xl mx-auto px-6 lg:px-16 z-10 text-center">
-
-        {/* Eyebrow */}
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <div className="h-px w-8 bg-[#97B64C]" />
-          <span
-            className="text-[10px] font-bold tracking-[0.28em] uppercase text-[#97B64C]"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Limited Territories
-          </span>
-          <div className="h-px w-8 bg-[#97B64C]" />
-        </div>
-
-        {/* Headline */}
-        <h2
-          className="font-black text-[#1E1E1E] leading-none tracking-tight mb-6"
-          style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "clamp(2.8rem, 6.5vw, 6rem)",
-          }}
-        >
-          Your City.<br />
-          <span style={{ color: "#97B64C" }}>Your Branch.</span><br />
-          Your ROI.
-        </h2>
-
-        {/* Sub */}
-        <p
-          className="text-[#6b6b5a] text-base max-w-md mx-auto leading-relaxed mb-12"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
-          Territories are awarded exclusively. When your area is taken, it's closed permanently. Submit your inquiry — we respond within 24 hours.
-        </p>
-
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            to="/franchise#inquiry"
-            className="group inline-flex items-center gap-3 font-black text-base px-12 py-5 rounded-full text-white transition-all duration-200 active:scale-95"
-            style={{
-              backgroundColor: "#97B64C",
-              boxShadow: "0 10px 40px rgba(151,182,76,0.30)",
+          <Reveal>
+            <span style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 800,
+              letterSpacing: "0.3em", textTransform: "uppercase",
+              color: T.greenLight, display: "block", marginBottom: 12,
+            }}>Next Step</span>
+            <h2 style={{
               fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            Reserve My Inquiry Slot
-            <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-          </Link>
-          <Link
-            to="/franchise"
-            className="font-semibold text-sm text-[#97B64C] hover:text-[#62840B] transition-colors duration-200 underline underline-offset-4"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            View Full Franchise Details
-          </Link>
-        </div>
+              fontSize: "clamp(2rem, 3.2vw, 2.9rem)",
+              fontWeight: 900, color: T.white,
+              letterSpacing: "-0.035em", margin: 0, lineHeight: 0.95,
+            }}>
+              Ready to Review<br />the Franchise Deck?
+            </h2>
+          </Reveal>
 
-        <p className="text-[#b0b09a] text-xs mt-7" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          No commitment required. Just a conversation.
-        </p>
+          <Reveal delay={100}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 198 }}>
+              <Link
+                to="/franchise#inquiry"
+                className="btn-primary"
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 700, fontSize: "0.88rem",
+                  padding: "13px 30px", borderRadius: 100,
+                  backgroundColor: T.green, color: T.white,
+                  textDecoration: "none", textAlign: "center",
+                  boxShadow: `0 6px 18px ${T.green}45`,
+                  display: "block",
+                }}
+              >
+                Book Investor Call
+              </Link>
+              <Link
+                to="/franchise"
+                className="btn-outline-light"
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 700, fontSize: "0.88rem",
+                  padding: "13px 30px", borderRadius: 100,
+                  backgroundColor: "transparent", color: "rgba(255,255,255,0.85)",
+                  textDecoration: "none", textAlign: "center",
+                  border: "1.5px solid rgba(255,255,255,0.22)",
+                  display: "block",
+                }}
+              >
+                Get Franchise Deck
+              </Link>
+            </div>
+          </Reveal>
+        </div>
       </div>
     </section>
-  );
+  )
 }
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
-
 export default function Home() {
   return (
-    <main className="bg-white -mt-px">
-
-      {/* 1 — HERO */}
-      <Hero />
-
-      {/* 2 — INVESTOR NUMBERS */}
-      <StatBar />
-
-      {/* 3 — WHY MILKSHOP */}
-      <WhySection />
-
-      {/* 4 — FRANCHISEE TESTIMONIALS */}
-      <TestimonialsSection />
-
-      {/* 5 — SCARCITY STRIP */}
-      <ScarcityStrip />
-
-      {/* 6 — FINAL CTA */}
-      <FinalCTA />
-
-      <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(14px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-    </main>
-  );
+    <>
+      <style>{globalStyles}</style>
+      <main style={{ backgroundColor: T.white }}>
+        <Hero />
+        <WhySection />
+        <InvestorProofSection />
+        <FranchiseTestimonialsSection />
+        <FinalCTASection />
+      </main>
+    </>
+  )
 }
