@@ -66,6 +66,17 @@ function Slide({ children, className = "", style = {}, delay = 0, direction = "u
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 
 export default function About() {
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false
+    return window.innerWidth < 768
+  })
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [])
+
   return (
     <main className="bg-white overflow-x-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
 
@@ -74,8 +85,8 @@ export default function About() {
       ══════════════════════════════════════════════ */}
       <section
         data-track-section="About Hero"
-        className="relative min-h-screen flex flex-col justify-center overflow-hidden"
-        style={{ backgroundColor: "#1e1e1e" }}
+        className="relative flex flex-col justify-center overflow-hidden"
+        style={{ backgroundColor: "#1e1e1e", minHeight: isMobile ? "84vh" : "100vh" }}
       >
         {/* Background texture */}
         <div className="absolute inset-0 pointer-events-none" style={{
@@ -91,8 +102,8 @@ export default function About() {
           filter: "blur(80px)",
         }} />
 
-        <div className="relative max-w-6xl mx-auto px-8 lg:px-16 py-28 z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-16 py-16 sm:py-20 lg:py-28 z-10">
+          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-24">
 
             {/* TEXT */}
             <div className="flex-1 flex flex-col gap-6">
@@ -106,7 +117,7 @@ export default function About() {
               </Slide>
 
               <Slide direction="left" delay={80}>
-                <h1 style={{ fontSize: "clamp(3rem, 7vw, 6rem)", fontWeight: 900, lineHeight: 1.0, letterSpacing: "-0.04em", color: "#ffffff" }}>
+                <h1 style={{ fontSize: isMobile ? "clamp(2.2rem, 11vw, 3.2rem)" : "clamp(3rem, 7vw, 6rem)", fontWeight: 900, lineHeight: 1.0, letterSpacing: "-0.04em", color: "#ffffff" }}>
                   Born in Taiwan.<br />
                   <span style={{ color: "#97b64c" }}>Brewed with Love.</span>
                 </h1>

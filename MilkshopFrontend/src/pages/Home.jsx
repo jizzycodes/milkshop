@@ -254,6 +254,25 @@ function Reveal({ children, delay = 0, fade = false, style = {}, className = "" 
   )
 }
 
+function useViewport() {
+  const [width, setWidth] = useState(() => {
+    if (typeof window === "undefined") return 1280
+    return window.innerWidth
+  })
+
+  useEffect(() => {
+    const onResize = () => setWidth(window.innerWidth)
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [])
+
+  return {
+    width,
+    isMobile: width < 768,
+    isTablet: width >= 768 && width < 1024,
+  }
+}
+
 function useCountUp(target, duration = 1600, active = false) {
   const [count, setCount] = useState(0)
  
@@ -400,6 +419,7 @@ function WhySection() {
   const whyLockRef = useRef(false)
   const whyWheelDeltaRef = useRef(0)
   const [inView, setInView] = useState(false)
+  const { isMobile, isTablet } = useViewport()
  
   const active = whyProps[activeIndex]
  
@@ -490,7 +510,7 @@ function WhySection() {
         ref={sectionRef}
         style={{
           backgroundColor: T.white,
-          padding: "120px 0 110px",
+          padding: isMobile ? "72px 0 66px" : "120px 0 110px",
           position: "relative",
           overflow: "hidden",
         }}
@@ -528,10 +548,10 @@ function WhySection() {
           style={{
             maxWidth: 1160,
             margin: "0 auto",
-            padding: "0 48px",
+            padding: isMobile ? "0 18px" : isTablet ? "0 30px" : "0 48px",
             display: "grid",
-            gridTemplateColumns: "1.1fr 1fr",
-            gap: 80,
+            gridTemplateColumns: isMobile ? "1fr" : "1.1fr 1fr",
+            gap: isMobile ? 34 : 80,
             alignItems: "center",
             position: "relative",
             zIndex: 1,
@@ -632,7 +652,7 @@ function WhySection() {
                     key={item.title}
                     className={`why-row ${isActive ? "active" : ""}`}
                     onClick={() => handleRowClick(i)}
-                    style={{ padding: "18px 20px 18px 24px" }}
+                    style={{ padding: isMobile ? "14px 14px 14px 18px" : "18px 20px 18px 24px" }}
                   >
                     <div
                       style={{
@@ -709,8 +729,8 @@ function WhySection() {
                 background: "linear-gradient(145deg, #f4f9ea 0%, #ffffff 60%, #eef5d8 100%)",
                 border: `1px solid ${T.border}`,
                 boxShadow: "0 40px 100px rgba(98,132,11,0.1), 0 8px 24px rgba(0,0,0,0.04)",
-                padding: "56px 52px 48px",
-                minHeight: 500,
+                padding: isMobile ? "28px 22px 24px" : "56px 52px 48px",
+                minHeight: isMobile ? 0 : 500,
               }}
             >
               {/* Decorative corner accent */}
@@ -855,11 +875,12 @@ function WhySection() {
 }
 
 function InvestorProofSection() {
+  const { isMobile, isTablet } = useViewport()
   return (
     <section
       style={{
         background: "linear-gradient(180deg, #f4f7ed 0%, #eef3e3 100%)",
-        padding: "90px 0",
+        padding: isMobile ? "64px 0" : "90px 0",
         position: "relative",
         overflow: "hidden",
       }}
@@ -895,7 +916,7 @@ function InvestorProofSection() {
         style={{
           maxWidth: 1080,
           margin: "0 auto",
-          padding: "0 40px",
+          padding: isMobile ? "0 16px" : isTablet ? "0 28px" : "0 40px",
           position: "relative",
           zIndex: 1,
         }}
@@ -925,7 +946,7 @@ function InvestorProofSection() {
         <div
           style={{
             borderRadius: 22,
-            padding: "10px",
+            padding: isMobile ? "8px" : "10px",
             background: "linear-gradient(135deg, rgba(255,255,255,0.72), rgba(245,250,235,0.86))",
             border: "1px solid rgba(151,182,76,0.26)",
             boxShadow: "0 12px 28px rgba(98,132,11,0.08)",
@@ -936,8 +957,8 @@ function InvestorProofSection() {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, minmax(180px, 1fr))",
-              gap: 10,
-              minWidth: 760,
+              gap: isMobile ? 8 : 10,
+              minWidth: isMobile ? 640 : 760,
             }}
           >
             {stats.map((s, i) => (
@@ -1212,10 +1233,11 @@ function FranchiseTestimonialsSection() {
 
 // ─── FINAL CTA ─────────────────────────────────────────────────────────────────
 function FinalCTASection() {
+  const { isMobile, isTablet } = useViewport()
   return (
     <section style={{
       background: T.white,
-      padding: "64px 0 60px",
+      padding: isMobile ? "48px 0 44px" : "64px 0 60px",
       position: "relative", overflow: "hidden",
     }}>
       <div aria-hidden style={{
@@ -1230,7 +1252,7 @@ function FinalCTASection() {
       <div style={{
         maxWidth: 940,
         margin: "0 auto",
-        padding: "34px 38px",
+        padding: isMobile ? "22px 16px" : isTablet ? "30px 24px" : "34px 38px",
         position: "relative",
         zIndex: 1,
         borderRadius: 24,
@@ -1239,8 +1261,8 @@ function FinalCTASection() {
         boxShadow: "0 16px 36px rgba(17,22,19,0.18)",
       }}>
         <div style={{
-          display: "grid", gridTemplateColumns: "1fr auto",
-          gap: "0 52px", alignItems: "center",
+          display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr auto",
+          gap: isMobile ? "18px 0" : "0 52px", alignItems: "center",
         }}>
 
           <Reveal>
@@ -1260,7 +1282,7 @@ function FinalCTASection() {
           </Reveal>
 
           <Reveal delay={100}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 198 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: isMobile ? 0 : 198 }}>
               <Link
                 to="/franchise#inquiry"
                 className="btn-primary"

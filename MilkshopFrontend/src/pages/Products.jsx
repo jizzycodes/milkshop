@@ -271,8 +271,13 @@ function PremiumCarousel({ products }) {
   const [dragging, setDragging]   = useState(false);
   const [dragStart, setDragStart] = useState(0);
   const [dragDelta, setDragDelta] = useState(0);
+  const [isMobile, setIsMobile]   = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < 768;
+  });
   const trackRef = useRef(null);
-  const maxOffset = Math.max(0, products.length - VISIBLE);
+  const visibleCount = isMobile ? 1 : VISIBLE;
+  const maxOffset = Math.max(0, products.length - visibleCount);
 
   const goLeft  = () => setOffset(o => Math.max(0, o - 1));
   const goRight = () => setOffset(o => Math.min(maxOffset, o + 1));
@@ -295,9 +300,15 @@ function PremiumCarousel({ products }) {
   const onTouchMove  = (e) => onDragMove(e.touches[0].clientX);
   const onTouchEnd   = () => onDragEnd();
 
-  const CARD_W   = 240;
-  const CARD_GAP = 20;
+  const CARD_W   = isMobile ? 220 : 240;
+  const CARD_GAP = isMobile ? 14 : 20;
   const translateX = offset * -(CARD_W + CARD_GAP) + (dragging ? dragDelta * 0.4 : 0);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   return (
     <div style={{ position: "relative", userSelect: "none" }}>
@@ -314,7 +325,7 @@ function PremiumCarousel({ products }) {
           style={{
             display: "flex",
             gap: `${CARD_GAP}px`,
-            paddingLeft: "calc(50% - 500px)",
+            paddingLeft: isMobile ? "16px" : "calc(50% - 500px)",
             cursor: dragging ? "grabbing" : "grab",
             transition: dragging ? "none" : "transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94)",
             transform: `translateX(${translateX}px)`,
@@ -714,7 +725,7 @@ export default function Products() {
         position: "relative",
         overflow: "hidden",
         background: "#ffffff",
-        padding: "130px 40px 100px",
+        padding: "104px 16px 72px",
         textAlign: "center",
       }}>
         <div style={{ position: "relative", zIndex: 1 }}>
@@ -846,10 +857,10 @@ export default function Products() {
 
       {/* ══ REVIEWS ══════════════════════════════════════════════ */}
       <section data-track-section="Reviews" style={{
-        overflow: "hidden", padding: "96px 0",
+        overflow: "hidden", padding: "72px 0",
         backgroundColor: "#ffffff", borderTop: "1px solid #dde8cc",
       }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 48px", marginBottom: "24px" }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 16px", marginBottom: "24px" }}>
           <div style={{ display: "flex", flexWrap: "nowrap", gap: "28px", alignItems: "stretch", justifyContent: "space-between" }}>
 
             <Reveal as="div" style={{ flex: "0 0 360px", minWidth: "320px", textAlign: "left" }}>

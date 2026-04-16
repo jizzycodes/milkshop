@@ -93,6 +93,10 @@ export default function Franchise() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [activeStep, setActiveStep] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < 768;
+  });
   const processSectionRef = useRef(null);
   const processLockRef = useRef(false);
   const processWheelDeltaRef = useRef(0);
@@ -101,6 +105,12 @@ export default function Franchise() {
     if (window.location.hash !== `#${FRANCHISE_FORM_ID}`) return;
     const el = document.getElementById(FRANCHISE_FORM_ID);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   useEffect(() => {
@@ -225,7 +235,7 @@ export default function Franchise() {
   className="relative overflow-hidden"
   style={{
     background: "linear-gradient(160deg, #f5f8ef 0%, #ffffff 60%, #fffdf5 100%)",
-    minHeight: "100vh",
+    minHeight: isMobile ? "84vh" : "100vh",
     display: "flex",
     alignItems: "center",
   }}
@@ -253,8 +263,8 @@ export default function Franchise() {
     }}
   />
 
-  <div className="relative max-w-7xl mx-auto px-8 lg:px-16 py-28 z-10 w-full">
-    <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
+  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-16 sm:py-20 lg:py-28 z-10 w-full">
+    <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-12 items-center">
 
       {/* LEFT */}
       <div className="flex flex-col gap-7">
@@ -510,10 +520,10 @@ export default function Franchise() {
 <section
   ref={processSectionRef}
   id="process"
-  className="relative py-24 bg-[#f7f9f4] overflow-hidden"
+  className="relative py-14 sm:py-18 lg:py-24 bg-[#f7f9f4] overflow-hidden"
   style={{ minHeight: "100vh" }}           /* keeps section tall enough to trigger lock */
 >
-  <div className="max-w-7xl mx-auto px-6">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6">
  
     {/* HEADER */}
     <div className="text-center mb-16">
@@ -685,7 +695,7 @@ export default function Franchise() {
       {/* ══════════════════════════════════════
           SLIDE 4 — FRANCHISE INQUIRY
       ══════════════════════════════════════ */}
-<section id="inquiry" className="relative py-28 bg-[#f7f9f4] overflow-hidden">
+<section id="inquiry" className="relative py-16 sm:py-20 lg:py-28 bg-[#f7f9f4] overflow-hidden">
 
 {/* Soft background */}
 <div className="absolute inset-0 pointer-events-none"
@@ -694,7 +704,7 @@ export default function Franchise() {
   }}
 />
 
-<div className="relative max-w-6xl mx-auto px-6 lg:px-16 z-10">
+<div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-16 z-10">
 
   {/* HEADER */}
   <div className="text-center mb-12">
@@ -831,7 +841,7 @@ export default function Franchise() {
       <button
         onClick={handleSubmit}
         disabled={isSubmitting}
-        className="w-full lg:w-auto px-10 py-4 rounded-full font-bold text-sm transition-all active:scale-95"
+        className="w-full lg:w-auto px-8 sm:px-10 py-3.5 sm:py-4 rounded-full font-bold text-sm transition-all active:scale-95"
         style={{
           background: isSubmitting ? "#b7cd7f" : "#62840b",
           color: "#fff",

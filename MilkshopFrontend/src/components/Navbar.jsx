@@ -137,6 +137,10 @@ const styles = `
 export default function Navbar() {
   const [scrolled,  setScrolled]  = useState(false);
   const [menuOpen,  setMenuOpen]  = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < 768;
+  });
   const location = useLocation();
   const menuRef  = useRef(null);
 
@@ -156,6 +160,12 @@ export default function Navbar() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [menuOpen]);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   return (
     <>
@@ -195,8 +205,8 @@ export default function Navbar() {
           style={{
             maxWidth: "1280px",
             margin: "0 auto",
-            padding: "0 40px",
-            height: scrolled ? "68px" : "78px",
+            padding: isMobile ? "0 14px" : "0 40px",
+            height: isMobile ? (scrolled ? "60px" : "66px") : (scrolled ? "68px" : "78px"),
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -222,7 +232,7 @@ export default function Navbar() {
               src="/logo-landscape.png"
               alt="Milkshop"
               style={{
-                height: scrolled ? "44px" : "52px",
+                height: isMobile ? (scrolled ? "34px" : "38px") : (scrolled ? "44px" : "52px"),
                 width: "auto",
                 objectFit: "contain",
                 display: "block",
