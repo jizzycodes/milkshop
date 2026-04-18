@@ -287,7 +287,7 @@ export default function About() {
       </section>
 
       {/* ══════════════════════════════════════════════
-          SLIDE 4 — QUALITY AT THE SOURCE
+          SLIDE 4 — SOURCING + FROM FARM TO CUP (single block)
       ══════════════════════════════════════════════ */}
       <section data-track-section="Raw Materials" className="relative py-28 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
         <div className="absolute inset-0 pointer-events-none" style={{
@@ -298,70 +298,43 @@ export default function About() {
         }} />
 
         <div className="relative max-w-6xl mx-auto px-8 lg:px-16 z-10">
-          <Slide direction="up" className="mb-3">
-            <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>Ingredients & Sourcing</p>
-          </Slide>
-          <Slide direction="up" delay={60} className="mb-5">
+          <Slide direction="up" className="mb-5">
             <h2 className="font-black" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", color: "#ffffff", letterSpacing: "-0.03em", lineHeight: 1.05 }}>
-              Quality Starts<br />at the Source
+              From Farm to Cup
             </h2>
           </Slide>
-          <Slide direction="up" delay={100} className="mb-16">
-            <p className="text-base max-w-xl leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
-              We don't cut corners on ingredients. Every element of every cup is traced back to a specific origin — because the quality of a drink starts long before it reaches your hands.
+          <Slide direction="up" delay={80} className="mb-16">
+            <p className="text-base max-w-2xl leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
+              Every ingredient is traced to its source — tea from Nantou, milk from certified farms, popping boba from our Taiwan facility, and black sugar by a recipe we still slow-cook today. See how that chain becomes the drink in your hand.
             </p>
           </Slide>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-20">
             {rawMaterials.map((r, i) => (
               <Slide key={r.title} direction="up" delay={i * 80}
                 className="rounded-2xl p-6 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1"
                 style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
               >
                 <span className="text-4xl">{r.icon}</span>
-                <div>
-                  <h3 className="font-bold text-white text-sm leading-snug">{r.title}</h3>
-                  <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full" style={{ backgroundColor: "rgba(151,182,76,0.15)", color: "#b7cd7f" }}>
-                    📍 {r.origin}
-                  </span>
-                </div>
-                <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>{r.desc}</p>
+                <h3 className="font-bold text-white text-base leading-snug">{r.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  <span className="text-white/90">{r.origin}.</span> {r.desc}
+                </p>
               </Slide>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ══════════════════════════════════════════════
-          SLIDE 5 — FROM FARM TO CUP
-      ══════════════════════════════════════════════ */}
-      <section data-track-section="From Farm to Cup" className="relative py-28 overflow-hidden bg-white border-t border-[#e8eee0]">
-        <div className="relative max-w-6xl mx-auto px-8 lg:px-16 z-10">
-          <Slide direction="up" delay={100}>
-            <div className="text-center mb-8">
-              <p className="text-[11px] font-bold tracking-[0.28em] uppercase mb-2" style={{ color: "#97b64c" }}>See It Yourself</p>
-              <h3 className="text-3xl font-black" style={{ letterSpacing: "-0.03em", color: "#1e1e1e" }}>From Farm to Cup</h3>
-              <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "#5a5a5a" }}>
-                Watch how our raw materials are selected, processed, and transformed into the drinks you love.
-              </p>
-            </div>
+          <Slide direction="up" delay={120}>
             <div className="relative rounded-3xl overflow-hidden aspect-video max-w-4xl mx-auto" style={{ backgroundColor: "#0d0d0d" }}>
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+              <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{
                   backgroundColor: "rgba(151,182,76,0.15)",
                   border: "2px solid rgba(151,182,76,0.3)",
                 }}>
-                  <svg className="w-8 h-8 ml-1" fill="#97b64c" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                </div>
-                <div className="text-center">
-                  <p className="text-white font-bold text-lg">Raw Materials & Sourcing Process</p>
-                  <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>Video coming soon — replace placeholder in About.jsx</p>
+                  <svg className="w-8 h-8 ml-1" fill="#97b64c" viewBox="0 0 24 24" aria-hidden><path d="M8 5v14l11-7z" /></svg>
                 </div>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute top-4 left-4 text-white text-xs font-bold px-3 py-1.5 rounded-full" style={{ backgroundColor: "rgba(151,182,76,0.85)" }}>
-                🎬 Sourcing Story
-              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
             </div>
           </Slide>
         </div>

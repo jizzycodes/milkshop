@@ -83,6 +83,14 @@ const inputErr  = "border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 fo
 
 const FRANCHISE_FORM_ID = "inquiry";
 
+/** Scoped to this page route — prevents horizontal overflow and scrollbar gutter jump when scroll-lock runs */
+const franchisePageStyles = `
+  html {
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+  }
+`;
+
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 
 export default function Franchise() {
@@ -122,11 +130,6 @@ export default function Franchise() {
 
     const setLocked = (locked) => {
       processLockRef.current = locked;
-      if (locked) {
-        document.body.style.overflow = "hidden";
-      } else {
-        document.body.style.overflow = "";
-      }
     };
 
     const isSectionCentered = () => {
@@ -286,7 +289,18 @@ export default function Franchise() {
   };
 
   return (
-    <main style={{ backgroundColor: "#fafaf8", fontFamily: "'DM Sans', sans-serif", minHeight: "100vh" }}>
+    <>
+      <style>{franchisePageStyles}</style>
+      <main
+        style={{
+          backgroundColor: "#fafaf8",
+          fontFamily: "'DM Sans', sans-serif",
+          minHeight: "100vh",
+          overflowX: "hidden",
+          maxWidth: "100%",
+          boxSizing: "border-box",
+        }}
+      >
 
 
  {/* ══════════════════════════════════════
@@ -620,8 +634,8 @@ export default function Franchise() {
       </p>
     </div>
  
-    {/* GRID */}
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {/* GRID — min-w-0 avoids grid blowout; avoid scale() so active card does not widen the page */}
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 min-w-0 w-full max-w-full">
       {steps.map((s, i) => {
         const isActive = activeStep === i;
         const isPast   = i < activeStep;
@@ -630,11 +644,11 @@ export default function Franchise() {
           <div
             key={i}
             onClick={() => setActiveStep(i)}
-            className="group relative rounded-2xl p-6 cursor-pointer transition-all duration-500"
+            className="group relative rounded-2xl p-6 cursor-pointer transition-all duration-500 min-w-0 max-w-full"
             style={{
               background: isActive ? "#ffffff" : isPast ? "#f0f7e4" : "#eef5e6",
               border: `1px solid ${isActive ? "#97b64c" : isPast ? "#b8d98a" : "#dce8c8"}`,
-              transform: isActive ? "scale(1.03)" : "scale(1)",
+              transform: isActive ? "translateY(-4px)" : "translateY(0)",
               opacity: isPast ? 0.75 : 1,
             }}
           >
@@ -973,5 +987,6 @@ export default function Franchise() {
         }
       `}</style>
     </main>
+    </>
   );
 }

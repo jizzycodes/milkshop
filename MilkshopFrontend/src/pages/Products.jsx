@@ -720,7 +720,7 @@ export default function Products() {
       fontFamily: "'DM Sans', sans-serif",
     }}>
 
-      {/* ══ HERO (white header) ═══════════════════════════════════ */}
+      {/* ══ HERO (centered white + dark stats) ═════════════════════════════════════ */}
       <section data-track-section="Products Hero" style={{
         position: "relative",
         overflow: "hidden",
@@ -729,7 +729,6 @@ export default function Products() {
         textAlign: "center",
       }}>
         <div style={{ position: "relative", zIndex: 1 }}>
-          {/* Badge */}
           <span style={{
             display: "inline-flex", alignItems: "center", gap: "8px",
             fontSize: "11px", fontWeight: 800, letterSpacing: "0.2em",
@@ -744,7 +743,7 @@ export default function Products() {
           </span>
 
           <h1 style={{
-            fontSize: "clamp(3.5rem,8vw,6.5rem)", fontWeight: 900,
+            fontSize: "clamp(3.5rem, 8vw, 6.5rem)", fontWeight: 900,
             letterSpacing: "-0.05em", lineHeight: 0.92,
             color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif",
             margin: "0 0 24px",
@@ -756,11 +755,17 @@ export default function Products() {
           <p style={{
             fontSize: "1rem", lineHeight: 1.75,
             color: "#6b7a5a",
-            maxWidth: "400px", margin: "0 auto 48px",
+            maxWidth: "400px", margin: "0 auto 40px",
           }}>
-            Taiwan's original Popping Boba — brewed fresh, never powdered, always real.
+            Taiwan&apos;s original Popping Boba — brewed fresh, never powdered, always real.
             {products.length > 0 && (
-              <> <strong style={{ color: "#fff" }}>{products.length} drinks</strong> across {CATEGORIES.length} series.</>
+              <>
+                {" "}
+                <strong style={{ color: "#62840b", fontWeight: 600 }}>
+                  {products.length} drinks
+                </strong>
+                {" "}across {CATEGORIES.length} series.
+              </>
             )}
           </p>
 
@@ -776,7 +781,7 @@ export default function Products() {
           }}>
             {[
               { value: "20+",  label: "Menu Items" },
-              { value: "6",    label: "Series"     },
+              { value: "6",    label: "Series" },
               { value: "100%", label: "Fresh Milk" },
             ].map((s, i) => (
               <div key={s.label} style={{
@@ -798,7 +803,6 @@ export default function Products() {
           </div>
         </div>
 
-        {/* Bottom fade */}
         <div style={{
           position: "absolute", bottom: 0, left: 0, right: 0, height: "100px",
           background: "linear-gradient(to bottom, transparent, #f7faf2)",

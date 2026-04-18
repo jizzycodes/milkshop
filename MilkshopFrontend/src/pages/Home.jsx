@@ -23,6 +23,10 @@ const T = {
 
 // ─── GLOBAL STYLES ────────────────────────────────────────────────────────────
 const globalStyles = `
+  html {
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+  }
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(32px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -441,11 +445,6 @@ function WhySection() {
 
     const setLocked = (locked) => {
       whyLockRef.current = locked
-      if (locked) {
-        document.body.style.overflow = "hidden"
-      } else {
-        document.body.style.overflow = ""
-      }
     }
 
     const isSectionCentered = () => {
@@ -1014,15 +1013,20 @@ function InvestorProofSection() {
             background: "linear-gradient(135deg, rgba(255,255,255,0.72), rgba(245,250,235,0.86))",
             border: "1px solid rgba(151,182,76,0.26)",
             boxShadow: "0 12px 28px rgba(98,132,11,0.08)",
-            overflowX: "auto",
+            overflowX: "hidden",
+            maxWidth: "100%",
           }}
         >
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(4, minmax(180px, 1fr))",
+              gridTemplateColumns: isMobile
+                ? "repeat(2, minmax(0, 1fr))"
+                : isTablet
+                  ? "repeat(2, minmax(0, 1fr))"
+                  : "repeat(4, minmax(0, 1fr))",
               gap: isMobile ? 8 : 10,
-              minWidth: isMobile ? 640 : 760,
+              minWidth: 0,
             }}
           >
             {stats.map((s, i) => (
@@ -1136,6 +1140,7 @@ function InvestorProofSection() {
 // ─── TESTIMONIALS ─────────────────────────────────────────────────────────────
 function FranchiseTestimonialsSection() {
   const [active, setActive] = useState(0)
+  const { isMobile, isTablet } = useViewport()
 
   useEffect(() => {
     const t = setInterval(() => setActive(p => (p + 1) % franchiseTestimonials.length), 4500)
@@ -1144,10 +1149,12 @@ function FranchiseTestimonialsSection() {
 
   const item = franchiseTestimonials[active]
 
+  const padX = isMobile ? 16 : isTablet ? 24 : 48
+
   return (
     <section style={{
       backgroundColor: T.surface,
-      padding: "120px 0 108px",
+      padding: isMobile ? "72px 0 80px" : "120px 0 108px",
       position: "relative", overflow: "hidden",
     }}>
       {/* Subtle top ring decoration */}
@@ -1159,7 +1166,7 @@ function FranchiseTestimonialsSection() {
         pointerEvents: "none",
       }} />
 
-      <div style={{ maxWidth: 1160, margin: "0 auto", padding: "0 48px", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: 1160, margin: "0 auto", padding: `0 ${padX}px`, position: "relative", zIndex: 1, boxSizing: "border-box", width: "100%" }}>
 
         {/* Header */}
         <Reveal style={{ textAlign: "center", marginBottom: 56 }}>
@@ -1187,9 +1194,9 @@ function FranchiseTestimonialsSection() {
             backgroundColor: T.white,
             border: `1px solid ${T.border}`,
             borderRadius: 28,
-            padding: "60px 64px 52px",
+            padding: isMobile ? "36px 20px 28px" : "60px 64px 52px",
             boxShadow: "0 24px 80px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04)",
-            minHeight: 280,
+            minHeight: isMobile ? 320 : 300,
             overflow: "hidden",
           }}>
             {/* Decorative quote mark */}
@@ -1207,19 +1214,21 @@ function FranchiseTestimonialsSection() {
               ))}
             </div>
 
-            {/* Quote — animated on change */}
-            <p
-              key={active}
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "clamp(1.2rem, 2.2vw, 1.7rem)",
-                fontWeight: 600, lineHeight: 1.5,
-                color: "#1e2319", margin: "0 0 36px",
-                animation: "fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards",
-              }}
-            >
-              {item.quote}
-            </p>
+            {/* Quote — animated on change; minHeight reduces vertical scrollbar twitch between slides */}
+            <div style={{ minHeight: isMobile ? 140 : 120, marginBottom: 36 }}>
+              <p
+                key={active}
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "clamp(1.2rem, 2.2vw, 1.7rem)",
+                  fontWeight: 600, lineHeight: 1.5,
+                  color: "#1e2319", margin: 0,
+                  animation: "fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards",
+                }}
+              >
+                {item.quote}
+              </p>
+            </div>
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -1390,7 +1399,14 @@ export default function Home() {
   return (
     <>
       <style>{globalStyles}</style>
-      <main style={{ backgroundColor: T.white }}>
+      <main
+        style={{
+          backgroundColor: T.white,
+          overflowX: "hidden",
+          maxWidth: "100%",
+          boxSizing: "border-box",
+        }}
+      >
         <Hero />
         <WhySection />
         <InvestorProofSection />

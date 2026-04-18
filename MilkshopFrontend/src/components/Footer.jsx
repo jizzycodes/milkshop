@@ -45,8 +45,8 @@ export default function Footer() {
   return (
     <footer className="bg-[#0a0a0a] text-white">
 
-      {/* MAIN */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16 flex flex-col gap-12">
+      {/* MAIN — pt for breathing room; tight pb so nothing sits under the bottom rule */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-10 lg:pt-12 pb-3 flex flex-col gap-8">
 
         {/* TOP ROW */}
         <div className="flex flex-col lg:flex-row items-start justify-between gap-10">
@@ -131,18 +131,18 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* DIVIDER */}
-        <div className="border-t border-white/10" />
-
-        {/* BOTTOM */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40"
-          style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
-          <span>© {new Date().getFullYear()} Milkshop 秘客侠 Philippines</span>
-          <div className="flex items-center gap-2">
-            <span>🇹🇼 Taiwanese Original</span>
-            <span>·</span>
-            <span>🇵🇭 Philippines</span>
+        {/* COPYRIGHT + bottom rule — small gap so no dead band below the line */}
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+            <span>© {new Date().getFullYear()} Milkshop 秘客侠 Philippines</span>
+            <div className="flex items-center gap-2">
+              <span>🇹🇼 Taiwanese Original</span>
+              <span>·</span>
+              <span>🇵🇭 Philippines</span>
+            </div>
           </div>
+          <div className="border-t border-white/10" aria-hidden />
         </div>
 
       </div>
