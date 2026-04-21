@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { useEffect, useRef, useState } from "react"
 import Hero from "../components/Hero"
+import { supabase } from "../lib/supabaseClient"
 
 // ─── DESIGN TOKENS ────────────────────────────────────────────────────────────
 const T = {
@@ -229,6 +230,174 @@ const whySectionStyles = `
     transform-origin: left;
     animation: drawLine 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
   }
+
+  .why-gallery-img {
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s ease;
+  }
+  .why-gallery-frame:hover .why-gallery-img {
+    transform: scale(1.02);
+  }
+
+  @keyframes wsReveal {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes wsLineGrow {
+    from { width: 0; }
+    to   { width: 48px; }
+  }
+  @keyframes wsImageIn {
+    from { opacity: 0; transform: scale(1.06); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes wsSlideRight {
+    from { opacity: 0; transform: translateX(-20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes wsFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes wsProgressFill {
+    from { width: 0%; }
+    to   { width: 100%; }
+  }
+  @keyframes wsPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(151,182,76,0.45); }
+    50%       { box-shadow: 0 0 0 10px rgba(151,182,76,0); }
+  }
+  @keyframes wsFloat {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-8px); }
+  }
+
+  .ws-reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .ws-reveal.in { opacity: 1; transform: translateY(0); }
+
+  .ws-img-frame {
+    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .ws-step-btn {
+    all: unset;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 16px;
+    transition: all 0.35s ease;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .ws-step-btn::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0;
+    background: linear-gradient(90deg, rgba(151,182,76,0.1), transparent);
+    border-radius: 16px;
+    transition: width 0.4s ease;
+  }
+  .ws-step-btn.active::before { width: 100%; }
+  .ws-step-btn.active { background: rgba(151,182,76,0.06); }
+
+  .ws-step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: #b7cd7f;
+    transition: color 0.3s ease;
+    min-width: 28px;
+  }
+  .ws-step-btn.active .ws-step-num { color: #62840b; }
+
+  .ws-step-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #a8b89a;
+    transition: color 0.3s ease;
+    letter-spacing: -0.01em;
+  }
+  .ws-step-btn.active .ws-step-title { color: #1e1e1e; }
+
+  .ws-step-icon {
+    font-size: 1.1rem;
+    opacity: 0.4;
+    transition: opacity 0.3s ease;
+    margin-left: auto;
+  }
+  .ws-step-btn.active .ws-step-icon { opacity: 1; }
+
+  .ws-progress-track {
+    height: 2px;
+    background: rgba(151,182,76,0.15);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 6px;
+    margin-left: 44px;
+  }
+  .ws-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #62840b, #97b64c);
+    border-radius: 999px;
+    animation: wsProgressFill 5.2s linear forwards;
+  }
+
+  .ws-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(151,182,76,0.35);
+    background: rgba(151,182,76,0.07);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #62840b;
+  }
+
+  .ws-image-caption {
+    animation: wsSlideRight 0.5s ease forwards;
+  }
+
+  .ws-content-block {
+    animation: wsReveal 0.55s ease forwards;
+  }
+
+  .ws-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #62840b, #97b64c);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    box-shadow: 0 8px 28px rgba(151,182,76,0.35);
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+  .ws-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(151,182,76,0.45);
+  }
+
+  .ws-float-tag {
+    animation: wsFloat 4s ease-in-out infinite;
+  }
 `
 
 // ─── REVEAL HOOK ──────────────────────────────────────────────────────────────
@@ -418,16 +587,57 @@ function SectionDivider({ flip = false }) {
 
 function WhySection() {
   const [activeIndex, setActiveIndex] = useState(0)
-  const [statKey, setStatKey] = useState(0)
+  const [branchGallery, setBranchGallery] = useState([])
   const sectionRef = useRef(null)
   const whyLockRef = useRef(false)
   const whyWheelDeltaRef = useRef(0)
   const whyTouchYRef = useRef(null)
   const [inView, setInView] = useState(false)
   const { isMobile, isTablet } = useViewport()
- 
+
   const active = whyProps[activeIndex]
- 
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadBranchGallery() {
+      try {
+        const { data, error } = await supabase
+          .from("MSlocations")
+          .select("*")
+          .order("id", { ascending: true })
+        if (error) throw error
+        if (!cancelled && Array.isArray(data)) {
+          const normalizeImage = (value) => {
+            if (!value || typeof value !== "string") return null
+            const trimmed = value.trim()
+            if (!trimmed) return null
+            if (/^https?:\/\//i.test(trimmed)) return trimmed
+            if (trimmed.startsWith("/")) return trimmed
+            return `https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/${trimmed.replace(/^\/+/, "")}`
+          }
+          const rows = data
+            .map((row) => ({
+              url: normalizeImage(
+                row.image_url ||
+                row.photo_url ||
+                row.photo ||
+                row.branch_image ||
+                row.image
+              ),
+              name: row.name || row.branch_name || "Milkshop",
+            }))
+            .filter((row) => row.url)
+            .slice(0, 3)
+          setBranchGallery(rows)
+        }
+      } catch (e) {
+        console.error("WhySection branch gallery", e)
+      }
+    }
+    loadBranchGallery()
+    return () => { cancelled = true }
+  }, [])
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setInView(true) },
@@ -436,16 +646,14 @@ function WhySection() {
     if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
   }, [])
- 
+
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
 
     const THRESHOLD = 95
 
-    const setLocked = (locked) => {
-      whyLockRef.current = locked
-    }
+    const setLocked = (locked) => { whyLockRef.current = locked }
 
     const isSectionCentered = () => {
       const rect = section.getBoundingClientRect()
@@ -468,33 +676,21 @@ function WhySection() {
         whyWheelDeltaRef.current = 0
         return
       }
-
       if (!whyLockRef.current) {
         if (!isSectionCentered()) return
         setLocked(true)
       }
-
       e.preventDefault()
       whyWheelDeltaRef.current += e.deltaY
-
       if (Math.abs(whyWheelDeltaRef.current) < THRESHOLD) return
-
       const direction = whyWheelDeltaRef.current > 0 ? 1 : -1
       whyWheelDeltaRef.current = 0
-
       setActiveIndex((prev) => {
         const next = prev + direction
-        if (next < 0) {
-          setLocked(false)
-          return 0
-        }
-        if (next >= whyProps.length) {
-          setLocked(false)
-          return whyProps.length - 1
-        }
+        if (next < 0) { setLocked(false); return 0 }
+        if (next >= whyProps.length) { setLocked(false); return whyProps.length - 1 }
         return next
       })
-      setStatKey((k) => k + 1)
     }
 
     const onTouchStart = (e) => {
@@ -505,10 +701,8 @@ function WhySection() {
       const currentY = e.touches[0]?.clientY
       const startY = whyTouchYRef.current
       if (typeof currentY !== "number" || typeof startY !== "number") return
-
       const deltaY = startY - currentY
       whyTouchYRef.current = currentY
-
       const isTryingToLeaveForward = activeIndex === whyProps.length - 1 && deltaY > 0
       const isTryingToLeaveBackward = activeIndex === 0 && deltaY < 0
       if (isTryingToLeaveForward || isTryingToLeaveBackward) {
@@ -516,33 +710,21 @@ function WhySection() {
         whyWheelDeltaRef.current = 0
         return
       }
-
       if (!whyLockRef.current) {
         if (!isSectionCentered()) return
         setLocked(true)
       }
-
       e.preventDefault()
       whyWheelDeltaRef.current += deltaY
-
       if (Math.abs(whyWheelDeltaRef.current) < THRESHOLD) return
-
       const direction = whyWheelDeltaRef.current > 0 ? 1 : -1
       whyWheelDeltaRef.current = 0
-
       setActiveIndex((prev) => {
         const next = prev + direction
-        if (next < 0) {
-          setLocked(false)
-          return 0
-        }
-        if (next >= whyProps.length) {
-          setLocked(false)
-          return whyProps.length - 1
-        }
+        if (next < 0) { setLocked(false); return 0 }
+        if (next >= whyProps.length) { setLocked(false); return whyProps.length - 1 }
         return next
       })
-      setStatKey((k) => k + 1)
     }
 
     window.addEventListener("wheel", onWheel, { passive: false })
@@ -559,378 +741,385 @@ function WhySection() {
       window.removeEventListener("resize", syncLockState)
     }
   }, [activeIndex])
- 
-  const handleRowClick = (i) => {
-    setActiveIndex(i)
-    setStatKey((k) => k + 1)
-  }
- 
+
+  const handleRowClick = (i) => setActiveIndex(i)
+
+  const pad = isMobile ? "0 18px" : isTablet ? "0 30px" : "0 56px"
+
+  // Get image for active index, fallback to gradient
+  const activeImage = branchGallery[activeIndex] || null
+  const allImages = whyProps.map((_, i) => branchGallery[i] || null)
+
   return (
     <>
       <style>{whySectionStyles}</style>
- 
+
       <section
         ref={sectionRef}
         style={{
           backgroundColor: T.white,
-          padding: isMobile ? "72px 0 66px" : "120px 0 110px",
+          padding: isMobile ? "80px 0 72px" : "128px 0 120px",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        {/* Background texture */}
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(ellipse at 80% 50%, rgba(183,205,127,0.13) 0%, transparent 60%), radial-gradient(ellipse at 10% 80%, rgba(151,182,76,0.07) 0%, transparent 50%)",
-            pointerEvents: "none",
-          }}
-        />
- 
-        {/* Floating orbs */}
-        <div
-          aria-hidden
-          className="glow-orb"
-          style={{
-            position: "absolute",
-            right: "8%",
-            top: "15%",
-            width: 320,
-            height: 320,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(183,205,127,0.22) 0%, transparent 70%)",
-            filter: "blur(40px)",
-            pointerEvents: "none",
-          }}
-        />
- 
-        <div
-          style={{
-            maxWidth: 1160,
-            margin: "0 auto",
-            padding: isMobile ? "0 18px" : isTablet ? "0 30px" : "0 48px",
-            display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1.1fr 1fr",
-            gap: isMobile ? 34 : 80,
-            alignItems: "center",
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
- 
-          {/* LEFT: Cinematic Stat Panel */}
+        {/* Ambient background */}
+        <div aria-hidden style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          background: `
+            radial-gradient(ellipse 65% 55% at 85% 40%, rgba(183,205,127,0.12) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 45% at 12% 75%, rgba(151,182,76,0.07) 0%, transparent 55%)
+          `,
+        }} />
+
+        {/* Subtle grid texture */}
+        <div aria-hidden style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          backgroundImage: `linear-gradient(rgba(151,182,76,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.035) 1px, transparent 1px)`,
+          backgroundSize: "64px 64px",
+          maskImage: "radial-gradient(ellipse at 50% 50%, black 40%, transparent 80%)",
+        }} />
+
+        <div style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          padding: pad,
+          position: "relative",
+          zIndex: 1,
+          boxSizing: "border-box",
+        }}>
+
+          {/* ── Section header ── */}
           <div
-            className={`why-reveal ${inView ? "visible" : ""}`}
-            style={{ transitionDelay: "0.1s" }}
+            className={`ws-reveal ${inView ? "in" : ""}`}
+            style={{ marginBottom: isMobile ? 48 : 72, transitionDelay: "0.1s" }}
           >
-            {/* Eyebrow */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                marginBottom: 20,
-              }}
-            >
-              <div
-                className="line-draw"
-                style={{
-                  height: 2,
-                  width: 32,
-                  background: T.green,
-                  borderRadius: 2,
-                  display: "inline-block",
-                }}
-              />
-              <span
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "0.72rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  color: T.darkGreen,
-                }}
-              >
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+              <div style={{
+                height: 2, width: 48, background: "linear-gradient(90deg, #62840b, #97b64c)",
+                borderRadius: 2,
+                animation: inView ? "wsLineGrow 0.7s ease forwards" : "none",
+                animationDelay: "0.3s",
+              }} />
+              <span style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.7rem", fontWeight: 700,
+                letterSpacing: "0.22em", textTransform: "uppercase",
+                color: "#62840b",
+              }}>
                 Why Franchise With Us
               </span>
             </div>
- 
-            {/* Headline */}
-            <h2
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "clamp(2.6rem, 4.8vw, 4.2rem)",
-                fontWeight: 900,
-                color: T.ink,
-                lineHeight: 0.95,
-                letterSpacing: "-0.04em",
-                marginBottom: 20,
-              }}
-            >
+            <h2 style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "clamp(2.4rem, 4.5vw, 4rem)",
+              fontWeight: 900, letterSpacing: "-0.04em",
+              lineHeight: 0.95, color: T.ink, margin: 0,
+              maxWidth: 560,
+            }}>
               Built for<br />
               Franchisee{" "}
-              <span style={{ color: T.green }}>Success.</span>
+              <span style={{
+                background: "linear-gradient(135deg, #62840b, #97b64c)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}>
+                Success.
+              </span>
             </h2>
- 
-            <p
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "1rem",
-                lineHeight: 1.8,
-                color: T.muted,
-                marginBottom: 52,
-                maxWidth: 380,
-              }}
-            >
-              A simple, structured system that removes complexity and lets you focus on growth.
-            </p>
- 
-            {/* Animated Stat */}
-            <div
-              style={{
-                marginBottom: 52,
-                paddingBottom: 40,
-                borderBottom: `1px solid ${T.border}`,
-              }}
-            >
-              <AnimatedStat
-                key={statKey}
-                value={active.stat}
-                suffix={active.statSuffix}
-                label={active.statLabel}
-                active={inView}
-              />
-            </div>
- 
-            {/* Stacked Rows */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-              {whyProps.map((item, i) => {
-                const isActive = i === activeIndex
-                return (
-                  <div
-                    key={item.title}
-                    className={`why-row ${isActive ? "active" : ""}`}
-                    onClick={() => handleRowClick(i)}
-                    style={{ padding: isMobile ? "14px 14px 14px 18px" : "18px 20px 18px 24px" }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <span style={{ fontSize: "1.15rem" }}>{item.icon}</span>
-                        <span
-                          style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: "0.95rem",
-                            fontWeight: 700,
-                            color: isActive ? T.ink : T.muted,
-                            letterSpacing: "-0.01em",
-                            transition: "color 0.3s ease",
-                          }}
-                        >
-                          {item.title}
-                        </span>
-                      </div>
- 
-                      <div
-                        className={isActive ? "pulse-dot" : ""}
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: 999,
-                          background: isActive ? T.green : "#d9e2c6",
-                          transition: "background 0.3s ease",
-                        }}
-                      />
-                    </div>
- 
-                    {/* Expandable body */}
-                    <div
-                      style={{
-                        maxHeight: isActive ? 80 : 0,
-                        overflow: "hidden",
-                        transition: "max-height 0.45s cubic-bezier(0.16,1,0.3,1)",
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontSize: "0.875rem",
-                          lineHeight: 1.75,
-                          color: T.muted,
-                          marginTop: 8,
-                          paddingLeft: 28,
-                        }}
-                      >
-                        {item.body}
-                      </p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
           </div>
- 
-          {/* RIGHT: Visual Feature Card */}
-          <div
-            className={`why-reveal ${inView ? "visible" : ""}`}
-            style={{ transitionDelay: "0.28s" }}
-          >
+
+          {/* ── Main layout: Image left (large) + Steps right ── */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 420px",
+            gap: isMobile ? 40 : 64,
+            alignItems: "center",
+          }}>
+
+            {/* LEFT: Full spotlight image */}
             <div
-              style={{
-                position: "relative",
-                borderRadius: 32,
-                overflow: "hidden",
-                background: "linear-gradient(145deg, #f4f9ea 0%, #ffffff 60%, #eef5d8 100%)",
-                border: `1px solid ${T.border}`,
-                boxShadow: "0 40px 100px rgba(98,132,11,0.1), 0 8px 24px rgba(0,0,0,0.04)",
-                padding: isMobile ? "28px 22px 24px" : "56px 52px 48px",
-                minHeight: isMobile ? 0 : 500,
-              }}
+              className={`ws-reveal ${inView ? "in" : ""}`}
+              style={{ transitionDelay: "0.2s", position: "relative" }}
             >
-              {/* Decorative corner accent */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: -60,
-                  right: -60,
-                  width: 200,
-                  height: 200,
-                  borderRadius: "50%",
-                  background: "rgba(151,182,76,0.12)",
-                  filter: "blur(50px)",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: -40,
-                  left: -40,
-                  width: 160,
-                  height: 160,
-                  borderRadius: "50%",
-                  background: "rgba(183,205,127,0.18)",
-                  filter: "blur(40px)",
-                }}
-              />
- 
-              {/* Inner content — keyed to trigger re-animation */}
-              <div
-                key={activeIndex}
-                style={{
-                  position: "relative",
-                  zIndex: 2,
-                  animation: "fadeSlideUp 0.5s ease forwards",
-                }}
-              >
-                {/* Counter badge */}
+              {/* Image stack — 3 layered images, active one on top */}
+              <div style={{ position: "relative", width: "100%", aspectRatio: "4 / 3" }}>
+
+                {/* Background ghost images for depth */}
+                {allImages.map((img, i) => {
+                  if (i === activeIndex) return null
+                  const offset = i < activeIndex ? -1 : 1
+                  return (
+                    <div
+                      key={`ghost-${i}`}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        borderRadius: 28,
+                        overflow: "hidden",
+                        opacity: 0.18,
+                        transform: `translateX(${offset * 18}px) translateY(${Math.abs(offset) * 8}px) scale(0.95)`,
+                        filter: "blur(2px)",
+                        zIndex: 1,
+                        transition: "all 0.6s ease",
+                        border: "1px solid rgba(151,182,76,0.15)",
+                      }}
+                    >
+                      {img?.url ? (
+                        <img src={img.url} alt="" draggable={false}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      ) : (
+                        <div style={{
+                          width: "100%", height: "100%",
+                          background: "linear-gradient(135deg, #e8f2d0, #b7cd7f)",
+                        }} />
+                      )}
+                    </div>
+                  )
+                })}
+
+                {/* Active image */}
                 <div
+                  key={`active-img-${activeIndex}`}
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
-                    background: "rgba(151,182,76,0.1)",
-                    border: `1px solid rgba(151,182,76,0.3)`,
-                    borderRadius: 999,
-                    padding: "6px 14px",
-                    marginBottom: 32,
+                    position: "absolute",
+                    inset: 0,
+                    borderRadius: 28,
+                    overflow: "hidden",
+                    zIndex: 2,
+                    boxShadow: "0 40px 100px rgba(98,132,11,0.18), 0 12px 32px rgba(0,0,0,0.08)",
+                    border: "1px solid rgba(151,182,76,0.25)",
+                    animation: "wsImageIn 0.65s cubic-bezier(0.16,1,0.3,1) forwards",
                   }}
                 >
-                  <span
-                    style={{
-                      fontFamily: "'DM Mono', monospace",
-                      fontSize: "0.72rem",
-                      fontWeight: 700,
-                      letterSpacing: "0.15em",
-                      color: T.darkGreen,
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    0{activeIndex + 1} / 0{whyProps.length}
-                  </span>
+                  {activeImage?.url ? (
+                    <img
+                      src={activeImage.url}
+                      alt={activeImage.name || "Milkshop branch"}
+                      draggable={false}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: "100%", height: "100%",
+                      background: "linear-gradient(135deg, #e8f2d0 0%, #b7cd7f 50%, #97b64c 100%)",
+                    }} />
+                  )}
+
+                  {/* Subtle vignette */}
+                  <div aria-hidden style={{
+                    position: "absolute", inset: 0,
+                    background: "linear-gradient(180deg, transparent 55%, rgba(20,30,10,0.45) 100%)",
+                    pointerEvents: "none",
+                  }} />
+
+                  {/* Green top accent bar */}
+                  <div style={{
+                    position: "absolute", top: 0, left: 0, right: 0, height: 4,
+                    background: "linear-gradient(90deg, #62840b, #97b64c, #b7cd7f)",
+                    borderRadius: "28px 28px 0 0",
+                  }} />
+
+                  {/* Branch name tag */}
+                  {activeImage?.name && (
+                    <div
+                      key={`caption-${activeIndex}`}
+                      className="ws-image-caption"
+                      style={{
+                        position: "absolute", left: 20, bottom: 20,
+                        display: "flex", alignItems: "center", gap: 8,
+                      }}
+                    >
+                      <div style={{
+                        width: 6, height: 6, borderRadius: "50%",
+                        background: "#97b64c",
+                        animation: "wsPulse 2s ease-in-out infinite",
+                        flexShrink: 0,
+                      }} />
+                      <span style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "0.7rem", fontWeight: 800,
+                        letterSpacing: "0.14em", textTransform: "uppercase",
+                        color: "rgba(255,255,255,0.95)",
+                        textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                      }}>
+                        {activeImage.name}
+                      </span>
+                    </div>
+                  )}
                 </div>
- 
-                {/* Icon circle */}
+
+                {/* Step counter badge — floating top right */}
                 <div
+                  className="ws-float-tag"
                   style={{
-                    width: 64,
-                    height: 64,
+                    position: "absolute",
+                    top: -16, right: -16,
+                    zIndex: 3,
+                  }}
+                >
+                  <div style={{
+                    width: 56, height: 56,
                     borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${T.green}, ${T.lightGreen})`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "1.6rem",
-                    marginBottom: 24,
-                    boxShadow: "0 12px 32px rgba(151,182,76,0.3)",
-                  }}
-                >
-                  {active.icon}
+                    background: "#ffffff",
+                    border: "2px solid rgba(151,182,76,0.3)",
+                    boxShadow: "0 8px 28px rgba(151,182,76,0.2)",
+                    display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center",
+                  }}>
+                    <span style={{
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: "0.6rem", fontWeight: 700,
+                      letterSpacing: "0.05em", color: "#97b64c",
+                      lineHeight: 1,
+                    }}>
+                      0{activeIndex + 1}
+                    </span>
+                    <span style={{
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: "0.5rem", fontWeight: 600,
+                      color: "#b7cd7f", letterSpacing: "0.05em",
+                      lineHeight: 1, marginTop: 2,
+                    }}>
+                      / 0{whyProps.length}
+                    </span>
+                  </div>
                 </div>
- 
-                <h3
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "clamp(1.8rem, 3vw, 2.4rem)",
-                    fontWeight: 900,
-                    color: T.ink,
-                    letterSpacing: "-0.03em",
-                    marginBottom: 16,
-                    lineHeight: 1.05,
-                  }}
-                >
-                  {active.title}
-                </h3>
- 
-                <p
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "1rem",
-                    lineHeight: 1.9,
-                    color: T.muted,
-                    maxWidth: 380,
-                    marginBottom: 40,
-                  }}
-                >
-                  {active.body}
-                </p>
- 
-                {/* Progress bar */}
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 6,
-                    alignItems: "center",
-                  }}
-                >
-                  {whyProps.map((_, i) => (
+
+                {/* Thumbnail strip — bottom left */}
+                <div style={{
+                  position: "absolute",
+                  left: 16, bottom: -20,
+                  zIndex: 3,
+                  display: "flex", gap: 8,
+                }}>
+                  {allImages.map((img, i) => (
                     <button
                       key={i}
+                      type="button"
                       onClick={() => handleRowClick(i)}
                       style={{
                         all: "unset",
                         cursor: "pointer",
-                        height: 4,
-                        width: i === activeIndex ? 40 : 10,
-                        borderRadius: 999,
-                        background: i === activeIndex ? T.green : "#d7e2c7",
-                        transition: "all 0.35s ease",
+                        width: i === activeIndex ? 52 : 40,
+                        height: i === activeIndex ? 52 : 40,
+                        borderRadius: 10,
+                        overflow: "hidden",
+                        border: i === activeIndex
+                          ? "2.5px solid #97b64c"
+                          : "2px solid rgba(255,255,255,0.6)",
+                        boxShadow: i === activeIndex
+                          ? "0 4px 16px rgba(151,182,76,0.4)"
+                          : "0 2px 8px rgba(0,0,0,0.12)",
+                        transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)",
+                        flexShrink: 0,
+                        opacity: i === activeIndex ? 1 : 0.7,
                       }}
-                    />
+                      aria-label={`View step ${i + 1}`}
+                    >
+                      {img?.url ? (
+                        <img src={img.url} alt="" draggable={false}
+                          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                      ) : (
+                        <div style={{
+                          width: "100%", height: "100%",
+                          background: `linear-gradient(135deg, #e8f2d0, #97b64c)`,
+                        }} />
+                      )}
+                    </button>
                   ))}
                 </div>
               </div>
             </div>
+
+            {/* RIGHT: Steps panel */}
+            <div
+              className={`ws-reveal ${inView ? "in" : ""}`}
+              style={{ transitionDelay: "0.35s" }}
+            >
+              {/* Description */}
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "1rem", lineHeight: 1.8,
+                color: T.muted, marginBottom: 36,
+                maxWidth: 360,
+              }}>
+                A simple, structured system that removes complexity and lets you focus on growth.
+              </p>
+
+              {/* Step list */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                {whyProps.map((item, i) => {
+                  const isActive = i === activeIndex
+                  return (
+                    <div key={item.title}>
+                      <button
+                        className={`ws-step-btn ${isActive ? "active" : ""}`}
+                        onClick={() => handleRowClick(i)}
+                      >
+                        <span className="ws-step-num">0{i + 1}</span>
+                        <div style={{ flex: 1, textAlign: "left" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: "1rem" }}>{item.icon}</span>
+                            <span className="ws-step-title">{item.title}</span>
+                          </div>
+                          {isActive && (
+                            <p
+                              key={`body-${activeIndex}`}
+                              className="ws-content-block"
+                              style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: "0.82rem",
+                                lineHeight: 1.7,
+                                color: T.muted,
+                                margin: "8px 0 0",
+                              }}
+                            >
+                              {item.body}
+                            </p>
+                          )}
+                        </div>
+                        <div style={{
+                          width: 28, height: 28, borderRadius: "50%",
+                          background: isActive ? "rgba(151,182,76,0.12)" : "transparent",
+                          border: `1.5px solid ${isActive ? "rgba(151,182,76,0.4)" : "rgba(151,182,76,0.15)"}`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          transition: "all 0.3s ease",
+                          flexShrink: 0,
+                        }}>
+                          <div style={{
+                            width: 7, height: 7, borderRadius: "50%",
+                            background: isActive ? "#97b64c" : "#d7e2c7",
+                            transition: "background 0.3s ease",
+                            boxShadow: isActive ? "0 0 0 3px rgba(151,182,76,0.2)" : "none",
+                          }} />
+                        </div>
+                      </button>
+
+                      {/* Progress bar under active */}
+                      {isActive && (
+                        <div className="ws-progress-track" key={`progress-${activeIndex}`}>
+                          <div className="ws-progress-fill" />
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* CTA */}
+              <div style={{ marginTop: 44 }}>
+                <Link
+                  to="/franchise#inquiry"
+                  className="ws-cta-btn"
+                >
+                  Become a Partner →
+                </Link>
+              </div>
+            </div>
+
           </div>
- 
         </div>
       </section>
     </>
@@ -984,26 +1173,7 @@ function InvestorProofSection() {
           zIndex: 1,
         }}
       >
-        {/* HEADER */}
-        <Reveal>
-          <div style={{ marginBottom: 50 }}>
-            <Eyebrow text="Investor Proof" />
-
-            <h2
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "clamp(2rem, 3vw, 2.6rem)",
-                fontWeight: 900,
-                color: "#1e1e1e",
-                letterSpacing: "-0.03em",
-                margin: 0,
-              }}
-            >
-              Built to Perform.{" "}
-              <span style={{ color: "#62840b" }}>Backed by Numbers.</span>
-            </h2>
-          </div>
-        </Reveal>
+      
 
         {/* STATS — compact horizontal ticker style */}
         <div
@@ -1138,167 +1308,525 @@ function InvestorProofSection() {
 }
 
 // ─── TESTIMONIALS ─────────────────────────────────────────────────────────────
+// ─── TESTIMONIALS ─────────────────────────────────────────────────────────────
 function FranchiseTestimonialsSection() {
-  const [active, setActive] = useState(0)
+  const [branchCards, setBranchCards] = useState([])
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [inView, setInView] = useState(false)
+  const sectionRef = useRef(null)
+  const autoRef = useRef(null)
   const { isMobile, isTablet } = useViewport()
 
   useEffect(() => {
-    const t = setInterval(() => setActive(p => (p + 1) % franchiseTestimonials.length), 4500)
-    return () => clearInterval(t)
+    let cancelled = false
+    async function loadBranchImages() {
+      try {
+        const { data, error } = await supabase
+          .from("MSlocations")
+          .select("*")
+          .order("id", { ascending: true })
+        if (error) throw error
+        if (!cancelled && Array.isArray(data)) {
+          const normalizeImage = (value) => {
+            if (!value || typeof value !== "string") return null
+            const trimmed = value.trim()
+            if (!trimmed) return null
+            if (/^https?:\/\//i.test(trimmed)) return trimmed
+            if (trimmed.startsWith("/")) return trimmed
+            return `https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/${trimmed.replace(/^\/+/, "")}`
+          }
+
+          const cardsFromDb = data
+            .map((row) => ({
+              name: row.name || row.branch_name || row.location_name || "Milkshop Branch",
+              image: normalizeImage(
+                row.image_url ||
+                row.photo_url ||
+                row.photo ||
+                row.branch_image ||
+                row.image
+              ),
+            }))
+            .filter((row) => row.image)
+          setBranchCards(cardsFromDb)
+        }
+      } catch (e) {
+        console.error("Failed to load branch images", e)
+      }
+    }
+    loadBranchImages()
+    return () => { cancelled = true }
   }, [])
 
-  const item = franchiseTestimonials[active]
+  // Intersection observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setInView(true) },
+      { threshold: 0.15 }
+    )
+    if (sectionRef.current) observer.observe(sectionRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  const cards = (branchCards.length
+    ? branchCards
+    : Array.from({ length: franchiseTestimonials.length }, (_, i) => ({ image: null, name: `Milkshop Branch ${i + 1}` }))
+  ).map((branch, index) => ({
+    id: `testimonial-${index}`,
+    image: branch.image,
+    branchName: branch.name,
+    quote: franchiseTestimonials[index % franchiseTestimonials.length].quote,
+  }))
+
+  const total = cards.length
+
+  // Auto-advance
+  useEffect(() => {
+    autoRef.current = setInterval(() => {
+      goTo((prev) => (prev + 1) % total)
+    }, 4800)
+    return () => clearInterval(autoRef.current)
+  }, [total])
+
+  const goTo = (indexOrFn) => {
+    if (isAnimating) return
+    setIsAnimating(true)
+    setActiveIndex(typeof indexOrFn === "function" ? indexOrFn(activeIndex) : indexOrFn)
+    setTimeout(() => setIsAnimating(false), 600)
+  }
+
+  const prev = () => { clearInterval(autoRef.current); goTo((activeIndex - 1 + total) % total) }
+  const next = () => { clearInterval(autoRef.current); goTo((activeIndex + 1) % total) }
+
+  // Compute per-card style based on distance from active
+  const getCardStyle = (i) => {
+    const dist = i - activeIndex
+    const wrap = (d) => {
+      if (d > total / 2) return d - total
+      if (d < -total / 2) return d + total
+      return d
+    }
+    const d = wrap(dist)
+    const absD = Math.abs(d)
+
+    if (absD > 2) return { display: "none" }
+
+    const configs = {
+      0:  { x: "0%",    z: 0,    scale: 1,     opacity: 1,    zIndex: 5, brightness: 1 },
+      1:  { x: "62%",   z: -160, scale: 0.82,  opacity: 0.72, zIndex: 4, brightness: 0.75 },
+      "-1":{ x: "-62%", z: -160, scale: 0.82,  opacity: 0.72, zIndex: 4, brightness: 0.75 },
+      2:  { x: "108%",  z: -280, scale: 0.66,  opacity: 0.4,  zIndex: 3, brightness: 0.55 },
+      "-2":{ x: "-108%",z: -280, scale: 0.66,  opacity: 0.4,  zIndex: 3, brightness: 0.55 },
+    }
+
+    const c = configs[d] || configs[Math.sign(d) * Math.min(absD, 2)]
+
+    return {
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: `
+        translate(-50%, -50%)
+        translateX(${c.x})
+        translateZ(${c.z}px)
+        scale(${c.scale})
+      `,
+      opacity: c.opacity,
+      zIndex: c.zIndex,
+      filter: `brightness(${c.brightness})`,
+      transition: "all 0.55s cubic-bezier(0.16, 1, 0.3, 1)",
+      cursor: d === 0 ? "default" : "pointer",
+      display: "block",
+    }
+  }
 
   const padX = isMobile ? 16 : isTablet ? 24 : 48
+  const cardW = isMobile ? 280 : isTablet ? 320 : 380
+  const cardH = isMobile ? 340 : isTablet ? 380 : 440
 
   return (
-    <section style={{
-      backgroundColor: T.surface,
-      padding: isMobile ? "72px 0 80px" : "120px 0 108px",
-      position: "relative", overflow: "hidden",
-    }}>
-      {/* Subtle top ring decoration */}
+    <section
+      ref={sectionRef}
+      style={{
+        backgroundColor: T.surface,
+        padding: isMobile ? "80px 0 96px" : "128px 0 120px",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <style>{`
+        @keyframes tmFadeUp {
+          from { opacity: 0; transform: translateY(28px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes tmLineGrow {
+          from { transform: scaleX(0); }
+          to   { transform: scaleX(1); }
+        }
+        @keyframes tmOrb {
+          0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+          50%       { transform: translateY(-20px) scale(1.1); opacity: 0.9; }
+        }
+        @keyframes quoteSlide {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .tm-reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        .tm-reveal.in { opacity: 1; transform: translateY(0); }
+
+        .tm-nav-btn {
+          width: 48px; height: 48px;
+          border-radius: 50%;
+          border: 1.5px solid rgba(151,182,76,0.4);
+          background: rgba(255,255,255,0.9);
+          color: #62840b;
+          font-size: 18px;
+          cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          transition: all 0.25s ease;
+          backdrop-filter: blur(8px);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        }
+        .tm-nav-btn:hover {
+          background: #97b64c;
+          color: #fff;
+          border-color: #97b64c;
+          transform: scale(1.08);
+          box-shadow: 0 8px 24px rgba(151,182,76,0.35);
+        }
+
+        .tm-dot {
+          width: 6px; height: 6px;
+          border-radius: 999px;
+          background: #d7e2c7;
+          cursor: pointer;
+          transition: all 0.35s ease;
+          border: none;
+          padding: 0;
+        }
+        .tm-dot.active {
+          width: 28px;
+          background: #97b64c;
+          box-shadow: 0 0 0 4px rgba(151,182,76,0.15);
+        }
+
+        .tm-card-quote {
+          animation: quoteSlide 0.45s ease forwards;
+        }
+
+        .tm-counter {
+          font-family: 'DM Mono', monospace;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: #97b64c;
+        }
+      `}</style>
+
+      {/* Background glows */}
       <div aria-hidden style={{
-        position: "absolute", left: "50%", top: -200,
+        position: "absolute", inset: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse 70% 55% at 50% 110%, rgba(151,182,76,0.08), transparent 60%)",
+      }} />
+      <div aria-hidden style={{
+        position: "absolute", top: -120, left: "50%",
         transform: "translateX(-50%)",
-        width: 600, height: 600, borderRadius: "50%",
-        border: `1px solid ${T.border}`,
+        width: 700, height: 700, borderRadius: "50%",
+        border: "1px solid rgba(151,182,76,0.07)",
         pointerEvents: "none",
       }} />
+      <div aria-hidden style={{
+        position: "absolute", bottom: "5%", right: "5%",
+        width: 300, height: 300, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(183,205,127,0.12), transparent 70%)",
+        filter: "blur(40px)",
+        pointerEvents: "none",
+        animation: "tmOrb 8s ease-in-out infinite",
+      }} />
 
-      <div style={{ maxWidth: 1160, margin: "0 auto", padding: `0 ${padX}px`, position: "relative", zIndex: 1, boxSizing: "border-box", width: "100%" }}>
+      <div style={{
+        maxWidth: 1160,
+        margin: "0 auto",
+        padding: `0 ${padX}px`,
+        position: "relative",
+        zIndex: 1,
+        boxSizing: "border-box",
+        width: "100%",
+      }}>
 
         {/* Header */}
-        <Reveal style={{ textAlign: "center", marginBottom: 56 }}>
-          <Eyebrow text="From Our Partners" large />
+        <div
+          className={`tm-reveal ${inView ? "in" : ""}`}
+          style={{ textAlign: "center", marginBottom: isMobile ? 56 : 80, transitionDelay: "0.1s" }}
+        >
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            gap: 12, marginBottom: 18,
+          }}>
+            <span style={{
+              display: "block", width: 32, height: 2,
+              background: "linear-gradient(90deg, transparent, #97b64c)",
+              borderRadius: 2, transformOrigin: "right",
+              animation: inView ? "tmLineGrow 0.7s ease forwards" : "none",
+              animationDelay: "0.3s",
+            }} />
+            <Eyebrow text="From Our Partners" large />
+            <span style={{
+              display: "block", width: 32, height: 2,
+              background: "linear-gradient(90deg, #97b64c, transparent)",
+              borderRadius: 2, transformOrigin: "left",
+              animation: inView ? "tmLineGrow 0.7s ease forwards" : "none",
+              animationDelay: "0.3s",
+            }} />
+          </div>
+
           <h2 style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: "clamp(2.4rem, 4.8vw, 4.2rem)",
             fontWeight: 900, letterSpacing: "-0.04em",
             lineHeight: 1.0, color: T.ink, margin: "0 0 18px",
-          }}>Real Stories. Real Success.</h2>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "clamp(1rem, 1.8vw, 1.15rem)",
-            lineHeight: 1.7, color: T.muted,
-            maxWidth: 540, margin: "0 auto",
           }}>
-            Hear from the franchisees who took the leap and have not looked back since.
-          </p>
-        </Reveal>
+            Real Stories.{" "}
+            <span style={{
+              background: "linear-gradient(135deg, #62840b, #97b64c, #b7cd7f)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}>
+              Real Success.
+            </span>
+          </h2>
 
-        {/* Testimonial card */}
-        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+        
+        </div>
+
+        {/* 3D Carousel Stage */}
+        <div
+          className={`tm-reveal ${inView ? "in" : ""}`}
+          style={{ transitionDelay: "0.25s" }}
+        >
+          {/* Stage */}
           <div style={{
             position: "relative",
-            backgroundColor: T.white,
-            border: `1px solid ${T.border}`,
-            borderRadius: 28,
-            padding: isMobile ? "36px 20px 28px" : "60px 64px 52px",
-            boxShadow: "0 24px 80px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04)",
-            minHeight: isMobile ? 320 : 300,
-            overflow: "hidden",
+            height: cardH + 40,
+            perspective: "1200px",
+            perspectiveOrigin: "50% 50%",
           }}>
-            {/* Decorative quote mark */}
-            <div aria-hidden style={{
-              position: "absolute", top: 28, right: 44,
-              fontFamily: "Georgia, serif", fontSize: "8rem",
-              color: T.green, opacity: 0.07, lineHeight: 1,
-              userSelect: "none", pointerEvents: "none",
-            }}>"</div>
-
-            {/* Stars */}
-            <div style={{ display: "flex", gap: 4, marginBottom: 28 }}>
-              {[...Array(5)].map((_, j) => (
-                <span key={j} style={{ color: T.amber, fontSize: "0.9rem" }}>★</span>
-              ))}
-            </div>
-
-            {/* Quote — animated on change; minHeight reduces vertical scrollbar twitch between slides */}
-            <div style={{ minHeight: isMobile ? 140 : 120, marginBottom: 36 }}>
-              <p
-                key={active}
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "clamp(1.2rem, 2.2vw, 1.7rem)",
-                  fontWeight: 600, lineHeight: 1.5,
-                  color: "#1e2319", margin: 0,
-                  animation: "fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards",
-                }}
-              >
-                {item.quote}
-              </p>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{
-                  width: 46, height: 46, borderRadius: "50%",
-                  display: "grid", placeItems: "center",
-                  backgroundColor: T.greenFade,
-                  fontSize: "1.1rem",
-                }}>👨‍💼</div>
-                <div>
-                  <p style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontWeight: 800, fontSize: "1rem",
-                    color: T.ink, margin: 0,
-                  }}>{item.name}</p>
-                  <p style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.85rem", color: T.muted, margin: "3px 0 0",
-                  }}>Franchisee · {item.location}</p>
-                </div>
-              </div>
-              <span style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.75rem", fontWeight: 700,
-                letterSpacing: "0.14em", textTransform: "uppercase",
-                color: T.green,
-                padding: "6px 14px",
-                border: `1px solid ${T.border}`,
-                borderRadius: 100,
-                backgroundColor: T.greenFade,
-              }}>{item.result}</span>
-            </div>
-          </div>
-
-          {/* Dots */}
-          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 28 }}>
-            {franchiseTestimonials.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setActive(i)}
-                className="dot-btn"
-                aria-label={`Show testimonial ${i + 1}`}
-                style={{
-                  width: i === active ? 28 : 8,
-                  height: 8, border: 0, borderRadius: 999, padding: 0, cursor: "pointer",
-                  backgroundColor: i === active ? T.green : T.borderDark,
-                }}
-              />
-            ))}
-          </div>
-
-          {/* CTA */}
-          <div style={{ display: "flex", justifyContent: "center", marginTop: 52 }}>
-            <Link
-              to="/franchise#inquiry"
-              className="btn-primary"
+            <button
+              type="button"
+              className="tm-nav-btn"
+              onClick={prev}
+              aria-label="Previous testimonials"
               style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 700, fontSize: "0.88rem",
-                padding: "16px 40px", borderRadius: 100,
-                backgroundColor: T.green, color: T.white,
-                textDecoration: "none",
-                boxShadow: `0 8px 24px ${T.green}40`,
-                display: "inline-block",
+                position: "absolute",
+                left: isMobile ? "-4px" : "-14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 20,
               }}
             >
-              Start Your Franchise Journey →
-            </Link>
+              ←
+            </button>
+
+            <button
+              type="button"
+              className="tm-nav-btn"
+              onClick={next}
+              aria-label="Next testimonials"
+              style={{
+                position: "absolute",
+                right: isMobile ? "-4px" : "-14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 20,
+              }}
+            >
+              →
+            </button>
+
+            <div style={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              transformStyle: "preserve-3d",
+            }}>
+              {cards.map((card, i) => {
+                const style = getCardStyle(i)
+                if (style.display === "none") return null
+                const isActive = i === activeIndex
+
+                return (
+                  <article
+                    key={card.id}
+                    onClick={() => !isActive && goTo(i)}
+                    style={{
+                      ...style,
+                      width: cardW,
+                      height: cardH,
+                      borderRadius: 24,
+                      overflow: "hidden",
+                      border: `1px solid ${isActive ? "rgba(151,182,76,0.4)" : T.border}`,
+                      boxShadow: isActive
+                        ? "0 32px 80px rgba(98,132,11,0.18), 0 8px 24px rgba(0,0,0,0.08)"
+                        : "0 12px 32px rgba(0,0,0,0.06)",
+                      backgroundColor: "#dfe7cf",
+                    }}
+                  >
+                    {/* Image */}
+                    {card.image ? (
+                      <img
+                        src={card.image}
+                        alt="Milkshop franchise branch"
+                        draggable={false}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          display: "block",
+                          transition: "transform 0.6s ease",
+                        }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: "100%",
+                        height: "100%",
+                        background: "linear-gradient(135deg, #d8e5bf 0%, #b7cd7f 45%, #97b64c 100%)",
+                      }} />
+                    )}
+
+                    {/* Gradient overlay */}
+                    <div aria-hidden style={{
+                      position: "absolute", inset: 0,
+                      background: isActive
+                        ? "linear-gradient(180deg, rgba(30,30,30,0.16) 0%, rgba(30,30,30,0.62) 65%, rgba(30,30,30,0.86) 100%)"
+                        : "linear-gradient(180deg, rgba(30,30,30,0.15) 0%, rgba(30,30,30,0.65) 100%)",
+                      pointerEvents: "none",
+                      transition: "all 0.55s ease",
+                    }} />
+
+                    {/* Green accent bar on active */}
+                    {isActive && (
+                      <div style={{
+                        position: "absolute",
+                        top: 0, left: 0, right: 0,
+                        height: 3,
+                        background: "linear-gradient(90deg, #62840b, #97b64c, #b7cd7f)",
+                        borderRadius: "24px 24px 0 0",
+                      }} />
+                    )}
+
+                    {/* Branch name */}
+                    <span style={{
+                      position: "absolute",
+                      top: 14,
+                      left: 14,
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.62rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      color: isActive ? "#1e1e1e" : "#ffffff",
+                      background: isActive ? "rgba(183,205,127,0.9)" : "rgba(30,30,30,0.55)",
+                      border: isActive ? "1px solid rgba(151,182,76,0.45)" : "1px solid rgba(255,255,255,0.35)",
+                      borderRadius: 999,
+                      padding: "6px 10px",
+                      backdropFilter: "blur(8px)",
+                    }}>
+                      {card.branchName}
+                    </span>
+
+                    {/* Quote */}
+                    <div style={{
+                      position: "absolute",
+                      left: 20, right: 20, bottom: 20,
+                    }}>
+                      {isActive && (
+                        <span style={{
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: "2.5rem",
+                          lineHeight: 1,
+                          color: "rgba(151,182,76,0.7)",
+                          display: "block",
+                          marginBottom: 4,
+                          fontWeight: 900,
+                        }}>"</span>
+                      )}
+                      <p
+                        key={`quote-${activeIndex}`}
+                        className={isActive ? "tm-card-quote" : ""}
+                        style={{
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: isActive
+                            ? "clamp(0.88rem, 1.4vw, 1rem)"
+                            : "clamp(0.82rem, 1.2vw, 0.9rem)",
+                          fontWeight: 700,
+                          lineHeight: 1.5,
+                          color: "#ffffff",
+                          margin: 0,
+                          textShadow: "0 2px 12px rgba(0,0,0,0.5)",
+                        }}
+                      >
+                        {card.quote}
+                      </p>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Controls row */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginTop: 8,
+          }}>
+            {/* Dot indicators */}
+            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              {cards.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className={`tm-dot ${i === activeIndex ? "active" : ""}`}
+                  onClick={() => { clearInterval(autoRef.current); goTo(i) }}
+                  aria-label={`Go to testimonial ${i + 1}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* CTA */}
+        <div
+          className={`tm-reveal ${inView ? "in" : ""}`}
+          style={{
+            display: "flex", justifyContent: "center",
+            marginTop: 56,
+            transitionDelay: "0.4s",
+          }}
+        >
+          <Link
+            to="/franchise#inquiry"
+            className="btn-primary"
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 700, fontSize: "0.88rem",
+              padding: "16px 44px", borderRadius: 100,
+              backgroundColor: T.green, color: T.white,
+              textDecoration: "none",
+              boxShadow: `0 8px 28px ${T.green}45`,
+              display: "inline-block",
+              transition: "all 0.3s ease",
+            }}
+          >
+            Start Your Franchise Journey →
+          </Link>
+        </div>
+
       </div>
     </section>
   )
@@ -1309,29 +1837,27 @@ function FinalCTASection() {
   const { isMobile, isTablet } = useViewport()
   return (
     <section style={{
-      background: T.white,
+      background: "#1e1e1e",
       padding: isMobile ? "48px 0 44px" : "64px 0 60px",
       position: "relative", overflow: "hidden",
     }}>
       <div aria-hidden style={{
-        position: "absolute", left: "22%", top: "50%",
-        transform: "translateY(-50%)",
-        width: 260, height: 260, borderRadius: "50%",
-        background: `radial-gradient(circle, ${T.green}16 0%, transparent 70%)`,
-        filter: "blur(8px)",
+        position: "absolute",
+        inset: 0,
+        backgroundImage: "linear-gradient(rgba(151,182,76,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.08) 1px, transparent 1px)",
+        backgroundSize: "44px 44px",
+        opacity: 0.18,
         pointerEvents: "none",
       }} />
 
       <div style={{
-        maxWidth: 940,
+        maxWidth: 1160,
         margin: "0 auto",
         padding: isMobile ? "22px 16px" : isTablet ? "30px 24px" : "34px 38px",
         position: "relative",
         zIndex: 1,
-        borderRadius: 24,
-        background: `linear-gradient(105deg, #4e6f07 0%, ${T.greenDark} 46%, #1b3004 100%)`,
-        border: "1px solid rgba(183,205,127,0.22)",
-        boxShadow: "0 16px 36px rgba(17,22,19,0.18)",
+        borderTop: "1px solid rgba(183,205,127,0.26)",
+        borderBottom: "1px solid rgba(183,205,127,0.26)",
       }}>
         <div style={{
           display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr auto",
@@ -1342,7 +1868,7 @@ function FinalCTASection() {
             <span style={{
               fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 800,
               letterSpacing: "0.3em", textTransform: "uppercase",
-              color: T.greenLight, display: "block", marginBottom: 12,
+              color: "#b7cd7f", display: "block", marginBottom: 12,
             }}>Next Step</span>
             <h2 style={{
               fontFamily: "'DM Sans', sans-serif",
@@ -1352,6 +1878,16 @@ function FinalCTASection() {
             }}>
               Ready to Review<br />the Franchise Deck?
             </h2>
+            <p style={{
+              margin: "12px 0 0",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "0.9rem",
+              lineHeight: 1.6,
+              color: "rgba(255,255,255,0.86)",
+              maxWidth: 460,
+            }}>
+              See the full business model, numbers, and rollout support in one investor-ready deck.
+            </p>
           </Reveal>
 
           <Reveal delay={100}>
@@ -1409,7 +1945,6 @@ export default function Home() {
       >
         <Hero />
         <WhySection />
-        <InvestorProofSection />
         <FranchiseTestimonialsSection />
         <FinalCTASection />
       </main>

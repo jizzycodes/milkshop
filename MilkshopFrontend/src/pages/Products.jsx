@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Reveal from "../components/Reveal";
 import { supabase } from "../lib/supabaseClient";
@@ -74,336 +74,126 @@ const topDrinks = [
   },
 ];
 
-const tagStyles = {
-  "Best Seller": { bg: "linear-gradient(135deg,#62840b,#97b64c)", color: "#fff" },
-  "Classic":     { bg: "linear-gradient(135deg,#97b64c,#b7cd7f)", color: "#fff" },
-  "New":         { bg: "linear-gradient(135deg,#1e1e1e,#3a3a3a)", color: "#b7cd7f" },
-  "Fan Fave":    { bg: "linear-gradient(135deg,#b7cd7f,#d4e8a0)", color: "#1e1e1e" },
-  "Signature":   { bg: "linear-gradient(135deg,#2a2a2a,#1e1e1e)", color: "#97b64c" },
-  "Limited":     { bg: "linear-gradient(135deg,#62840b,#4a6008)", color: "#fff" },
-};
+// ─── SERIES CUPS (Fan Favorites layout: manual, equal cups, full opacity, tight gap) ─
+function SeriesCupsCarousel({ products }) {
+  const [active, setActive] = useState(0);
+  const total = products.length;
+  const activeIndex = total === 0 ? 0 : Math.min(active, total - 1);
 
-const VISIBLE = 4; // cards visible at once
+  const getPos = (index) => {
+    if (total === 0) return "hidden";
+    let d = index - activeIndex;
+    const half = total / 2;
+    if (d > half) d -= total;
+    if (d < -half) d += total;
+    if (d === 0) return "center";
+    if (d === 1) return "right1";
+    if (d === -1) return "left1";
+    if (d === 2) return "right2";
+    if (d === -2) return "left2";
+    return "hidden";
+  };
 
-// ─── PRODUCT CARD (UPGRADED) ──────────────────────────────────────────────────
-function ProductCard({ product }) {
-  const [hovered, setHovered] = useState(false);
-  const tag = product.tag ? tagStyles[product.tag] : null;
+  const posStyles = {
+    center:  "z-40 opacity-100 translate-x-0",
+    right1:  "z-30 opacity-50 translate-x-[100%]",
+    left1:   "z-30 opacity-50 -translate-x-[100%]",
+    right2:  "z-20 opacity-30 translate-x-[200%]",
+    left2:   "z-20 opacity-30 -translate-x-[200%]",
+    hidden:  "z-10 opacity-0 pointer-events-none translate-x-0",
+  };
+
+  const current = products[activeIndex];
+  const cupImgClass =
+    "object-contain drop-shadow-2xl select-none h-56 w-auto max-w-[200px] sm:h-64 sm:max-w-[220px]";
 
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        flexShrink: 0,
-        width: "240px",
-        cursor: "pointer",
-        transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-        transform: hovered ? "scale(1.04) translateY(-6px)" : "scale(1) translateY(0)",
-      }}
-    >
-      <div style={{
-        borderRadius: "28px",
-        background: hovered
-          ? "rgba(255,255,255,0.98)"
-          : "rgba(255,255,255,0.92)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        border: `1.5px solid ${hovered ? "rgba(151,182,76,0.7)" : "rgba(151,182,76,0.25)"}`,
-        boxShadow: hovered
-          ? "0 18px 36px rgba(98,132,11,0.14), 0 6px 18px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.88)"
-          : "0 8px 20px rgba(98,132,11,0.06), 0 2px 6px rgba(0,0,0,0.04)",
-        overflow: "hidden",
-        transition: "all 0.3s ease",
-        position: "relative",
-      }}>
+    <div className="w-full max-w-7xl mx-auto px-6 lg:px-10">
+      <div className="relative h-72 sm:h-80 flex items-center justify-center overflow-hidden">
+        {products.map((product, i) => {
+          const pos = getPos(i);
+          return (
+            <button
+              key={product.id}
+              type="button"
+              onClick={() => setActive(i)}
+              className={`absolute transition-all duration-500 ease-in-out flex flex-col items-center cursor-pointer ${posStyles[pos]}`}
+              aria-label={product.name}
+            >
+              {product.image_url ? (
+                <img
+                  src={product.image_url}
+                  alt=""
+                  draggable={false}
+                  className={cupImgClass}
+                />
+              ) : (
+                <div className="flex h-56 w-[168px] sm:h-64 sm:w-[188px] shrink-0 items-center justify-center">
+                  <svg width="40" height="40" fill="none" stroke="#97b64c" strokeWidth="1.5" viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 001.5 2.121" />
+                  </svg>
+                </div>
+              )}
+            </button>
+          );
+        })}
 
-        {/* Top shimmer */}
-        <div style={{
-          position: "absolute", top: 0, left: 0, right: 0, height: "50%",
-          background: "linear-gradient(180deg, rgba(240,248,225,0.6) 0%, transparent 100%)",
-          borderRadius: "28px 28px 0 0",
-          pointerEvents: "none", zIndex: 1,
-        }} />
-
-        {/* Image area — TALL & DOMINANT */}
-        <div style={{
-          height: "300px",
-          display: "flex", alignItems: "flex-end", justifyContent: "center",
-          paddingBottom: "0px",
-          background: hovered
-            ? "linear-gradient(180deg, rgba(230,244,210,0.9) 0%, rgba(247,252,240,0.6) 60%, rgba(255,255,255,0) 100%)"
-            : "linear-gradient(180deg, rgba(240,248,232,0.7) 0%, rgba(250,254,246,0.4) 60%, rgba(255,255,255,0) 100%)",
-          position: "relative", overflow: "hidden",
-          transition: "background 0.3s ease",
-        }}>
-
-          {/* Radial floor glow */}
-          <div style={{
-            position: "absolute", bottom: "-10px", left: "50%",
-            transform: "translateX(-50%)",
-            width: "80%", height: "60px",
-            background: "radial-gradient(ellipse, rgba(151,182,76,0.45) 0%, transparent 70%)",
-            filter: "blur(14px)",
-            opacity: hovered ? 1 : 0.5,
-            transition: "opacity 0.4s ease",
-            pointerEvents: "none",
-          }} />
-
-          {/* Ambient side glow on hover */}
-          {hovered && (
-            <div style={{
-              position: "absolute", inset: 0,
-              background: "radial-gradient(ellipse at 50% 30%, rgba(183,205,127,0.18) 0%, transparent 70%)",
-              pointerEvents: "none",
-            }} />
-          )}
-
-          {product.image_url ? (
-            <img
-              src={product.image_url}
-              alt={product.name}
-              draggable={false}
+        {total > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => setActive((activeIndex - 1 + total) % total)}
+              className="hidden sm:flex items-center justify-center absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border text-xs transition-colors"
               style={{
-                height: "292px",
-                width: "auto",
-                maxWidth: "200px",
-                objectFit: "contain",
-                position: "relative", zIndex: 2,
-                transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1), filter 0.3s ease",
-                transform: hovered ? "scale(1.08) translateY(-8px)" : "scale(1) translateY(0)",
-                filter: hovered
-                  ? "drop-shadow(0 18px 24px rgba(0,0,0,0.18)) drop-shadow(0 4px 8px rgba(98,132,11,0.12))"
-                  : "drop-shadow(0 10px 14px rgba(0,0,0,0.1))",
-                userSelect: "none",
+                borderColor: "#b7cd7f",
+                backgroundColor: "rgba(183,205,127,0.18)",
+                color: "#62840b",
               }}
-            />
-          ) : (
-            <div style={{
-              width: "80px", height: "80px", borderRadius: "50%",
-              background: "linear-gradient(135deg,#e8f0da,#d0e0b0)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              zIndex: 2, position: "relative", marginBottom: "20px",
-            }}>
-              <svg width="34" height="34" fill="none" stroke="#97b64c" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round"
-                  d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 001.5 2.121" />
-              </svg>
-            </div>
-          )}
-
-          {/* Tag badge */}
-          {tag && (
-            <span style={{
-              position: "absolute", top: "14px", left: "14px", zIndex: 3,
-              fontSize: "9px", fontWeight: 800, letterSpacing: "0.14em",
-              textTransform: "uppercase", padding: "5px 11px",
-              borderRadius: "999px", background: tag.bg, color: tag.color,
-              fontFamily: "'DM Sans', sans-serif",
-              boxShadow: "0 3px 12px rgba(0,0,0,0.2)",
-            }}>
-              {product.tag}
-            </span>
-          )}
-        </div>
-
-        {/* Info panel */}
-        <div style={{
-          padding: "18px 20px 22px",
-          borderTop: `1px solid ${hovered ? "rgba(151,182,76,0.2)" : "rgba(151,182,76,0.08)"}`,
-          background: hovered
-            ? "linear-gradient(180deg, rgba(245,251,237,0.6) 0%, rgba(255,255,255,0.8) 100%)"
-            : "rgba(255,255,255,0.6)",
-          backdropFilter: "blur(8px)",
-          transition: "all 0.3s ease",
-        }}>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontWeight: 700, fontSize: "0.85rem",
-            color: hovered ? "#62840b" : "#1e1e1e",
-            letterSpacing: "-0.01em", lineHeight: 1.35,
-            margin: 0,
-            transition: "color 0.2s ease",
-          }}>
-            {product.name}
-          </p>
-
-          <div style={{
-            display: "flex", alignItems: "center",
-            justifyContent: "space-between", marginTop: "10px",
-          }}>
-            {product.price && (
-              <p style={{
-                fontFamily: "'DM Mono', monospace",
-                fontWeight: 900, fontSize: "1rem",
-                color: "#97b64c", margin: 0,
-              }}>
-                ₱{product.price}
-              </p>
-            )}
-            {/* Subtle CTA arrow on hover */}
-            <div style={{
-              width: "28px", height: "28px", borderRadius: "50%",
-              background: hovered ? "rgba(151,182,76,0.15)" : "transparent",
-              border: `1px solid ${hovered ? "rgba(151,182,76,0.4)" : "transparent"}`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "all 0.25s ease",
-              flexShrink: 0,
-            }}>
-              <span style={{
-                fontSize: "12px", color: "#97b64c",
-                opacity: hovered ? 1 : 0,
-                transform: hovered ? "translateX(0)" : "translateX(-4px)",
-                transition: "all 0.25s ease",
-              }}>→</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-// ─── PREMIUM CAROUSEL (UPGRADED) ──────────────────────────────────────────────
-function PremiumCarousel({ products }) {
-  const [offset, setOffset]       = useState(0);
-  const [dragging, setDragging]   = useState(false);
-  const [dragStart, setDragStart] = useState(0);
-  const [dragDelta, setDragDelta] = useState(0);
-  const [isMobile, setIsMobile]   = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.innerWidth < 768;
-  });
-  const trackRef = useRef(null);
-  const visibleCount = isMobile ? 1 : VISIBLE;
-  const maxOffset = Math.max(0, products.length - visibleCount);
-
-  const goLeft  = () => setOffset(o => Math.max(0, o - 1));
-  const goRight = () => setOffset(o => Math.min(maxOffset, o + 1));
-
-  const onDragStart = (clientX) => { setDragging(true); setDragStart(clientX); setDragDelta(0); };
-  const onDragMove  = useCallback((clientX) => { if (!dragging) return; setDragDelta(clientX - dragStart); }, [dragging, dragStart]);
-  const onDragEnd   = useCallback(() => {
-    if (!dragging) return;
-    setDragging(false);
-    if (dragDelta < -60)      setOffset(o => Math.min(maxOffset, o + 1));
-    else if (dragDelta > 60)  setOffset(o => Math.max(0, o - 1));
-    setDragDelta(0);
-  }, [dragging, dragDelta, maxOffset]);
-
-  const onMouseDown  = (e) => onDragStart(e.clientX);
-  const onMouseMove  = (e) => onDragMove(e.clientX);
-  const onMouseUp    = () => onDragEnd();
-  const onMouseLeave = () => { if (dragging) onDragEnd(); };
-  const onTouchStart = (e) => onDragStart(e.touches[0].clientX);
-  const onTouchMove  = (e) => onDragMove(e.touches[0].clientX);
-  const onTouchEnd   = () => onDragEnd();
-
-  const CARD_W   = isMobile ? 220 : 240;
-  const CARD_GAP = isMobile ? 14 : 20;
-  const translateX = offset * -(CARD_W + CARD_GAP) + (dragging ? dragDelta * 0.4 : 0);
-
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  return (
-    <div style={{ position: "relative", userSelect: "none" }}>
-      <div style={{ overflow: "hidden", padding: "40px 0 48px" }}>
-        <div
-          ref={trackRef}
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-          onMouseLeave={onMouseLeave}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-          style={{
-            display: "flex",
-            gap: `${CARD_GAP}px`,
-            paddingLeft: isMobile ? "16px" : "calc(50% - 500px)",
-            cursor: dragging ? "grabbing" : "grab",
-            transition: dragging ? "none" : "transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94)",
-            transform: `translateX(${translateX}px)`,
-          }}
-        >
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
+              aria-label="Previous"
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              onClick={() => setActive((activeIndex + 1) % total)}
+              className="hidden sm:flex items-center justify-center absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border text-xs transition-colors"
+              style={{
+                borderColor: "#b7cd7f",
+                backgroundColor: "rgba(183,205,127,0.18)",
+                color: "#62840b",
+              }}
+              aria-label="Next"
+            >
+              →
+            </button>
+          </>
+        )}
       </div>
 
-      {/* Left Arrow */}
-      <button
-        onClick={goLeft}
-        disabled={offset === 0}
-        style={{
-          position: "absolute", left: "12px", top: "50%",
-          transform: "translateY(-60%)",
-          width: "48px", height: "48px", borderRadius: "50%",
-          border: `1.5px solid ${offset === 0 ? "rgba(151,182,76,0.15)" : "rgba(151,182,76,0.55)"}`,
-          background: offset === 0
-            ? "rgba(255,255,255,0.35)"
-            : "rgba(255,255,255,0.9)",
-          backdropFilter: "blur(12px)",
-          color: offset === 0 ? "#c8d8a8" : "#62840b",
-          fontSize: "1rem", fontWeight: 800,
-          cursor: offset === 0 ? "default" : "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: offset === 0 ? "none" : "0 6px 24px rgba(98,132,11,0.2)",
-          transition: "all 0.25s ease",
-          zIndex: 10,
-        }}
-      >
-        ←
-      </button>
+      {current && (
+        <div className="mt-6 flex flex-col items-center text-center px-4 min-h-[3.5rem]">
+          <h3
+            className="text-xl sm:text-2xl font-bold text-[#1e1e1e] max-w-lg"
+            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+          >
+            {current.name}
+          </h3>
+        </div>
+      )}
 
-      {/* Right Arrow */}
-      <button
-        onClick={goRight}
-        disabled={offset === maxOffset}
-        style={{
-          position: "absolute", right: "12px", top: "50%",
-          transform: "translateY(-60%)",
-          width: "48px", height: "48px", borderRadius: "50%",
-          border: `1.5px solid ${offset === maxOffset ? "rgba(151,182,76,0.15)" : "rgba(151,182,76,0.55)"}`,
-          background: offset === maxOffset
-            ? "rgba(255,255,255,0.35)"
-            : "rgba(255,255,255,0.9)",
-          backdropFilter: "blur(12px)",
-          color: offset === maxOffset ? "#c8d8a8" : "#62840b",
-          fontSize: "1rem", fontWeight: 800,
-          cursor: offset === maxOffset ? "default" : "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: offset === maxOffset ? "none" : "0 6px 24px rgba(98,132,11,0.2)",
-          transition: "all 0.25s ease",
-          zIndex: 10,
-        }}
-      >
-        →
-      </button>
-
-      {/* Dot Indicators */}
-      {products.length > VISIBLE && (
-        <div style={{
-          display: "flex", justifyContent: "center",
-          gap: "8px", marginTop: "4px", marginBottom: "60px",
-        }}>
-          {Array.from({ length: maxOffset + 1 }).map((_, i) => (
+      {total > 1 && (
+        <div className="flex justify-center gap-2 mt-5 mb-4 flex-wrap">
+          {products.map((_, i) => (
             <button
               key={i}
-              onClick={() => setOffset(i)}
-              style={{
-                width: i === offset ? "28px" : "8px",
-                height: "8px", borderRadius: "999px",
-                backgroundColor: i === offset ? "#97b64c" : "#d0e0b0",
-                border: "none", cursor: "pointer", padding: 0,
-                transition: "all 0.3s ease",
-              }}
+              type="button"
+              onClick={() => setActive(i)}
+              className={`rounded-full transition-all duration-300 ${
+                i === activeIndex
+                  ? "w-6 h-2 bg-[#97b64c]"
+                  : "w-2 h-2 bg-[#d0e0b0] hover:bg-[#b7cd7f]"
+              }`}
+              aria-label={`Slide ${i + 1}`}
             />
           ))}
         </div>
@@ -616,7 +406,7 @@ function CategorySection({ category, products }) {
       </div>
 
       {/* Carousel */}
-      <PremiumCarousel products={products} />
+      <SeriesCupsCarousel products={products} />
 
       {/* Section Divider */}
       <div style={{
@@ -710,8 +500,6 @@ export default function Products() {
   }, {});
 
   const featured = feedbacks[activeReview];
-  const row1 = feedbacks.slice(0, Math.ceil(feedbacks.length / 2));
-  const row2 = feedbacks.slice(Math.ceil(feedbacks.length / 2));
 
   return (
     <main style={{
