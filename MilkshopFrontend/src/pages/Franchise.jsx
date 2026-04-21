@@ -89,7 +89,33 @@ const franchisePageStyles = `
     overflow-x: hidden;
     scrollbar-gutter: stable;
   }
+
+  @keyframes heroFadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(151,182,76,0.4); }
+    50%       { box-shadow: 0 0 0 8px rgba(151,182,76,0); }
+  }
+  @keyframes lineGrow {
+    from { height: 0; }
+    to   { height: 100%; }
+  }
+  @keyframes descReveal {
+    from { opacity: 0; transform: translateY(8px); max-height: 0; }
+    to   { opacity: 1; transform: translateY(0); max-height: 120px; }
+  }
+
+  .hero-step-active .step-dot {
+    animation: stepPulse 2s ease-in-out infinite;
+  }
+  .hero-step-line {
+    transform-origin: top;
+    animation: lineGrow 0.4s ease forwards;
+  }
 `;
+
 
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 
@@ -106,6 +132,7 @@ export default function Franchise() {
     return window.innerWidth < 768;
   });
   const processSectionRef = useRef(null);
+  const heroProcessPanelRef = useRef(null);
   const processLockRef = useRef(false);
   const processWheelDeltaRef = useRef(0);
   const processTouchYRef = useRef(null);
@@ -123,7 +150,7 @@ export default function Franchise() {
   }, []);
 
   useEffect(() => {
-    const section = processSectionRef.current;
+    const section = heroProcessPanelRef.current;
     if (!section) return;
 
     const THRESHOLD = 90;
@@ -133,11 +160,25 @@ export default function Franchise() {
     };
 
     const isSectionCentered = () => {
-      const rect = section.getBoundingClientRect();
-      return rect.top <= window.innerHeight * 0.25 && rect.bottom >= window.innerHeight * 0.75;
-    };
+      const panelRect = section.getBoundingClientRect();
+      const heroSection = section.closest("section");
+      const heroRect = heroSection?.getBoundingClientRect();
+      if (!heroRect) return false;
+
+      const heroVisible =
+        heroRect.top <= 120 && heroRect.bottom >= window.innerHeight * 0.45;
+      const panelInRange =
+        panelRect.top <= 180 && panelRect.bottom >= window.innerHeight * 0.3;
+
+      return heroVisible && panelInRange;
+    }
 
     const syncLockState = () => {
+      if (isSectionCentered()) {
+        setLocked(true);
+        return;
+      }
+
       if (!isSectionCentered()) {
         setLocked(false);
         processWheelDeltaRef.current = 0;
@@ -232,6 +273,7 @@ export default function Franchise() {
     window.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("scroll", syncLockState, { passive: true });
     window.addEventListener("resize", syncLockState);
+    syncLockState();
     return () => {
       setLocked(false);
       window.removeEventListener("wheel", onWheel);
@@ -266,6 +308,23 @@ export default function Franchise() {
     if (!formData.remarks.trim())                   e.remarks               = "Please tell us a bit about yourself.";
     return e;
   };
+
+  const FORM_FIELDS = [
+    "name",
+    "email",
+    "contactNumber",
+    "bestContactTime",
+    "estimatedAnnualIncome",
+    "proposedLocation",
+    "preferredPackage",
+    "remarks",
+  ]
+   
+  const filledCount = FORM_FIELDS.filter(
+    (key) => String(formData[key] ?? "").trim() !== ""
+  ).length
+   
+  const progressPct = Math.round((filledCount / FORM_FIELDS.length) * 100)
 
   const handleSubmit = async (ev) => {
     ev.preventDefault();
@@ -302,16 +361,16 @@ export default function Franchise() {
         }}
       >
 
-
  {/* ══════════════════════════════════════
       SLIDE 1 — HERO (PREMIUM UPGRADE)
 ══════════════════════════════════════ */}
 <section
+  ref={processSectionRef}
   data-track-section="Franchise Hero"
   className="relative overflow-hidden"
   style={{
     background: "linear-gradient(160deg, #f5f8ef 0%, #ffffff 60%, #fffdf5 100%)",
-    minHeight: isMobile ? "84vh" : "100vh",
+    minHeight: isMobile ? "68vh" : "76vh",
     display: "flex",
     alignItems: "center",
   }}
@@ -339,23 +398,13 @@ export default function Franchise() {
     }}
   />
 
-  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-16 sm:py-20 lg:py-28 z-10 w-full">
+  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-12 lg:py-16 z-10 w-full">
     <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-12 items-center">
 
       {/* LEFT */}
       <div className="flex flex-col gap-7">
 
-        <span
-          className="self-start inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.25em] uppercase px-4 py-2 rounded-full"
-          style={{
-            backgroundColor: "rgba(151,182,76,0.10)",
-            color: "#62840b",
-            border: "1px solid rgba(151,182,76,0.22)"
-          }}
-        >
-          🇹🇼 Franchise Opportunity
-        </span>
-
+       
         <h1
           style={{
             fontSize: "clamp(3.2rem, 6vw, 5.4rem)",
@@ -437,46 +486,214 @@ export default function Franchise() {
       </div>
 
       {/* RIGHT */}
-      <div className="relative w-full max-w-xl mx-auto lg:mx-0">
+ {/* RIGHT — PROCESS PANEL */}
+<div ref={heroProcessPanelRef} className="relative w-full max-w-xl mx-auto lg:mx-0 flex flex-col gap-0">
 
-        <div
-          className="rounded-3xl overflow-hidden"
-          style={{
-            border: "1px solid #d0e0b0",
-            boxShadow: "0 25px 70px rgba(0,0,0,0.12)"
-          }}
-        >
-          <img
-            src="/images/store.jpg"
-            alt="Milkshop Store"
-            className="w-full h-[460px] object-cover"
-          />
+{/* Panel header */}
+<div className="mb-6 flex items-center gap-3">
+  <div style={{
+    height: 2, width: 28,
+    background: "linear-gradient(90deg, #62840b, #97b64c)",
+    borderRadius: 2,
+  }} />
+  <span style={{
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: "10px", fontWeight: 800,
+    letterSpacing: "0.26em", textTransform: "uppercase",
+    color: "#62840b",
+  }}>
+    How It Works
+  </span>
+  {/* Step counter */}
+  <span style={{
+    marginLeft: "auto",
+    fontFamily: "'DM Mono', monospace",
+    fontSize: "10px", fontWeight: 700,
+    letterSpacing: "0.14em",
+    color: "#97b64c",
+  }}>
+    {String(activeStep + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
+  </span>
+</div>
+
+{/* Steps vertical list */}
+<div className="flex flex-col" style={{ position: "relative" }}>
+  {steps.map((s, i) => {
+    const isActive = activeStep === i;
+    const isPast   = i < activeStep;
+    const isLast   = i === steps.length - 1;
+
+    return (
+      <div
+        key={i}
+        onClick={() => setActiveStep(i)}
+        className={isActive ? "hero-step-active" : ""}
+        style={{
+          display: "flex",
+          gap: 16,
+          cursor: "pointer",
+          paddingBottom: isLast ? 0 : 4,
+          position: "relative",
+        }}
+      >
+        {/* Left: dot + vertical line */}
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          flexShrink: 0,
+          width: 28,
+        }}>
+          {/* Dot */}
+          <div
+            className="step-dot"
+            style={{
+              width: 28, height: 28,
+              borderRadius: "50%",
+              background: isActive
+                ? "linear-gradient(135deg, #62840b, #97b64c)"
+                : isPast
+                ? "rgba(151,182,76,0.15)"
+                : "rgba(151,182,76,0.08)",
+              border: `2px solid ${isActive ? "#97b64c" : isPast ? "rgba(151,182,76,0.35)" : "rgba(151,182,76,0.18)"}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.4s ease",
+              flexShrink: 0,
+              zIndex: 1,
+              position: "relative",
+            }}
+          >
+            {isPast ? (
+              <span style={{ fontSize: 11, color: "#62840b", fontWeight: 800 }}>✓</span>
+            ) : (
+              <span style={{ fontSize: 11 }}>{s.icon}</span>
+            )}
+          </div>
+
+          {/* Vertical connector line */}
+          {!isLast && (
+            <div style={{
+              width: 2,
+              flex: 1,
+              minHeight: isActive ? 64 : 32,
+              background: isPast
+                ? "linear-gradient(180deg, #97b64c, rgba(151,182,76,0.3))"
+                : "rgba(151,182,76,0.12)",
+              borderRadius: 2,
+              marginTop: 3,
+              transition: "all 0.4s ease",
+            }} />
+          )}
         </div>
 
-        {/* FLOATING METRICS (REFINED) */}
-        <div
-          className="absolute -bottom-6 -left-6 bg-white px-5 py-4 rounded-2xl text-sm"
-          style={{
-            border: "1px solid #d0e0b0",
-            boxShadow: "0 14px 34px rgba(0,0,0,0.10)"
-          }}
-        >
-          <p className="font-bold" style={{ color: "#1e1e1e" }}>ROI</p>
-          <p style={{ color: "#62840b", fontWeight: 800 }}>12–18 Months</p>
-        </div>
+        {/* Right: content */}
+        <div style={{
+          paddingBottom: isLast ? 0 : isActive ? 20 : 16,
+          paddingTop: 2,
+          flex: 1,
+          minWidth: 0,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: "9px", fontWeight: 700,
+              letterSpacing: "0.18em",
+              color: isActive ? "#97b64c" : "#b7cd7f",
+              transition: "color 0.3s ease",
+            }}>
+              {s.step}
+            </span>
+            <h4 style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "0.875rem",
+              fontWeight: isActive ? 800 : 600,
+              color: isActive ? "#1e1e1e" : isPast ? "#5a6a4a" : "#8a9a7a",
+              margin: 0,
+              letterSpacing: "-0.01em",
+              transition: "all 0.3s ease",
+            }}>
+              {s.title}
+            </h4>
 
-        <div
-          className="absolute -top-6 -right-6 bg-white px-5 py-4 rounded-2xl text-sm"
-          style={{
-            border: "1px solid #d0e0b0",
-            boxShadow: "0 14px 34px rgba(0,0,0,0.10)"
-          }}
-        >
-          <p className="font-bold" style={{ color: "#1e1e1e" }}>Support</p>
-          <p style={{ color: "#62840b", fontWeight: 800 }}>Full Training</p>
-        </div>
+            {/* Active arrow indicator */}
+            {isActive && (
+              <span style={{
+                marginLeft: "auto",
+                fontSize: 10,
+                color: "#97b64c",
+                fontWeight: 700,
+                animation: "heroFadeUp 0.4s ease forwards",
+              }}>→</span>
+            )}
+          </div>
 
+          {/* Expandable description */}
+          <div style={{
+            overflow: "hidden",
+            maxHeight: isActive ? 100 : 0,
+            opacity: isActive ? 1 : 0,
+            transition: "max-height 0.45s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease",
+          }}>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "0.78rem",
+              lineHeight: 1.65,
+              color: "#5a6a4a",
+              margin: "6px 0 0",
+            }}>
+              {s.desc}
+            </p>
+          </div>
+        </div>
       </div>
+    );
+  })}
+</div>
+
+{/* Scroll hint */}
+<p style={{
+  fontFamily: "'DM Sans', sans-serif",
+  fontSize: "10px",
+  color: "#97b64c",
+  marginTop: 16,
+  opacity: activeStep === 0 ? 1 : 0,
+  transform: activeStep === 0 ? "translateY(0)" : "translateY(-6px)",
+  transition: "all 0.4s ease",
+  letterSpacing: "0.06em",
+}}>
+  ↓ Scroll to walk through each step
+</p>
+
+{/* Bottom CTA pill */}
+
+<a
+  href="#inquiry"
+  style={{
+    marginTop: 20,
+    display: "inline-flex",
+    alignSelf: "flex-start",
+    alignItems: "center",
+    gap: 6,
+    padding: "10px 20px",
+    borderRadius: 999,
+    background: "rgba(151,182,76,0.08)",
+    border: "1px solid rgba(151,182,76,0.28)",
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: "11px", fontWeight: 700,
+    color: "#62840b",
+    textDecoration: "none",
+    letterSpacing: "0.04em",
+    transition: "all 0.25s ease",
+  }}
+  onMouseEnter={e => { e.currentTarget.style.background = "rgba(151,182,76,0.14)"; e.currentTarget.style.borderColor = "rgba(151,182,76,0.5)" }}
+  onMouseLeave={e => { e.currentTarget.style.background = "rgba(151,182,76,0.08)"; e.currentTarget.style.borderColor = "rgba(151,182,76,0.28)" }}
+>
+  Apply Now →
+</a>
+
+</div>
     </div>
   </div>
 </section>
@@ -811,19 +1028,33 @@ export default function Franchise() {
       border: "1px solid #dce8c8",
       boxShadow: "0 20px 60px rgba(0,0,0,0.06)"
     }}>
-
-    {/* PROGRESS BAR */}
-    <div className="mb-8">
-      <div className="flex justify-between text-[11px] mb-2"
-        style={{ color: "#62840b" }}>
-        <span>Step 1 of 2</span>
-        <span>50%</span>
-      </div>
-      <div className="w-full h-2 rounded-full bg-[#e8f0dc]">
-        <div className="h-full rounded-full"
-          style={{ width: "50%", background: "#97b64c" }} />
-      </div>
-    </div>
+ 
+ {/* PROGRESS BAR */}
+ <div className="mb-8">
+   <div className="flex justify-between text-[11px] mb-2"
+     style={{ color: "#62840b" }}>
+     <span>
+       {filledCount === 0
+         ? "Start filling the form"
+         : filledCount === FORM_FIELDS.length
+         ? "✓ All fields complete"
+         : `${filledCount} of ${FORM_FIELDS.length} fields filled`}
+     </span>
+     <span style={{ fontWeight: 700 }}>{progressPct}%</span>
+   </div>
+   <div className="w-full h-2 rounded-full bg-[#e8f0dc]" style={{ overflow: "hidden" }}>
+     <div
+       className="h-full rounded-full"
+       style={{
+         width: `${progressPct}%`,
+         background: progressPct === 100
+           ? "linear-gradient(90deg, #62840b, #97b64c)"
+           : "#97b64c",
+         transition: "width 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+       }}
+     />
+   </div>
+ </div>
 
     {/* FORM GRID */}
     <div className="grid lg:grid-cols-2 gap-6">

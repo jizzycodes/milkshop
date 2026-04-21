@@ -3,22 +3,77 @@ import { Link } from "react-router-dom"
 import { supabase } from "../lib/supabaseClient"
 
 const STATIC_LOCATIONS = [
-  { id: 1,  name: "SM Mall of Asia",           region: "Metro Manila", address: "SM Mall of Asia, Pasay City, Metro Manila",                hours: "10:00 AM – 10:00 PM", phone: "0995 290 8161", dateEstablished: "March 2022",     tag: "Flagship", tagColor: { bg: "#97b64c", text: "#fff" },  photo: null, lat: 14.5353, lng: 120.9833 },
-  { id: 2,  name: "BGC Bonifacio High Street",  region: "Metro Manila", address: "Bonifacio High Street, BGC, Taguig City",                  hours: "10:00 AM – 11:00 PM", phone: "0995 290 8162", dateEstablished: "June 2022",      tag: "Popular",  tagColor: { bg: "#E8A020", text: "#fff" },  photo: null, lat: 14.5499, lng: 121.0485 },
-  { id: 3,  name: "SM Megamall",                region: "Metro Manila", address: "SM Megamall, Ortigas, Mandaluyong City",                   hours: "10:00 AM – 10:00 PM", phone: "0995 290 8163", dateEstablished: "August 2022",    tag: null,       tagColor: null,                             photo: null, lat: 14.5856, lng: 121.0565 },
-  { id: 4,  name: "Trinoma",                    region: "Metro Manila", address: "TriNoma Mall, North Avenue, Quezon City",                  hours: "10:00 AM – 10:00 PM", phone: "0995 290 8164", dateEstablished: "October 2022",   tag: null,       tagColor: null,                             photo: null, lat: 14.6561, lng: 121.0326 },
-  { id: 5,  name: "Robinsons Ermita",           region: "Metro Manila", address: "Robinsons Place Manila, Ermita, Manila",                   hours: "10:00 AM – 9:30 PM",  phone: "0995 290 8165", dateEstablished: "November 2022",  tag: null,       tagColor: null,                             photo: null, lat: 14.5744, lng: 120.9845 },
-  { id: 6,  name: "SM City Baguio",             region: "Luzon",        address: "SM City Baguio, Luneta Hill, Baguio City",                 hours: "10:00 AM – 9:00 PM",  phone: "0995 290 8166", dateEstablished: "February 2023",  tag: "New",      tagColor: { bg: "#97b64c", text: "#fff" },  photo: null, lat: 16.4119, lng: 120.5960 },
-  { id: 7,  name: "SM City Pampanga",           region: "Luzon",        address: "SM City Pampanga, San Fernando, Pampanga",                 hours: "10:00 AM – 9:30 PM",  phone: "0995 290 8167", dateEstablished: "April 2023",     tag: null,       tagColor: null,                             photo: null, lat: 15.0359, lng: 120.6942 },
-  { id: 8,  name: "Robinsons Naga",             region: "Luzon",        address: "Robinsons Place Naga, Naga City, Camarines Sur",           hours: "10:00 AM – 9:00 PM",  phone: "0995 290 8168", dateEstablished: "July 2023",      tag: "New",      tagColor: { bg: "#97b64c", text: "#fff" },  photo: null, lat: 13.6218, lng: 123.1948 },
-  { id: 9,  name: "SM City Sta. Rosa",          region: "Luzon",        address: "SM City Sta. Rosa, Sta. Rosa City, Laguna",                hours: "10:00 AM – 10:00 PM", phone: "0995 290 8169", dateEstablished: "September 2023", tag: null,       tagColor: null,                             photo: null, lat: 14.2827, lng: 121.1114 },
-  { id: 10, name: "Ayala Center Cebu",          region: "Visayas",      address: "Ayala Center Cebu, Cebu Business Park, Cebu City",         hours: "10:00 AM – 10:00 PM", phone: "0995 290 8170", dateEstablished: "May 2023",       tag: "Popular",  tagColor: { bg: "#E8A020", text: "#fff" },  photo: null, lat: 10.3157, lng: 123.9054 },
-  { id: 11, name: "SM City Iloilo",             region: "Visayas",      address: "SM City Iloilo, Iloilo City, Iloilo",                      hours: "10:00 AM – 9:30 PM",  phone: "0995 290 8171", dateEstablished: "August 2023",    tag: null,       tagColor: null,                             photo: null, lat: 10.7202, lng: 122.5621 },
-  { id: 12, name: "Robinsons Bacolod",          region: "Visayas",      address: "Robinsons Place Bacolod, Bacolod City, Negros Occidental", hours: "10:00 AM – 9:00 PM",  phone: "0995 290 8172", dateEstablished: "November 2023",  tag: "New",      tagColor: { bg: "#97b64c", text: "#fff" },  photo: null, lat: 10.6407, lng: 122.9720 },
-  { id: 13, name: "Abreeza Mall Davao",         region: "Mindanao",     address: "Abreeza Ayala Mall, J.P. Laurel Ave., Davao City",         hours: "10:00 AM – 10:00 PM", phone: "0995 290 8173", dateEstablished: "June 2023",      tag: "Popular",  tagColor: { bg: "#E8A020", text: "#fff" },  photo: null, lat: 7.0731,  lng: 125.6128 },
-  { id: 14, name: "SM City Cagayan de Oro",     region: "Mindanao",     address: "SM City CDO, Limketkai Dr., Cagayan de Oro City",          hours: "10:00 AM – 9:30 PM",  phone: "0995 290 8174", dateEstablished: "September 2023", tag: null,       tagColor: null,                             photo: null, lat: 8.4542,  lng: 124.6319 },
-  { id: 15, name: "NCCC Mall Zamboanga",        region: "Mindanao",     address: "NCCC Mall, Veterans Ave., Zamboanga City",                 hours: "10:00 AM – 9:00 PM",  phone: "0995 290 8175", dateEstablished: "January 2024",   tag: "New",      tagColor: { bg: "#97b64c", text: "#fff" },  photo: null, lat: 6.9214,  lng: 122.0790 },
-]
+  {
+    id: 1,
+    name: "Milkshop PH - Guiguinto",
+    address: "MacArthur Highway, Guiguinto, Bulacan",
+    lat: 14.8392246,
+    lng: 120.8599318
+  },
+  {
+    id: 2,
+    name: "Milkshop PH - Tabang Guiguinto",
+    address: "Tabang, Guiguinto, Bulacan",
+    lat: 14.8258097,
+    lng: 120.8658063
+  },
+  {
+    id: 3,
+    name: "Milkshop PH - GD Plaza Guiguinto",
+    address: "Front of WalterMart Guiguinto",
+    lat: 14.8284535,
+    lng: 120.8743037
+  },
+  {
+    id: 4,
+    name: "Milkshop PH - Malolos Convention",
+    address: "Malolos, Bulacan",
+    lat: 14.8588102,
+    lng: 120.8108367
+  },
+  {
+    id: 5,
+    name: "Milkshop PH - Vista Mall Malolos",
+    address: "Vista Mall Malolos",
+    lat: 14.8755907,
+    lng: 120.7973621
+  },
+  {
+    id: 6,
+    name: "Milkshop PH - MacArthur Hwy Malolos",
+    address: "Front of WalterMart Malolos",
+    lat: 14.8715939,
+    lng: 120.7990442
+  },
+  {
+    id: 7,
+    name: "Milkshop PH - Marilao",
+    address: "Marilao, Bulacan",
+    lat: 14.769961,
+    lng: 120.941103
+  },
+  {
+    id: 8,
+    name: "Milkshop PH - Parada Valenzuela",
+    address: "Parada, Valenzuela City",
+    lat: 14.6962913,
+    lng: 120.9969947
+  },
+  {
+    id: 9,
+    name: "Milkshop PH - SM Valenzuela",
+    address: "SM City Valenzuela",
+    lat: 14.6856445,
+    lng: 120.9771159
+  },
+  {
+    id: 10,
+    name: "Milkshop PH - Starmall SJDM",
+    address: "Starmall SJDM, Bulacan",
+    lat: 14.8139973,
+    lng: 121.0707105
+  }
+];
 
 const regionAccent = {
   "Metro Manila": "#97b64c",
