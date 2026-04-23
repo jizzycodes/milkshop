@@ -150,36 +150,63 @@ export default function Franchise() {
   }, []);
 
   useEffect(() => {
-    const section = heroProcessPanelRef.current;
-    if (!section) return;
+    const panel = heroProcessPanelRef.current;
+    const heroSection = processSectionRef.current;
+    if (!panel || !heroSection) return;
 
-    const THRESHOLD = 90;
+    const THRESHOLD = 48;
+    const htmlEl = document.documentElement;
+    const bodyEl = document.body;
+    const prevHtmlOverflow = htmlEl.style.overflow;
+    const prevBodyOverflow = bodyEl.style.overflow;
+    const prevHtmlOverscroll = htmlEl.style.overscrollBehavior;
+    const prevBodyOverscroll = bodyEl.style.overscrollBehavior;
+
+    const setPageScrollLocked = (locked) => {
+      if (locked) {
+        htmlEl.style.overflow = "hidden";
+        bodyEl.style.overflow = "hidden";
+        htmlEl.style.overscrollBehavior = "none";
+        bodyEl.style.overscrollBehavior = "none";
+        return;
+      }
+      htmlEl.style.overflow = prevHtmlOverflow;
+      bodyEl.style.overflow = prevBodyOverflow;
+      htmlEl.style.overscrollBehavior = prevHtmlOverscroll;
+      bodyEl.style.overscrollBehavior = prevBodyOverscroll;
+    };
 
     const setLocked = (locked) => {
       processLockRef.current = locked;
+      setPageScrollLocked(locked);
     };
 
-    const isSectionCentered = () => {
-      const panelRect = section.getBoundingClientRect();
-      const heroSection = section.closest("section");
-      const heroRect = heroSection?.getBoundingClientRect();
-      if (!heroRect) return false;
+    const isHeroEngaged = () => {
+      const heroRect = heroSection.getBoundingClientRect();
+      const panelRect = panel.getBoundingClientRect();
+      const viewportH = window.innerHeight;
 
-      const heroVisible =
-        heroRect.top <= 120 && heroRect.bottom >= window.innerHeight * 0.45;
-      const panelInRange =
-        panelRect.top <= 180 && panelRect.bottom >= window.innerHeight * 0.3;
+      const heroVisiblePx =
+        Math.min(heroRect.bottom, viewportH) - Math.max(heroRect.top, 0);
+      const heroVisibleRatio = Math.max(
+        0,
+        heroVisiblePx / Math.min(Math.max(heroRect.height, 1), viewportH)
+      );
 
-      return heroVisible && panelInRange;
-    }
+      const panelVisiblePx =
+        Math.min(panelRect.bottom, viewportH) - Math.max(panelRect.top, 0);
+
+      return heroVisibleRatio >= 0.55 && panelVisiblePx >= 120;
+    };
+
+    const shouldCaptureFromEvent = (eventTarget) => {
+      if (!isHeroEngaged()) return false;
+      if (!(eventTarget instanceof Node)) return processLockRef.current;
+      return heroSection.contains(eventTarget) || processLockRef.current;
+    };
 
     const syncLockState = () => {
-      if (isSectionCentered()) {
-        setLocked(true);
-        return;
-      }
-
-      if (!isSectionCentered()) {
+      if (!isHeroEngaged()) {
         setLocked(false);
         processWheelDeltaRef.current = 0;
         processTouchYRef.current = null;
@@ -187,6 +214,8 @@ export default function Franchise() {
     };
 
     const onWheel = (e) => {
+      if (!shouldCaptureFromEvent(e.target)) return;
+
       const isTryingToLeaveForward = activeStep === steps.length - 1 && e.deltaY > 0;
       const isTryingToLeaveBackward = activeStep === 0 && e.deltaY < 0;
       if (isTryingToLeaveForward || isTryingToLeaveBackward) {
@@ -196,7 +225,6 @@ export default function Franchise() {
       }
 
       if (!processLockRef.current) {
-        if (!isSectionCentered()) return;
         setLocked(true);
       }
 
@@ -227,6 +255,8 @@ export default function Franchise() {
     };
 
     const onTouchMove = (e) => {
+      if (!shouldCaptureFromEvent(e.target)) return;
+
       const currentY = e.touches[0]?.clientY;
       const startY = processTouchYRef.current;
       if (typeof currentY !== "number" || typeof startY !== "number") return;
@@ -243,7 +273,6 @@ export default function Franchise() {
       }
 
       if (!processLockRef.current) {
-        if (!isSectionCentered()) return;
         setLocked(true);
       }
 
@@ -364,631 +393,466 @@ export default function Franchise() {
  {/* ══════════════════════════════════════
       SLIDE 1 — HERO (PREMIUM UPGRADE)
 ══════════════════════════════════════ */}
+{/* ══════════════════════════════════════
+    FRANCHISE HERO — Premium Animated
+══════════════════════════════════════ */}
 <section
   ref={processSectionRef}
   data-track-section="Franchise Hero"
   className="relative overflow-hidden"
   style={{
-    background: "linear-gradient(160deg, #f5f8ef 0%, #ffffff 60%, #fffdf5 100%)",
-    minHeight: isMobile ? "68vh" : "76vh",
+    background: "linear-gradient(158deg, #f3f9ea 0%, #ffffff 50%, #f0f7e6 100%)",
+    minHeight: "100vh",
     display: "flex",
     alignItems: "center",
+    fontFamily: "'DM Sans', sans-serif",
   }}
 >
+  <style>{`
+    @keyframes fhFadeUp    { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fhFadeLeft  { from{opacity:0;transform:translateX(-30px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes fhFadeRight { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes fhShimmer   { 0%{background-position:-200% center} 100%{background-position:200% center} }
+    @keyframes fhOrbDrift  { 0%,100%{transform:translate(0,0) scale(1);opacity:0.5} 50%{transform:translate(18px,-14px) scale(1.07);opacity:0.85} }
+    @keyframes fhTagPulse  { 0%,100%{box-shadow:0 0 0 0 rgba(151,182,76,0.45)} 50%{box-shadow:0 0 0 9px rgba(151,182,76,0)} }
+    @keyframes fhDotBlink  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.65)} }
+    @keyframes fhCardIn    { from{opacity:0;transform:translateY(14px) scale(0.99)} to{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes fhDescIn    { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fhScrollLine{ 0%{transform:translateY(-100%)} 100%{transform:translateY(220%)} }
+    @keyframes fhSoftPulse { 0%,100%{ box-shadow:0 0 0 0 rgba(151,182,76,0.2) } 50%{ box-shadow:0 0 0 10px rgba(151,182,76,0) } }
+    @keyframes fhCheckIn   { from{opacity:0;transform:scale(0)} to{opacity:1;transform:scale(1)} }
 
-  {/* Softer pattern */}
-  <div
-    className="absolute inset-0 pointer-events-none"
-    style={{
-      backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.12) 1px, transparent 1px)",
-      backgroundSize: "34px 34px",
-      maskImage: "radial-gradient(ellipse at 30% 50%, black 20%, transparent 75%)",
-      WebkitMaskImage: "radial-gradient(ellipse at 30% 50%, black 20%, transparent 75%)",
-    }}
-  />
+    .fh-tag   { opacity:0; animation:fhFadeUp   0.6s ease forwards; animation-delay:0.1s }
+    .fh-h1    { opacity:0; animation:fhFadeLeft 0.75s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay:0.25s }
+    .fh-p     { opacity:0; animation:fhFadeLeft 0.7s ease forwards; animation-delay:0.42s }
+    .fh-list  { opacity:0; animation:fhFadeUp   0.7s ease forwards; animation-delay:0.55s }
+    .fh-cta   { opacity:0; animation:fhFadeUp   0.7s ease forwards; animation-delay:0.68s }
+    .fh-stats { opacity:0; animation:fhFadeUp   0.7s ease forwards; animation-delay:0.8s }
+    .fh-right { opacity:0; animation:fhFadeRight 0.85s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay:0.15s }
 
-  {/* Ambient glow */}
-  <div
-    className="absolute -right-32 -top-24 pointer-events-none"
-    style={{
-      width: "600px",
-      height: "600px",
-      borderRadius: "50%",
-      background: "radial-gradient(circle, rgba(151,182,76,0.10) 0%, transparent 70%)",
-    }}
-  />
+    .fh-cta-primary {
+      display:inline-flex; align-items:center; gap:7px;
+      padding:15px 32px; border-radius:999px;
+      background:linear-gradient(135deg,#62840b,#97b64c);
+      color:#fff; font-family:'DM Sans',sans-serif;
+      font-size:0.9rem; font-weight:800;
+      text-decoration:none; border:none; cursor:pointer;
+      box-shadow:0 10px 32px rgba(151,182,76,0.4);
+      transition:all 0.3s ease; letter-spacing:0.01em;
+    }
+    .fh-cta-primary:hover { transform:translateY(-3px); box-shadow:0 18px 44px rgba(151,182,76,0.52) }
 
-  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-12 lg:py-16 z-10 w-full">
-    <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-12 items-center">
+    .fh-cta-secondary {
+      display:inline-flex; align-items:center; gap:7px;
+      padding:15px 28px; border-radius:999px;
+      background:transparent; color:#62840b;
+      font-family:'DM Sans',sans-serif;
+      font-size:0.9rem; font-weight:700;
+      text-decoration:none;
+      border:1.5px solid rgba(151,182,76,0.38);
+      transition:all 0.3s ease;
+    }
+    .fh-cta-secondary:hover { background:rgba(151,182,76,0.08); border-color:#97b64c; transform:translateY(-2px) }
 
-      {/* LEFT */}
-      <div className="flex flex-col gap-7">
+    .fh-step-track-fill {
+      transition: height 0.6s cubic-bezier(0.16,1,0.3,1);
+    }
+    .fh-step-card {
+      animation: fhCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    .fh-step-desc {
+      animation: fhDescIn 0.45s ease forwards;
+      animation-delay: 0.1s;
+      opacity: 0;
+    }
+    .fh-stat-item { transition:transform 0.3s ease; }
+    .fh-stat-item:hover { transform:translateY(-3px) }
+    .fh-check { animation:fhCheckIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .fh-node-active {
+      animation: fhSoftPulse 1.8s ease-in-out infinite;
+    }
+  `}</style>
 
-       
-        <h1
-          style={{
-            fontSize: "clamp(3.2rem, 6vw, 5.4rem)",
-            fontWeight: 900,
-            lineHeight: 0.95,
-            letterSpacing: "-0.05em",
-            color: "#1e1e1e",
-          }}
-        >
+  {/* ── Backgrounds ── */}
+  <div aria-hidden style={{
+    position:"absolute", inset:0, pointerEvents:"none",
+    backgroundImage:"radial-gradient(circle, rgba(151,182,76,0.2) 1.5px, transparent 1.5px)",
+    backgroundSize:"32px 32px",
+    maskImage:"radial-gradient(ellipse at 8% 55%, black 5%, transparent 52%)",
+    WebkitMaskImage:"radial-gradient(ellipse at 8% 55%, black 5%, transparent 52%)",
+  }} />
+  <div aria-hidden style={{
+    position:"absolute", inset:0, pointerEvents:"none",
+    backgroundImage:"radial-gradient(circle, rgba(151,182,76,0.1) 1.5px, transparent 1.5px)",
+    backgroundSize:"26px 26px",
+    maskImage:"radial-gradient(ellipse at 94% 42%, black 5%, transparent 50%)",
+    WebkitMaskImage:"radial-gradient(ellipse at 94% 42%, black 5%, transparent 50%)",
+  }} />
+  <div aria-hidden style={{
+    position:"absolute", top:"-10%", right:"-6%",
+    width:600, height:600, borderRadius:"50%",
+    background:"radial-gradient(circle, rgba(151,182,76,0.11) 0%, transparent 68%)",
+    filter:"blur(28px)", pointerEvents:"none",
+    animation:"fhOrbDrift 16s ease-in-out infinite",
+  }} />
+  <div aria-hidden style={{
+    position:"absolute", bottom:"0%", left:"-5%",
+    width:360, height:360, borderRadius:"50%",
+    background:"radial-gradient(circle, rgba(183,205,127,0.13) 0%, transparent 70%)",
+    filter:"blur(22px)", pointerEvents:"none",
+    animation:"fhOrbDrift 20s ease-in-out infinite reverse",
+  }} />
+  <div aria-hidden style={{
+    position:"absolute", right:"4%", top:"50%", transform:"translateY(-50%)",
+    width:"min(540px,55vw)", height:"min(540px,55vw)", borderRadius:"50%",
+    border:"1px solid rgba(151,182,76,0.09)", pointerEvents:"none",
+  }} />
+  <div aria-hidden style={{
+    position:"absolute", bottom:0, left:0, right:0, height:1,
+    background:"linear-gradient(90deg, transparent, rgba(151,182,76,0.25), transparent)",
+  }} />
+
+  {/* ── Content ── */}
+  <div style={{
+    position:"relative", zIndex:10,
+    maxWidth:1380, margin:"0 auto",
+    padding:"clamp(100px,12vw,130px) clamp(20px,4vw,56px) clamp(80px,10vw,110px)",
+    width:"100%", boxSizing:"border-box",
+    display:"grid",
+    gridTemplateColumns:"0.78fr 1.22fr",
+    gap:34,
+    alignItems:"center",
+  }}
+    className="max-lg:grid-cols-1 max-lg:gap-12"
+  >
+
+    {/* ══ LEFT ══ */}
+    <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+
+      {/* Tag */}
+      <div className="fh-tag">
+        <span style={{
+          display:"inline-flex", alignItems:"center", gap:8,
+          padding:"7px 16px", borderRadius:999,
+          background:"rgba(151,182,76,0.09)",
+          border:"1px solid rgba(151,182,76,0.26)",
+          fontSize:"10px", fontWeight:800,
+          letterSpacing:"0.22em", textTransform:"uppercase", color:"#62840b",
+          animation:"fhTagPulse 3s ease-in-out infinite",
+          animationDelay:"1.5s",
+        }}>
+          <span style={{
+            width:5, height:5, borderRadius:"50%", background:"#97b64c",
+            display:"inline-block", animation:"fhDotBlink 2s ease-in-out infinite",
+          }} />
+          🇹🇼 Franchise Opportunity
+        </span>
+      </div>
+
+      {/* Headline */}
+      <div className="fh-h1">
+        <h1 style={{
+          fontSize:"clamp(3rem,6.5vw,5.6rem)",
+          fontWeight:900, lineHeight:0.88,
+          letterSpacing:"-0.055em", margin:0,
+          color:"#1a1e14",
+        }}>
           Own a Milkshop.<br />
-          <span style={{ color: "#97b64c" }}>Build Your Future.</span>
+          <span style={{
+            background:"linear-gradient(135deg, #3a5c06 0%, #62840b 30%, #97b64c 65%, #b7cd7f 100%)",
+            backgroundSize:"200% auto",
+            WebkitBackgroundClip:"text",
+            WebkitTextFillColor:"transparent",
+            backgroundClip:"text",
+            animation:"fhShimmer 5s linear infinite",
+            animationDelay:"1s",
+            display:"inline-block",
+          }}>Build Your Future.</span>
         </h1>
+      </div>
 
-        <p className="text-base leading-relaxed max-w-xl"
-          style={{ color: "#5a6a4a" }}>
+      {/* Body */}
+      <div className="fh-p">
+        <p style={{
+          fontSize:"clamp(0.9rem,1.5vw,1.05rem)",
+          lineHeight:1.8, color:"#4d5c3a",
+          maxWidth:480, margin:0,
+        }}>
           Proven system, fast setup, and full support from day one. Start your business with a brand trusted by Filipino milk tea customers.
         </p>
-
-        {/* KEY POINTS */}
-        <ul className="flex flex-col gap-2 text-sm" style={{ color: "#3a4a2a" }}>
-          {["No experience required", "12–18 months ROI target", "Exclusive territory available"].map((item) => (
-            <li key={item} className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full text-white text-[10px] font-bold flex items-center justify-center"
-                style={{ backgroundColor: "#97b64c" }}>
-                ✓
-              </span>
-              {item}
-            </li>
-          ))}
-        </ul>
-
-        {/* CTA (MORE DOMINANT) */}
-        <div className="flex flex-wrap gap-4 mt-2">
-          <a
-            href="#inquiry"
-            className="px-10 py-4 rounded-full font-bold text-sm transition-all duration-300 hover:scale-[1.04] active:scale-95"
-            style={{
-              backgroundColor: "#97b64c",
-              color: "#fff",
-              boxShadow: "0 12px 32px rgba(151,182,76,0.35)",
-            }}
-          >
-            Apply for Franchise →
-          </a>
-
-          <a
-            href="#process"
-            className="px-8 py-4 rounded-full font-bold text-sm transition-all duration-200"
-            style={{
-              border: "1.5px solid #d0e0b0",
-              color: "#62840b",
-              backgroundColor: "transparent"
-            }}
-          >
-            View Process
-          </a>
-        </div>
-
-        {/* TRUST METRICS (MORE PREMIUM) */}
-        <div className="flex gap-6 mt-6 text-sm">
-
-          {[
-            { label: "Branches", value: "15+" },
-            { label: "Partners", value: "100+" },
-            { label: "Support", value: "Nationwide" }
-          ].map((m) => (
-            <div key={m.label} className="flex flex-col">
-              <span className="text-xl font-extrabold" style={{ color: "#1e1e1e" }}>
-                {m.value}
-              </span>
-              <span className="text-xs" style={{ color: "#62840b" }}>
-                {m.label}
-              </span>
-            </div>
-          ))}
-
-        </div>
-
       </div>
 
-      {/* RIGHT */}
- {/* RIGHT — PROCESS PANEL */}
-<div ref={heroProcessPanelRef} className="relative w-full max-w-xl mx-auto lg:mx-0 flex flex-col gap-0">
+      {/* Key points */}
+      <ul className="fh-list" style={{
+        listStyle:"none", margin:0, padding:0,
+        display:"flex", flexDirection:"column", gap:10,
+      }}>
+        {["No experience required", "12–18 months ROI target", "Exclusive territory available"].map((item, i) => (
+          <li key={item} style={{
+            display:"flex", alignItems:"center", gap:10,
+            fontFamily:"'DM Sans', sans-serif",
+            fontSize:"0.9rem", fontWeight:600, color:"#3a4a2a",
+          }}>
+            <span className="fh-check" style={{
+              width:20, height:20, borderRadius:"50%",
+              background:"linear-gradient(135deg, #62840b, #97b64c)",
+              display:"flex", alignItems:"center", justifyContent:"center",
+              flexShrink:0, fontSize:"10px", color:"white", fontWeight:800,
+              boxShadow:"0 3px 10px rgba(151,182,76,0.35)",
+              animationDelay:`${0.6 + i * 0.1}s`,
+            }}>✓</span>
+            {item}
+          </li>
+        ))}
+      </ul>
 
-{/* Panel header */}
-<div className="mb-6 flex items-center gap-3">
-  <div style={{
-    height: 2, width: 28,
-    background: "linear-gradient(90deg, #62840b, #97b64c)",
-    borderRadius: 2,
-  }} />
-  <span style={{
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: "10px", fontWeight: 800,
-    letterSpacing: "0.26em", textTransform: "uppercase",
-    color: "#62840b",
-  }}>
-    How It Works
-  </span>
-  {/* Step counter */}
-  <span style={{
-    marginLeft: "auto",
-    fontFamily: "'DM Mono', monospace",
-    fontSize: "10px", fontWeight: 700,
-    letterSpacing: "0.14em",
-    color: "#97b64c",
-  }}>
-    {String(activeStep + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
-  </span>
-</div>
+      {/* CTAs */}
+      <div className="fh-cta" style={{ display:"flex", flexWrap:"wrap", gap:12 }}>
+        <a href="#inquiry" className="fh-cta-primary">Apply for Franchise →</a>
+        <a href="#process" className="fh-cta-secondary">View Process</a>
+      </div>
 
-{/* Steps vertical list */}
-<div className="flex flex-col" style={{ position: "relative" }}>
-  {steps.map((s, i) => {
-    const isActive = activeStep === i;
-    const isPast   = i < activeStep;
-    const isLast   = i === steps.length - 1;
+      {/* Stats */}
+      <div className="fh-stats" style={{
+        display:"flex", gap:0,
+        border:"1px solid #ddecc4", borderRadius:16,
+        overflow:"hidden", background:"white",
+        alignSelf:"flex-start",
+        boxShadow:"0 4px 20px rgba(151,182,76,0.1)",
+        marginTop:4,
+      }}>
+        {[
+          { label:"Branches",   value:"15+" },
+          { label:"Partners",   value:"100+" },
+          { label:"Support",    value:"Nationwide" },
+        ].map((m, i) => (
+          <div key={m.label} className="fh-stat-item" style={{
+            padding:"16px 24px", textAlign:"center",
+            borderRight: i < 2 ? "1px solid #ddecc4" : "none",
+          }}>
+            <p style={{ fontFamily:"'DM Mono', monospace", fontWeight:900, fontSize:"1.2rem", color:"#1a1e14", lineHeight:1, margin:"0 0 4px" }}>{m.value}</p>
+            <p style={{ fontFamily:"'DM Sans', sans-serif", fontSize:"8px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.16em", color:"#97b64c", margin:0 }}>{m.label}</p>
+          </div>
+        ))}
+      </div>
 
-    return (
+    </div>
+
+    {/* ══ RIGHT — Minimal Timeline Panel ══ */}
+    <div className="fh-right" style={{ position:"relative", width:"100%", justifySelf:"end" }}>
       <div
-        key={i}
-        onClick={() => setActiveStep(i)}
-        className={isActive ? "hero-step-active" : ""}
+        ref={heroProcessPanelRef}
         style={{
-          display: "flex",
-          gap: 16,
-          cursor: "pointer",
-          paddingBottom: isLast ? 0 : 4,
-          position: "relative",
+          width:"min(100%, 860px)",
+          marginLeft:"auto",
+          background:"rgba(255,255,255,0.93)",
+          backdropFilter:"blur(12px)",
+          WebkitBackdropFilter:"blur(12px)",
+          borderRadius:30,
+          border:"1px solid rgba(151,182,76,0.22)",
+          boxShadow:"0 20px 56px rgba(151,182,76,0.14)",
+          overflow:"hidden",
+          position:"relative",
         }}
       >
-        {/* Left: dot + vertical line */}
         <div style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          flexShrink: 0,
-          width: 28,
-        }}>
-          {/* Dot */}
-          <div
-            className="step-dot"
-            style={{
-              width: 28, height: 28,
-              borderRadius: "50%",
-              background: isActive
-                ? "linear-gradient(135deg, #62840b, #97b64c)"
-                : isPast
-                ? "rgba(151,182,76,0.15)"
-                : "rgba(151,182,76,0.08)",
-              border: `2px solid ${isActive ? "#97b64c" : isPast ? "rgba(151,182,76,0.35)" : "rgba(151,182,76,0.18)"}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.4s ease",
-              flexShrink: 0,
-              zIndex: 1,
-              position: "relative",
-            }}
-          >
-            {isPast ? (
-              <span style={{ fontSize: 11, color: "#62840b", fontWeight: 800 }}>✓</span>
-            ) : (
-              <span style={{ fontSize: 11 }}>{s.icon}</span>
-            )}
-          </div>
+          height:6,
+          background:"linear-gradient(90deg, rgba(151,182,76,0.7), rgba(183,205,127,0.45))",
+        }} />
 
-          {/* Vertical connector line */}
-          {!isLast && (
-            <div style={{
-              width: 2,
-              flex: 1,
-              minHeight: isActive ? 64 : 32,
-              background: isPast
-                ? "linear-gradient(180deg, #97b64c, rgba(151,182,76,0.3))"
-                : "rgba(151,182,76,0.12)",
-              borderRadius: 2,
-              marginTop: 3,
-              transition: "all 0.4s ease",
-            }} />
-          )}
-        </div>
-
-        {/* Right: content */}
-        <div style={{
-          paddingBottom: isLast ? 0 : isActive ? 20 : 16,
-          paddingTop: 2,
-          flex: 1,
-          minWidth: 0,
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{
-              fontFamily: "'DM Mono', monospace",
-              fontSize: "9px", fontWeight: 700,
-              letterSpacing: "0.18em",
-              color: isActive ? "#97b64c" : "#b7cd7f",
-              transition: "color 0.3s ease",
-            }}>
-              {s.step}
-            </span>
-            <h4 style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "0.875rem",
-              fontWeight: isActive ? 800 : 600,
-              color: isActive ? "#1e1e1e" : isPast ? "#5a6a4a" : "#8a9a7a",
-              margin: 0,
-              letterSpacing: "-0.01em",
-              transition: "all 0.3s ease",
-            }}>
-              {s.title}
-            </h4>
-
-            {/* Active arrow indicator */}
-            {isActive && (
-              <span style={{
-                marginLeft: "auto",
-                fontSize: 10,
-                color: "#97b64c",
-                fontWeight: 700,
-                animation: "heroFadeUp 0.4s ease forwards",
-              }}>→</span>
-            )}
-          </div>
-
-          {/* Expandable description */}
+        <div style={{ padding:"34px 34px 28px", display:"flex", flexDirection:"column", gap:0 }}>
           <div style={{
-            overflow: "hidden",
-            maxHeight: isActive ? 100 : 0,
-            opacity: isActive ? 1 : 0,
-            transition: "max-height 0.45s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease",
+            display:"flex", alignItems:"center", justifyContent:"space-between",
+            marginBottom:20,
+          }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+              <span style={{
+                fontFamily:"'DM Sans',sans-serif",
+                fontSize:"10px", fontWeight:800,
+                letterSpacing:"0.2em", textTransform:"uppercase",
+                color:"#62840b",
+              }}>How It Works</span>
+            </div>
+            <span style={{
+              fontFamily:"'DM Mono',monospace",
+              fontSize:"11px", fontWeight:700,
+              letterSpacing:"0.1em", color:"#62840b",
+              background:"rgba(151,182,76,0.12)",
+              border:"1px solid rgba(151,182,76,0.25)",
+              borderRadius:999,
+              padding:"5px 10px",
+            }}>
+              {String(activeStep + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
+            </span>
+          </div>
+
+          <div key={activeStep} className="fh-step-card" style={{
+            display:"flex", flexDirection:"column", gap:10,
+            padding:"24px 22px",
+            borderRadius:20,
+            background:"linear-gradient(180deg, rgba(248,252,241,0.95) 0%, rgba(255,255,255,0.96) 100%)",
+            border:"1px solid rgba(151,182,76,0.2)",
+            marginBottom:22,
+            position:"relative",
+            overflow:"hidden",
+          }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+              <span style={{
+                fontFamily:"'DM Mono',monospace",
+                fontSize:"10px", fontWeight:800,
+                letterSpacing:"0.18em", color:"#97b64c",
+              }}>{steps[activeStep].step}</span>
+              <div style={{ width:26, height:1, background:"rgba(151,182,76,0.35)" }} />
+              <span style={{ fontSize:"1.05rem" }}>{steps[activeStep].icon}</span>
+            </div>
+            <h4 style={{
+              fontFamily:"'DM Sans',sans-serif",
+              fontSize:"1.38rem", fontWeight:800,
+              color:"#1f2a17", margin:0,
+              letterSpacing:"-0.02em",
+            }}>{steps[activeStep].title}</h4>
+            <p className="fh-step-desc" style={{
+              fontFamily:"'DM Sans',sans-serif",
+              fontSize:"0.96rem", lineHeight:1.75,
+              color:"#506244", margin:0, maxWidth:560,
+            }}>{steps[activeStep].desc}</p>
+          </div>
+
+          <div style={{ display:"flex", flexDirection:"column", gap:4, position:"relative", minHeight:260 }}>
+            <div style={{
+              position:"absolute", left:15, top:4, bottom:14,
+              width:2, background:"rgba(151,182,76,0.12)", borderRadius:999,
+            }}>
+              <div className="fh-step-track-fill" style={{
+                width:"100%", borderRadius:999,
+                background:"linear-gradient(180deg, #97b64c, #b7cd7f)",
+                height:`${((activeStep + 1) / steps.length) * 100}%`,
+              }} />
+            </div>
+
+            {steps.map((s, i) => {
+              const isActive = activeStep === i
+              const isPast   = i < activeStep
+              return (
+                <div
+                  key={i}
+                  onClick={() => setActiveStep(i)}
+                  style={{
+                    display:"flex", alignItems:"center", gap:12,
+                    padding:"9px 8px 9px 0",
+                    cursor:"pointer",
+                    transition:"all 0.2s ease",
+                  }}
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.paddingLeft = "3px" }}
+                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.paddingLeft = "0px" }}
+                >
+                  <div className={isActive ? "fh-node-active" : ""} style={{
+                    width:30, height:30, borderRadius:"50%", flexShrink:0,
+                    background: isActive ? "#f1f7e8" : isPast ? "#f4f8ef" : "#fafcf7",
+                    border:`1.5px solid ${isActive ? "#97b64c" : isPast ? "rgba(151,182,76,0.42)" : "rgba(151,182,76,0.2)"}`,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    fontSize:"10px", color:"#62840b",
+                    boxShadow: isActive ? "0 8px 20px rgba(151,182,76,0.18)" : "none",
+                    transition:"all 0.3s ease",
+                    zIndex:1, position:"relative",
+                  }}>
+                    {isPast
+                      ? <span style={{ fontSize:10, color:"#62840b", fontWeight:800 }}>✓</span>
+                      : <span style={{ fontSize:11 }}>{isActive ? "●" : "○"}</span>
+                    }
+                  </div>
+
+                  <span style={{
+                    fontFamily:"'DM Sans',sans-serif",
+                    fontSize:"0.9rem",
+                    fontWeight: isActive ? 700 : 500,
+                    color: isActive ? "#25321c" : isPast ? "#62840b" : "#879a79",
+                    transition:"all 0.3s ease",
+                    letterSpacing:"-0.005em",
+                  }}>{s.title}</span>
+
+                  {isActive && (
+                    <span style={{
+                      marginLeft:"auto", fontSize:10, color:"#97b64c", fontWeight:700,
+                    }}>active</span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          <div style={{
+            display:"flex", alignItems:"center",
+            justifyContent:"space-between",
+            marginTop:22,
+            paddingTop:18,
+            borderTop:"1px solid rgba(151,182,76,0.14)",
           }}>
             <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "0.78rem",
-              lineHeight: 1.65,
-              color: "#5a6a4a",
-              margin: "6px 0 0",
-            }}>
-              {s.desc}
-            </p>
+              fontFamily:"'DM Sans',sans-serif",
+              fontSize:"11px", color:"#7b9461",
+              margin:0, letterSpacing:"0.03em",
+              opacity: activeStep === 0 ? 1 : 0,
+              transform: activeStep === 0 ? "translateY(0)" : "translateY(-5px)",
+              transition:"all 0.4s ease",
+            }}>↓ Scroll to walk through each step</p>
+
+            <a href="#inquiry" style={{
+              display:"inline-flex", alignItems:"center", gap:5,
+              padding:"10px 19px", borderRadius:999,
+              background:"#97b64c",
+              color:"white", textDecoration:"none",
+              fontFamily:"'DM Sans',sans-serif",
+              fontSize:"11px", fontWeight:700,
+              boxShadow:"0 6px 16px rgba(151,182,76,0.22)",
+              transition:"all 0.25s ease",
+              letterSpacing:"0.02em",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 10px 20px rgba(151,182,76,0.28)" }}
+              onMouseLeave={e => { e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 6px 16px rgba(151,182,76,0.22)" }}
+            >Apply Now →</a>
           </div>
+
         </div>
       </div>
-    );
-  })}
-</div>
-
-{/* Scroll hint */}
-<p style={{
-  fontFamily: "'DM Sans', sans-serif",
-  fontSize: "10px",
-  color: "#97b64c",
-  marginTop: 16,
-  opacity: activeStep === 0 ? 1 : 0,
-  transform: activeStep === 0 ? "translateY(0)" : "translateY(-6px)",
-  transition: "all 0.4s ease",
-  letterSpacing: "0.06em",
-}}>
-  ↓ Scroll to walk through each step
-</p>
-
-{/* Bottom CTA pill */}
-
-<a
-  href="#inquiry"
-  style={{
-    marginTop: 20,
-    display: "inline-flex",
-    alignSelf: "flex-start",
-    alignItems: "center",
-    gap: 6,
-    padding: "10px 20px",
-    borderRadius: 999,
-    background: "rgba(151,182,76,0.08)",
-    border: "1px solid rgba(151,182,76,0.28)",
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: "11px", fontWeight: 700,
-    color: "#62840b",
-    textDecoration: "none",
-    letterSpacing: "0.04em",
-    transition: "all 0.25s ease",
-  }}
-  onMouseEnter={e => { e.currentTarget.style.background = "rgba(151,182,76,0.14)"; e.currentTarget.style.borderColor = "rgba(151,182,76,0.5)" }}
-  onMouseLeave={e => { e.currentTarget.style.background = "rgba(151,182,76,0.08)"; e.currentTarget.style.borderColor = "rgba(151,182,76,0.28)" }}
->
-  Apply Now →
-</a>
-
-</div>
     </div>
   </div>
+
+  {/* Scroll cue */}
+  <div style={{
+    position:"absolute", bottom:24, right:"clamp(24px, 5vw, 64px)",
+    display:"flex", alignItems:"center", gap:8,
+    opacity:0.46, zIndex:5,
+  }}>
+    <div style={{
+      width:36, height:1, overflow:"hidden",
+      background:"rgba(98,132,11,0.2)", borderRadius:1, position:"relative",
+    }}>
+      <div style={{
+        position:"absolute", left:0, width:"42%", height:"100%",
+        background:"#97b64c", borderRadius:1,
+        animation:"fhScrollLine 1.8s ease-in-out infinite",
+      }} />
+    </div>
+    <span style={{
+      fontFamily:"'DM Mono',monospace",
+      fontSize:"8px", letterSpacing:"0.14em",
+      textTransform:"uppercase", color:"#62840b",
+    }}>Scroll</span>
+  </div>
+
 </section>
 
 
 
-      {/* ══════════════════════════════════════
-      SLIDE 2 — WHY MILKSHOP (SPOTLIGHT)
-══════════════════════════════════════ */}
-<section
-  data-track-section="Why Milkshop"
-  className="relative py-32 bg-white overflow-hidden"
->
 
-  {/* Watermark */}
-  <div
-    className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-    style={{
-      fontSize: "30vw",
-      fontWeight: 900,
-      color: "rgba(151,182,76,0.04)",
-      fontFamily: "serif",
-    }}
-  >
-    侠
-  </div>
-
-  <div className="relative max-w-7xl mx-auto px-8 lg:px-16 z-10">
-
-    {/* HEADER */}
-    <p
-      className="text-[11px] font-bold tracking-[0.28em] uppercase mb-3"
-      style={{ color: "#97b64c" }}
-    >
-      Why Partner With Us
-    </p>
-
-    <h2
-      className="mb-20"
-      style={{
-        fontSize: "clamp(3rem, 6vw, 4.5rem)",
-        fontWeight: 900,
-        letterSpacing: "-0.04em",
-        color: "#1e1e1e",
-        lineHeight: 1.05,
-      }}
-    >
-      What Makes Milkshop Different
-    </h2>
-
-    {/* SPOTLIGHT GRID */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-      {whyUs.map((w, i) => (
-        <div
-          key={w.title}
-          className="group relative rounded-3xl p-8 transition-all duration-500 cursor-pointer"
-          style={{
-            background: "rgba(245,248,239,0.5)",
-            border: "1px solid #e0ebd0",
-          }}
-        >
-
-          {/* DIM OTHERS ON HOVER */}
-          <div className="absolute inset-0 rounded-3xl bg-white opacity-0 group-hover:opacity-0 peer-hover:opacity-60 transition-all duration-500 pointer-events-none" />
-
-          {/* ICON */}
-          <div className="text-4xl mb-6 transition-all duration-500 group-hover:scale-125 group-hover:-translate-y-2">
-            {w.icon}
-          </div>
-
-          {/* TITLE */}
-          <h3
-            className="font-bold text-lg mb-3 transition-all duration-500"
-            style={{
-              color: "#1e1e1e",
-            }}
-          >
-            {w.title}
-          </h3>
-
-          {/* DIVIDER */}
-          <div
-            className="h-[2px] w-8 mb-4 transition-all duration-500 group-hover:w-16"
-            style={{ backgroundColor: "#97b64c" }}
-          />
-
-          {/* DESC */}
-          <p
-            className="text-sm leading-relaxed transition-all duration-500 opacity-70 group-hover:opacity-100 group-hover:translate-y-1"
-            style={{ color: "#5a6a4a" }}
-          >
-            {w.desc}
-          </p>
-
-          {/* ACTIVE SPOTLIGHT EFFECT */}
-          <div
-            className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none"
-            style={{
-              boxShadow: "0 40px 100px rgba(151,182,76,0.25)",
-              border: "1px solid #97b64c",
-            }}
-          />
-
-        </div>
-      ))}
-
-    </div>
-  </div>
-</section>
-
-      {/* ══════════════════════════════════════
-          SLIDE 3 — THE PROCESS
-      ══════════════════════════════════════ */}
-
- 
-<section
-  ref={processSectionRef}
-  id="process"
-  className="relative py-14 sm:py-18 lg:py-24 bg-[#f7f9f4] overflow-hidden"
-  style={{ minHeight: "100vh" }}           /* keeps section tall enough to trigger lock */
->
-  <div className="max-w-7xl mx-auto px-4 sm:px-6">
- 
-    {/* HEADER */}
-    <div className="text-center mb-16">
-      <p
-        className="text-[11px] tracking-[0.3em] font-bold uppercase mb-3"
-        style={{ color: "#97b64c" }}
-      >
-        THE PROCESS
-      </p>
- 
-      <h2
-        style={{
-          fontSize: "clamp(2.5rem,5vw,4rem)",
-          fontWeight: 900,
-          letterSpacing: "-0.03em",
-          color: "#1e1e1e",
-        }}
-      >
-        From Inquiry to Opening Day
-      </h2>
- 
-      {/* SCROLL HINT — fades out once user has started stepping */}
-      <p
-        className="mt-4 text-sm transition-all duration-500"
-        style={{
-          color: "#97b64c",
-          opacity: activeStep === 0 ? 1 : 0,
-          transform: activeStep === 0 ? "translateY(0)" : "translateY(-8px)",
-        }}
-      >
-        ↓ Scroll to walk through each step
-      </p>
-    </div>
- 
-    {/* GRID — min-w-0 avoids grid blowout; avoid scale() so active card does not widen the page */}
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 min-w-0 w-full max-w-full">
-      {steps.map((s, i) => {
-        const isActive = activeStep === i;
-        const isPast   = i < activeStep;
- 
-        return (
-          <div
-            key={i}
-            onClick={() => setActiveStep(i)}
-            className="group relative rounded-2xl p-6 cursor-pointer transition-all duration-500 min-w-0 max-w-full"
-            style={{
-              background: isActive ? "#ffffff" : isPast ? "#f0f7e4" : "#eef5e6",
-              border: `1px solid ${isActive ? "#97b64c" : isPast ? "#b8d98a" : "#dce8c8"}`,
-              transform: isActive ? "translateY(-4px)" : "translateY(0)",
-              opacity: isPast ? 0.75 : 1,
-            }}
-          >
- 
-            {/* BIG NUMBER */}
-            <span
-              className="absolute top-4 right-5 text-5xl font-black transition-all duration-500"
-              style={{
-                color: "#62840b",
-                opacity: isActive ? 0.2 : 0.08,
-                transform: isActive ? "scale(1.2)" : "scale(1)",
-              }}
-            >
-              {String(i + 1).padStart(2, "0")}
-            </span>
- 
-            {/* CHECKMARK FOR PAST STEPS */}
-            {isPast && (
-              <span
-                className="absolute top-4 left-5 text-base transition-all duration-300"
-                style={{ color: "#97b64c" }}
-              >
-                ✓
-              </span>
-            )}
- 
-            {/* ICON */}
-            <div
-              className="text-2xl mb-3 transition-all duration-500"
-              style={{
-                transform: isActive ? "translateY(-6px) scale(1.15)" : "none",
-              }}
-            >
-              {s.icon}
-            </div>
- 
-            {/* TITLE */}
-            <h3
-              className="font-bold mb-2 transition-all duration-300"
-              style={{
-                color: "#1e1e1e",
-                transform: isActive ? "translateX(4px)" : "none",
-              }}
-            >
-              {s.title}
-            </h3>
- 
-            {/* DESC (EXPAND on active) */}
-            <div
-              className="overflow-hidden transition-all duration-500"
-              style={{
-                maxHeight: isActive ? "200px" : "0px",
-                opacity: isActive ? 1 : 0,
-              }}
-            >
-              <p
-                className="text-sm leading-relaxed mt-2"
-                style={{ color: "#5a6a4a" }}
-              >
-                {s.desc}
-              </p>
-            </div>
- 
-            {/* HOVER GLOW */}
-            <div
-              className="absolute inset-0 rounded-2xl pointer-events-none transition-all duration-500"
-              style={{
-                boxShadow: isActive
-                  ? "0 25px 60px rgba(151,182,76,0.35)"
-                  : "0 0 0 rgba(0,0,0,0)",
-              }}
-            />
- 
-            {/* ACTIVE BAR */}
-            <div
-              className="absolute bottom-0 left-0 h-[3px] rounded-full transition-all duration-500"
-              style={{
-                width: isActive ? "100%" : "0%",
-                background: "#97b64c",
-              }}
-            />
- 
-          </div>
-        );
-      })}
-    </div>
- 
-    {/* PROGRESS DOTS */}
-    <div className="flex justify-center gap-2 mt-10">
-      {steps.map((_, i) => (
-        <button
-          key={i}
-          onClick={() => setActiveStep(i)}
-          className="h-2 rounded-full transition-all duration-300"
-          style={{
-            width: activeStep === i ? "24px" : "8px",
-            background: activeStep === i ? "#62840b" : "#c8dfa8",
-          }}
-        />
-      ))}
-    </div>
- 
-    {/* SCROLL COMPLETE HINT */}
-    <p
-      className="text-center text-sm mt-6 transition-all duration-500"
-      style={{
-        color: "#97b64c",
-        opacity: activeStep === steps.length - 1 ? 1 : 0,
-        transform: activeStep === steps.length - 1 ? "translateY(0)" : "translateY(8px)",
-      }}
-    >
-      ↓ Continue scrolling
-    </p>
- 
-  </div>
-</section>
-
+      
 
 
       {/* ══════════════════════════════════════
           SLIDE 4 — FRANCHISE INQUIRY
       ══════════════════════════════════════ */}
-<section id="inquiry" className="relative py-16 sm:py-20 lg:py-28 bg-[#f7f9f4] overflow-hidden">
+<section id="inquiry" className="relative py-12 sm:py-14 lg:py-16 bg-[#f7f9f4] overflow-hidden">
 
 {/* Soft background */}
 <div className="absolute inset-0 pointer-events-none"
@@ -1165,10 +1029,116 @@ export default function Franchise() {
 </div>
 </section>
 
+
+ {/* ══════════════════════════════════════
+      SLIDE 2 — WHY MILKSHOP (SPOTLIGHT)
+══════════════════════════════════════ */}
+<section
+  data-track-section="Why Milkshop"
+  className="relative py-10 sm:py-12 lg:py-14 bg-white overflow-hidden"
+>
+
+  {/* Watermark */}
+  <div
+    className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+    style={{
+      fontSize: "30vw",
+      fontWeight: 900,
+      color: "rgba(151,182,76,0.04)",
+      fontFamily: "serif",
+    }}
+  >
+    侠
+  </div>
+
+  <div className="relative max-w-7xl mx-auto px-6 lg:px-12 z-10">
+
+    {/* HEADER */}
+    <p
+      className="text-[10px] font-bold tracking-[0.24em] uppercase mb-2"
+      style={{ color: "#97b64c" }}
+    >
+      Why Partner With Us
+    </p>
+
+    <h2
+      className="mb-6"
+      style={{
+        fontSize: "clamp(2rem, 4vw, 3rem)",
+        fontWeight: 900,
+        letterSpacing: "-0.04em",
+        color: "#1e1e1e",
+        lineHeight: 1.05,
+      }}
+    >
+      What Makes Milkshop Different
+    </h2>
+
+    {/* SPOTLIGHT GRID */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      {whyUs.map((w, i) => (
+        <div
+          key={w.title}
+          className="group relative rounded-2xl p-5 transition-all duration-500 cursor-pointer"
+          style={{
+            background: "rgba(245,248,239,0.5)",
+            border: "1px solid #e0ebd0",
+          }}
+        >
+
+          {/* DIM OTHERS ON HOVER */}
+          <div className="absolute inset-0 rounded-2xl bg-white opacity-0 group-hover:opacity-0 peer-hover:opacity-60 transition-all duration-500 pointer-events-none" />
+
+          {/* ICON */}
+          <div className="text-2xl mb-4 transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-1">
+            {w.icon}
+          </div>
+
+          {/* TITLE */}
+          <h3
+            className="font-bold text-base mb-2 transition-all duration-500"
+            style={{
+              color: "#1e1e1e",
+            }}
+          >
+            {w.title}
+          </h3>
+
+          {/* DIVIDER */}
+          <div
+            className="h-[2px] w-6 mb-3 transition-all duration-500 group-hover:w-10"
+            style={{ backgroundColor: "#97b64c" }}
+          />
+
+          {/* DESC */}
+          <p
+            className="text-xs leading-relaxed transition-all duration-500 opacity-70 group-hover:opacity-100 group-hover:translate-y-1"
+            style={{ color: "#5a6a4a" }}
+          >
+            {w.desc}
+          </p>
+
+          {/* ACTIVE SPOTLIGHT EFFECT */}
+          <div
+            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none"
+            style={{
+              boxShadow: "0 40px 100px rgba(151,182,76,0.25)",
+              border: "1px solid #97b64c",
+            }}
+          />
+
+        </div>
+      ))}
+
+    </div>
+  </div>
+</section>
+
       {/* ══════════════════════════════════════
           SLIDE 5 — FAQ
       ══════════════════════════════════════ */}
-      <section data-track-section="Franchise FAQs" className="relative py-28 overflow-hidden" style={{ backgroundColor: "#f5f8ef" }}>
+      <section data-track-section="Franchise FAQs" className="relative py-14 sm:py-16 lg:py-20 overflow-hidden" style={{ backgroundColor: "#f5f8ef" }}>
         <div className="absolute inset-0 pointer-events-none" style={{
           backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.15) 1px, transparent 1px)",
           backgroundSize: "40px 40px",
@@ -1180,7 +1150,7 @@ export default function Franchise() {
           <Slide direction="up" className="text-center mb-3">
             <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>Common Questions</p>
           </Slide>
-          <Slide direction="up" delay={60} className="text-center mb-14">
+          <Slide direction="up" delay={60} className="text-center mb-8">
             <h2 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 900, letterSpacing: "-0.03em", color: "#1e1e1e" }}>FAQs</h2>
           </Slide>
 

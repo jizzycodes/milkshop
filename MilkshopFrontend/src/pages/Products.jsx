@@ -508,96 +508,408 @@ export default function Products() {
       fontFamily: "'DM Sans', sans-serif",
     }}>
 
-      {/* ══ HERO (centered white + dark stats) ═════════════════════════════════════ */}
-      <section data-track-section="Products Hero" style={{
-        position: "relative",
-        overflow: "hidden",
-        background: "#ffffff",
-        padding: "104px 16px 72px",
-        textAlign: "center",
-      }}>
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <span style={{
-            display: "inline-flex", alignItems: "center", gap: "8px",
-            fontSize: "11px", fontWeight: 800, letterSpacing: "0.2em",
-            textTransform: "uppercase", padding: "8px 18px", borderRadius: "999px",
-            backgroundColor: "#f0f6e8",
-            color: "#62840b",
-            border: "1px solid rgba(151,182,76,0.3)",
-            fontFamily: "'DM Sans', sans-serif",
-            marginBottom: "24px",
-          }}>
-            🧋 The Menu
-          </span>
+     {/* ══ PRODUCTS HERO — Premium Animated ══ */}
+<section data-track-section="Products Hero" style={{
+  position: "relative",
+  overflow: "hidden",
+  background: "linear-gradient(158deg, #f3f9ea 0%, #ffffff 48%, #f0f7e6 100%)",
+  minHeight: "clamp(600px, 88vh, 900px)",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  fontFamily: "'DM Sans', sans-serif",
+}}>
 
-          <h1 style={{
-            fontSize: "clamp(3.5rem, 8vw, 6.5rem)", fontWeight: 900,
-            letterSpacing: "-0.05em", lineHeight: 0.92,
-            color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif",
-            margin: "0 0 24px",
-          }}>
-            Sip the<br />
-            <span style={{ color: "#97b64c" }}>Difference.</span>
-          </h1>
+  <style>{`
+    @keyframes phFadeUp    { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes phFadeLeft  { from{opacity:0;transform:translateX(-28px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes phFadeRight { from{opacity:0;transform:translateX(28px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes phShimmer   { 0%{background-position:-200% center} 100%{background-position:200% center} }
+    @keyframes phFloat0    { 0%,100%{transform:translateY(0px) rotate(-1.5deg) scale(1)} 50%{transform:translateY(-18px) rotate(0.8deg) scale(1.015)} }
+    @keyframes phFloat1    { 0%,100%{transform:translateY(0px) rotate(1.2deg) scale(1.04)} 50%{transform:translateY(-24px) rotate(-0.5deg) scale(1)} }
+    @keyframes phFloat2    { 0%,100%{transform:translateY(0px) rotate(-0.8deg) scale(0.97)} 50%{transform:translateY(-14px) rotate(1.5deg) scale(1.02)} }
+    @keyframes phOrbDrift  { 0%,100%{transform:translate(0,0) scale(1);opacity:0.5} 50%{transform:translate(16px,-14px) scale(1.08);opacity:0.85} }
+    @keyframes phRingPulse { 0%{transform:scale(0.92);opacity:0.7} 100%{transform:scale(1.7);opacity:0} }
+    @keyframes phTagPulse  { 0%,100%{box-shadow:0 0 0 0 rgba(151,182,76,0.45)} 50%{box-shadow:0 0 0 9px rgba(151,182,76,0)} }
+    @keyframes phDotBlink  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
+    @keyframes phScrollLine{ 0%{transform:translateY(-100%)} 100%{transform:translateY(300%)} }
+    @keyframes phLineGrow  { from{width:0;opacity:0} to{width:40px;opacity:1} }
+    @keyframes phCupEntrance0 { from{opacity:0;transform:translateY(52px) scale(0.9)} to{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes phCupEntrance1 { from{opacity:0;transform:translateY(36px) scale(0.92)} to{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes phCupEntrance2 { from{opacity:0;transform:translateY(64px) scale(0.88)} to{opacity:1;transform:translateY(0) scale(1)} }
 
-          <p style={{
-            fontSize: "1rem", lineHeight: 1.75,
-            color: "#6b7a5a",
-            maxWidth: "400px", margin: "0 auto 40px",
-          }}>
-            Taiwan&apos;s original Popping Boba — brewed fresh, never powdered, always real.
-            {products.length > 0 && (
-              <>
-                {" "}
-                <strong style={{ color: "#62840b", fontWeight: 600 }}>
-                  {products.length} drinks
-                </strong>
-                {" "}across {CATEGORIES.length} series.
-              </>
-            )}
-          </p>
+    .ph-tag   { opacity:0; animation:phFadeUp   0.6s ease forwards; animation-delay:0.1s }
+    .ph-h1    { opacity:0; animation:phFadeLeft 0.75s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay:0.25s }
+    .ph-p     { opacity:0; animation:phFadeLeft 0.75s ease forwards; animation-delay:0.42s }
+    .ph-stats { opacity:0; animation:phFadeUp   0.7s ease forwards; animation-delay:0.58s }
+    .ph-cta   { opacity:0; animation:phFadeUp   0.7s ease forwards; animation-delay:0.72s }
+    .ph-cup-0 { opacity:0; animation:phCupEntrance0 0.85s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay:0.2s }
+    .ph-cup-1 { opacity:0; animation:phCupEntrance1 0.85s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay:0.08s }
+    .ph-cup-2 { opacity:0; animation:phCupEntrance2 0.85s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay:0.36s }
+    .ph-float-0 { animation:phFloat0 9s  ease-in-out infinite; animation-delay:0s }
+    .ph-float-1 { animation:phFloat1 11s ease-in-out infinite; animation-delay:0.8s }
+    .ph-float-2 { animation:phFloat2 8s  ease-in-out infinite; animation-delay:1.6s }
 
-          {/* Stats — dark glass pill */}
+    .ph-cta-primary {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:13px 28px; border-radius:999px;
+      background:linear-gradient(135deg,#62840b,#97b64c);
+      color:#fff; font-family:'DM Sans',sans-serif;
+      font-size:0.875rem; font-weight:700;
+      text-decoration:none; border:none; cursor:pointer;
+      box-shadow:0 8px 28px rgba(151,182,76,0.38);
+      transition:all 0.3s ease; letter-spacing:0.01em;
+    }
+    .ph-cta-primary:hover { transform:translateY(-3px); box-shadow:0 16px 40px rgba(151,182,76,0.5) }
+    .ph-cta-secondary {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:13px 26px; border-radius:999px;
+      background:transparent; color:#62840b;
+      font-family:'DM Sans',sans-serif;
+      font-size:0.875rem; font-weight:700;
+      text-decoration:none;
+      border:1.5px solid rgba(151,182,76,0.38);
+      transition:all 0.3s ease;
+    }
+    .ph-cta-secondary:hover { background:rgba(151,182,76,0.08); border-color:#97b64c; transform:translateY(-2px) }
+    .ph-stat-pill { transition:transform 0.3s ease; }
+    .ph-stat-pill:hover { transform:translateY(-3px) }
+    .ph-cup-img {
+      width:auto;
+      height:clamp(240px,40vh,480px);
+      object-fit:contain;
+      display:block;
+    }
+    @media(min-width:1024px){
+      .ph-cup-img { height:clamp(320px,50vh,600px); }
+    }
+  `}</style>
+
+  {/* ── Backgrounds ── */}
+
+  {/* Dot grid left */}
+  <div aria-hidden style={{
+    position:"absolute", inset:0, pointerEvents:"none",
+    backgroundImage:"radial-gradient(circle, rgba(151,182,76,0.2) 1.5px, transparent 1.5px)",
+    backgroundSize:"32px 32px",
+    maskImage:"radial-gradient(ellipse at 7% 55%, black 5%, transparent 50%)",
+    WebkitMaskImage:"radial-gradient(ellipse at 7% 55%, black 5%, transparent 50%)",
+  }} />
+
+  {/* Dot grid right */}
+  <div aria-hidden style={{
+    position:"absolute", inset:0, pointerEvents:"none",
+    backgroundImage:"radial-gradient(circle, rgba(151,182,76,0.1) 1.5px, transparent 1.5px)",
+    backgroundSize:"28px 28px",
+    maskImage:"radial-gradient(ellipse at 94% 38%, black 5%, transparent 48%)",
+    WebkitMaskImage:"radial-gradient(ellipse at 94% 38%, black 5%, transparent 48%)",
+  }} />
+
+  {/* Orb top-right */}
+  <div aria-hidden style={{
+    position:"absolute", top:"-12%", right:"-6%",
+    width:580, height:580, borderRadius:"50%",
+    background:"radial-gradient(circle, rgba(151,182,76,0.12) 0%, transparent 68%)",
+    filter:"blur(30px)", pointerEvents:"none",
+    animation:"phOrbDrift 16s ease-in-out infinite",
+  }} />
+
+  {/* Orb bottom-left */}
+  <div aria-hidden style={{
+    position:"absolute", bottom:"0%", left:"-5%",
+    width:380, height:380, borderRadius:"50%",
+    background:"radial-gradient(circle, rgba(183,205,127,0.14) 0%, transparent 70%)",
+    filter:"blur(22px)", pointerEvents:"none",
+    animation:"phOrbDrift 20s ease-in-out infinite reverse",
+  }} />
+
+  {/* Decorative rings */}
+  <div aria-hidden style={{
+    position:"absolute", right:"5%", top:"50%", transform:"translateY(-50%)",
+    width:"min(560px,58vw)", height:"min(560px,58vw)",
+    borderRadius:"50%",
+    border:"1px solid rgba(151,182,76,0.09)",
+    pointerEvents:"none",
+  }} />
+  <div aria-hidden style={{
+    position:"absolute", right:"9%", top:"50%", transform:"translateY(-50%)",
+    width:"min(400px,43vw)", height:"min(400px,43vw)",
+    borderRadius:"50%",
+    border:"1px dashed rgba(151,182,76,0.07)",
+    pointerEvents:"none",
+  }} />
+
+  {/* Bottom fade */}
+  <div aria-hidden style={{
+    position:"absolute", bottom:0, left:0, right:0, height:80,
+    background:"linear-gradient(to bottom, transparent, #f5f8ef)",
+    pointerEvents:"none", zIndex:2,
+  }} />
+
+  {/* ── Main content ── */}
+  <div style={{
+    position:"relative", zIndex:10,
+    maxWidth:1240, margin:"0 auto",
+    padding:"clamp(100px,14vw,140px) clamp(20px,5vw,56px) clamp(60px,8vw,100px)",
+    width:"100%", boxSizing:"border-box",
+    display:"grid",
+    gridTemplateColumns:"1fr 1.3fr",
+    gap:48,
+    alignItems:"flex-end",
+  }}
+    className="max-lg:grid-cols-1 max-lg:gap-10"
+  >
+
+    {/* LEFT — Text */}
+    <div style={{ display:"flex", flexDirection:"column", gap:22, paddingBottom: "clamp(20px,4vw,48px)" }}>
+
+      {/* Eyebrow */}
+      <div className="ph-tag">
+        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <div style={{
-            display: "inline-flex", gap: "0",
-            border: "1px solid rgba(151,182,76,0.18)", borderRadius: "16px",
-            overflow: "hidden",
-            background: "rgba(10,14,4,0.55)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(151,182,76,0.1)",
+            height:2, width:40,
+            background:"linear-gradient(90deg, #62840b, #97b64c)",
+            borderRadius:2,
+            animation:"phLineGrow 0.7s ease forwards",
+            animationDelay:"0.4s",
+          }} />
+          <span style={{
+            display:"inline-flex", alignItems:"center", gap:7,
+            padding:"6px 14px", borderRadius:999,
+            background:"rgba(151,182,76,0.09)",
+            border:"1px solid rgba(151,182,76,0.26)",
+            fontSize:"10px", fontWeight:800,
+            letterSpacing:"0.22em", textTransform:"uppercase",
+            color:"#62840b",
+            animation:"phTagPulse 3s ease-in-out infinite",
+            animationDelay:"1.2s",
           }}>
-            {[
-              { value: "20+",  label: "Menu Items" },
-              { value: "6",    label: "Series" },
-              { value: "100%", label: "Fresh Milk" },
-            ].map((s, i) => (
-              <div key={s.label} style={{
-                padding: "20px 36px",
-                borderRight: i < 2 ? "1px solid rgba(151,182,76,0.15)" : "none",
-                textAlign: "center",
-              }}>
-                <p style={{
-                  fontFamily: "'DM Mono', monospace", fontWeight: 900,
-                  fontSize: "1.6rem", color: "#fff", lineHeight: 1, margin: "0 0 4px",
-                }}>{s.value}</p>
-                <p style={{
-                  fontFamily: "'DM Sans', sans-serif", fontSize: "10px",
-                  fontWeight: 700, textTransform: "uppercase",
-                  letterSpacing: "0.18em", color: "#97b64c", margin: 0,
-                }}>{s.label}</p>
-              </div>
-            ))}
-          </div>
+            <span style={{
+              width:5, height:5, borderRadius:"50%",
+              background:"#97b64c", display:"inline-block",
+              animation:"phDotBlink 2s ease-in-out infinite",
+            }} />
+            The Menu
+          </span>
         </div>
+      </div>
 
-        <div style={{
-          position: "absolute", bottom: 0, left: 0, right: 0, height: "100px",
-          background: "linear-gradient(to bottom, transparent, #f7faf2)",
-          pointerEvents: "none",
-          zIndex: 2,
+      {/* Headline */}
+      <div className="ph-h1">
+        <h1 style={{
+          fontSize:"clamp(3.2rem,7vw,5.8rem)",
+          fontWeight:900, lineHeight:0.9,
+          letterSpacing:"-0.055em", margin:0,
+          color:"#1a1e14",
+        }}>
+          Sip the<br />
+          <span style={{
+            background:"linear-gradient(135deg, #3a5c06 0%, #62840b 30%, #97b64c 65%, #b7cd7f 100%)",
+            backgroundSize:"200% auto",
+            WebkitBackgroundClip:"text",
+            WebkitTextFillColor:"transparent",
+            backgroundClip:"text",
+            animation:"phShimmer 5s linear infinite",
+            animationDelay:"1s",
+            display:"inline-block",
+          }}>Difference.</span>
+        </h1>
+      </div>
+
+      {/* Body */}
+      <div className="ph-p">
+        <p style={{
+          fontSize:"clamp(0.9rem,1.5vw,1.05rem)",
+          lineHeight:1.8, color:"#4d5c3a",
+          maxWidth:440, margin:0,
+        }}>
+          Taiwan's original Popping Boba — brewed fresh, never powdered, always real.
+          {products.length > 0 && (
+            <> <strong style={{ color:"#62840b", fontWeight:700 }}>{products.length} drinks</strong>{" "}across {CATEGORIES.length} series.</>
+          )}
+        </p>
+      </div>
+
+      {/* Stats strip */}
+      <div className="ph-stats" style={{
+        display:"flex", gap:0,
+        border:"1px solid #ddecc4", borderRadius:16,
+        overflow:"hidden", background:"white",
+        alignSelf:"flex-start",
+        boxShadow:"0 4px 20px rgba(151,182,76,0.1)",
+      }}>
+        {[
+          { value:"20+",  label:"Menu Items" },
+          { value:"6",    label:"Series" },
+          { value:"100%", label:"Fresh Milk" },
+        ].map((s, i) => (
+          <div key={s.label} className="ph-stat-pill" style={{
+            padding:"15px 22px", textAlign:"center",
+            borderRight: i < 2 ? "1px solid #ddecc4" : "none",
+          }}>
+            <p style={{ fontFamily:"'DM Mono', monospace", fontWeight:900, fontSize:"1.25rem", color:"#1a1e14", lineHeight:1, margin:"0 0 4px" }}>{s.value}</p>
+            <p style={{ fontFamily:"'DM Sans', sans-serif", fontSize:"8px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.16em", color:"#97b64c", margin:0 }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* CTAs */}
+      <div className="ph-cta" style={{ display:"flex", flexWrap:"wrap", gap:10 }}>
+        <a href="#menu" className="ph-cta-primary">Browse the Menu ↓</a>
+        <Link to="/franchise#inquiry" className="ph-cta-secondary">Franchise Opportunities</Link>
+      </div>
+
+    </div>
+
+    {/* RIGHT — Cups */}
+    <div style={{
+      position:"relative",
+      display:"flex",
+      alignItems:"flex-end",
+      justifyContent:"center",
+      minHeight:"clamp(300px,55vh,680px)",
+      width:"100%",
+    }}>
+
+      {/* Ripple rings */}
+      {[0, 0.7, 1.4].map((d, i) => (
+        <div key={i} aria-hidden style={{
+          position:"absolute",
+          width:"clamp(180px,28vw,320px)",
+          height:"clamp(180px,28vw,320px)",
+          borderRadius:"50%",
+          border:"1.5px solid rgba(151,182,76,0.18)",
+          animation:"phRingPulse 4.5s ease-out infinite",
+          animationDelay:`${d}s`,
+          pointerEvents:"none",
+          bottom:"10%",
+          left:"50%", transform:"translateX(-50%)",
         }} />
-      </section>
+      ))}
+
+      {/* Shadow pool */}
+      <div aria-hidden style={{
+        position:"absolute", bottom:0,
+        left:"50%", transform:"translateX(-50%)",
+        width:"80%", height:"12%",
+        background:"radial-gradient(ellipse at 50% 100%, rgba(98,132,11,0.2), transparent 70%)",
+        filter:"blur(20px)", pointerEvents:"none",
+      }} />
+
+      {/* Green glow behind cups */}
+      <div aria-hidden style={{
+        position:"absolute", bottom:"8%",
+        left:"50%", transform:"translateX(-50%)",
+        width:"90%", height:"60%",
+        background:"radial-gradient(ellipse at 50% 80%, rgba(151,182,76,0.16) 0%, transparent 65%)",
+        filter:"blur(32px)", pointerEvents:"none",
+      }} />
+
+      {/* Cup row */}
+      <div style={{
+        position:"relative", zIndex:1,
+        display:"flex", flexDirection:"row",
+        alignItems:"flex-end", justifyContent:"center",
+        gap:"clamp(0px,0.4vw,6px)",
+        width:"100%",
+      }}>
+        {topDrinks.slice(0, 3).map((d, i) => {
+          const scales = [0.9, 1.0, 0.88]
+          return (
+            <div
+              key={d.id}
+              className={`ph-cup-${i}`}
+              style={{
+                flex:"0 0 auto",
+                position:"relative",
+                zIndex: i === 1 ? 3 : 2,
+                lineHeight:0,
+              }}
+            >
+              <div className={`ph-float-${i}`} style={{ lineHeight:0 }}>
+                <img
+                  className="ph-cup-img"
+                  src={d.imageUrl}
+                  alt={`${d.name} — Milkshop`}
+                  draggable={false}
+                  style={{
+                    transform:`scale(${scales[i]})`,
+                    transformOrigin:"50% 100%",
+                    filter:"drop-shadow(0 24px 40px rgba(40,60,20,0.18)) drop-shadow(0 6px 12px rgba(40,60,20,0.1))",
+                  }}
+                />
+              </div>
+
+              {/* Name label under each cup */}
+              <div style={{ textAlign:"center", marginTop:6, opacity:0.7 }}>
+                <span style={{
+                  fontFamily:"'DM Sans', sans-serif",
+                  fontSize:"10px", fontWeight:700,
+                  letterSpacing:"0.1em", textTransform:"uppercase",
+                  color:"#62840b",
+                }}>{d.name}</span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Floating badge — Popping Boba */}
+      <div style={{
+        position:"absolute", top:"12%", right:"4%", zIndex:4,
+        background:"rgba(255,255,255,0.95)",
+        backdropFilter:"blur(12px)",
+        borderRadius:14, padding:"9px 14px",
+        border:"1px solid rgba(151,182,76,0.28)",
+        boxShadow:"0 6px 20px rgba(0,0,0,0.09)",
+        animation:"phFloat1 7s ease-in-out infinite",
+      }}>
+        <p style={{ fontFamily:"'DM Sans', sans-serif", fontSize:"10px", fontWeight:800, color:"#1a1e14", margin:0 }}>🫧 Popping Boba</p>
+        <p style={{ fontFamily:"'DM Mono', monospace", fontSize:"9px", color:"#62840b", margin:"2px 0 0", fontWeight:700 }}>Taiwan Original</p>
+      </div>
+
+      {/* Floating badge — Fresh Milk */}
+      <div style={{
+        position:"absolute", top:"30%", left:"2%", zIndex:4,
+        background:"rgba(255,255,255,0.95)",
+        backdropFilter:"blur(12px)",
+        borderRadius:14, padding:"9px 14px",
+        border:"1px solid rgba(151,182,76,0.28)",
+        boxShadow:"0 6px 20px rgba(0,0,0,0.09)",
+        animation:"phFloat0 9s ease-in-out infinite",
+      }}>
+        <p style={{ fontFamily:"'DM Sans', sans-serif", fontSize:"10px", fontWeight:800, color:"#1a1e14", margin:0 }}>🥛 Fresh Milk</p>
+        <p style={{ fontFamily:"'DM Mono', monospace", fontSize:"9px", color:"#62840b", margin:"2px 0 0", fontWeight:700 }}>Never Powdered</p>
+      </div>
+
+    </div>
+  </div>
+
+  {/* Scroll cue */}
+  <div style={{
+    position:"absolute", bottom:20, left:"50%",
+    transform:"translateX(-50%)",
+    display:"flex", flexDirection:"column", alignItems:"center", gap:5,
+    opacity:0.4, zIndex:5,
+  }}>
+    <div style={{
+      width:1, height:40, overflow:"hidden",
+      background:"rgba(98,132,11,0.2)", borderRadius:1, position:"relative",
+    }}>
+      <div style={{
+        position:"absolute", top:0, width:"100%", height:"40%",
+        background:"#97b64c", borderRadius:1,
+        animation:"phScrollLine 1.8s ease-in-out infinite",
+      }} />
+    </div>
+    <span style={{
+      fontFamily:"'DM Mono', monospace",
+      fontSize:"7px", letterSpacing:"0.22em",
+      textTransform:"uppercase", color:"#62840b",
+    }}>Scroll</span>
+  </div>
+
+</section>
 
       <Reveal as="section" data-track-section="Fan Favorites" className="bg-white py-20 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">

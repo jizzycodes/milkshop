@@ -154,6 +154,7 @@ export default function Locations() {
   const [heroVisible, setHeroVisible]   = useState(false)
   const [selectedLoc, setSelectedLoc]   = useState(null)
   const [activeRegion, setActiveRegion] = useState("All")
+  const [showDirectory, setShowDirectory] = useState(true)
   const [mapReady, setMapReady]         = useState(false)
   const mapContainerRef                 = useRef(null)
   const leafletInstanceRef              = useRef(null)
@@ -265,14 +266,13 @@ export default function Locations() {
         maxZoom: 19,
       }).addTo(map)
  
-      L.control.zoom({ position: "bottomleft" }).addTo(map)
       leafletInstanceRef.current = map
       setMapReady(true)
  
       // Step 1: start zoomed out on Philippines
       // Step 2: fly into Bulacan (center of 14.59–15.37°N, 120.61–121.42°E)
       setTimeout(() => {
-        map.flyTo([14.98, 121.01], 10, {
+        map.flyTo([14.86, 120.88], 13, {
           duration: 2.8,
           easeLinearity: 0.18,
         })
@@ -359,7 +359,6 @@ export default function Locations() {
   }, [])
   const zoomIn = useCallback(() => leafletInstanceRef.current?.zoomIn(), [])
   const zoomOut = useCallback(() => leafletInstanceRef.current?.zoomOut(), [])
-
   const filtered = allLocations.filter(loc => {
     const q = search.toLowerCase()
     return (loc.name.toLowerCase().includes(q) || loc.address.toLowerCase().includes(q)) && (activeRegion === "All" || loc.region === activeRegion)
@@ -417,58 +416,12 @@ export default function Locations() {
         }
       `}</style>
 
-      {/* HERO */}
-      <section className="loc-hero" data-track-section="Locations Hero" style={{ position: "relative", overflow: "hidden", background: "linear-gradient(158deg, #f3f9ea 0%, #ffffff 52%, #eef6e4 100%)", padding: "clamp(110px,15vw,170px) 48px clamp(88px,11vw,128px)" }}>
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.2) 1.5px, transparent 1.5px)", backgroundSize: "34px 34px", maskImage: "radial-gradient(ellipse at 12% 55%, black 5%, transparent 58%)", WebkitMaskImage: "radial-gradient(ellipse at 12% 55%, black 5%, transparent 58%)" }} />
-        <div style={{ position: "absolute", right: "-4%", top: "15%", width: 520, height: 520, borderRadius: "50%", background: "radial-gradient(circle, rgba(151,182,76,0.09) 0%, transparent 68%)", filter: "blur(18px)", pointerEvents: "none", animation: "orbFloat 10s ease-in-out infinite" }} />
-        <div style={{ position: "absolute", right: "7%", top: "50%", transform: "translateY(-50%)", width: "min(400px,48vw)", height: "min(400px,48vw)", borderRadius: "50%", border: "1px solid rgba(151,182,76,0.09)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, rgba(151,182,76,0.28), transparent)" }} />
-
-        <div style={{ maxWidth: "1200px", margin: "0 auto", position: "relative", zIndex: 1 }}>
-          <div className="loc-a1" style={{ marginBottom: 30 }}>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: "10px", fontWeight: 800, letterSpacing: "0.26em", textTransform: "uppercase", color: "#62840b", padding: "7px 16px", borderRadius: 999, background: "rgba(151,182,76,0.08)", border: "1px solid rgba(151,182,76,0.22)", fontFamily: "'DM Sans', sans-serif" }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#97b64c", boxShadow: "0 0 0 3px rgba(151,182,76,0.22)", display: "inline-block" }} />
-              Find a Branch
-            </span>
-          </div>
-
-          <div className="loc-hero-content" style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 44 }}>
-            <div style={{ maxWidth: 540 }}>
-              <h1 className="loc-a2" style={{ fontSize: "clamp(3.2rem,7.5vw,6.2rem)", fontWeight: 900, letterSpacing: "-0.055em", lineHeight: 0.88, color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif", margin: "0 0 26px" }}>
-                We're All Over<br />
-                <span style={{ background: "linear-gradient(135deg, #62840b 0%, #97b64c 55%, #b7cd7f 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>the Philippines.</span>
-              </h1>
-              <p className="loc-a3" style={{ fontSize: "0.95rem", color: "#5a6a4a", lineHeight: 1.75, maxWidth: "400px", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
-                {allLocations.length} branches nationwide — from Metro Manila to Mindanao. Find the nearest Milkshop to you.
-              </p>
-            </div>
-
-            <div className="loc-hero-right" style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 300 }}>
-              <div className="loc-a4" style={{ display: "flex", gap: 0, border: "1px solid #e0ecd0", borderRadius: 16, overflow: "hidden", background: "white", boxShadow: "0 4px 20px rgba(151,182,76,0.08)" }}>
-                {[{ v: `${allLocations.length}`, l: "Branches" }, { v: "4", l: "Regions" }, { v: "2022", l: "Est." }].map((s, i) => (
-                  <div key={s.l} style={{ flex: 1, padding: "18px 12px", textAlign: "center", borderRight: i < 2 ? "1px solid #e0ecd0" : "none" }}>
-                    <p style={{ fontFamily: "'DM Mono', monospace", fontWeight: 900, fontSize: "1.3rem", color: "#1e1e1e", lineHeight: 1, margin: "0 0 4px" }}>{s.v}</p>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", color: "#97b64c", margin: 0 }}>{s.l}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="loc-a5" style={{ position: "relative" }}>
-                <svg style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", width: 14, height: 14, pointerEvents: "none" }} fill="none" stroke="#97b64c" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z"/>
-                </svg>
-                <input type="text" placeholder="Search branch or city..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: "100%", boxSizing: "border-box", paddingLeft: 44, paddingRight: search ? 40 : 16, paddingTop: 14, paddingBottom: 14, borderRadius: 12, fontSize: "0.875rem", border: "1.5px solid #d0e0b0", background: "white", color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 2px 12px rgba(151,182,76,0.07)", outline: "none", transition: "border-color 0.2s ease, box-shadow 0.2s ease" }} onFocus={e => { e.target.style.borderColor = "#97b64c"; e.target.style.boxShadow = "0 0 0 3px rgba(151,182,76,0.12)" }} onBlur={e => { e.target.style.borderColor = "#d0e0b0"; e.target.style.boxShadow = "0 2px 12px rgba(151,182,76,0.07)" }} />
-                {search && <button onClick={() => setSearch("")} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#97b64c", fontSize: 13, lineHeight: 1, padding: "2px" }}>✕</button>}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+     
 
     {/* ══ MAP SECTION — PREMIUM REDESIGN ══ */}
     <section className="loc-map-section" data-track-section="Branch Map" style={{
-        backgroundColor: "#f5f8ef",
-        padding: "64px 48px 88px",
+        background: "radial-gradient(120% 120% at 50% 0%, #f8fcf1 0%, #eef5e2 40%, #e8f0da 100%)",
+        padding: "24px 48px 96px",
         position: "relative",
         overflow: "hidden",
       }}>
@@ -487,11 +440,13 @@ export default function Locations() {
           @keyframes locBounce   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
           @keyframes shimmerBar  { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
 
-          .ms-pin-wrap:hover .ms-pin-body { transform: scale(1.15) translateY(-3px); filter: brightness(1.1); }
+          .ms-pin-wrap:hover .ms-pin-body { transform: scale(1.18) translateY(-4px); filter: brightness(1.08) saturate(1.1); }
           .ms-branch-row { transition: all 0.22s ease; }
-          .ms-branch-row:hover { background: rgba(151,182,76,0.07) !important; transform: translateX(3px); }
-          .ms-branch-row.selected { background: white !important; }
+          .ms-branch-row:hover { background: rgba(255,255,255,0.8) !important; transform: translateX(4px); border-color: rgba(151,182,76,0.35) !important; }
+          .ms-branch-row.selected { background: linear-gradient(145deg, #ffffff 0%, #f9fdf4 100%) !important; }
 
+
+          
           .ms-label {
   background: white;
   border: 1px solid rgba(151,182,76,0.3);
@@ -510,76 +465,42 @@ export default function Locations() {
           .leaflet-control-zoom { border: 1px solid rgba(151,182,76,0.3) !important; border-radius: 12px !important; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important; }
           .leaflet-control-zoom a { color: #62840b !important; font-weight: 800 !important; background: rgba(255,255,255,0.95) !important; height: 34px !important; line-height: 34px !important; width: 34px !important; font-size: 16px !important; }
           .leaflet-control-zoom a:hover { background: rgba(151,182,76,0.12) !important; }
-          .leaflet-control-attribution { font-size: 8px !important; opacity: 0.4 !important; background: transparent !important; }
+          .leaflet-control-attribution { font-size: 8px !important; opacity: 0.45 !important; background: rgba(255,255,255,0.5) !important; border-radius: 8px; padding: 2px 6px !important; }
           .leaflet-attribution-flag { display: none !important; }
           .leaflet-container { font-family: 'DM Sans', sans-serif !important; }
         `}</style>
 
-        <div style={{ maxWidth: "1300px", margin: "0 auto", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: "1500px", margin: "0 auto", position: "relative", zIndex: 1 }}>
 
           {/* ── Section header ── */}
           <div className="loc-map-header" style={{
             display: "flex", flexWrap: "wrap",
             alignItems: "flex-end", justifyContent: "space-between",
-            gap: 20, marginBottom: 28,
+            gap: 10, marginBottom: 10,
+            
+  
           }}>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                <div style={{ height: 2, width: 32, background: "linear-gradient(90deg, #62840b, #97b64c)", borderRadius: 2 }} />
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", fontWeight: 800, letterSpacing: "0.24em", textTransform: "uppercase", color: "#62840b" }}>
-                  Our Branches
-                </span>
-              </div>
-              <h2 style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
-                fontWeight: 900, letterSpacing: "-0.04em",
-                color: "#1e1e1e", margin: 0, lineHeight: 1.0,
-              }}>
-                Find Us{" "}
-                <span style={{
-                  background: "linear-gradient(135deg, #62840b, #97b64c)",
-                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
-                }}>Nationwide.</span>
-              </h2>
-            </div>
+            <div />
 
-            {/* Region filter pills */}
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-              {REGION_ORDER.map(r => {
-                const acc = r === "All" ? "#97b64c" : (regionAccent[r] || "#97b64c")
-                const isActive = activeRegion === r
-                return (
-                  <button key={r} type="button" onClick={() => setActiveRegion(r)} style={{
-                    all: "unset", cursor: "pointer",
-                    padding: "6px 14px", borderRadius: 999,
-                    fontFamily: "'DM Sans', sans-serif", fontSize: "11px", fontWeight: 700,
-                    background: isActive ? acc : "rgba(255,255,255,0.8)",
-                    color: isActive ? "#fff" : "#5a6a4a",
-                    border: `1.5px solid ${isActive ? acc : "#d0e0b0"}`,
-                    boxShadow: isActive ? `0 4px 14px ${acc}40` : "none",
-                    transition: "all 0.25s ease",
-                    backdropFilter: "blur(8px)",
-                  }}>{r}</button>
-                )
-              })}
-            </div>
           </div>
 
           {/* ── Main content: map + sidebar ── */}
           <div className="loc-map-layout" style={{
+            position: "relative",
             display: "grid",
-            gridTemplateColumns: "1fr 320px",
+            gridTemplateColumns: "1fr",
             gap: 0,
-            borderRadius: 24,
-            overflow: "hidden",
-            boxShadow: "0 32px 100px rgba(98,132,11,0.12), 0 8px 24px rgba(0,0,0,0.06)",
-            border: "1px solid rgba(151,182,76,0.2)",
-            minHeight: "clamp(520px, 68vh, 740px)",
+            borderRadius: 0,
+            overflow: "visible",
+            boxShadow: "none",
+            border: "none",
+            minHeight: "clamp(620px, 80vh, 920px)",
           }}>
 
             {/* MAP */}
-            <div className="loc-map-pane" style={{ position: "relative", background: "#e8f0da", minHeight: "clamp(400px, 60vh, 700px)" }}>
+            <div className="loc-map-pane" style={{ position: "relative", background: "#e8f0da", minHeight: "clamp(620px, 80vh, 920px)", order: 2, borderRadius: 22, overflow: "hidden", border: "1px solid rgba(151,182,76,0.26)", boxShadow: "0 24px 70px rgba(98,132,11,0.14), 0 8px 22px rgba(0,0,0,0.08)" }}>
+              <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 5, background: "linear-gradient(180deg, rgba(248,252,241,0.18) 0%, rgba(255,255,255,0.04) 45%, rgba(0,0,0,0.04) 100%)" }} />
+              <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 6, border: "1px solid rgba(255,255,255,0.5)" }} />
               <div ref={mapContainerRef} style={{ width: "100%", height: "100%" }} />
               {mapReady && (
                 <div style={{
@@ -591,8 +512,16 @@ export default function Locations() {
                   flexDirection: "column",
                   gap: 8,
                 }}>
-                  <button type="button" onClick={zoomIn} style={{ width: 34, height: 34, borderRadius: 10, border: "1px solid rgba(151,182,76,0.35)", background: "rgba(255,255,255,0.95)", color: "#62840b", fontSize: 20, fontWeight: 800, lineHeight: "1", cursor: "pointer" }}>+</button>
-                  <button type="button" onClick={zoomOut} style={{ width: 34, height: 34, borderRadius: 10, border: "1px solid rgba(151,182,76,0.35)", background: "rgba(255,255,255,0.95)", color: "#62840b", fontSize: 20, fontWeight: 800, lineHeight: "1", cursor: "pointer" }}>-</button>
+                  <button
+                    type="button"
+                    onClick={() => setShowDirectory((prev) => !prev)}
+                    style={{ width: 36, height: 36, borderRadius: 10, border: "1px solid rgba(0,18,56,0.55)", background: "linear-gradient(145deg, #071739, #0d234f)", color: "#ffffff", fontSize: 14, fontWeight: 800, lineHeight: "1", cursor: "pointer", boxShadow: "0 6px 14px rgba(0,0,0,0.22)" }}
+                    title={showDirectory ? "Hide sidebar" : "Show sidebar"}
+                  >
+                    {showDirectory ? "◨" : "◧"}
+                  </button>
+                  <button type="button" onClick={zoomIn} style={{ width: 36, height: 36, borderRadius: 12, border: "1px solid rgba(151,182,76,0.42)", background: "linear-gradient(145deg, rgba(255,255,255,0.96), rgba(245,250,236,0.94))", color: "#62840b", fontSize: 20, fontWeight: 800, lineHeight: "1", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.12)" }}>+</button>
+                  <button type="button" onClick={zoomOut} style={{ width: 36, height: 36, borderRadius: 12, border: "1px solid rgba(151,182,76,0.42)", background: "linear-gradient(145deg, rgba(255,255,255,0.96), rgba(245,250,236,0.94))", color: "#62840b", fontSize: 20, fontWeight: 800, lineHeight: "1", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.12)" }}>-</button>
                 </div>
               )}
 
@@ -630,24 +559,24 @@ export default function Locations() {
               {/* Branch detail card — floats over map */}
               {selectedLoc && (
                 <div className="loc-selected-card" style={{
-                  position: "absolute", bottom: 20, left: 20,
+                  position: "absolute", bottom: 20, right: 20,
                   width: "clamp(260px, 32vw, 320px)",
                   zIndex: 1000,
-                  background: "rgba(255,255,255,0.97)",
-                  backdropFilter: "blur(16px)",
-                  borderRadius: 20,
+                  background: "linear-gradient(160deg, rgba(255,255,255,0.99) 0%, rgba(251,255,245,0.96) 58%, rgba(242,250,231,0.93) 100%)",
+                  backdropFilter: "blur(18px)",
+                  borderRadius: 16,
                   overflow: "hidden",
-                  boxShadow: "0 20px 60px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.06)",
-                  border: "1px solid rgba(151,182,76,0.25)",
+                  boxShadow: "0 26px 80px rgba(0,0,0,0.18), 0 10px 26px rgba(98,132,11,0.14)",
+                  border: "1px solid rgba(151,182,76,0.38)",
                   animation: "sidebarIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards",
                 }}>
                   {/* Image */}
                   {selectedLoc.photo ? (
-                    <div style={{ position: "relative", height: 140, overflow: "hidden" }}>
+                    <div style={{ position: "relative", height: 148, overflow: "hidden" }}>
                       <img src={selectedLoc.photo} alt={selectedLoc.name} draggable={false}
                         style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.35) 100%)" }} />
-                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${regionAccent[selectedLoc.region] || "#97b64c"}, #b7cd7f)` }} />
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.02) 35%, rgba(0,0,0,0.42) 100%)" }} />
+                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${regionAccent[selectedLoc.region] || "#97b64c"}, #b7cd7f)` }} />
                     </div>
                   ) : (
                     <div style={{
@@ -656,33 +585,33 @@ export default function Locations() {
                     }} />
                   )}
 
-                  <div style={{ padding: "14px 16px 16px" }}>
+                  <div style={{ padding: "16px 16px 16px" }}>
                     {/* Tags row */}
-                    <div style={{ display: "flex", gap: 5, marginBottom: 10, flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
                       {selectedLoc.tag && (
-                        <span style={{ fontSize: "8px", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 999, background: selectedLoc.tagColor?.bg || "#97b64c", color: selectedLoc.tagColor?.text || "#fff", fontFamily: "'DM Sans', sans-serif" }}>
+                        <span style={{ fontSize: "8px", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999, background: selectedLoc.tagColor?.bg || "#97b64c", color: selectedLoc.tagColor?.text || "#fff", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 3px 10px rgba(0,0,0,0.12)" }}>
                           {selectedLoc.tag}
                         </span>
                       )}
-                      <span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 999, background: "rgba(151,182,76,0.1)", color: "#62840b", border: "1px solid rgba(151,182,76,0.25)", fontFamily: "'DM Sans', sans-serif" }}>
+                      <span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999, background: "rgba(151,182,76,0.14)", color: "#62840b", border: "1px solid rgba(151,182,76,0.32)", fontFamily: "'DM Sans', sans-serif" }}>
                         {selectedLoc.region}
                       </span>
                     </div>
 
-                    <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", fontWeight: 800, color: "#1e1e1e", margin: "0 0 10px", letterSpacing: "-0.02em", lineHeight: 1.2 }}>
+                    <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "1.02rem", fontWeight: 800, color: "#1e1e1e", margin: "0 0 12px", letterSpacing: "-0.02em", lineHeight: 1.2 }}>
                       {selectedLoc.name}
                     </h3>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       {[
                         { icon: "📍", text: selectedLoc.address },
                         { icon: "🕐", text: selectedLoc.hours },
                         selectedLoc.phone && { icon: "📞", text: selectedLoc.phone },
                         selectedLoc.dateEstablished && { icon: "📅", text: `Est. ${selectedLoc.dateEstablished}` },
                       ].filter(Boolean).map((row, i) => (
-                        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
-                          <span style={{ fontSize: 10, marginTop: 1, flexShrink: 0 }}>{row.icon}</span>
-                          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", color: "#5a6a4a", lineHeight: 1.5 }}>{row.text}</span>
+                        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                          <span style={{ fontSize: 10, marginTop: 1, flexShrink: 0, width: 14, textAlign: "center" }}>{row.icon}</span>
+                          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", color: "#4f6040", lineHeight: 1.52, fontWeight: 500 }}>{row.text}</span>
                         </div>
                       ))}
                     </div>
@@ -691,27 +620,49 @@ export default function Locations() {
                   {/* Close */}
                   <button type="button" onClick={() => setSelectedLoc(null)} style={{
                     position: "absolute", top: 10, right: 10,
-                    width: 24, height: 24, borderRadius: "50%",
-                    background: "rgba(255,255,255,0.92)", border: "none",
+                    width: 26, height: 26, borderRadius: "50%",
+                    background: "rgba(255,255,255,0.94)", border: "1px solid rgba(151,182,76,0.22)",
                     cursor: "pointer", fontSize: 12, color: "#4a5568",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.16)",
                     zIndex: 10,
                   }}>×</button>
                 </div>
               )}
 
-              {/* Hint pill top-right */}
-              {mapReady && !selectedLoc && (
+              {/* Top center label */}
+              {mapReady && (
                 <div style={{
                   position: "absolute", top: 16, left: "50%",
                   transform: "translateX(-50%)",
                   zIndex: 500,
-                  background: "rgba(255,255,255,0.92)",
+                  background: "linear-gradient(145deg, rgba(255,255,255,0.97), rgba(240,248,226,0.94))",
+                  backdropFilter: "blur(12px)",
+                  borderRadius: 999, padding: "8px 18px",
+                  border: "1px solid rgba(151,182,76,0.45)",
+                  boxShadow: "0 8px 22px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.7)",
+                  display: "flex", alignItems: "center", gap: 8,
+                  animation: "mapFadeUp 0.5s ease forwards",
+                  animationDelay: "0.6s", opacity: 0,
+                }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#97b64c", boxShadow: "0 0 0 3px rgba(151,182,76,0.2)" }} />
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", fontWeight: 900, color: "#587608", letterSpacing: "0.26em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                    OUR BRANCHES
+                  </span>
+                </div>
+              )}
+
+              {/* Bottom center hint */}
+              {mapReady && !selectedLoc && (
+                <div style={{
+                  position: "absolute", bottom: 16, left: "50%",
+                  transform: "translateX(-50%)",
+                  zIndex: 500,
+                  background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(245,251,236,0.9))",
                   backdropFilter: "blur(12px)",
                   borderRadius: 999, padding: "7px 16px",
-                  border: "1px solid rgba(151,182,76,0.2)",
-                  boxShadow: "0 4px 14px rgba(0,0,0,0.07)",
+                  border: "1px solid rgba(151,182,76,0.3)",
+                  boxShadow: "0 6px 18px rgba(0,0,0,0.1)",
                   display: "flex", alignItems: "center", gap: 6,
                   animation: "mapFadeUp 0.5s ease forwards",
                   animationDelay: "0.8s", opacity: 0,
@@ -723,82 +674,56 @@ export default function Locations() {
                 </div>
               )}
 
-              {/* Region legend bottom-left */}
-              <div className="loc-legend" style={{
-                position: "absolute", bottom: 16, right: 16,
-                zIndex: 500,
-                background: "rgba(255,255,255,0.92)",
-                backdropFilter: "blur(12px)",
-                borderRadius: 14, padding: "10px 14px",
-                border: "1px solid rgba(151,182,76,0.16)",
-                boxShadow: "0 4px 16px rgba(0,0,0,0.07)",
-              }}>
-                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", color: "#62840b", margin: "0 0 7px" }}>Regions</p>
-                {Object.entries(regionAccent).map(([name, color]) => (
-                  <div key={name} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                    <div style={{ width: 7, height: 7, borderRadius: "50%", background: color, flexShrink: 0 }} />
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "9px", color: "#4a5568", fontWeight: 600 }}>{name}</span>
-                  </div>
-                ))}
-              </div>
+         
             </div>
 
             {/* ── RIGHT SIDEBAR: Branch directory ── */}
             <div className="loc-sidebar" style={{
-              background: "white",
-              borderLeft: "1px solid rgba(151,182,76,0.15)",
+              background: "linear-gradient(180deg, rgba(250,253,244,0.97) 0%, rgba(244,249,233,0.96) 55%, rgba(238,246,223,0.96) 100%)",
+              backgroundImage: "linear-gradient(rgba(151,182,76,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.05) 1px, transparent 1px)",
+              backgroundSize: "20px 20px, 20px 20px",
+              backdropFilter: "blur(12px) saturate(1.02)",
+              border: "1px solid rgba(151,182,76,0.3)",
+              borderLeft: "1px solid rgba(151,182,76,0.3)",
+              borderRadius: 18,
               display: "flex",
               flexDirection: "column",
               overflow: "hidden",
+              position: "absolute",
+              top: 14,
+              left: 14,
+              bottom: 14,
+              zIndex: 650,
+              width: showDirectory ? "320px" : "0px",
+              opacity: showDirectory ? 1 : 0,
+              pointerEvents: showDirectory ? "auto" : "none",
+              transition: "width 0.25s ease, opacity 0.2s ease",
+              boxShadow: "0 26px 54px rgba(0,0,0,0.42), 0 10px 28px rgba(0,0,0,0.28)",
             }}>
               {/* Sidebar header */}
               <div style={{
-                padding: "20px 20px 14px",
-                borderBottom: "1px solid rgba(151,182,76,0.12)",
-                background: "linear-gradient(180deg, #fafdf5, white)",
+                padding: "18px 16px 12px",
+                borderBottom: "1px solid rgba(151,182,76,0.22)",
+                background: "linear-gradient(180deg, rgba(255,255,255,0.8), rgba(247,252,238,0.85))",
+                boxShadow: "0 8px 18px rgba(98,132,11,0.12)",
+                position: "sticky",
+                top: 0,
+                zIndex: 5,
                 flexShrink: 0,
               }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                  <p style={{ fontFamily: "'DM Mono', monospace", fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", color: "#62840b", margin: 0 }}>
-                    Branch Directory
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, gap: 8 }}>
+                  <p style={{ fontFamily: "'DM Mono', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.32em", textTransform: "uppercase", color: "#62840b", margin: 0 }}>
+                    Milkshop PH Branches
                   </p>
-                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "9px", fontWeight: 700, color: "#97b64c", letterSpacing: "0.1em" }}>
-                    {filtered.length} listed
-                  </span>
+                 
                 </div>
 
-                {/* Search inside sidebar */}
-                <div style={{ position: "relative" }}>
-                  <svg style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", width: 12, height: 12, pointerEvents: "none" }} fill="none" stroke="#97b64c" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z"/>
-                  </svg>
-                  <input
-                    type="text"
-                    placeholder="Search branches…"
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    style={{
-                      width: "100%", boxSizing: "border-box",
-                      paddingLeft: 30, paddingRight: search ? 28 : 10,
-                      paddingTop: 9, paddingBottom: 9,
-                      borderRadius: 10, fontSize: "11px",
-                      border: "1.5px solid #e0ebd0",
-                      background: "#f8fbf4", color: "#1e1e1e",
-                      fontFamily: "'DM Sans', sans-serif",
-                      outline: "none", transition: "border-color 0.2s ease",
-                    }}
-                    onFocus={e => { e.target.style.borderColor = "#97b64c"; e.target.style.background = "white" }}
-                    onBlur={e => { e.target.style.borderColor = "#e0ebd0"; e.target.style.background = "#f8fbf4" }}
-                  />
-                  {search && (
-                    <button onClick={() => setSearch("")} style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#97b64c", fontSize: 11, padding: "2px" }}>✕</button>
-                  )}
-                </div>
+              
               </div>
 
               {/* Branch list — scrollable */}
               <div style={{
-                flex: 1, overflowY: "auto", padding: "8px 12px 12px",
+                flex: 1, overflowY: "auto", padding: "10px 10px 14px",
                 scrollbarWidth: "none",
               }}>
                 {loading ? (
@@ -820,7 +745,7 @@ export default function Locations() {
                     <button onClick={() => { setSearch(""); setActiveRegion("All") }} style={{ padding: "7px 18px", borderRadius: 999, border: "1.5px solid #97b64c", background: "white", color: "#62840b", fontFamily: "'DM Sans', sans-serif", fontSize: "11px", fontWeight: 700, cursor: "pointer" }}>Clear filters</button>
                   </div>
                 ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                     {filtered.map((loc, idx) => {
                       const accent = regionAccent[loc.region] || "#97b64c"
                       const isSelected = selectedLoc?.id === loc.id
@@ -834,20 +759,24 @@ export default function Locations() {
                             all: "unset",
                             cursor: "pointer",
                             display: "flex", alignItems: "center", gap: 10,
-                            padding: "10px 12px", borderRadius: 12,
-                            background: isSelected ? "white" : "transparent",
-                            border: `1px solid ${isSelected ? accent : "transparent"}`,
-                            boxShadow: isSelected ? `0 4px 16px ${accent}20` : "none",
+                            padding: "11px 12px", borderRadius: 16,
+                            background: isSelected
+                              ? "linear-gradient(145deg, rgba(233,245,202,0.95), rgba(223,241,180,0.95))"
+                              : "linear-gradient(145deg, rgba(255,255,255,0.92), rgba(247,251,238,0.9))",
+                            border: `1px solid ${isSelected ? "#97b64c" : "rgba(151,182,76,0.2)"}`,
+                            boxShadow: isSelected
+                              ? "0 0 0 1px rgba(151,182,76,0.35), 0 10px 22px rgba(98,132,11,0.2)"
+                              : "0 6px 14px rgba(98,132,11,0.08)",
                             animation: `mapFadeUp 0.4s ease forwards`,
                             animationDelay: `${idx * 0.03}s`,
-                            opacity: 0,
+                            opacity: 1,
                           }}
                         >
                           {/* Color dot with pulse on selected */}
-                          <div style={{ position: "relative", flexShrink: 0 }}>
+                          <div style={{ position: "relative", flexShrink: 0, display: "flex", alignItems: "center", gap: 6 }}>
                             <div style={{
-                              width: 9, height: 9, borderRadius: "50%", background: accent,
-                              boxShadow: isSelected ? `0 0 0 3px ${accent}28` : "none",
+                              width: 10, height: 10, borderRadius: "50%", background: isSelected ? "#97b64c" : accent,
+                              boxShadow: isSelected ? "0 0 0 3px rgba(151,182,76,0.24), 0 0 8px rgba(151,182,76,0.35)" : "none",
                               transition: "box-shadow 0.3s ease",
                             }} />
                             {isSelected && (
@@ -862,20 +791,14 @@ export default function Locations() {
 
                           <div style={{ minWidth: 0, flex: 1 }}>
                             <p style={{
-                              fontFamily: "'DM Sans', sans-serif",
-                              fontSize: "12px", fontWeight: isSelected ? 800 : 600,
+                              fontFamily: "'Montserrat', 'DM Sans', sans-serif",
+                              fontSize: "12px", fontWeight: isSelected ? 800 : 700,
                               color: isSelected ? "#1e1e1e" : "#3a4a2a",
                               margin: 0,
                               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                               letterSpacing: "-0.01em",
                               transition: "font-weight 0.2s ease",
                             }}>{loc.name}</p>
-                            <p style={{
-                              fontFamily: "'DM Sans', sans-serif",
-                              fontSize: "9px", color: "#7a8a6a",
-                              margin: "2px 0 0", fontWeight: 500,
-                              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                            }}>{loc.address || loc.region}</p>
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, flexShrink: 0 }}>
@@ -898,29 +821,7 @@ export default function Locations() {
                 )}
               </div>
 
-              {/* Sidebar footer */}
-              <div style={{
-                padding: "12px 16px",
-                borderTop: "1px solid rgba(151,182,76,0.1)",
-                background: "linear-gradient(180deg, white, #fafdf5)",
-                flexShrink: 0,
-              }}>
-                <Link to="/franchise#inquiry" style={{
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                  padding: "11px 16px", borderRadius: 12,
-                  background: "linear-gradient(135deg, #62840b, #97b64c)",
-                  color: "white", textDecoration: "none",
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "11px", fontWeight: 700,
-                  boxShadow: "0 6px 20px rgba(151,182,76,0.35)",
-                  transition: "all 0.25s ease",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 10px 28px rgba(151,182,76,0.45)" }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(151,182,76,0.35)" }}
-                >
-                  Open a Branch in Your City →
-                </Link>
-              </div>
+          
             </div>
 
           </div>
