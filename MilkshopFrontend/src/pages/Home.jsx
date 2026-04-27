@@ -1838,7 +1838,7 @@ function FinalCTASection() {
   return (
     <section style={{
       background: "#1e1e1e",
-      padding: isMobile ? "48px 0 44px" : "64px 0 60px",
+      padding: isMobile ? "30px 0 26px" : "40px 0 36px",
       position: "relative", overflow: "hidden",
     }}>
       <div aria-hidden style={{
@@ -1853,7 +1853,7 @@ function FinalCTASection() {
       <div style={{
         maxWidth: 1160,
         margin: "0 auto",
-        padding: isMobile ? "22px 16px" : isTablet ? "30px 24px" : "34px 38px",
+        padding: isMobile ? "14px 14px" : isTablet ? "20px 20px" : "22px 28px",
         position: "relative",
         zIndex: 1,
         borderTop: "1px solid rgba(183,205,127,0.26)",
@@ -1872,7 +1872,7 @@ function FinalCTASection() {
             }}>Next Step</span>
             <h2 style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: "clamp(2rem, 3.2vw, 2.9rem)",
+              fontSize: "clamp(1.65rem, 2.7vw, 2.4rem)",
               fontWeight: 900, color: T.white,
               letterSpacing: "-0.035em", margin: 0, lineHeight: 0.95,
             }}>
@@ -1881,8 +1881,8 @@ function FinalCTASection() {
             <p style={{
               margin: "12px 0 0",
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: "0.9rem",
-              lineHeight: 1.6,
+              fontSize: "0.84rem",
+              lineHeight: 1.45,
               color: "rgba(255,255,255,0.86)",
               maxWidth: 460,
             }}>

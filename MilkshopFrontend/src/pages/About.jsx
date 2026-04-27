@@ -678,48 +678,49 @@ export default function About() {
       {/* ══════════════════════════════════════════════
           COMPACT PROMO — BRING MILKSHOP CLOSER
       ══════════════════════════════════════════════ */}
-      <section data-track-section="Community Promo" className="relative py-8 bg-white">
+      <section data-track-section="Community Promo" className="relative py-5 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-16">
           <Slide direction="up">
             <div
-              className="rounded-2xl overflow-hidden flex flex-col md:flex-row items-stretch"
+              className="rounded-xl flex items-center justify-between gap-4 sm:gap-6"
               style={{
                 border: "1px solid #e0ebd0",
-                boxShadow: "0 10px 30px rgba(98,132,11,0.08)",
+                boxShadow: "0 6px 20px rgba(98,132,11,0.07)",
                 background: "linear-gradient(120deg, #f8fbf2 0%, #ffffff 100%)",
-                minHeight: 180,
+                padding: "14px 16px",
               }}
             >
-              <div className="md:w-[36%] w-full" style={{ minHeight: 180 }}>
-                <img
-                  src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80"
-                  alt="Milk tea branch storefront"
-                  className="w-full h-full object-cover"
-                />
+              <div>
+                <p
+                  className="text-[10px] font-bold tracking-[0.2em] uppercase mb-1"
+                  style={{ color: "#97b64c" }}
+                >
+                  Community Growth
+                </p>
+                <h3
+                  style={{
+                    fontSize: "clamp(0.98rem, 1.8vw, 1.25rem)",
+                    fontWeight: 800,
+                    letterSpacing: "-0.01em",
+                    lineHeight: 1.2,
+                    color: "#1e1e1e",
+                    margin: 0,
+                  }}
+                >
+                  Bring Milkshop Closer to your community
+                </h3>
               </div>
-
-              <div className="md:w-[64%] w-full flex items-center px-6 sm:px-8 py-6">
-                <div>
-                  <p
-                    className="text-[11px] font-bold tracking-[0.24em] uppercase mb-2"
-                    style={{ color: "#97b64c" }}
-                  >
-                    Community Growth
-                  </p>
-                  <h3
-                    style={{
-                      fontSize: "clamp(1.15rem, 2.3vw, 1.8rem)",
-                      fontWeight: 900,
-                      letterSpacing: "-0.02em",
-                      lineHeight: 1.15,
-                      color: "#1e1e1e",
-                      margin: 0,
-                    }}
-                  >
-                    Bring Milkshop Closer to your community
-                  </h3>
-                </div>
-              </div>
+              <Link
+                to="/franchise#inquiry"
+                className="font-bold text-xs px-4 py-2 rounded-full whitespace-nowrap transition-all duration-200"
+                style={{
+                  backgroundColor: "#97b64c",
+                  color: "#ffffff",
+                  boxShadow: "0 4px 14px rgba(151,182,76,0.28)",
+                }}
+              >
+                Franchise →
+              </Link>
             </div>
           </Slide>
         </div>

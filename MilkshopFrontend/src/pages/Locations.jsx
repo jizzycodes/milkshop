@@ -556,79 +556,230 @@ export default function Locations() {
                 </div>
               )}
 
-              {/* Branch detail card — floats over map */}
-              {selectedLoc && (
-                <div className="loc-selected-card" style={{
-                  position: "absolute", bottom: 20, right: 20,
-                  width: "clamp(260px, 32vw, 320px)",
-                  zIndex: 1000,
-                  background: "linear-gradient(160deg, rgba(255,255,255,0.99) 0%, rgba(251,255,245,0.96) 58%, rgba(242,250,231,0.93) 100%)",
-                  backdropFilter: "blur(18px)",
-                  borderRadius: 16,
-                  overflow: "hidden",
-                  boxShadow: "0 26px 80px rgba(0,0,0,0.18), 0 10px 26px rgba(98,132,11,0.14)",
-                  border: "1px solid rgba(151,182,76,0.38)",
-                  animation: "sidebarIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards",
-                }}>
-                  {/* Image */}
-                  {selectedLoc.photo ? (
-                    <div style={{ position: "relative", height: 148, overflow: "hidden" }}>
-                      <img src={selectedLoc.photo} alt={selectedLoc.name} draggable={false}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.02) 35%, rgba(0,0,0,0.42) 100%)" }} />
-                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${regionAccent[selectedLoc.region] || "#97b64c"}, #b7cd7f)` }} />
-                    </div>
-                  ) : (
-                    <div style={{
-                      height: 8,
-                      background: `linear-gradient(90deg, ${regionAccent[selectedLoc.region] || "#97b64c"}, #b7cd7f)`,
-                    }} />
-                  )}
-
-                  <div style={{ padding: "16px 16px 16px" }}>
-                    {/* Tags row */}
-                    <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
-                      {selectedLoc.tag && (
-                        <span style={{ fontSize: "8px", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999, background: selectedLoc.tagColor?.bg || "#97b64c", color: selectedLoc.tagColor?.text || "#fff", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 3px 10px rgba(0,0,0,0.12)" }}>
-                          {selectedLoc.tag}
-                        </span>
-                      )}
-                      <span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999, background: "rgba(151,182,76,0.14)", color: "#62840b", border: "1px solid rgba(151,182,76,0.32)", fontFamily: "'DM Sans', sans-serif" }}>
-                        {selectedLoc.region}
-                      </span>
-                    </div>
-
-                    <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "1.02rem", fontWeight: 800, color: "#1e1e1e", margin: "0 0 12px", letterSpacing: "-0.02em", lineHeight: 1.2 }}>
-                      {selectedLoc.name}
-                    </h3>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {[
-                        { icon: "📍", text: selectedLoc.address },
-                        { icon: "🕐", text: selectedLoc.hours },
-                        selectedLoc.phone && { icon: "📞", text: selectedLoc.phone },
-                        selectedLoc.dateEstablished && { icon: "📅", text: `Est. ${selectedLoc.dateEstablished}` },
-                      ].filter(Boolean).map((row, i) => (
-                        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                          <span style={{ fontSize: 10, marginTop: 1, flexShrink: 0, width: 14, textAlign: "center" }}>{row.icon}</span>
-                          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", color: "#4f6040", lineHeight: 1.52, fontWeight: 500 }}>{row.text}</span>
+             {/* Branch detail card — floats over map */}
+              {/* REPLACE LINE 559 TO LINE 631 with this block */}
+              {selectedLoc && (() => {
+                const accent = regionAccent[selectedLoc.region] || "#97b64c"
+                return (
+                  <div
+                    className="loc-selected-card"
+                    style={{
+                      position: "absolute",
+                      bottom: 20,
+                      right: 20,
+                      width: "clamp(270px, 30vw, 310px)",
+                      zIndex: 1000,
+                      background: "#ffffff",
+                      borderRadius: 20,
+                      overflow: "hidden",
+                      boxShadow: "0 32px 80px rgba(0,0,0,0.2), 0 8px 24px rgba(98,132,11,0.12)",
+                      border: "1px solid rgba(151,182,76,0.25)",
+                      animation: "sidebarIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards",
+                    }}
+                  >
+                    {/* ── Image area ── */}
+                    <div style={{ position: "relative", height: 152, overflow: "hidden", background: `linear-gradient(145deg, ${accent}18, ${accent}08)` }}>
+                      {selectedLoc.photo ? (
+                        <img
+                          src={selectedLoc.photo}
+                          alt={selectedLoc.name}
+                          draggable={false}
+                          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                        />
+                      ) : (
+                        /* Placeholder with brand mark */
+                        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="1.4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+                          </svg>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                      )}
 
-                  {/* Close */}
-                  <button type="button" onClick={() => setSelectedLoc(null)} style={{
-                    position: "absolute", top: 10, right: 10,
-                    width: 26, height: 26, borderRadius: "50%",
-                    background: "rgba(255,255,255,0.94)", border: "1px solid rgba(151,182,76,0.22)",
-                    cursor: "pointer", fontSize: 12, color: "#4a5568",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.16)",
-                    zIndex: 10,
-                  }}>×</button>
-                </div>
-              )}
+                      {/* Bottom gradient bleed into card */}
+                      <div style={{
+                        position: "absolute", inset: 0,
+                        background: "linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.52) 100%)",
+                        pointerEvents: "none",
+                      }} />
+
+                      {/* Top accent line */}
+                      <div style={{
+                        position: "absolute", top: 0, left: 0, right: 0,
+                        height: 3,
+                        background: `linear-gradient(90deg, ${accent}, #b7cd7f)`,
+                      }} />
+
+                      {/* Region tag — overlaid on image bottom-left */}
+                      <div style={{
+                        position: "absolute", bottom: 10, left: 12,
+                        display: "flex", gap: 5, flexWrap: "wrap",
+                      }}>
+                        {selectedLoc.region && (
+                          <span style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: "8px", fontWeight: 900,
+                            letterSpacing: "0.18em", textTransform: "uppercase",
+                            padding: "3px 9px", borderRadius: 999,
+                            background: accent,
+                            color: "#fff",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.22)",
+                          }}>
+                            {selectedLoc.region}
+                          </span>
+                        )}
+                        {selectedLoc.tag && (
+                          <span style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: "8px", fontWeight: 800,
+                            letterSpacing: "0.1em", textTransform: "uppercase",
+                            padding: "3px 9px", borderRadius: 999,
+                            background: selectedLoc.tagColor?.bg || "rgba(255,255,255,0.2)",
+                            color: selectedLoc.tagColor?.text || "#fff",
+                            border: "1px solid rgba(255,255,255,0.3)",
+                            backdropFilter: "blur(6px)",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+                          }}>
+                            {selectedLoc.tag}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* ── Content ── */}
+                    <div style={{ padding: "14px 15px 16px" }}>
+
+                      {/* Branch name */}
+                      <h3 style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "0.92rem",
+                        fontWeight: 800,
+                        color: "#1a2410",
+                        margin: "0 0 12px",
+                        letterSpacing: "-0.02em",
+                        lineHeight: 1.25,
+                        paddingRight: 20,
+                      }}>
+                        {selectedLoc.name}
+                      </h3>
+
+                      {/* Info rows with SVG icons */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+
+                        {/* Address */}
+                        {selectedLoc.address && (
+                          <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+                            </svg>
+                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", color: "#4a5c38", lineHeight: 1.55, fontWeight: 500 }}>
+                              {selectedLoc.address}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Hours */}
+                        {selectedLoc.hours && (
+                          <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#97b64c" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
+                              <circle cx="12" cy="12" r="9"/>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 3"/>
+                            </svg>
+                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", color: "#4a5c38", lineHeight: 1.55, fontWeight: 500 }}>
+                              {selectedLoc.hours}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Phone */}
+                        {selectedLoc.phone && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#97b64c" strokeWidth="2" style={{ flexShrink: 0 }}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>
+                            </svg>
+                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", color: "#4a5c38", fontWeight: 600 }}>
+                              {selectedLoc.phone}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Est. date */}
+                        {selectedLoc.dateEstablished && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#97b64c" strokeWidth="2" style={{ flexShrink: 0 }}>
+                              <rect x="3" y="4" width="18" height="18" rx="2"/>
+                              <path strokeLinecap="round" d="M16 2v4M8 2v4M3 10h18"/>
+                            </svg>
+                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", color: "#7a8a6a", fontWeight: 500 }}>
+                              Est. {selectedLoc.dateEstablished}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Facebook CTA — always visible if available */}
+                      {selectedLoc.facebookUrl && (
+                        <a
+                          href={selectedLoc.facebookUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 6,
+                            marginTop: 14,
+                            padding: "9px 0",
+                            borderRadius: 10,
+                            background: `linear-gradient(135deg, ${accent}, #b7cd7f)`,
+                            color: "#fff",
+                            textDecoration: "none",
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: "11px",
+                            fontWeight: 800,
+                            letterSpacing: "0.04em",
+                            boxShadow: `0 6px 18px ${accent}40`,
+                            transition: "opacity 0.2s ease, transform 0.2s ease",
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "translateY(-1px)" }}
+                          onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)" }}
+                        >
+                          View Facebook Page
+                          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                            <path d="M2.5 6h7M6.5 3l3 3-3 3" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </a>
+                      )}
+                    </div>
+
+                    {/* ── Close button ── */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLoc(null)}
+                      style={{
+                        position: "absolute", top: 10, right: 10,
+                        width: 26, height: 26, borderRadius: "50%",
+                        background: "rgba(255,255,255,0.92)",
+                        border: "1px solid rgba(255,255,255,0.6)",
+                        cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.18)",
+                        zIndex: 10,
+                        color: "#333",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        lineHeight: 1,
+                        transition: "background 0.15s ease",
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,1)"}
+                      onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.92)"}
+                    >
+                      ×
+                    </button>
+                  </div>
+                )
+              })()}
 
               {/* Top center label */}
               {mapReady && (
@@ -677,142 +828,267 @@ export default function Locations() {
          
             </div>
 
-            {/* ── RIGHT SIDEBAR: Branch directory ── */}
-            <div className="loc-sidebar" style={{
-              background: "linear-gradient(180deg, rgba(250,253,244,0.97) 0%, rgba(244,249,233,0.96) 55%, rgba(238,246,223,0.96) 100%)",
-              backgroundImage: "linear-gradient(rgba(151,182,76,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.05) 1px, transparent 1px)",
-              backgroundSize: "20px 20px, 20px 20px",
-              backdropFilter: "blur(12px) saturate(1.02)",
-              border: "1px solid rgba(151,182,76,0.3)",
-              borderLeft: "1px solid rgba(151,182,76,0.3)",
-              borderRadius: 18,
-              display: "flex",
-              flexDirection: "column",
-              overflow: "hidden",
-              position: "absolute",
-              top: 14,
-              left: 14,
-              bottom: 14,
-              zIndex: 650,
-              width: showDirectory ? "320px" : "0px",
-              opacity: showDirectory ? 1 : 0,
-              pointerEvents: showDirectory ? "auto" : "none",
-              transition: "width 0.25s ease, opacity 0.2s ease",
-              boxShadow: "0 26px 54px rgba(0,0,0,0.42), 0 10px 28px rgba(0,0,0,0.28)",
-            }}>
-              {/* Sidebar header */}
-              <div style={{
-                padding: "18px 16px 12px",
-                borderBottom: "1px solid rgba(151,182,76,0.22)",
-                background: "linear-gradient(180deg, rgba(255,255,255,0.8), rgba(247,252,238,0.85))",
-                boxShadow: "0 8px 18px rgba(98,132,11,0.12)",
-                position: "sticky",
-                top: 0,
-                zIndex: 5,
-                flexShrink: 0,
-              }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, gap: 8 }}>
-                  <p style={{ fontFamily: "'DM Mono', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.32em", textTransform: "uppercase", color: "#62840b", margin: 0 }}>
-                    Milkshop PH Branches
-                  </p>
-                 
-                </div>
+      {/* ── RIGHT SIDEBAR: Branch directory ── */}
+            {/* PASTE THIS FROM LINE 681 TO LINE 825 in Locations.jsx */}
+            <div
+              className="loc-sidebar"
+              style={{
+                background: "linear-gradient(160deg, rgba(255,255,255,0.98) 0%, rgba(247,252,238,0.97) 100%)",
+                backdropFilter: "blur(16px) saturate(1.1)",
+                border: "1px solid rgba(151,182,76,0.22)",
+                borderRadius: 20,
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+                position: "absolute",
+                top: 14,
+                left: 14,
+                bottom: 14,
+                zIndex: 650,
+                width: showDirectory ? "300px" : "0px",
+                opacity: showDirectory ? 1 : 0,
+                pointerEvents: showDirectory ? "auto" : "none",
+                transition: "width 0.28s cubic-bezier(0.16,1,0.3,1), opacity 0.2s ease",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.18), 0 6px 20px rgba(98,132,11,0.1)",
+              }}
+            >
+              {/* ── Header ── */}
+              <div
+                style={{
+                  padding: "16px 14px 12px",
+                  borderBottom: "1px solid rgba(151,182,76,0.14)",
+                  background: "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,253,240,0.9) 100%)",
+                  flexShrink: 0,
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 5,
+                }}
+              >
+                {/* Title row */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {/* Live dot */}
+                    <span style={{
+                      position: "relative",
+                      width: 8, height: 8, borderRadius: "50%",
+                      background: "#97b64c",
+                      display: "inline-block",
+                      flexShrink: 0,
+                    }}>
+                      <span style={{
+                        position: "absolute", inset: -3,
+                        borderRadius: "50%",
+                        border: "1.5px solid rgba(151,182,76,0.4)",
+                        animation: "pinRipple 2s ease-out infinite",
+                      }} />
+                    </span>
+                    <span style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "10px",
+                      fontWeight: 900,
+                      letterSpacing: "0.26em",
+                      textTransform: "uppercase",
+                      color: "#62840b",
+                    }}>
+                      Our Branches
+                    </span>
+                  </div>
 
-              
+                  {/* Branch count badge */}
+                  <span style={{
+                    background: "linear-gradient(135deg, #62840b, #97b64c)",
+                    color: "#fff",
+                    fontSize: "9px",
+                    fontWeight: 800,
+                    fontFamily: "'DM Sans', sans-serif",
+                    padding: "3px 9px",
+                    borderRadius: 999,
+                    letterSpacing: "0.05em",
+                  }}>
+                    {filtered.length} {filtered.length === 1 ? "branch" : "branches"}
+                  </span>
+                </div>
               </div>
 
-              {/* Branch list — scrollable */}
-              <div style={{
-                flex: 1, overflowY: "auto", padding: "10px 10px 14px",
-                scrollbarWidth: "none",
-              }}>
+              {/* ── Scrollable list ── */}
+              <div
+                style={{
+                  flex: 1,
+                  overflowY: "auto",
+                  padding: "8px 8px 12px",
+                  scrollbarWidth: "none",
+                }}
+              >
+                {/* Loading skeletons */}
                 {loading ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "16px 0" }}>
-                    {[1,2,3,4,5].map(i => (
-                      <div key={i} style={{
-                        height: 52, borderRadius: 10,
-                        background: "linear-gradient(90deg, #f0f5e8, #e8f2d8, #f0f5e8)",
-                        backgroundSize: "200% 100%",
-                        animation: `shimmerBar 1.4s ease infinite`,
-                        animationDelay: `${i * 0.1}s`,
-                      }} />
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "10px 0" }}>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div
+                        key={i}
+                        style={{
+                          height: 58,
+                          borderRadius: 12,
+                          background: "linear-gradient(90deg, #f0f5e8 0%, #e4efcf 50%, #f0f5e8 100%)",
+                          backgroundSize: "200% 100%",
+                          animation: `shimmerBar 1.5s ease infinite`,
+                          animationDelay: `${i * 0.08}s`,
+                        }}
+                      />
                     ))}
                   </div>
+
                 ) : filtered.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "32px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                  /* Empty state */
+                  <div style={{
+                    display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center",
+                    gap: 10, padding: "40px 16px", textAlign: "center",
+                  }}>
                     <span style={{ fontSize: 28 }}>🔍</span>
-                    <p style={{ fontWeight: 700, fontSize: "0.85rem", color: "#1e1e1e", margin: 0 }}>No branches found</p>
-                    <button onClick={() => { setSearch(""); setActiveRegion("All") }} style={{ padding: "7px 18px", borderRadius: 999, border: "1.5px solid #97b64c", background: "white", color: "#62840b", fontFamily: "'DM Sans', sans-serif", fontSize: "11px", fontWeight: 700, cursor: "pointer" }}>Clear filters</button>
+                    <p style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontWeight: 700, fontSize: "13px",
+                      color: "#1e1e1e", margin: 0,
+                    }}>No branches found</p>
+                    <button
+                      onClick={() => { setSearch(""); setActiveRegion("All") }}
+                      style={{
+                        padding: "7px 18px", borderRadius: 999,
+                        border: "1.5px solid #97b64c",
+                        background: "white", color: "#62840b",
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "11px", fontWeight: 700, cursor: "pointer",
+                      }}
+                    >
+                      Clear filters
+                    </button>
                   </div>
+
                 ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                    {filtered.map((loc, idx) => {
+                  /* Branch cards */
+                  <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                    {filtered.map((loc) => {
                       const accent = regionAccent[loc.region] || "#97b64c"
                       const isSelected = selectedLoc?.id === loc.id
+
                       return (
                         <button
                           key={loc.id}
                           type="button"
-                          className={`ms-branch-row ${isSelected ? "selected" : ""}`}
                           onClick={() => { setSelectedLoc(loc); flyTo(loc) }}
                           style={{
                             all: "unset",
                             cursor: "pointer",
-                            display: "flex", alignItems: "center", gap: 10,
-                            padding: "11px 12px", borderRadius: 16,
+                            display: "flex",
+                            alignItems: "stretch",
+                            borderRadius: 13,
+                            overflow: "hidden",
                             background: isSelected
-                              ? "linear-gradient(145deg, rgba(233,245,202,0.95), rgba(223,241,180,0.95))"
-                              : "linear-gradient(145deg, rgba(255,255,255,0.92), rgba(247,251,238,0.9))",
-                            border: `1px solid ${isSelected ? "#97b64c" : "rgba(151,182,76,0.2)"}`,
+                              ? "linear-gradient(135deg, rgba(223,242,185,0.95), rgba(210,236,165,0.92))"
+                              : "rgba(255,255,255,0.88)",
+                            border: `1px solid ${isSelected ? "rgba(151,182,76,0.55)" : "rgba(151,182,76,0.14)"}`,
                             boxShadow: isSelected
-                              ? "0 0 0 1px rgba(151,182,76,0.35), 0 10px 22px rgba(98,132,11,0.2)"
-                              : "0 6px 14px rgba(98,132,11,0.08)",
-                            animation: `mapFadeUp 0.4s ease forwards`,
-                            animationDelay: `${idx * 0.03}s`,
-                            opacity: 1,
+                              ? "0 4px 18px rgba(98,132,11,0.18)"
+                              : "0 2px 8px rgba(0,0,0,0.04)",
+                            transition: "all 0.18s ease",
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.background = "rgba(245,251,233,0.95)"
+                              e.currentTarget.style.boxShadow = "0 4px 14px rgba(98,132,11,0.12)"
+                              e.currentTarget.style.transform = "translateX(3px)"
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.background = "rgba(255,255,255,0.88)"
+                              e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"
+                              e.currentTarget.style.transform = "translateX(0)"
+                            }
                           }}
                         >
-                          {/* Color dot with pulse on selected */}
-                          <div style={{ position: "relative", flexShrink: 0, display: "flex", alignItems: "center", gap: 6 }}>
+                          {/* Left accent bar */}
+                          <div style={{
+                            width: 3,
+                            flexShrink: 0,
+                            background: isSelected
+                              ? `linear-gradient(180deg, ${accent}, ${accent}88)`
+                              : "transparent",
+                            borderRadius: "13px 0 0 13px",
+                            transition: "background 0.18s ease",
+                          }} />
+
+                          {/* Content */}
+                          <div style={{
+                            flex: 1,
+                            padding: "10px 12px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            minWidth: 0,
+                          }}>
+                            {/* Dot indicator */}
                             <div style={{
-                              width: 10, height: 10, borderRadius: "50%", background: isSelected ? "#97b64c" : accent,
-                              boxShadow: isSelected ? "0 0 0 3px rgba(151,182,76,0.24), 0 0 8px rgba(151,182,76,0.35)" : "none",
-                              transition: "box-shadow 0.3s ease",
+                              width: 8, height: 8,
+                              borderRadius: "50%",
+                              background: isSelected ? accent : "rgba(151,182,76,0.4)",
+                              flexShrink: 0,
+                              boxShadow: isSelected ? `0 0 0 3px ${accent}28` : "none",
+                              transition: "all 0.18s ease",
                             }} />
-                            {isSelected && (
-                              <div style={{
-                                position: "absolute", inset: -3,
-                                borderRadius: "50%",
-                                border: `1.5px solid ${accent}`,
-                                animation: "pinRipple 1.5s ease-out infinite",
-                              }} />
-                            )}
-                          </div>
 
-                          <div style={{ minWidth: 0, flex: 1 }}>
-                            <p style={{
-                              fontFamily: "'Montserrat', 'DM Sans', sans-serif",
-                              fontSize: "12px", fontWeight: isSelected ? 800 : 700,
-                              color: isSelected ? "#1e1e1e" : "#3a4a2a",
-                              margin: 0,
-                              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                              letterSpacing: "-0.01em",
-                              transition: "font-weight 0.2s ease",
-                            }}>{loc.name}</p>
-                          </div>
+                            {/* Text */}
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <p style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: "12px",
+                                fontWeight: isSelected ? 800 : 600,
+                                color: isSelected ? "#1a2e0a" : "#3a4a2a",
+                                margin: "0 0 2px",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                letterSpacing: "-0.01em",
+                                transition: "color 0.18s ease",
+                              }}>
+                                {loc.name.replace("Milkshop PH - ", "").replace("Milkshop PH – ", "")}
+                              </p>
+                              {loc.address ? (
+                                <p style={{
+                                  fontFamily: "'DM Sans', sans-serif",
+                                  fontSize: "10px",
+                                  fontWeight: 400,
+                                  color: "#7a8a6a",
+                                  margin: 0,
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                }}>
+                                  {loc.address}
+                                </p>
+                              ) : null}
+                            </div>
 
-                          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, flexShrink: 0 }}>
-                            {loc.tag && (
-                              <span style={{
-                                fontSize: "7px", fontWeight: 800, letterSpacing: "0.06em",
-                                textTransform: "uppercase", padding: "2px 6px", borderRadius: 999,
-                                background: loc.tagColor?.bg || accent,
-                                color: loc.tagColor?.text || "#fff",
-                              }}>{loc.tag}</span>
-                            )}
-                            {isSelected && (
-                              <span style={{ fontSize: 9, color: accent, fontWeight: 700 }}>→</span>
-                            )}
+                            {/* Right side: tag or arrow */}
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, flexShrink: 0 }}>
+                              {loc.tag && (
+                                <span style={{
+                                  fontSize: "7px", fontWeight: 800,
+                                  letterSpacing: "0.06em", textTransform: "uppercase",
+                                  padding: "2px 7px", borderRadius: 999,
+                                  background: loc.tagColor?.bg || accent,
+                                  color: loc.tagColor?.text || "#fff",
+                                  fontFamily: "'DM Sans', sans-serif",
+                                }}>
+                                  {loc.tag}
+                                </span>
+                              )}
+                              {isSelected && (
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                  <path d="M2.5 6h7M6.5 3l3 3-3 3" stroke={accent} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              )}
+                            </div>
                           </div>
                         </button>
                       )
@@ -820,8 +1096,6 @@ export default function Locations() {
                   </div>
                 )}
               </div>
-
-          
             </div>
 
           </div>
