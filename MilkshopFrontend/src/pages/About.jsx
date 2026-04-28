@@ -339,40 +339,7 @@ export default function About() {
       </div>
 
       {/* Stats strip */}
-      <div className="about-hero-stat" style={{
-        display: "flex", gap: 0,
-        border: "1px solid #ddecc4",
-        borderRadius: 16, overflow: "hidden",
-        background: "white",
-        alignSelf: "flex-start",
-        boxShadow: "0 4px 20px rgba(151,182,76,0.1)",
-      }}>
-        {[
-          { v: "2015", l: "Founded" },
-          { v: "15+",  l: "Branches" },
-          { v: "100%", l: "Fresh Milk" },
-        ].map((s, i) => (
-          <div key={s.l} className="about-stat-item" style={{
-            padding: isMobile ? "14px 18px" : "16px 24px",
-            textAlign: "center",
-            borderRight: i < 2 ? "1px solid #ddecc4" : "none",
-          }}>
-            <p style={{
-              fontFamily: "'DM Mono', monospace",
-              fontWeight: 900,
-              fontSize: isMobile ? "1.1rem" : "1.3rem",
-              color: "#1a1e14", lineHeight: 1,
-              margin: "0 0 4px",
-            }}>{s.v}</p>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "8px", fontWeight: 800,
-              textTransform: "uppercase", letterSpacing: "0.16em",
-              color: "#97b64c", margin: 0,
-            }}>{s.l}</p>
-          </div>
-        ))}
-      </div>
+     
 
       {/* CTAs */}
       <div className="about-hero-cta" style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
@@ -521,7 +488,7 @@ export default function About() {
         {/* ══════════════════════════════════════════════
           SLIDE 4 — SOURCING + FROM FARM TO CUP (single block)
       ══════════════════════════════════════════════ */}
-      <section data-track-section="Raw Materials" className="relative py-28 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
+      <section data-track-section="Raw Materials" className="relative py-10 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
         <div className="absolute inset-0 pointer-events-none" style={{
           backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.15) 1px, transparent 1px)",
           backgroundSize: "40px 40px",
@@ -535,11 +502,7 @@ export default function About() {
               From Farm to Cup
             </h2>
           </Slide>
-          <Slide direction="up" delay={80} className="mb-16">
-            <p className="text-base max-w-2xl leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
-              Every ingredient is traced to its source — tea from Nantou, milk from certified farms, popping boba from our Taiwan facility, and black sugar by a recipe we still slow-cook today. See how that chain becomes the drink in your hand.
-            </p>
-          </Slide>
+          
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-20">
             {rawMaterials.map((r, i) => (
@@ -556,66 +519,11 @@ export default function About() {
             ))}
           </div>
 
-          <Slide direction="up" delay={120}>
-            <div className="relative rounded-3xl overflow-hidden aspect-video max-w-4xl mx-auto" style={{ backgroundColor: "#0d0d0d" }}>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{
-                  backgroundColor: "rgba(151,182,76,0.15)",
-                  border: "2px solid rgba(151,182,76,0.3)",
-                }}>
-                  <svg className="w-8 h-8 ml-1" fill="#97b64c" viewBox="0 0 24 24" aria-hidden><path d="M8 5v14l11-7z" /></svg>
-                </div>
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-            </div>
-          </Slide>
+      
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════
-          SLIDE 2 — 秘客侠 IDENTITY
-      ══════════════════════════════════════════════ */}
-      <section data-track-section="Milkshop Identity" className="relative py-28 overflow-hidden bg-white">
-        {/* Large Chinese character watermark */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none select-none" style={{
-          fontSize: "32vw", fontWeight: 900, lineHeight: 1,
-          color: "rgba(151,182,76,0.04)",
-          fontFamily: "serif",
-        }}>
-          侠
-        </div>
-
-        <div className="relative max-w-4xl mx-auto px-8 lg:px-16 z-10">
-          <Slide direction="up" delay={0} className="text-center mb-6">
-            <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>The Milkshop Identity</p>
-          </Slide>
-
-          <Slide direction="up" delay={80} className="text-center mb-4">
-            <h2 className="font-black" style={{ fontSize: "clamp(3.5rem, 8vw, 7rem)", color: "#1e1e1e", letterSpacing: "-0.04em", lineHeight: 1 }}>
-              秘客侠
-            </h2>
-          </Slide>
-
-          <Slide direction="up" delay={140} className="text-center mb-6">
-            <p className="text-2xl lg:text-3xl font-bold" style={{ color: "#97b64c" }}>
-              The Secret Champion
-            </p>
-          </Slide>
-
-          <Slide direction="up" delay={200} className="text-center">
-            <p className="text-base leading-relaxed max-w-2xl mx-auto" style={{ color: "#5a5a5a" }}>
-              The name 秘客侠 (Mì Kè Xiá) carries deep meaning — <em>"secret,"</em> <em>"guest,"</em> <em>"champion."</em> It represents a brand that quietly masters its craft before making its move. When Milkshop arrived in the Philippines in 2022, it didn't come with hype. It came with a product that spoke for itself.
-            </p>
-          </Slide>
-
-          <Slide direction="up" delay={260} className="text-center mt-6">
-            <p className="text-base leading-relaxed max-w-2xl mx-auto" style={{ color: "#5a5a5a" }}>
-              Every recipe was tested over hundreds of iterations. Every ingredient was traced to its source. Every cup was designed to deliver the same experience — whether you're in a mall in Taipei or a branch in Davao. That consistency is not accidental. It's the result of a decade of quiet obsession.
-            </p>
-          </Slide>
-        </div>
-      </section>
-
+ 
       {/* ══════════════════════════════════════════════
           SLIDE 3 — TIMELINE
       ══════════════════════════════════════════════ */}
@@ -675,98 +583,284 @@ export default function About() {
         </div>
       </section>
 
+   
+
       {/* ══════════════════════════════════════════════
-          COMPACT PROMO — BRING MILKSHOP CLOSER
-      ══════════════════════════════════════════════ */}
-      <section data-track-section="Community Promo" className="relative py-5 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-16">
-          <Slide direction="up">
-            <div
-              className="rounded-xl flex items-center justify-between gap-4 sm:gap-6"
-              style={{
-                border: "1px solid #e0ebd0",
-                boxShadow: "0 6px 20px rgba(98,132,11,0.07)",
-                background: "linear-gradient(120deg, #f8fbf2 0%, #ffffff 100%)",
-                padding: "14px 16px",
-              }}
-            >
-              <div>
-                <p
-                  className="text-[10px] font-bold tracking-[0.2em] uppercase mb-1"
-                  style={{ color: "#97b64c" }}
-                >
-                  Community Growth
-                </p>
-                <h3
-                  style={{
-                    fontSize: "clamp(0.98rem, 1.8vw, 1.25rem)",
-                    fontWeight: 800,
-                    letterSpacing: "-0.01em",
-                    lineHeight: 1.2,
-                    color: "#1e1e1e",
-                    margin: 0,
-                  }}
-                >
-                  Bring Milkshop Closer to your community
-                </h3>
-              </div>
-              <Link
-                to="/franchise#inquiry"
-                className="font-bold text-xs px-4 py-2 rounded-full whitespace-nowrap transition-all duration-200"
+    BRING MILKSHOP CLOSER — Full Section
+    PASTE THIS to REPLACE line 583 to line 635
+    (replaces the compact promo section entirely)
+══════════════════════════════════════════════ */}
+<section
+  data-track-section="Bring Milkshop Closer"
+  className="relative overflow-hidden"
+  style={{
+    background: "linear-gradient(155deg, #f4f9ec 0%, #ffffff 50%, #f0f7e6 100%)",
+    padding: isMobile ? "80px 20px" : "120px 40px",
+  }}
+>
+  <style>{`
+    @keyframes bmc-orb {
+      0%,100% { transform: scale(1) translate(0,0); opacity: 0.5; }
+      50%      { transform: scale(1.08) translate(12px,-16px); opacity: 0.8; }
+    }
+    @keyframes bmc-shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes bmc-float {
+      0%,100% { transform: translateY(0px); }
+      50%      { transform: translateY(-8px); }
+    }
+    .bmc-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 40px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #62840b 0%, #97b64c 40%, #c8dc8a 55%, #97b64c 70%, #62840b 100%);
+      background-size: 200% auto;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      box-shadow: 0 14px 40px rgba(98,132,11,0.32);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .bmc-cta:hover {
+      animation: bmc-shimmer 1.2s linear infinite;
+      transform: translateY(-3px);
+      box-shadow: 0 20px 50px rgba(98,132,11,0.42);
+    }
+    .bmc-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 15px 32px;
+      border-radius: 999px;
+      background: transparent;
+      color: #62840b;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      border: 1.5px solid rgba(151,182,76,0.45);
+      transition: all 0.25s ease;
+    }
+    .bmc-ghost:hover {
+      background: rgba(151,182,76,0.08);
+      border-color: #97b64c;
+      transform: translateY(-2px);
+    }
+    .bmc-stat {
+      transition: transform 0.25s ease;
+    }
+    .bmc-stat:hover { transform: translateY(-4px); }
+  `}</style>
+
+  {/* ── Ambient orbs ── */}
+  <div aria-hidden style={{
+    position: "absolute", top: "-10%", right: "-6%",
+    width: 500, height: 500, borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(151,182,76,0.13) 0%, transparent 68%)",
+    filter: "blur(40px)", pointerEvents: "none",
+    animation: "bmc-orb 14s ease-in-out infinite",
+  }} />
+  <div aria-hidden style={{
+    position: "absolute", bottom: "-8%", left: "-4%",
+    width: 360, height: 360, borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(183,205,127,0.14) 0%, transparent 70%)",
+    filter: "blur(28px)", pointerEvents: "none",
+    animation: "bmc-orb 18s ease-in-out infinite reverse",
+  }} />
+
+  {/* ── Dot grid ── */}
+  <div aria-hidden style={{
+    position: "absolute", inset: 0, pointerEvents: "none",
+    backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.2) 1.5px, transparent 1.5px)",
+    backgroundSize: "32px 32px",
+    maskImage: "radial-gradient(ellipse at 15% 50%, black 0%, transparent 55%)",
+    WebkitMaskImage: "radial-gradient(ellipse at 15% 50%, black 0%, transparent 55%)",
+  }} />
+
+  <div style={{
+    position: "relative",
+    zIndex: 10,
+    maxWidth: 1160,
+    margin: "0 auto",
+  }}>
+
+    {/* ── Two column layout ── */}
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+      gap: isMobile ? 52 : 80,
+      alignItems: "center",
+    }}>
+
+      {/* ── LEFT: Text ── */}
+      <Slide direction="left">
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+          {/* Eyebrow */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ width: 28, height: 2, background: "#97b64c", borderRadius: 2, display: "block" }} />
+            <span style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "10px", fontWeight: 900,
+              letterSpacing: "0.26em", textTransform: "uppercase",
+              color: "#62840b",
+            }}>
+              Franchise Opportunity
+            </span>
+          </div>
+
+          {/* Heading */}
+          <h2 style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "clamp(2.4rem, 5vw, 4rem)",
+            fontWeight: 900,
+            lineHeight: 0.95,
+            letterSpacing: "-0.03em",
+            color: "#1a1e14",
+            margin: 0,
+          }}>
+            Bring Milkshop<br />
+            <span style={{
+              background: "linear-gradient(135deg, #3a5c06 0%, #62840b 35%, #97b64c 70%, #b7cd7f 100%)",
+              backgroundSize: "200% auto",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              animation: "bmc-shimmer 6s linear infinite",
+              display: "inline-block",
+            }}>
+              Closer to Your
+            </span>
+            <br />Community.
+          </h2>
+
+          {/* Body */}
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "clamp(14px, 1.1vw, 16px)",
+            lineHeight: 1.75,
+            color: "#4d5c3a",
+            maxWidth: 460,
+            margin: 0,
+          }}>
+            Join a brand that's already proven in Taiwan and growing fast across the Philippines. Whether you're a first-time entrepreneur or a seasoned operator, Milkshop gives you the system, the supply chain, and the support to succeed.
+          </p>
+
+          {/* CTAs */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 4 }}>
+            <Link to="/franchise#inquiry" className="bmc-cta">
+              Start Your Journey →
+            </Link>
+            <Link to="/franchise" className="bmc-ghost">
+              Learn More
+            </Link>
+          </div>
+
+        </div>
+      </Slide>
+
+      {/* ── RIGHT: Stats + perks grid ── */}
+      <Slide direction="right" delay={120}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+          {/* Stats row */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr",
+            gap: 12,
+          }}>
+            {[
+              { value: "15+", label: "Active Branches" },
+              { value: "3",   label: "Investment Tiers" },
+              { value: "9+",  label: "Years of Brand" },
+            ].map((s) => (
+              <div
+                key={s.label}
+                className="bmc-stat"
                 style={{
-                  backgroundColor: "#97b64c",
-                  color: "#ffffff",
-                  boxShadow: "0 4px 14px rgba(151,182,76,0.28)",
+                  background: "rgba(255,255,255,0.9)",
+                  border: "1px solid rgba(151,182,76,0.2)",
+                  borderRadius: 16,
+                  padding: "18px 12px",
+                  textAlign: "center",
+                  boxShadow: "0 4px 16px rgba(98,132,11,0.06)",
                 }}
               >
-                Franchise →
-              </Link>
-            </div>
-          </Slide>
-        </div>
-      </section>
-
-
-      {/* ══════════════════════════════════════════════
-          SLIDE 6 — BOTTOM CTA
-      ══════════════════════════════════════════════ */}
-      <section data-track-section="About CTA" className="relative py-24 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: "radial-gradient(ellipse at center, rgba(124, 182, 76, 0.1) 0%, transparent 70%)",
-        }} />
-
-        <div className="relative max-w-6xl mx-auto px-8 lg:px-16 z-10">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-            <Slide direction="left" delay={0}>
-              <h2 className="font-black" style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)", color: "#ffffff", letterSpacing: "-0.03em", lineHeight: 1.1 }}>
-                Ready to be part<br />of the story? 🧋
-              </h2>
-              <p className="text-sm mt-4" style={{ color: "#b7cd7f" }}>
-                Own a branch. Join the movement. Build something that lasts.
-              </p>
-            </Slide>
-
-            <Slide direction="right" delay={120}>
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  to="/franchise#inquiry"
-                  className="font-bold text-sm px-8 py-4 rounded-full transition-all duration-200 active:scale-95"
-                  style={{ backgroundColor: "#97b64c", color: "#ffffff", boxShadow: "0 6px 24px rgba(151,182,76,0.35)" }}
-                >
-                  Franchise Now →
-                </Link>
-                <Link
-                  to="/locations"
-                  className="font-bold text-sm px-8 py-4 rounded-full transition-all duration-200"
-                  style={{ border: "1.5px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.7)", backgroundColor: "transparent" }}
-                >
-                  Find a Branch
-                </Link>
+                <p style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
+                  fontWeight: 900,
+                  color: "#62840b",
+                  margin: 0,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1,
+                }}>{s.value}</p>
+                <p style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  color: "#7a8a6a",
+                  margin: "6px 0 0",
+                  letterSpacing: "0.04em",
+                  lineHeight: 1.3,
+                }}>{s.label}</p>
               </div>
-            </Slide>
+            ))}
           </div>
+
+          {/* Perks list */}
+          <div style={{
+            background: "rgba(255,255,255,0.85)",
+            border: "1px solid rgba(151,182,76,0.18)",
+            borderRadius: 18,
+            padding: "20px 22px",
+            boxShadow: "0 6px 24px rgba(98,132,11,0.07)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          }}>
+            {[
+              { icon: "🏭", text: "Taiwan-sourced ingredients & centralized supply chain" },
+              { icon: "📋", text: "Full operations system — training, SOP, and ongoing support" },
+              { icon: "📍", text: "Exclusive territory rights per franchise location" },
+              { icon: "🫧", text: "Signature Popping Boba — first & only in the Philippines" },
+            ].map((p) => (
+              <div key={p.text} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <span style={{
+                  fontSize: 16,
+                  width: 32, height: 32,
+                  borderRadius: 10,
+                  background: "rgba(151,182,76,0.12)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                }}>{p.icon}</span>
+                <p style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  color: "#3a4a2a",
+                  margin: 0,
+                  lineHeight: 1.55,
+                }}>{p.text}</p>
+              </div>
+            ))}
+          </div>
+
         </div>
-      </section>
+      </Slide>
+
+    </div>
+  </div>
+</section>
+
+
 
       {/* ── KEYFRAMES ── */}
       <style>{`

@@ -529,25 +529,7 @@ export default function Franchise() {
     {/* ══ LEFT ══ */}
     <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
 
-      {/* Tag */}
-      <div className="fh-tag">
-        <span style={{
-          display:"inline-flex", alignItems:"center", gap:8,
-          padding:"7px 16px", borderRadius:999,
-          background:"rgba(151,182,76,0.09)",
-          border:"1px solid rgba(151,182,76,0.26)",
-          fontSize:"10px", fontWeight:800,
-          letterSpacing:"0.22em", textTransform:"uppercase", color:"#62840b",
-          animation:"fhTagPulse 3s ease-in-out infinite",
-          animationDelay:"1.5s",
-        }}>
-          <span style={{
-            width:5, height:5, borderRadius:"50%", background:"#97b64c",
-            display:"inline-block", animation:"fhDotBlink 2s ease-in-out infinite",
-          }} />
-          🇹🇼 Franchise Opportunity
-        </span>
-      </div>
+
 
       {/* Headline */}
       <div className="fh-h1">
@@ -612,29 +594,7 @@ export default function Franchise() {
         <a href="#process" className="fh-cta-secondary">View Process</a>
       </div>
 
-      {/* Stats */}
-      <div className="fh-stats" style={{
-        display:"flex", gap:0,
-        border:"1px solid #ddecc4", borderRadius:16,
-        overflow:"hidden", background:"white",
-        alignSelf:"flex-start",
-        boxShadow:"0 4px 20px rgba(151,182,76,0.1)",
-        marginTop:4,
-      }}>
-        {[
-          { label:"Branches",   value:"15+" },
-          { label:"Partners",   value:"100+" },
-          { label:"Support",    value:"Nationwide" },
-        ].map((m, i) => (
-          <div key={m.label} className="fh-stat-item" style={{
-            padding:"16px 24px", textAlign:"center",
-            borderRight: i < 2 ? "1px solid #ddecc4" : "none",
-          }}>
-            <p style={{ fontFamily:"'DM Mono', monospace", fontWeight:900, fontSize:"1.2rem", color:"#1a1e14", lineHeight:1, margin:"0 0 4px" }}>{m.value}</p>
-            <p style={{ fontFamily:"'DM Sans', sans-serif", fontSize:"8px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.16em", color:"#97b64c", margin:0 }}>{m.label}</p>
-          </div>
-        ))}
-      </div>
+  
 
     </div>
 
@@ -845,13 +805,9 @@ export default function Franchise() {
 
 
 
-
-      
-
-
-      {/* ══════════════════════════════════════
-          SLIDE 4 — FRANCHISE INQUIRY
-      ══════════════════════════════════════ */}
+{/* ══════════════════════════════════════
+       SLIDE 4 — FRANCHISE INQUIRY
+   ══════════════════════════════════════ */}
 <section id="inquiry" className="relative py-12 sm:py-14 lg:py-16 bg-[#f7f9f4] overflow-hidden">
 
 {/* Soft background */}
@@ -863,276 +819,301 @@ export default function Franchise() {
 
 <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-16 z-10">
 
-  {/* HEADER */}
-  <div className="text-center mb-12">
-    <p className="text-[11px] tracking-[0.3em] font-bold uppercase mb-3"
-      style={{ color: "#97b64c" }}>
-      Start Your Journey
-    </p>
-
-    <h2 style={{
-      fontSize: "clamp(2.5rem,5vw,3.5rem)",
-      fontWeight: 900,
-      letterSpacing: "-0.03em",
-      color: "#1e1e1e"
-    }}>
-      Franchise Application
-    </h2>
-
-    <p className="text-sm mt-3 max-w-md mx-auto"
-      style={{ color: "#5a6a4a" }}>
-      Modern, simple, and fast. Takes less than 2 minutes.
-    </p>
-  </div>
-
-  {/* GLASS CARD */}
-  <div className="rounded-[28px] p-6 lg:p-10 backdrop-blur-xl"
-    style={{
-      background: "rgba(255,255,255,0.75)",
-      border: "1px solid #dce8c8",
-      boxShadow: "0 20px 60px rgba(0,0,0,0.06)"
-    }}>
- 
- {/* PROGRESS BAR */}
- <div className="mb-8">
-   <div className="flex justify-between text-[11px] mb-2"
-     style={{ color: "#62840b" }}>
-     <span>
-       {filledCount === 0
-         ? "Start filling the form"
-         : filledCount === FORM_FIELDS.length
-         ? "✓ All fields complete"
-         : `${filledCount} of ${FORM_FIELDS.length} fields filled`}
-     </span>
-     <span style={{ fontWeight: 700 }}>{progressPct}%</span>
-   </div>
-   <div className="w-full h-2 rounded-full bg-[#e8f0dc]" style={{ overflow: "hidden" }}>
-     <div
-       className="h-full rounded-full"
-       style={{
-         width: `${progressPct}%`,
-         background: progressPct === 100
-           ? "linear-gradient(90deg, #62840b, #97b64c)"
-           : "#97b64c",
-         transition: "width 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
-       }}
-     />
-   </div>
- </div>
-
-    {/* FORM GRID */}
-    <div className="grid lg:grid-cols-2 gap-6">
-
-      {/* LEFT */}
-      <div className="flex flex-col gap-5">
-
-        <Field label="Full Name" required error={fieldErrors.name}>
-          <input name="name" value={formData.name} onChange={handleChange}
-            placeholder="Juan dela Cruz"
-            className={`${inputBase} ${inputIdle}`} />
-        </Field>
-
-        <Field label="Email Address" required error={fieldErrors.email}>
-          <input type="email" name="email" value={formData.email} onChange={handleChange}
-            placeholder="you@email.com"
-            className={`${inputBase} ${inputIdle}`} />
-        </Field>
-
-        <Field label="Contact Number" required error={fieldErrors.contactNumber}>
-          <input name="contactNumber" value={formData.contactNumber} onChange={handleChange}
-            placeholder="09XX XXX XXXX"
-            className={`${inputBase} ${inputIdle}`} />
-        </Field>
-
-        <Field label="Preferred Contact Time" required error={fieldErrors.bestContactTime}>
-          <input type="datetime-local" name="bestContactTime"
-            value={formData.bestContactTime}
-            min={localDatetimeLocalFloor()}
-            onChange={handleChange}
-            className={`${inputBase} ${inputIdle}`} />
-        </Field>
-
-      </div>
-
-      {/* RIGHT */}
-      <div className="flex flex-col gap-5">
-
-        <Field label="Estimated Income" required error={fieldErrors.estimatedAnnualIncome}>
-          <input name="estimatedAnnualIncome"
-            value={formData.estimatedAnnualIncome}
-            onChange={handleChange}
-            placeholder="₱800k – ₱1.2M"
-            className={`${inputBase} ${inputIdle}`} />
-        </Field>
-
-        <Field label="Proposed Location" required error={fieldErrors.proposedLocation}>
-          <input name="proposedLocation"
-            value={formData.proposedLocation}
-            onChange={handleChange}
-            placeholder="City / Mall"
-            className={`${inputBase} ${inputIdle}`} />
-        </Field>
-
-        <Field label="Preferred Package" required error={fieldErrors.preferredPackage}>
-          <select name="preferredPackage"
-            value={formData.preferredPackage}
-            onChange={handleChange}
-            className={`${inputBase} ${inputIdle}`}>
-            <option value="">Select package</option>
-            <option value="cart">Cart</option>
-            <option value="kiosk">Kiosk</option>
-            <option value="inline">In-line</option>
-            <option value="unsure">Not sure</option>
-          </select>
-        </Field>
-
-        <Field label="Additional Info" required error={fieldErrors.remarks}>
-          <textarea name="remarks"
-            rows={3}
-            value={formData.remarks}
-            onChange={handleChange}
-            placeholder="Tell us your plan..."
-            className={`${inputBase} ${inputIdle}`} />
-        </Field>
-
-      </div>
-    </div>
-
-    {/* CTA */}
-    <div className="mt-10 flex flex-col lg:flex-row items-center justify-between gap-4">
-
-      {/* TRUST */}
-      <div className="flex gap-3 text-xs"
-        style={{ color: "#62840b" }}>
-        <span>🔒 Secure</span>
-        <span>⚡ Fast</span>
-        <span>📞 We call you</span>
-      </div>
-
-      <button
-        onClick={handleSubmit}
-        disabled={isSubmitting}
-        className="w-full lg:w-auto px-8 sm:px-10 py-3.5 sm:py-4 rounded-full font-bold text-sm transition-all active:scale-95"
-        style={{
-          background: isSubmitting ? "#b7cd7f" : "#62840b",
-          color: "#fff",
-          boxShadow: "0 10px 30px rgba(98,132,11,0.3)"
-        }}
-      >
-        {isSubmitting ? "Submitting..." : "Continue →"}
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-</section>
-
-
- {/* ══════════════════════════════════════
-      SLIDE 2 — WHY MILKSHOP (SPOTLIGHT)
-══════════════════════════════════════ */}
-<section
-  data-track-section="Why Milkshop"
-  className="relative py-10 sm:py-12 lg:py-14 bg-white overflow-hidden"
->
-
-  {/* Watermark */}
-  <div
-    className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-    style={{
-      fontSize: "30vw",
-      fontWeight: 900,
-      color: "rgba(151,182,76,0.04)",
-      fontFamily: "serif",
-    }}
-  >
-    侠
-  </div>
-
-  <div className="relative max-w-7xl mx-auto px-6 lg:px-12 z-10">
-
-    {/* HEADER */}
-    <p
-      className="text-[10px] font-bold tracking-[0.24em] uppercase mb-2"
-      style={{ color: "#97b64c" }}
-    >
-      Why Partner With Us
-    </p>
-
-    <h2
-      className="mb-6"
+  {/* ── THANK YOU SCREEN (shown after submit, hidden on reload) ── */}
+  {submitted ? (
+    <div
+      className="rounded-[28px] p-10 lg:p-16 flex flex-col items-center text-center backdrop-blur-xl"
       style={{
-        fontSize: "clamp(2rem, 4vw, 3rem)",
-        fontWeight: 900,
-        letterSpacing: "-0.04em",
-        color: "#1e1e1e",
-        lineHeight: 1.05,
+        background: "rgba(255,255,255,0.85)",
+        border: "1px solid #dce8c8",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.06)",
+        animation: "tyFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both",
       }}
     >
-      What Makes Milkshop Different
-    </h2>
+      <style>{`
+        @keyframes tyFadeUp {
+          from { opacity: 0; transform: translateY(28px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes tyPop {
+          0%   { transform: scale(0.7); opacity: 0; }
+          60%  { transform: scale(1.08); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes tyRing {
+          0%,100% { box-shadow: 0 0 0 0 rgba(151,182,76,0.35); }
+          50%      { box-shadow: 0 0 0 18px rgba(151,182,76,0); }
+        }
+        @keyframes tySlideUp {
+          from { opacity: 0; transform: translateY(14px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
 
-    {/* SPOTLIGHT GRID */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* LOGO — replace the src below with your actual logo file path */}
+      <img
+        src="/public/milkshop-logo.png"
+        alt="Milkshop Logo"
+        style={{
+          width: 80,
+          height: 80,
+          objectFit: "contain",
+          marginBottom: 24,
+          borderRadius: 16,
+          animation: "tyPop 0.55s cubic-bezier(0.16,1,0.3,1) 0.1s both",
+        }}
+      />
 
-      {whyUs.map((w, i) => (
-        <div
-          key={w.title}
-          className="group relative rounded-2xl p-5 transition-all duration-500 cursor-pointer"
-          style={{
-            background: "rgba(245,248,239,0.5)",
-            border: "1px solid #e0ebd0",
-          }}
-        >
-
-          {/* DIM OTHERS ON HOVER */}
-          <div className="absolute inset-0 rounded-2xl bg-white opacity-0 group-hover:opacity-0 peer-hover:opacity-60 transition-all duration-500 pointer-events-none" />
-
-          {/* ICON */}
-          <div className="text-2xl mb-4 transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-1">
-            {w.icon}
-          </div>
-
-          {/* TITLE */}
-          <h3
-            className="font-bold text-base mb-2 transition-all duration-500"
-            style={{
-              color: "#1e1e1e",
+      {/* CHECK CIRCLE */}
+      <div
+        style={{
+          width: 72,
+          height: 72,
+          borderRadius: "50%",
+          background: "linear-gradient(135deg,#62840b,#97b64c)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 24,
+          animation: "tyPop 0.55s cubic-bezier(0.16,1,0.3,1) 0.2s both, tyRing 1.8s ease 0.8s infinite",
+        }}
+      >
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <path d="M7 16.5l6 6 12-12" stroke="#fff" strokeWidth="2.8"
+            strokeLinecap="round" strokeLinejoin="round"
+            style={{ strokeDasharray: 30, strokeDashoffset: 30,
+              animation: "none", transition: "stroke-dashoffset 0.5s ease 0.7s",
             }}
-          >
-            {w.title}
-          </h3>
-
-          {/* DIVIDER */}
-          <div
-            className="h-[2px] w-6 mb-3 transition-all duration-500 group-hover:w-10"
-            style={{ backgroundColor: "#97b64c" }}
           />
+        </svg>
+      </div>
 
-          {/* DESC */}
-          <p
-            className="text-xs leading-relaxed transition-all duration-500 opacity-70 group-hover:opacity-100 group-hover:translate-y-1"
-            style={{ color: "#5a6a4a" }}
-          >
-            {w.desc}
-          </p>
+      {/* HEADLINE */}
+      <h2
+        style={{
+          fontSize: "clamp(1.8rem,4vw,2.6rem)",
+          fontWeight: 900,
+          letterSpacing: "-0.03em",
+          color: "#1e1e1e",
+          marginBottom: 8,
+          animation: "tySlideUp 0.5s ease 0.35s both",
+        }}
+      >
+        Thank You! 🎉
+      </h2>
 
-          {/* ACTIVE SPOTLIGHT EFFECT */}
-          <div
-            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none"
-            style={{
-              boxShadow: "0 40px 100px rgba(151,182,76,0.25)",
-              border: "1px solid #97b64c",
-            }}
-          />
+      {/* SUBTEXT */}
+      <p
+        style={{
+          color: "#5a6a4a",
+          fontSize: "0.95rem",
+          maxWidth: 380,
+          lineHeight: 1.65,
+          marginBottom: 32,
+          animation: "tySlideUp 0.5s ease 0.45s both",
+        }}
+      >
+        We've received your franchise application. Our team will reach out to you
+        within <strong style={{ color: "#62840b" }}>1–2 business days</strong> to
+        discuss the next steps.
+      </p>
 
-        </div>
-      ))}
+      {/* DIVIDER */}
+      <div
+        style={{
+          width: 48, height: 3, borderRadius: 99,
+          background: "linear-gradient(90deg,#62840b,#97b64c)",
+          marginBottom: 32,
+          animation: "tySlideUp 0.5s ease 0.5s both",
+        }}
+      />
+
+      {/* TRUST BADGES */}
+      <div
+        style={{
+          display: "flex",
+          gap: 20,
+          fontSize: "0.78rem",
+          color: "#62840b",
+          fontWeight: 600,
+          animation: "tySlideUp 0.5s ease 0.55s both",
+        }}
+      >
+        <span>🔒 Secure</span>
+        <span>⚡ Fast Review</span>
+        <span>📞 We'll Call You</span>
+      </div>
 
     </div>
-  </div>
+
+  ) : (
+    <>
+      {/* HEADER */}
+      <div className="text-center mb-12">
+        <p className="text-[11px] tracking-[0.3em] font-bold uppercase mb-3"
+          style={{ color: "#97b64c" }}>
+          Start Your Journey
+        </p>
+
+        <h2 style={{
+          fontSize: "clamp(2.5rem,5vw,3.5rem)",
+          fontWeight: 900,
+          letterSpacing: "-0.03em",
+          color: "#1e1e1e"
+        }}>
+          Franchise Application
+        </h2>
+
+        <p className="text-sm mt-3 max-w-md mx-auto"
+          style={{ color: "#5a6a4a" }}>
+          Modern, simple, and fast. Takes less than 2 minutes.
+        </p>
+      </div>
+
+      {/* GLASS CARD */}
+      <div className="rounded-[28px] p-6 lg:p-10 backdrop-blur-xl"
+        style={{
+          background: "rgba(255,255,255,0.75)",
+          border: "1px solid #dce8c8",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.06)"
+        }}>
+
+        {/* PROGRESS BAR */}
+        <div className="mb-8">
+          <div className="flex justify-between text-[11px] mb-2"
+            style={{ color: "#62840b" }}>
+            <span>
+              {filledCount === 0
+                ? "Start filling the form"
+                : filledCount === FORM_FIELDS.length
+                ? "✓ All fields complete"
+                : `${filledCount} of ${FORM_FIELDS.length} fields filled`}
+            </span>
+            <span style={{ fontWeight: 700 }}>{progressPct}%</span>
+          </div>
+          <div className="w-full h-2 rounded-full bg-[#e8f0dc]" style={{ overflow: "hidden" }}>
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${progressPct}%`,
+                background: progressPct === 100
+                  ? "linear-gradient(90deg, #62840b, #97b64c)"
+                  : "#97b64c",
+                transition: "width 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+              }}
+            />
+          </div>
+        </div>
+
+        {/* FORM GRID */}
+        <div className="grid lg:grid-cols-2 gap-6">
+
+          {/* LEFT */}
+          <div className="flex flex-col gap-5">
+
+            <Field label="Full Name" required error={fieldErrors.name}>
+              <input name="name" value={formData.name} onChange={handleChange}
+                placeholder="Juan dela Cruz"
+                className={`${inputBase} ${inputIdle}`} />
+            </Field>
+
+            <Field label="Email Address" required error={fieldErrors.email}>
+              <input type="email" name="email" value={formData.email} onChange={handleChange}
+                placeholder="you@email.com"
+                className={`${inputBase} ${inputIdle}`} />
+            </Field>
+
+            <Field label="Contact Number" required error={fieldErrors.contactNumber}>
+              <input name="contactNumber" value={formData.contactNumber} onChange={handleChange}
+                placeholder="09XX XXX XXXX"
+                className={`${inputBase} ${inputIdle}`} />
+            </Field>
+
+            <Field label="Preferred Contact Time" required error={fieldErrors.bestContactTime}>
+              <input type="datetime-local" name="bestContactTime"
+                value={formData.bestContactTime}
+                min={localDatetimeLocalFloor()}
+                onChange={handleChange}
+                className={`${inputBase} ${inputIdle}`} />
+            </Field>
+
+          </div>
+
+          {/* RIGHT */}
+          <div className="flex flex-col gap-5">
+
+            <Field label="Estimated Income" required error={fieldErrors.estimatedAnnualIncome}>
+              <input name="estimatedAnnualIncome"
+                value={formData.estimatedAnnualIncome}
+                onChange={handleChange}
+                placeholder="₱800k – ₱1.2M"
+                className={`${inputBase} ${inputIdle}`} />
+            </Field>
+
+            <Field label="Proposed Location" required error={fieldErrors.proposedLocation}>
+              <input name="proposedLocation"
+                value={formData.proposedLocation}
+                onChange={handleChange}
+                placeholder="City / Mall"
+                className={`${inputBase} ${inputIdle}`} />
+            </Field>
+
+            <Field label="Preferred Package" required error={fieldErrors.preferredPackage}>
+              <select name="preferredPackage"
+                value={formData.preferredPackage}
+                onChange={handleChange}
+                className={`${inputBase} ${inputIdle}`}>
+                <option value="">Select package</option>
+                <option value="cart">Cart</option>
+                <option value="kiosk">Kiosk</option>
+                <option value="inline">In-line</option>
+                <option value="unsure">Not sure</option>
+              </select>
+            </Field>
+
+            <Field label="Additional Info" required error={fieldErrors.remarks}>
+              <textarea name="remarks"
+                rows={3}
+                value={formData.remarks}
+                onChange={handleChange}
+                placeholder="Tell us your plan..."
+                className={`${inputBase} ${inputIdle}`} />
+            </Field>
+
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div className="mt-10 flex flex-col lg:flex-row items-center justify-between gap-4">
+
+          {/* TRUST */}
+          <div className="flex gap-3 text-xs"
+            style={{ color: "#62840b" }}>
+            <span>🔒 Secure</span>
+            <span>⚡ Fast</span>
+            <span>📞 We call you</span>
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="w-full lg:w-auto px-8 sm:px-10 py-3.5 sm:py-4 rounded-full font-bold text-sm transition-all active:scale-95"
+            style={{
+              background: isSubmitting ? "#b7cd7f" : "#62840b",
+              color: "#fff",
+              boxShadow: "0 10px 30px rgba(98,132,11,0.3)"
+            }}
+          >
+            {isSubmitting ? "Submitting..." : "Continue →"}
+          </button>
+
+        </div>
+
+      </div>
+    </>
+  )}
+
+</div>
 </section>
 
       {/* ══════════════════════════════════════

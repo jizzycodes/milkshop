@@ -135,7 +135,7 @@ function BranchPanel({ loc, onClose }) {
           ].filter(Boolean).map((row, i) => (
             <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
               <span style={{ fontSize: 11, marginTop: 1, flexShrink: 0 }}>{row.icon}</span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "11px", color: "#5a6a4a", lineHeight: 1.55 }}>{row.text}</span>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#5a6a4a", lineHeight: 1.55 }}>{row.text}</span>
             </div>
           ))}
         </div>
@@ -557,7 +557,7 @@ export default function Locations() {
               )}
 
              {/* Branch detail card — floats over map */}
-              {/* REPLACE LINE 559 TO LINE 631 with this block */}
+             
               {selectedLoc && (() => {
                 const accent = regionAccent[selectedLoc.region] || "#97b64c"
                 return (
@@ -567,7 +567,7 @@ export default function Locations() {
                       position: "absolute",
                       bottom: 20,
                       right: 20,
-                      width: "clamp(270px, 30vw, 310px)",
+                      width: "clamp(100px, 32vw, 550px)",
                       zIndex: 1000,
                       background: "#ffffff",
                       borderRadius: 20,
@@ -578,7 +578,7 @@ export default function Locations() {
                     }}
                   >
                     {/* ── Image area ── */}
-                    <div style={{ position: "relative", height: 152, overflow: "hidden", background: `linear-gradient(145deg, ${accent}18, ${accent}08)` }}>
+                    <div style={{ position: "relative", height: 402, overflow: "hidden", background: `linear-gradient(145deg, ${accent}18, ${accent}08)` }}>
                       {selectedLoc.photo ? (
                         <img
                           src={selectedLoc.photo}
@@ -652,7 +652,7 @@ export default function Locations() {
                       {/* Branch name */}
                       <h3 style={{
                         fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "0.92rem",
+                        fontSize: "1.50rem",
                         fontWeight: 800,
                         color: "#1a2410",
                         margin: "0 0 12px",
@@ -673,7 +673,7 @@ export default function Locations() {
                               <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
                             </svg>
-                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", color: "#4a5c38", lineHeight: 1.55, fontWeight: 500 }}>
+                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#4a5c38", lineHeight: 1.55, fontWeight: 500 }}>
                               {selectedLoc.address}
                             </span>
                           </div>
@@ -686,7 +686,7 @@ export default function Locations() {
                               <circle cx="12" cy="12" r="9"/>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 3"/>
                             </svg>
-                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", color: "#4a5c38", lineHeight: 1.55, fontWeight: 500 }}>
+                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#4a5c38", lineHeight: 1.55, fontWeight: 500 }}>
                               {selectedLoc.hours}
                             </span>
                           </div>
@@ -698,7 +698,7 @@ export default function Locations() {
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#97b64c" strokeWidth="2" style={{ flexShrink: 0 }}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>
                             </svg>
-                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", color: "#4a5c38", fontWeight: 600 }}>
+                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#4a5c38", fontWeight: 600 }}>
                               {selectedLoc.phone}
                             </span>
                           </div>
@@ -711,7 +711,7 @@ export default function Locations() {
                               <rect x="3" y="4" width="18" height="18" rx="2"/>
                               <path strokeLinecap="round" d="M16 2v4M8 2v4M3 10h18"/>
                             </svg>
-                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", color: "#7a8a6a", fontWeight: 500 }}>
+                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#7a8a6a", fontWeight: 500 }}>
                               Est. {selectedLoc.dateEstablished}
                             </span>
                           </div>
@@ -829,7 +829,7 @@ export default function Locations() {
             </div>
 
       {/* ── RIGHT SIDEBAR: Branch directory ── */}
-            {/* PASTE THIS FROM LINE 681 TO LINE 825 in Locations.jsx */}
+           
             <div
               className="loc-sidebar"
               style={{

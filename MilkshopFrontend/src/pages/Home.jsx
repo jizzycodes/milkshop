@@ -1399,47 +1399,44 @@ function FranchiseTestimonialsSection() {
   const prev = () => { clearInterval(autoRef.current); goTo((activeIndex - 1 + total) % total) }
   const next = () => { clearInterval(autoRef.current); goTo((activeIndex + 1) % total) }
 
-  // Compute per-card style based on distance from active
-  const getCardStyle = (i) => {
-    const dist = i - activeIndex
-    const wrap = (d) => {
-      if (d > total / 2) return d - total
-      if (d < -total / 2) return d + total
-      return d
-    }
-    const d = wrap(dist)
-    const absD = Math.abs(d)
+   // ── Landscape card dimensions ──
+   const rectW = isMobile ? Math.min(window.innerWidth * 0.82, 320) : Math.min(window.innerWidth * 0.52, 620)
+   const rectH = isMobile ? Math.round(rectW * 0.62) : Math.round(rectW * 0.58)
 
-    if (absD > 2) return { display: "none" }
+   // ── Fan layout positions (5 visible slots: -2, -1, 0, +1, +2) ──
+   const getRect = (i) => {
+     const total = cards.length
+     let rel = ((i - activeIndex) % total + total) % total
+     if (rel > Math.floor(total / 2)) rel -= total
+
+     const absRel = Math.abs(rel)
+     if (absRel > 2) return { display: "none" }
 
     const configs = {
-      0:  { x: "0%",    z: 0,    scale: 1,     opacity: 1,    zIndex: 5, brightness: 1 },
-      1:  { x: "62%",   z: -160, scale: 0.82,  opacity: 0.72, zIndex: 4, brightness: 0.75 },
-      "-1":{ x: "-62%", z: -160, scale: 0.82,  opacity: 0.72, zIndex: 4, brightness: 0.75 },
-      2:  { x: "108%",  z: -280, scale: 0.66,  opacity: 0.4,  zIndex: 3, brightness: 0.55 },
-      "-2":{ x: "-108%",z: -280, scale: 0.66,  opacity: 0.4,  zIndex: 3, brightness: 0.55 },
+      0:  { x: 0,                          scale: 1,    opacity: 1,    zIndex: 10, rotate: 0,   blur: 0  },
+      1:  { x: rectW * 0.62,               scale: 0.84, opacity: 0.78, zIndex: 7,  rotate: 2,   blur: 0  },
+      "-1":{ x: -(rectW * 0.62),           scale: 0.84, opacity: 0.78, zIndex: 7,  rotate: -2,  blur: 0  },
+      2:  { x: rectW * 1.08,               scale: 0.68, opacity: 0.42, zIndex: 4,  rotate: 4,   blur: 1  },
+      "-2":{ x: -(rectW * 1.08),           scale: 0.68, opacity: 0.42, zIndex: 4,  rotate: -4,  blur: 1  },
     }
 
-    const c = configs[d] || configs[Math.sign(d) * Math.min(absD, 2)]
+    const cfg = configs[rel] || { display: "none" }
+    const centerX = "50%"
 
     return {
       position: "absolute",
       top: "50%",
-      left: "50%",
-      transform: `
-        translate(-50%, -50%)
-        translateX(${c.x})
-        translateZ(${c.z}px)
-        scale(${c.scale})
-      `,
-      opacity: c.opacity,
-      zIndex: c.zIndex,
-      filter: `brightness(${c.brightness})`,
-      transition: "all 0.55s cubic-bezier(0.16, 1, 0.3, 1)",
-      cursor: d === 0 ? "default" : "pointer",
-      display: "block",
+      left: centerX,
+      transform: `translateX(calc(-50% + ${cfg.x}px)) translateY(-50%) scale(${cfg.scale}) rotate(${cfg.rotate}deg)`,
+      opacity: cfg.opacity,
+      zIndex: cfg.zIndex,
+      filter: cfg.blur ? `blur(${cfg.blur}px)` : "none",
+      transition: "all 0.52s cubic-bezier(0.16, 1, 0.3, 1)",
+      cursor: rel !== 0 ? "pointer" : "default",
+      willChange: "transform, opacity",
     }
   }
+
 
   const padX = isMobile ? 16 : isTablet ? 24 : 48
   const cardW = isMobile ? 280 : isTablet ? 320 : 380
@@ -1605,200 +1602,208 @@ function FranchiseTestimonialsSection() {
 
         {/* 3D Carousel Stage */}
         <div
-          className={`tm-reveal ${inView ? "in" : ""}`}
-          style={{ transitionDelay: "0.25s" }}
-        >
-          {/* Stage */}
+        className={`tm-reveal ${inView ? "in" : ""}`}
+        style={{ transitionDelay: "0.25s" }}
+      >
+        {/* Stage */}
+        <div style={{
+          position: "relative",
+          height: rectH + (isMobile ? 24 : 40),
+          overflow: "visible",
+        }}>
+ 
+          {/* ── Nav: Prev ── */}
+          <button
+            type="button"
+            className="tm-nav-btn"
+            onClick={prev}
+            aria-label="Previous testimonials"
+            style={{
+              position: "absolute",
+              left: isMobile ? 0 : "calc(50% - " + (rectW * 0.5 + 52) + "px)",
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 20,
+            }}
+          >
+            ←
+          </button>
+ 
+          {/* ── Nav: Next ── */}
+          <button
+            type="button"
+            className="tm-nav-btn"
+            onClick={next}
+            aria-label="Next testimonials"
+            style={{
+              position: "absolute",
+              right: isMobile ? 0 : "calc(50% - " + (rectW * 0.5 + 52) + "px)",
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 20,
+            }}
+          >
+            →
+          </button>
+ 
+          {/* ── Cards ── */}
           <div style={{
             position: "relative",
-            height: cardH + 40,
-            perspective: "1200px",
-            perspectiveOrigin: "50% 50%",
+            width: "100%",
+            height: "100%",
           }}>
-            <button
-              type="button"
-              className="tm-nav-btn"
-              onClick={prev}
-              aria-label="Previous testimonials"
-              style={{
-                position: "absolute",
-                left: isMobile ? "-4px" : "-14px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                zIndex: 20,
-              }}
-            >
-              ←
-            </button>
-
-            <button
-              type="button"
-              className="tm-nav-btn"
-              onClick={next}
-              aria-label="Next testimonials"
-              style={{
-                position: "absolute",
-                right: isMobile ? "-4px" : "-14px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                zIndex: 20,
-              }}
-            >
-              →
-            </button>
-
-            <div style={{
-              position: "relative",
-              width: "100%",
-              height: "100%",
-              transformStyle: "preserve-3d",
-            }}>
-              {cards.map((card, i) => {
-                const style = getCardStyle(i)
-                if (style.display === "none") return null
-                const isActive = i === activeIndex
-
-                return (
-                  <article
-                    key={card.id}
-                    onClick={() => !isActive && goTo(i)}
-                    style={{
-                      ...style,
-                      width: cardW,
-                      height: cardH,
-                      borderRadius: 24,
-                      overflow: "hidden",
-                      border: `1px solid ${isActive ? "rgba(151,182,76,0.4)" : T.border}`,
-                      boxShadow: isActive
-                        ? "0 32px 80px rgba(98,132,11,0.18), 0 8px 24px rgba(0,0,0,0.08)"
-                        : "0 12px 32px rgba(0,0,0,0.06)",
-                      backgroundColor: "#dfe7cf",
-                    }}
-                  >
-                    {/* Image */}
-                    {card.image ? (
-                      <img
-                        src={card.image}
-                        alt="Milkshop franchise branch"
-                        draggable={false}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                          display: "block",
-                          transition: "transform 0.6s ease",
-                        }}
-                      />
-                    ) : (
-                      <div style={{
+            {cards.map((card, i) => {
+              const style = getRect(i)
+              if (style.display === "none") return null
+              const isActive = i === activeIndex
+ 
+              return (
+                <article
+                  key={card.id}
+                  onClick={() => !isActive && goTo(i)}
+                  style={{
+                    ...style,
+                    width: rectW,
+                    height: rectH,
+                    borderRadius: isMobile ? 16 : 20,
+                    overflow: "hidden",
+                    border: `1px solid ${isActive ? "rgba(151,182,76,0.45)" : "rgba(151,182,76,0.12)"}`,
+                    boxShadow: isActive
+                      ? "0 28px 72px rgba(98,132,11,0.2), 0 8px 24px rgba(0,0,0,0.1)"
+                      : "0 8px 28px rgba(0,0,0,0.08)",
+                    backgroundColor: "#dfe7cf",
+                  }}
+                >
+                  {/* Image */}
+                  {card.image ? (
+                    <img
+                      src={card.image}
+                      alt="Milkshop franchise branch"
+                      draggable={false}
+                      style={{
                         width: "100%",
                         height: "100%",
-                        background: "linear-gradient(135deg, #d8e5bf 0%, #b7cd7f 45%, #97b64c 100%)",
-                      }} />
-                    )}
-
-                    {/* Gradient overlay */}
-                    <div aria-hidden style={{
-                      position: "absolute", inset: 0,
-                      background: isActive
-                        ? "linear-gradient(180deg, rgba(30,30,30,0.16) 0%, rgba(30,30,30,0.62) 65%, rgba(30,30,30,0.86) 100%)"
-                        : "linear-gradient(180deg, rgba(30,30,30,0.15) 0%, rgba(30,30,30,0.65) 100%)",
-                      pointerEvents: "none",
-                      transition: "all 0.55s ease",
+                        objectFit: "cover",
+                        display: "block",
+                        transition: "transform 0.6s ease",
+                      }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: "100%",
+                      height: "100%",
+                      background: "linear-gradient(135deg, #d8e5bf 0%, #b7cd7f 45%, #97b64c 100%)",
                     }} />
-
-                    {/* Green accent bar on active */}
-                    {isActive && (
-                      <div style={{
-                        position: "absolute",
-                        top: 0, left: 0, right: 0,
-                        height: 3,
-                        background: "linear-gradient(90deg, #62840b, #97b64c, #b7cd7f)",
-                        borderRadius: "24px 24px 0 0",
-                      }} />
-                    )}
-
-                    {/* Branch name */}
-                    <span style={{
-                      position: "absolute",
-                      top: 14,
-                      left: 14,
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: "0.62rem",
-                      fontWeight: 800,
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      color: isActive ? "#1e1e1e" : "#ffffff",
-                      background: isActive ? "rgba(183,205,127,0.9)" : "rgba(30,30,30,0.55)",
-                      border: isActive ? "1px solid rgba(151,182,76,0.45)" : "1px solid rgba(255,255,255,0.35)",
-                      borderRadius: 999,
-                      padding: "6px 10px",
-                      backdropFilter: "blur(8px)",
-                    }}>
-                      {card.branchName}
-                    </span>
-
-                    {/* Quote */}
+                  )}
+ 
+                  {/* Gradient overlay — starts lower on active for better image visibility */}
+                  <div aria-hidden style={{
+                    position: "absolute", inset: 0,
+                    background: isActive
+                      ? "linear-gradient(180deg, rgba(20,20,20,0.08) 0%, rgba(20,20,20,0.18) 45%, rgba(20,20,20,0.78) 100%)"
+                      : "linear-gradient(180deg, rgba(20,20,20,0.22) 0%, rgba(20,20,20,0.72) 100%)",
+                    pointerEvents: "none",
+                    transition: "background 0.55s ease",
+                  }} />
+ 
+                  {/* Top accent bar — active only */}
+                  {isActive && (
                     <div style={{
                       position: "absolute",
-                      left: 20, right: 20, bottom: 20,
-                    }}>
-                      {isActive && (
-                        <span style={{
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontSize: "2.5rem",
-                          lineHeight: 1,
-                          color: "rgba(151,182,76,0.7)",
-                          display: "block",
-                          marginBottom: 4,
-                          fontWeight: 900,
-                        }}>"</span>
-                      )}
-                      <p
-                        key={`quote-${activeIndex}`}
-                        className={isActive ? "tm-card-quote" : ""}
-                        style={{
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontSize: isActive
-                            ? "clamp(0.88rem, 1.4vw, 1rem)"
-                            : "clamp(0.82rem, 1.2vw, 0.9rem)",
-                          fontWeight: 700,
-                          lineHeight: 1.5,
-                          color: "#ffffff",
-                          margin: 0,
-                          textShadow: "0 2px 12px rgba(0,0,0,0.5)",
-                        }}
-                      >
-                        {card.quote}
-                      </p>
-                    </div>
-                  </article>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Controls row */}
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginTop: 8,
-          }}>
-            {/* Dot indicators */}
-            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-              {cards.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  className={`tm-dot ${i === activeIndex ? "active" : ""}`}
-                  onClick={() => { clearInterval(autoRef.current); goTo(i) }}
-                  aria-label={`Go to testimonial ${i + 1}`}
-                />
-              ))}
-            </div>
+                      top: 0, left: 0, right: 0,
+                      height: 3,
+                      background: "linear-gradient(90deg, #62840b, #97b64c, #b7cd7f)",
+                      borderRadius: `${isMobile ? 16 : 20}px ${isMobile ? 16 : 20}px 0 0`,
+                    }} />
+                  )}
+ 
+                  {/* Branch name pill */}
+                  <span style={{
+                    position: "absolute",
+                    top: 14,
+                    left: 14,
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.6rem",
+                    fontWeight: 900,
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: isActive ? "#1a2e0a" : "#ffffff",
+                    background: isActive ? "rgba(183,205,127,0.92)" : "rgba(30,30,30,0.52)",
+                    border: isActive ? "1px solid rgba(151,182,76,0.5)" : "1px solid rgba(255,255,255,0.3)",
+                    borderRadius: 999,
+                    padding: "5px 11px",
+                    backdropFilter: "blur(8px)",
+                    transition: "all 0.35s ease",
+                  }}>
+                    {card.branchName}
+                  </span>
+ 
+                  {/* Quote block — bottom of card */}
+                  <div style={{
+                    position: "absolute",
+                    left: isActive ? 22 : 16,
+                    right: isActive ? 22 : 16,
+                    bottom: isActive ? 22 : 16,
+                    transition: "all 0.35s ease",
+                  }}>
+                    {isActive && (
+                      <span style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "2.2rem",
+                        lineHeight: 1,
+                        color: "rgba(151,182,76,0.75)",
+                        display: "block",
+                        marginBottom: 2,
+                        fontWeight: 900,
+                      }}>"</span>
+                    )}
+                    <p
+                      key={`quote-${activeIndex}`}
+                      className={isActive ? "tm-card-quote" : ""}
+                      style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: isActive
+                          ? "clamp(0.85rem, 1.3vw, 0.98rem)"
+                          : "clamp(0.72rem, 1vw, 0.82rem)",
+                        fontWeight: isActive ? 700 : 600,
+                        lineHeight: 1.5,
+                        color: "#ffffff",
+                        margin: 0,
+                        textShadow: "0 2px 10px rgba(0,0,0,0.55)",
+                        display: "-webkit-box",
+                        WebkitLineClamp: isActive ? 4 : 3,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {card.quote}
+                    </p>
+                  </div>
+                </article>
+              )
+            })}
           </div>
         </div>
+ 
+        {/* ── Dot indicators ── */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginTop: 16,
+          gap: 6,
+        }}>
+          {cards.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`tm-dot ${i === activeIndex ? "active" : ""}`}
+              onClick={() => { clearInterval(autoRef.current); goTo(i) }}
+              aria-label={`Go to testimonial ${i + 1}`}
+            />
+          ))}
+        </div>
+      </div>
 
         {/* CTA */}
         <div
