@@ -23,12 +23,12 @@ const topDrinks = [
 ];
 
 const TAIWAN_LETTERS = [
-  { letter: "T", color: "#e63946" },
-  { letter: "A", color: "#f4a261" },
-  { letter: "I", color: "#e9c46a" },
-  { letter: "W", color: "#62840b" },
-  { letter: "A", color: "#2196f3" },
-  { letter: "N", color: "#9c27b0" },
+  { letter: "T", color: "#e63946", shadow: "#7a0a10" },
+  { letter: "A", color: "#f4a261", shadow: "#7a4208" },
+  { letter: "I", color: "#e9c46a", shadow: "#7a5e0a" },
+  { letter: "W", color: "#4caf50", shadow: "#1b5e20" },
+  { letter: "A", color: "#29b6f6", shadow: "#01579b" },
+  { letter: "N", color: "#ce93d8", shadow: "#6a1b9a" },
 ];
 
 const CSS = `
@@ -40,220 +40,233 @@ const CSS = `
     --g-light: #b7cd7f;
   }
 
-  /* ── KEYFRAMES ── */
+  /* ═══ KEYFRAMES ═══ */
+
   @keyframes fadeUp {
-    from { opacity:0; transform:translateY(32px); }
+    from { opacity:0; transform:translateY(36px); }
     to   { opacity:1; transform:translateY(0); }
   }
+
   @keyframes letterPop {
-    0%   { opacity:0; transform:translateY(50px) scale(0.6) rotate(-8deg); }
-    65%  { transform:translateY(-8px) scale(1.12) rotate(3deg); }
+    0%   { opacity:0; transform:translateY(70px) scale(0.45) rotate(-12deg); }
+    60%  { transform:translateY(-12px) scale(1.18) rotate(5deg); }
+    80%  { transform:translateY(4px) scale(0.97) rotate(-1deg); }
     100% { opacity:1; transform:translateY(0) scale(1) rotate(0deg); }
   }
-  @keyframes tagBounce {
-    0%   { opacity:0; transform:translateX(-40px) rotate(-2deg); }
-    70%  { transform:translateX(6px) rotate(1deg); }
-    100% { opacity:1; transform:translateX(0) rotate(0deg); }
+
+  @keyframes tagSlide {
+    0%   { opacity:0; transform:translateX(-50px) rotate(-3deg) scale(0.9); }
+    70%  { transform:translateX(8px) rotate(1deg) scale(1.02); }
+    100% { opacity:1; transform:translateX(0) rotate(0deg) scale(1); }
   }
+
+  /* cups — rotation baked in so float keeps it */
   @keyframes floatCup0 {
-    0%,100% { transform: rotate(-14deg) translateY(0px); }
-    50%      { transform: rotate(-14deg) translateY(-18px); }
+    0%,100% { transform:rotate(-20deg) translateY(0px); }
+    50%      { transform:rotate(-20deg) translateY(-24px); }
   }
   @keyframes floatCup1 {
-    0%,100% { transform: rotate(-10deg) translateY(0px); }
-    50%      { transform: rotate(-10deg) translateY(-24px); }
+    0%,100% { transform:rotate(-12deg) translateY(0px); }
+    50%      { transform:rotate(-12deg) translateY(-30px); }
   }
   @keyframes floatCup2 {
-    0%,100% { transform: rotate(-6deg) translateY(0px); }
-    50%      { transform: rotate(-6deg) translateY(-20px); }
+    0%,100% { transform:rotate(-4deg) translateY(0px); }
+    50%      { transform:rotate(-4deg) translateY(-26px); }
   }
   @keyframes cupDrop0 {
-    0%   { opacity:0; transform: rotate(-14deg) translateY(80px); }
-    100% { opacity:1; transform: rotate(-14deg) translateY(0); }
+    0%   { opacity:0; transform:rotate(-20deg) translateY(120px) scale(0.8); }
+    100% { opacity:1; transform:rotate(-20deg) translateY(0) scale(1); }
   }
   @keyframes cupDrop1 {
-    0%   { opacity:0; transform: rotate(-10deg) translateY(100px); }
-    100% { opacity:1; transform: rotate(-10deg) translateY(0); }
+    0%   { opacity:0; transform:rotate(-12deg) translateY(150px) scale(0.8); }
+    100% { opacity:1; transform:rotate(-12deg) translateY(0) scale(1); }
   }
   @keyframes cupDrop2 {
-    0%   { opacity:0; transform: rotate(-6deg) translateY(120px); }
-    100% { opacity:1; transform: rotate(-6deg) translateY(0); }
+    0%   { opacity:0; transform:rotate(-4deg) translateY(180px) scale(0.8); }
+    100% { opacity:1; transform:rotate(-4deg) translateY(0) scale(1); }
   }
+
   @keyframes floatLeaf {
     0%,100% { transform:translateY(0) rotate(0deg); }
-    50%      { transform:translateY(-14px) rotate(18deg); }
+    50%      { transform:translateY(-18px) rotate(24deg); }
   }
   @keyframes floatBalloon {
-    0%,100% { transform:translateY(0) rotate(-3deg); }
-    50%      { transform:translateY(-12px) rotate(3deg); }
+    0%,100% { transform:translateY(0) rotate(-4deg); }
+    50%      { transform:translateY(-15px) rotate(5deg); }
   }
   @keyframes driftCloud {
     0%,100% { transform:translateX(0); }
-    50%      { transform:translateX(10px); }
+    50%      { transform:translateX(14px); }
   }
   @keyframes flyBird {
-    0%   { transform:translateX(-10px) translateY(0); }
-    25%  { transform:translateX(-4px) translateY(-4px); }
-    50%  { transform:translateX(0) translateY(0); }
-    75%  { transform:translateX(4px) translateY(-4px); }
-    100% { transform:translateX(10px) translateY(0); }
+    0%,100% { transform:translateY(0) scaleX(1); }
+    50%      { transform:translateY(-6px) scaleX(1.05); }
   }
   @keyframes splashWave {
-    0%,100% { transform:scaleY(1); }
-    50%      { transform:scaleY(1.04); }
+    0%,100% { transform:scaleY(1) scaleX(1); }
+    50%      { transform:scaleY(1.055) scaleX(1.004); }
   }
-  @keyframes bubbleFloat {
-    0%,100% { transform:translateY(0) scale(1); opacity:.5; }
-    50%      { transform:translateY(-10px) scale(1.08); opacity:.8; }
+  @keyframes bubbleRise {
+    0%,100% { transform:translateY(0) scale(1); opacity:.42; }
+    50%      { transform:translateY(-14px) scale(1.12); opacity:.82; }
   }
-  @keyframes shimmer {
-    0%   { background-position: -400px 0; }
-    100% { background-position: 400px 0; }
+  @keyframes twinkle {
+    0%,100% { opacity:.2; transform:scale(0.65); }
+    50%      { opacity:1; transform:scale(1.35); }
   }
   @keyframes marq {
     from { transform:translateX(0); }
     to   { transform:translateX(-50%); }
   }
-  @keyframes pulseGlow {
-    0%,100% { text-shadow: 0 0 12px currentColor, 0 4px 20px rgba(0,0,0,0.2); }
-    50%      { text-shadow: 0 0 28px currentColor, 0 4px 30px rgba(0,0,0,0.3); }
+  @keyframes letterGlow {
+    0%,100% { filter: brightness(1); }
+    50%      { filter: brightness(1.18) saturate(1.2); }
   }
-  @keyframes twinkle {
-    0%,100% { opacity:0.3; transform:scale(0.8); }
-    50%      { opacity:1; transform:scale(1.2); }
+  @keyframes waveGlow {
+    0%,100% { opacity:.35; }
+    50%      { opacity:.55; }
   }
 
-  /* ── APPLIED ── */
-  .ms-cup0-enter { animation: cupDrop0 0.7s cubic-bezier(.34,1.56,.64,1) forwards; }
-  .ms-cup1-enter { animation: cupDrop1 0.7s cubic-bezier(.34,1.56,.64,1) .12s forwards; }
-  .ms-cup2-enter { animation: cupDrop2 0.7s cubic-bezier(.34,1.56,.64,1) .24s forwards; }
+  /* ═══ APPLIED CLASSES ═══ */
 
-  .ms-cup0-float { animation: floatCup0 6s ease-in-out infinite; }
-  .ms-cup1-float { animation: floatCup1 7.5s ease-in-out infinite; }
-  .ms-cup2-float { animation: floatCup2 5.8s ease-in-out infinite; }
+  .ms-cup0-enter { animation: cupDrop0 .8s cubic-bezier(.34,1.5,.64,1) forwards; }
+  .ms-cup1-enter { animation: cupDrop1 .8s cubic-bezier(.34,1.5,.64,1) .18s forwards; }
+  .ms-cup2-enter { animation: cupDrop2 .8s cubic-bezier(.34,1.5,.64,1) .36s forwards; }
 
-  .ms-leaf   { animation: floatLeaf 5s ease-in-out infinite; }
-  .ms-ballon { animation: floatBalloon 6s ease-in-out infinite; }
-  .ms-cloud  { animation: driftCloud 7s ease-in-out infinite; }
-  .ms-bird   { animation: flyBird 2.2s ease-in-out infinite; }
-  .ms-splash { animation: splashWave 4s ease-in-out infinite; transform-origin: bottom; }
-  .ms-bubble { animation: bubbleFloat var(--d,4s) ease-in-out infinite; }
+  .ms-cup0-float { animation: floatCup0 6.4s ease-in-out infinite; }
+  .ms-cup1-float { animation: floatCup1 8s ease-in-out infinite; }
+  .ms-cup2-float { animation: floatCup2 6s ease-in-out infinite; }
 
-  .ms-eyebrow { opacity:0; animation: fadeUp .5s ease forwards .1s; }
-  .ms-fresh   { opacity:0; animation: fadeUp .55s cubic-bezier(.34,1.56,.64,1) forwards .2s; }
-  .ms-of      { opacity:0; animation: fadeUp .5s ease forwards .35s; }
-  .ms-tag     { opacity:0; animation: tagBounce .65s cubic-bezier(.34,1.56,.64,1) forwards 1.6s; }
-  .ms-btns    { opacity:0; animation: fadeUp .5s ease forwards 1.8s; }
-  .ms-trust   { opacity:0; animation: fadeUp .5s ease forwards 2s; }
+  .ms-leaf    { animation: floatLeaf 5.5s ease-in-out infinite; }
+  .ms-balloon { animation: floatBalloon 6.8s ease-in-out infinite; }
+  .ms-cloud   { animation: driftCloud 8s ease-in-out infinite; }
+  .ms-bird    { animation: flyBird 1.9s ease-in-out infinite; }
+  .ms-splash  { animation: splashWave 5s ease-in-out infinite; transform-origin:bottom; }
+  .ms-bubble  { animation: bubbleRise var(--d,4s) ease-in-out infinite; }
+  .ms-twinkle { animation: twinkle var(--d,2s) ease-in-out infinite; }
+  .ms-tw-glow { animation: letterGlow 3s ease-in-out infinite; }
 
-  .ms-letter-glow { animation: pulseGlow 3s ease-in-out infinite; }
-  .ms-twinkle    { animation: twinkle var(--d,2s) ease-in-out infinite; }
+  .ms-eyebrow { opacity:0; animation: fadeUp .5s ease forwards .08s; }
+  .ms-fresh   { opacity:0; animation: fadeUp .6s cubic-bezier(.34,1.5,.64,1) forwards .22s; }
+  .ms-of      { opacity:0; animation: fadeUp .5s ease forwards .4s; }
+  .ms-tag     { opacity:0; animation: tagSlide .7s cubic-bezier(.34,1.5,.64,1) forwards 1.75s; }
+  .ms-btns    { opacity:0; animation: fadeUp .5s ease forwards 1.95s; }
+  .ms-trust   { opacity:0; animation: fadeUp .5s ease forwards 2.15s; }
 
   .ms-cta-main {
-    display:inline-flex; align-items:center; gap:8px;
-    padding:14px 30px; border-radius:999px;
-    background: linear-gradient(135deg, var(--g-dark), var(--g-mod));
+    display:inline-flex; align-items:center; gap:9px;
+    padding:15px 34px; border-radius:999px;
+    background: linear-gradient(135deg,#3d5508,#62840b 45%,#97b64c);
     color:white; font-weight:900; font-size:14px;
-    text-decoration:none; letter-spacing:.06em;
-    box-shadow: 0 12px 32px rgba(98,132,11,.45), inset 0 1px 0 rgba(255,255,255,.2);
-    transition: transform .25s, box-shadow .25s;
-    font-family: 'Fredoka One', cursive;
+    text-decoration:none; letter-spacing:.07em;
+    box-shadow:0 14px 38px rgba(98,132,11,.52), inset 0 1px 0 rgba(255,255,255,.22);
+    transition:transform .25s,box-shadow .25s;
+    font-family:'Fredoka One',cursive;
+    white-space:nowrap;
   }
-  .ms-cta-main:hover { transform:translateY(-4px) scale(1.03); box-shadow:0 20px 40px rgba(98,132,11,.55); }
+  .ms-cta-main:hover { transform:translateY(-5px) scale(1.04); box-shadow:0 24px 46px rgba(98,132,11,.62); }
 
   .ms-cta-out {
-    display:inline-flex; align-items:center; gap:8px;
-    padding:14px 30px; border-radius:999px;
-    border: 2.5px solid rgba(255,255,255,.7);
+    display:inline-flex; align-items:center; gap:9px;
+    padding:15px 34px; border-radius:999px;
+    border:2.5px solid rgba(255,255,255,.78);
     color:white; font-weight:700; font-size:14px;
     text-decoration:none; background:rgba(255,255,255,.18);
-    backdrop-filter:blur(10px);
-    transition: all .25s;
-    font-family: 'DM Sans', sans-serif;
+    backdrop-filter:blur(12px);
+    transition:all .25s;
+    font-family:'DM Sans',sans-serif;
+    white-space:nowrap;
   }
-  .ms-cta-out:hover { background:rgba(255,255,255,.35); transform:translateY(-4px); border-color:white; }
+  .ms-cta-out:hover { background:rgba(255,255,255,.35); transform:translateY(-5px); border-color:white; }
 `;
 
-/* ── SVG Deco Components ── */
+/* ── SVG DECO ── */
 function Leaf({ size = 36, style = {}, className = "" }) {
   return (
     <svg width={size} height={size * 1.4} viewBox="0 0 40 56" fill="none" style={style} className={className}>
-      <path d="M20 3C9 12 3 30 9 45C15 56 25 56 31 45C37 30 31 12 20 3Z" fill="var(--g-light)" opacity=".85"/>
-      <path d="M20 3L20 52" stroke="var(--g-dark)" strokeWidth="1.3" opacity=".5"/>
-      <path d="M20 22 Q28 32 30 40" stroke="var(--g-dark)" strokeWidth=".9" fill="none" opacity=".4"/>
-      <path d="M20 22 Q12 32 10 40" stroke="var(--g-dark)" strokeWidth=".9" fill="none" opacity=".4"/>
+      <path d="M20 3C9 12 3 30 9 45C15 56 25 56 31 45C37 30 31 12 20 3Z"
+        fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.42)" strokeWidth="1.2"/>
+      <path d="M20 3L20 52" stroke="rgba(255,255,255,.32)" strokeWidth="1.3"/>
+      <path d="M20 22 Q28 33 30 42" stroke="rgba(255,255,255,.24)" strokeWidth="1" fill="none"/>
+      <path d="M20 22 Q12 33 10 42" stroke="rgba(255,255,255,.24)" strokeWidth="1" fill="none"/>
     </svg>
   );
 }
 
-function HotAirBalloon({ size = 44, style = {} }) {
+function HotAirBalloon({ size = 50, style = {} }) {
   return (
-    <svg width={size} height={size * 1.5} viewBox="0 0 44 66" fill="none" style={style} className="ms-ballon">
-      <ellipse cx="22" cy="24" rx="18" ry="20" stroke="rgba(255,255,255,.5)" strokeWidth="1.6" fill="none"/>
-      <path d="M10 10 Q22 2 34 10" stroke="rgba(255,255,255,.4)" strokeWidth="1.2" fill="none"/>
-      <path d="M6 20 Q22 12 38 20" stroke="rgba(255,255,255,.3)" strokeWidth="1" fill="none"/>
-      <path d="M5 30 Q22 22 39 30" stroke="rgba(255,255,255,.25)" strokeWidth="1" fill="none"/>
-      <path d="M14 42 Q22 50 30 42" stroke="rgba(255,255,255,.45)" strokeWidth="1.5" fill="none"/>
-      <rect x="17" y="46" width="10" height="8" rx="2" stroke="rgba(255,255,255,.45)" strokeWidth="1.3" fill="none"/>
-      <line x1="17" y1="46" x2="14" y2="42" stroke="rgba(255,255,255,.35)" strokeWidth="1"/>
-      <line x1="27" y1="46" x2="30" y2="42" stroke="rgba(255,255,255,.35)" strokeWidth="1"/>
+    <svg width={size} height={size * 1.55} viewBox="0 0 50 78" fill="none" style={style} className="ms-balloon">
+      <ellipse cx="25" cy="28" rx="21" ry="24"
+        stroke="rgba(255,255,255,.52)" strokeWidth="1.7" fill="rgba(255,255,255,.07)"/>
+      <path d="M9 10 Q25 1 41 10" stroke="rgba(255,255,255,.42)" strokeWidth="1.3" fill="none"/>
+      <path d="M4 22 Q25 13 46 22" stroke="rgba(255,255,255,.32)" strokeWidth="1.1" fill="none"/>
+      <path d="M4 36 Q25 27 46 36" stroke="rgba(255,255,255,.26)" strokeWidth="1" fill="none"/>
+      <path d="M17 50 Q25 58 33 50" stroke="rgba(255,255,255,.5)" strokeWidth="1.5" fill="none"/>
+      <rect x="19" y="54" width="12" height="10" rx="2.5"
+        stroke="rgba(255,255,255,.5)" strokeWidth="1.3" fill="rgba(255,255,255,.08)"/>
+      <line x1="19" y1="54" x2="17" y2="50" stroke="rgba(255,255,255,.36)" strokeWidth="1.1"/>
+      <line x1="31" y1="54" x2="33" y2="50" stroke="rgba(255,255,255,.36)" strokeWidth="1.1"/>
     </svg>
   );
 }
 
-function Cloud({ w = 70, style = {} }) {
+function Cloud({ w = 85, style = {} }) {
   return (
-    <svg width={w} height={w * 0.5} viewBox="0 0 70 35" fill="none" style={style} className="ms-cloud">
-      <ellipse cx="24" cy="22" rx="16" ry="11" stroke="rgba(255,255,255,.45)" strokeWidth="1.5" fill="none"/>
-      <ellipse cx="40" cy="24" rx="14" ry="10" stroke="rgba(255,255,255,.45)" strokeWidth="1.5" fill="none"/>
-      <ellipse cx="32" cy="17" rx="13" ry="10" stroke="rgba(255,255,255,.45)" strokeWidth="1.5" fill="none"/>
+    <svg width={w} height={w * 0.48} viewBox="0 0 85 41" fill="none" style={style} className="ms-cloud">
+      <ellipse cx="30" cy="27" rx="20" ry="14"
+        stroke="rgba(255,255,255,.5)" strokeWidth="1.6" fill="rgba(255,255,255,.08)"/>
+      <ellipse cx="52" cy="29" rx="18" ry="13"
+        stroke="rgba(255,255,255,.5)" strokeWidth="1.6" fill="rgba(255,255,255,.08)"/>
+      <ellipse cx="41" cy="21" rx="17" ry="13"
+        stroke="rgba(255,255,255,.5)" strokeWidth="1.6" fill="rgba(255,255,255,.08)"/>
     </svg>
   );
 }
 
-function Bird({ style = {} }) {
+function Bird({ size = 30, style = {} }) {
   return (
-    <svg width="24" height="12" viewBox="0 0 24 12" fill="none" style={style} className="ms-bird">
-      <path d="M2 6 Q6 1 12 6 Q18 1 22 6" stroke="rgba(255,255,255,.6)" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+    <svg width={size} height={size * 0.48} viewBox="0 0 30 14" fill="none" style={style} className="ms-bird">
+      <path d="M2 7 Q8 1 15 7 Q22 1 28 7"
+        stroke="rgba(255,255,255,.68)" strokeWidth="1.9" strokeLinecap="round" fill="none"/>
     </svg>
   );
 }
 
 function TaipeiTower({ style = {} }) {
   return (
-    <svg width="50" height="105" viewBox="0 0 50 105" fill="none" style={{ opacity: .18, ...style }}>
-      <rect x="22" y="90" width="6" height="15" fill="rgba(255,255,255,.9)"/>
-      <rect x="17" y="70" width="16" height="22" rx="2" fill="rgba(255,255,255,.9)"/>
-      <rect x="12" y="52" width="26" height="20" rx="2" fill="rgba(255,255,255,.9)"/>
-      <rect x="17" y="36" width="16" height="18" rx="1" fill="rgba(255,255,255,.9)"/>
-      <rect x="20" y="20" width="10" height="18" rx="1" fill="rgba(255,255,255,.9)"/>
-      <rect x="22" y="6" width="6" height="16" rx="1" fill="rgba(255,255,255,.9)"/>
-      <line x1="6"  y1="70" x2="44" y2="70" stroke="rgba(255,255,255,.9)" strokeWidth="1.5"/>
-      <line x1="10" y1="52" x2="40" y2="52" stroke="rgba(255,255,255,.9)" strokeWidth="1.2"/>
+    <svg width="58" height="120" viewBox="0 0 58 120" fill="none" style={{ opacity:.24, ...style }}>
+      <rect x="25" y="102" width="8" height="18" fill="rgba(255,255,255,.95)"/>
+      <rect x="19" y="80"  width="20" height="24" rx="2" fill="rgba(255,255,255,.95)"/>
+      <rect x="14" y="59"  width="30" height="23" rx="2" fill="rgba(255,255,255,.95)"/>
+      <rect x="19" y="42"  width="20" height="19" rx="1" fill="rgba(255,255,255,.95)"/>
+      <rect x="23" y="24"  width="12" height="20" rx="1" fill="rgba(255,255,255,.95)"/>
+      <rect x="25" y="6"   width="8"  height="20" rx="1" fill="rgba(255,255,255,.95)"/>
+      <line x1="6"  y1="80" x2="52" y2="80" stroke="rgba(255,255,255,.95)" strokeWidth="2"/>
+      <line x1="10" y1="59" x2="48" y2="59" stroke="rgba(255,255,255,.95)" strokeWidth="1.5"/>
     </svg>
   );
 }
 
 function Temple({ style = {} }) {
   return (
-    <svg width="65" height="80" viewBox="0 0 65 80" fill="none" style={{ opacity: .16, ...style }}>
-      <rect x="8" y="54" width="49" height="22" rx="2" fill="rgba(255,255,255,.9)"/>
-      <rect x="18" y="38" width="29" height="18" rx="1" fill="rgba(255,255,255,.9)"/>
-      <path d="M4 54 Q32 36 61 54Z" fill="rgba(255,255,255,.9)"/>
-      <path d="M14 38 Q32 22 51 38Z" fill="rgba(255,255,255,.9)"/>
-      <rect x="26" y="54" width="13" height="22" rx="1" fill="rgba(255,255,255,.5)"/>
-      <line x1="32" y1="10" x2="32" y2="22" stroke="rgba(255,255,255,.9)" strokeWidth="1.5"/>
+    <svg width="76" height="92" viewBox="0 0 76 92" fill="none" style={{ opacity:.22, ...style }}>
+      <rect x="8"  y="62" width="60" height="26" rx="2" fill="rgba(255,255,255,.95)"/>
+      <rect x="22" y="43" width="32" height="21" rx="1" fill="rgba(255,255,255,.95)"/>
+      <path d="M2 62 Q38 42 74 62Z" fill="rgba(255,255,255,.95)"/>
+      <path d="M16 43 Q38 24 60 43Z" fill="rgba(255,255,255,.95)"/>
+      <rect x="30" y="62" width="16" height="26" rx="1" fill="rgba(255,255,255,.5)"/>
+      <line x1="38" y1="10" x2="38" y2="24" stroke="rgba(255,255,255,.95)" strokeWidth="2"/>
     </svg>
   );
 }
 
 function Plant({ style = {} }) {
   return (
-    <svg width="44" height="60" viewBox="0 0 44 60" fill="none" style={{ opacity: .22, ...style }}>
-      <line x1="22" y1="60" x2="22" y2="20" stroke="rgba(255,255,255,.9)" strokeWidth="1.5"/>
-      <path d="M22 40 Q10 30 8 18 Q18 16 22 30Z" fill="rgba(255,255,255,.9)"/>
-      <path d="M22 32 Q34 22 36 10 Q26 8 22 22Z" fill="rgba(255,255,255,.9)"/>
-      <path d="M22 50 Q12 44 10 34 Q20 32 22 44Z" fill="rgba(255,255,255,.9)"/>
+    <svg width="50" height="68" viewBox="0 0 50 68" fill="none" style={{ opacity:.22, ...style }}>
+      <line x1="25" y1="68" x2="25" y2="18" stroke="rgba(255,255,255,.95)" strokeWidth="1.8"/>
+      <path d="M25 44 Q11 34 9 19 Q22 17 25 33Z" fill="rgba(255,255,255,.95)"/>
+      <path d="M25 34 Q39 24 41 9 Q28 7 25 23Z" fill="rgba(255,255,255,.95)"/>
+      <path d="M25 55 Q13 49 11 36 Q23 34 25 48Z" fill="rgba(255,255,255,.95)"/>
     </svg>
   );
 }
@@ -270,9 +283,34 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => setCupsReady(true), 800);
+    const t = setTimeout(() => setCupsReady(true), 650);
     return () => clearTimeout(t);
   }, []);
+
+  /* Cup sizing & transforms */
+  const cupCfg = [
+    {
+      rotate: -12, zIndex: 1,
+      enter: "ms-cup0-enter", float: "ms-cup0-float",
+      h:     isMobile ? 175 : 340,
+      mb:    isMobile ? 0   : 0,
+      ml:    0,
+    },
+    {
+      rotate: -12, zIndex: 2,
+      enter: "ms-cup1-enter", float: "ms-cup1-float",
+      h:     isMobile ? 228 : 450,
+      mb:    isMobile ? 22  : 55,
+      ml:    isMobile ? -30 : -68,
+    },
+    {
+      rotate: -4, zIndex: 3,
+      enter: "ms-cup2-enter", float: "ms-cup2-float",
+      h:     isMobile ? 270 : 545,
+      mb:    isMobile ? 46  : 125,
+      ml:    isMobile ? -36 : -82,
+    },
+  ];
 
   return (
     <>
@@ -280,24 +318,30 @@ export default function Hero() {
       <section style={{
         position: "relative",
         overflow: "hidden",
-        background: "linear-gradient(140deg, #b7cd7f 0%, #97b64c 38%, #7a9c38 70%, #62840b 100%)",
-        minHeight: isMobile ? "100svh" : "88vh",
+        background: "linear-gradient(148deg, #c4db8e 0%, #97b64c 32%, #7ca03e 62%, #62840b 100%)",
+        minHeight: isMobile ? "100svh" : "93vh",
         display: "flex",
         flexDirection: "column",
         fontFamily: "'DM Sans', sans-serif",
       }}>
 
-        {/* ── RADIAL GLOW CENTER ── */}
+        {/* Radial light core */}
         <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(ellipse at 60% 30%, rgba(183,205,127,0.5) 0%, transparent 60%)",
+          position:"absolute", inset:0, pointerEvents:"none",
+          background:"radial-gradient(ellipse at 56% 26%, rgba(200,228,148,0.58) 0%, transparent 60%)",
         }}/>
 
-        {/* ── DOT TEXTURE ── */}
-        <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: .08, pointerEvents: "none" }}>
+        {/* Subtle vignette edges */}
+        <div style={{
+          position:"absolute", inset:0, pointerEvents:"none",
+          background:"radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(0,0,0,0.12) 100%)",
+        }}/>
+
+        {/* Dot texture */}
+        <svg style={{ position:"absolute", inset:0, width:"100%", height:"100%", opacity:.07, pointerEvents:"none" }}>
           <defs>
             <pattern id="dotg" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1" fill="#1e1e1e"/>
+              <circle cx="2" cy="2" r="1.1" fill="#1a1a1a"/>
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#dotg)"/>
@@ -305,153 +349,178 @@ export default function Hero() {
 
         {/* ── TWINKLE STARS ── */}
         {[
-          { t:"12%", l:"22%", d:"1.8s", dl:"0s", sz:6 },
-          { t:"8%",  l:"55%", d:"2.4s", dl:"-1s", sz:5 },
-          { t:"20%", l:"72%", d:"1.6s", dl:"-0.5s", sz:4 },
-          { t:"35%", l:"15%", d:"2.8s", dl:"-2s", sz:5 },
-          { t:"6%",  r:"12%", d:"2s",  dl:"-1.5s", sz:6 },
+          { t:"8%",  l:"20%",  d:"1.8s", dl:"0s",    sz:7 },
+          { t:"5%",  l:"50%",  d:"2.5s", dl:"-1s",   sz:5 },
+          { t:"17%", l:"66%",  d:"1.6s", dl:"-0.5s", sz:4 },
+          { t:"30%", l:"11%",  d:"2.9s", dl:"-2s",   sz:6 },
+          { t:"4%",  r:"9%",   d:"2.1s", dl:"-1.5s", sz:6 },
+          { t:"22%", r:"20%",  d:"3.3s", dl:"-0.8s", sz:4 },
+          { t:"38%", l:"42%",  d:"2s",   dl:"-3s",   sz:4 },
         ].map((s, i) => (
           <div key={i} className="ms-twinkle" style={{
-            position: "absolute", top: s.t, left: s.l, right: s.r,
-            width: s.sz, height: s.sz, borderRadius: "50%",
-            background: "rgba(255,255,255,.9)",
-            boxShadow: "0 0 6px rgba(255,255,255,.9)",
-            "--d": s.d, animationDelay: s.dl,
+            position:"absolute", top:s.t, left:s.l, right:s.r,
+            width:s.sz, height:s.sz, borderRadius:"50%",
+            background:"rgba(255,255,255,.98)",
+            boxShadow:"0 0 8px 2px rgba(255,255,255,.8)",
+            "--d":s.d, animationDelay:s.dl,
           }}/>
         ))}
 
         {/* ── BUBBLES ── */}
         {[
-          { t:"10%", l:"18%", w:22, d:"4s",  dl:"0s"   },
-          { t:"22%", l:"35%", w:14, d:"5.5s",dl:"-1s"  },
-          { t:"5%",  l:"62%", w:18, d:"4.8s",dl:"-2s"  },
-          { t:"32%", r:"18%", w:13, d:"6s",  dl:"-0.5s"},
-          { t:"50%", l:"5%",  w:10, d:"5.2s",dl:"-3s"  },
-          { t:"16%", r:"30%", w:16, d:"3.8s",dl:"-1.5s"},
+          { t:"7%",  l:"15%", w:28, d:"4s",   dl:"0s"    },
+          { t:"19%", l:"31%", w:16, d:"5.8s", dl:"-1s"   },
+          { t:"3%",  l:"58%", w:22, d:"4.8s", dl:"-2s"   },
+          { t:"28%", r:"14%", w:15, d:"6.3s", dl:"-0.5s" },
+          { t:"46%", l:"3%",  w:12, d:"5.3s", dl:"-3s"   },
+          { t:"12%", r:"26%", w:19, d:"3.9s", dl:"-1.5s" },
+          { t:"38%", l:"26%", w:11, d:"4.6s", dl:"-2.5s" },
+          { t:"55%", l:"18%", w:9,  d:"5s",   dl:"-4s"   },
         ].map((b, i) => (
           <div key={i} className="ms-bubble" style={{
-            position: "absolute", top: b.t, left: b.l, right: b.r,
-            width: b.w, height: b.w, borderRadius: "50%",
-            background: "radial-gradient(circle at 35% 30%, rgba(255,255,255,.7), rgba(255,255,255,.08))",
-            border: "1px solid rgba(255,255,255,.45)",
-            "--d": b.d, animationDelay: b.dl,
+            position:"absolute", top:b.t, left:b.l, right:b.r,
+            width:b.w, height:b.w, borderRadius:"50%",
+            background:"radial-gradient(circle at 33% 27%, rgba(255,255,255,.75), rgba(255,255,255,.06))",
+            border:"1px solid rgba(255,255,255,.52)",
+            "--d":b.d, animationDelay:b.dl,
           }}/>
         ))}
 
-        {/* ── FLOATING LEAVES ── */}
-        <Leaf size={46} className="ms-leaf" style={{ position:"absolute", top:"4%", left:"0.5%", animationDelay:"0s" }}/>
-        <Leaf size={28} className="ms-leaf" style={{ position:"absolute", top:"16%", left:"6%", animationDelay:"-2s" }}/>
-        <Leaf size={34} className="ms-leaf" style={{ position:"absolute", top:"3%", right:"3%", animationDelay:"-1s", transform:"scaleX(-1)" }}/>
-        <Leaf size={20} className="ms-leaf" style={{ position:"absolute", top:"22%", right:"9%", animationDelay:"-3s", transform:"scaleX(-1) rotate(20deg)" }}/>
-        {!isMobile && <Leaf size={16} className="ms-leaf" style={{ position:"absolute", top:"42%", left:"1%", animationDelay:"-4s" }}/>}
+        {/* ── LEAVES ── */}
+        <Leaf size={52} className="ms-leaf" style={{ position:"absolute", top:"3%",  left:"0.2%", animationDelay:"0s" }}/>
+        <Leaf size={32} className="ms-leaf" style={{ position:"absolute", top:"14%", left:"5%",   animationDelay:"-2s" }}/>
+        <Leaf size={40} className="ms-leaf" style={{ position:"absolute", top:"2%",  right:"2%",  animationDelay:"-1s",  transform:"scaleX(-1)" }}/>
+        <Leaf size={24} className="ms-leaf" style={{ position:"absolute", top:"19%", right:"7%",  animationDelay:"-3s",  transform:"scaleX(-1) rotate(25deg)" }}/>
+        {!isMobile && <Leaf size={19} className="ms-leaf" style={{ position:"absolute", top:"43%", left:"0.6%", animationDelay:"-4s" }}/>}
+        {!isMobile && <Leaf size={15} className="ms-leaf" style={{ position:"absolute", top:"9%",  right:"32%", animationDelay:"-2.5s", transform:"scaleX(-1) rotate(12deg)" }}/>}
 
         {/* ── HOT AIR BALLOONS ── */}
-        <HotAirBalloon size={42} style={{ position:"absolute", top:"6%", right:"20%", animationDelay:"0s" }}/>
-        {!isMobile && <HotAirBalloon size={28} style={{ position:"absolute", top:"14%", right:"42%", animationDelay:"-2s" }}/>}
+        <HotAirBalloon size={50} style={{ position:"absolute", top:"6%",  right:"20%", animationDelay:"0s" }}/>
+        {!isMobile && <HotAirBalloon size={32} style={{ position:"absolute", top:"13%", right:"43%", animationDelay:"-2.2s" }}/>}
+        {!isMobile && <HotAirBalloon size={24} style={{ position:"absolute", top:"24%", left:"19%",  animationDelay:"-1s" }}/>}
 
         {/* ── CLOUDS ── */}
-        <Cloud w={60} style={{ position:"absolute", top:"10%", right:"26%", animationDelay:"-1s" }}/>
-        {!isMobile && <Cloud w={44} style={{ position:"absolute", top:"20%", right:"45%", animationDelay:"-3s" }}/>}
-        <Cloud w={50} style={{ position:"absolute", top:"5%", right:"8%", animationDelay:"-0.5s" }}/>
+        <Cloud w={78} style={{ position:"absolute", top:"10%", right:"26%", animationDelay:"-1s" }}/>
+        <Cloud w={60} style={{ position:"absolute", top:"3%",  right:"6%",  animationDelay:"-0.5s" }}/>
+        {!isMobile && <Cloud w={54} style={{ position:"absolute", top:"22%", right:"46%", animationDelay:"-3.5s" }}/>}
+        {!isMobile && <Cloud w={44} style={{ position:"absolute", top:"32%", left:"22%",  animationDelay:"-2s" }}/>}
 
         {/* ── BIRDS ── */}
-        <Bird style={{ position:"absolute", top:"13%", left:"40%", animationDelay:"0s" }}/>
-        <Bird style={{ position:"absolute", top:"18%", left:"44%", animationDelay:"-0.4s", transform:"scale(0.7)" }}/>
-        {!isMobile && <Bird style={{ position:"absolute", top:"10%", right:"35%", animationDelay:"-0.8s", transform:"scale(0.8)" }}/>}
+        <Bird size={30} style={{ position:"absolute", top:"14%", left:"36%", animationDelay:"0s" }}/>
+        <Bird size={21} style={{ position:"absolute", top:"19%", left:"40%", animationDelay:"-0.45s" }}/>
+        {!isMobile && <Bird size={26} style={{ position:"absolute", top:"8%",  right:"35%", animationDelay:"-0.9s" }}/>}
+        {!isMobile && <Bird size={17} style={{ position:"absolute", top:"12%", right:"39%", animationDelay:"-1.3s" }}/>}
 
-        {/* ── TAIWAN LANDMARKS ── */}
-        <TaipeiTower style={{ position:"absolute", bottom:"24%", left:"0.5%" }}/>
-        {!isMobile && <Temple style={{ position:"absolute", bottom:"22%", left:"6.5%" }}/>}
-        {!isMobile && <Plant style={{ position:"absolute", bottom:"22%", left:"14%" }}/>}
+        {/* ── LANDMARKS ── */}
+        <TaipeiTower style={{ position:"absolute", bottom:"24%", left:"0.4%" }}/>
+        {!isMobile && <Temple style={{ position:"absolute", bottom:"22%", left:"7%" }}/>}
+        {!isMobile && <Plant  style={{ position:"absolute", bottom:"21%", left:"16.5%" }}/>}
 
         {/* ══ MAIN CONTENT ══ */}
         <div style={{
-          position: "relative", zIndex: 10,
-          flex: 1,
-          maxWidth: 1280, margin: "0 auto", width: "100%",
-          padding: isMobile ? "72px 20px 0" : "70px 52px 0",
-          display: "grid",
-          gridTemplateColumns: isMobile ? "1fr" : "1fr 1.2fr",
-          gap: isMobile ? 0 : 16,
-          alignItems: "flex-end",
+          position:"relative", zIndex:10,
+          flex:1,
+          maxWidth:1280, margin:"0 auto", width:"100%",
+          padding: isMobile ? "66px 22px 0" : "66px 52px 0",
+          display:"grid",
+          gridTemplateColumns: isMobile ? "1fr" : "1fr 1.1fr",
+          gap: isMobile ? 0 : 8,
+          alignItems:"flex-end",
         }}>
 
           {/* ── LEFT TEXT ── */}
           <div style={{
-            display: "flex", flexDirection: "column", gap: 12,
+            display:"flex", flexDirection:"column",
+            gap: isMobile ? 9 : 8,
             textAlign: isMobile ? "center" : "left",
             alignItems: isMobile ? "center" : "flex-start",
-            paddingBottom: isMobile ? 24 : 110,
-            zIndex: 2,
+            paddingBottom: isMobile ? 18 : 115,
+            zIndex:2,
           }}>
 
             {/* Eyebrow */}
             <div className="ms-eyebrow" style={{
-              display: "flex", alignItems: "center", gap: 8,
+              display:"flex", alignItems:"center", gap:9,
               justifyContent: isMobile ? "center" : "flex-start",
             }}>
-              <span style={{ width:20, height:2, background:"rgba(255,255,255,.8)", borderRadius:2 }}/>
+              <span style={{ width:22, height:2, background:"rgba(255,255,255,.88)", borderRadius:2 }}/>
               <span style={{
-                fontSize: 10, fontWeight: 800, letterSpacing: "0.28em",
-                color: "rgba(255,255,255,.92)", textTransform: "uppercase",
-                fontFamily: "'DM Sans', sans-serif",
+                fontSize:10, fontWeight:800, letterSpacing:"0.28em",
+                color:"rgba(255,255,255,.94)", textTransform:"uppercase",
+                fontFamily:"'DM Sans',sans-serif",
               }}>
                 Authentic Taiwanese Milk Tea
               </span>
-              <span style={{ width:20, height:2, background:"rgba(255,255,255,.8)", borderRadius:2 }}/>
+              <span style={{ width:22, height:2, background:"rgba(255,255,255,.88)", borderRadius:2 }}/>
             </div>
 
             {/* FRESH TASTE */}
             <div className="ms-fresh" style={{
-              fontFamily: "'Caveat', cursive",
-              fontSize: isMobile ? "clamp(2rem,10vw,3rem)" : "clamp(2.4rem,4.5vw,3.8rem)",
-              fontWeight: 800,
-              color: "white",
-              lineHeight: 1.05,
-              letterSpacing: "-0.01em",
-              textShadow: "0 3px 14px rgba(0,0,0,0.2)",
+              fontFamily:"'Caveat',cursive",
+              fontSize: isMobile
+                ? "clamp(2.1rem,10vw,3.1rem)"
+                : "clamp(2.8rem,4.6vw,4.4rem)",
+              fontWeight:800,
+              color:"white",
+              lineHeight:1,
+              textShadow:"0 4px 18px rgba(0,0,0,0.24)",
+              marginBottom: -6,
             }}>
               Fresh Taste
             </div>
 
-            {/* OF */}
+            {/* of */}
             <div className="ms-of" style={{
-              fontFamily: "'Caveat', cursive",
-              fontSize: isMobile ? "clamp(1.3rem,6vw,2rem)" : "clamp(1.5rem,2.8vw,2.3rem)",
-              fontWeight: 700,
-              color: "rgba(255,255,255,.9)",
-              letterSpacing: "0.04em",
-              lineHeight: 1,
+              fontFamily:"'Caveat',cursive",
+              fontSize: isMobile
+                ? "clamp(1.3rem,6vw,1.9rem)"
+                : "clamp(1.7rem,2.9vw,2.6rem)",
+              fontWeight:700,
+              color:"rgba(255,255,255,.88)",
+              lineHeight:1,
+              marginBottom: -4,
             }}>
               of
             </div>
 
-            {/* TAIWAN — multicolor letters */}
+            {/* TAIWAN — 3D multicolor */}
             <div style={{
-              display: "flex",
-              gap: isMobile ? 3 : 5,
-              alignItems: "center",
+              display:"flex",
+              gap: isMobile ? 1 : 3,
+              alignItems:"center",
               justifyContent: isMobile ? "center" : "flex-start",
-              flexWrap: "nowrap",
             }}>
               {TAIWAN_LETTERS.map((item, i) => (
                 <span
                   key={i}
-                  className="ms-letter-glow"
+                  className="ms-tw-glow"
                   style={{
-                    fontFamily: "'Fredoka One', cursive",
-                    fontSize: isMobile ? "clamp(3.2rem,15vw,5.2rem)" : "clamp(4.5rem,8.5vw,8rem)",
-                    fontWeight: 400,
+                    fontFamily:"'Fredoka One',cursive",
+                    fontSize: isMobile
+                      ? "clamp(3.2rem,14vw,5.2rem)"
+                      : "clamp(5rem,9vw,8.8rem)",
+                    fontWeight:400,
                     color: item.color,
-                    lineHeight: 1,
-                    letterSpacing: "-0.02em",
-                    display: "inline-block",
-                    textShadow: `0 4px 0 rgba(0,0,0,0.18), 0 0 24px ${item.color}88`,
-                    opacity: 0,
-                    animation: `letterPop 0.6s cubic-bezier(.34,1.56,.64,1) forwards`,
-                    animationDelay: `${0.55 + i * 0.1}s`,
-                    WebkitTextStroke: "1px rgba(255,255,255,0.15)",
-                    filter: `drop-shadow(0 6px 12px ${item.color}55)`,
+                    lineHeight:1,
+                    display:"inline-block",
+                    /* true 3-D stacked shadow */
+                    textShadow:`
+                      1px 1px 0 ${item.shadow},
+                      2px 2px 0 ${item.shadow},
+                      3px 3px 0 ${item.shadow},
+                      4px 4px 0 ${item.shadow},
+                      5px 5px 0 ${item.shadow},
+                      6px 6px 0 ${item.shadow},
+                      7px 7px 0 ${item.shadow},
+                      8px 8px 14px rgba(0,0,0,0.28)
+                    `,
+                    WebkitTextStroke:"1.5px rgba(255,255,255,0.12)",
+                    opacity:0,
+                    animationName:"letterPop",
+                    animationDuration:"0.7s",
+                    animationTimingFunction:"cubic-bezier(.34,1.5,.64,1)",
+                    animationFillMode:"forwards",
+                    animationDelay:`${0.52 + i * 0.1}s`,
                   }}
                 >
                   {item.letter}
@@ -459,23 +528,20 @@ export default function Hero() {
               ))}
             </div>
 
-            {/* Tagline pill */}
-            <div className="ms-tag">
+            {/* Tagline */}
+            <div className="ms-tag" style={{ marginTop:2 }}>
               <div style={{
-                background: "var(--g-dark)",
-                borderRadius: 8,
-                padding: isMobile ? "8px 20px" : "10px 24px",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                boxShadow: "0 6px 20px rgba(0,0,0,0.22)",
+                background:"var(--g-dark)",
+                borderRadius:8,
+                padding: isMobile ? "9px 22px" : "12px 28px",
+                display:"inline-flex", alignItems:"center", gap:8,
+                boxShadow:"0 10px 28px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,.15)",
               }}>
                 <span style={{
-                  color: "white",
-                  fontWeight: 800,
-                  fontSize: isMobile ? 13 : 16,
-                  letterSpacing: "0.05em",
-                  fontFamily: "'Fredoka One', cursive",
+                  color:"white", fontWeight:900,
+                  fontSize: isMobile ? 13 : 17,
+                  letterSpacing:"0.06em",
+                  fontFamily:"'Fredoka One',cursive",
                 }}>
                   Milky, Healthy, Chewy!
                 </span>
@@ -484,8 +550,9 @@ export default function Hero() {
 
             {/* CTAs */}
             <div className="ms-btns" style={{
-              display: "flex", flexWrap: "wrap", gap: 10,
+              display:"flex", flexWrap:"wrap", gap:10,
               justifyContent: isMobile ? "center" : "flex-start",
+              marginTop:2,
             }}>
               <Link to="/franchise#inquiry" className="ms-cta-main">Franchise Now ✦</Link>
               <Link to="/products" className="ms-cta-out">View Menu</Link>
@@ -493,17 +560,20 @@ export default function Hero() {
 
             {/* Trust badges */}
             <div className="ms-trust" style={{
-              display: "flex", gap: 16, flexWrap: "wrap",
+              display:"flex", gap:18, flexWrap:"wrap",
               justifyContent: isMobile ? "center" : "flex-start",
             }}>
-              {["Real Ingredients", "No Powders", "Taiwan Recipe"].map(t => (
+              {["Real Ingredients","No Powders","Taiwan Recipe"].map(t => (
                 <span key={t} style={{
-                  fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,.85)",
-                  letterSpacing: "0.1em",
-                  display: "flex", alignItems: "center", gap: 5,
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize:10, fontWeight:700,
+                  color:"rgba(255,255,255,.88)",
+                  letterSpacing:"0.1em",
+                  display:"flex", alignItems:"center", gap:5,
                 }}>
-                  <span style={{ width:5, height:5, borderRadius:"50%", background:"white", opacity:.7, display:"inline-block" }}/>
+                  <span style={{
+                    width:5, height:5, borderRadius:"50%",
+                    background:"white", opacity:.78, display:"inline-block",
+                  }}/>
                   {t}
                 </span>
               ))}
@@ -512,63 +582,53 @@ export default function Hero() {
 
           {/* ── RIGHT — 3 SLANTED CUPS ── */}
           <div style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "flex-end",
-            height: isMobile ? 280 : 520,
-            position: "relative",
-            paddingRight: isMobile ? 0 : 20,
+            display:"flex",
+            justifyContent:"flex-end",
+            alignItems:"flex-end",
+            height: isMobile ? 308 : 650,
+            position:"relative",
+            overflow:"visible",
           }}>
-            {/* Soft glow behind cups */}
+            {/* Glow pool under cups */}
             <div style={{
-              position: "absolute",
-              bottom: 60,
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: "80%",
-              height: 80,
-              borderRadius: "50%",
-              background: "rgba(183,205,127,0.35)",
-              filter: "blur(28px)",
-              pointerEvents: "none",
+              position:"absolute",
+              bottom: isMobile ? 24 : 50,
+              left:"50%", transform:"translateX(-50%)",
+              width:"82%", height: isMobile ? 55 : 110,
+              borderRadius:"50%",
+              background:"rgba(183,205,127,0.42)",
+              filter:"blur(36px)",
+              pointerEvents:"none",
             }}/>
 
             {topDrinks.map((drink, i) => {
-              const heights    = isMobile ? [160, 210, 240] : [290, 390, 460];
-              const rotations  = [-14, -10, -6];
-              const zIndexes   = [1, 2, 3];
-              const enterCls   = ["ms-cup0-enter","ms-cup1-enter","ms-cup2-enter"][i];
-              const floatCls   = ["ms-cup0-float","ms-cup1-float","ms-cup2-float"][i];
-              const bottoms    = isMobile ? [-10, -5, 0] : [-20, -10, 0];
-              const rights     = isMobile
-                ? ["auto","auto","auto"]
-                : ["auto","auto","auto"];
-              const marginLefts = isMobile ? [-20, -18, -12] : [-40, -36, -24];
-
+              const c = cupCfg[i];
               return (
                 <div
                   key={drink.id}
                   style={{
-                    position: "relative",
-                    zIndex: zIndexes[i],
-                    marginLeft: marginLefts[i],
-                    marginBottom: bottoms[i],
+                    position:"relative",
+                    zIndex: c.zIndex,
+                    marginLeft: c.ml,
+                    marginBottom: c.mb,
                     opacity: 0,
+                    flexShrink: 0,
                   }}
-                  className={cupsReady ? `${enterCls}` : ""}
+                  className={cupsReady ? c.enter : ""}
                 >
-                  <div className={cupsReady ? floatCls : ""} style={{
-                    transform: `rotate(${rotations[i]}deg)`,
-                  }}>
+                  <div
+                    className={cupsReady ? c.float : ""}
+                    style={{ transform:`rotate(${c.rotate}deg)` }}
+                  >
                     <img
                       src={drink.imageUrl}
                       alt={drink.name}
                       draggable={false}
                       style={{
-                        height: heights[i],
-                        objectFit: "contain",
-                        filter: `drop-shadow(0 ${isMobile ? 16:30}px ${isMobile ? 24:44}px rgba(0,0,0,0.28))`,
-                        display: "block",
+                        height: c.h,
+                        objectFit:"contain",
+                        filter:`drop-shadow(0 ${isMobile?20:38}px ${isMobile?30:56}px rgba(0,0,0,0.34))`,
+                        display:"block",
                       }}
                     />
                   </div>
@@ -581,67 +641,74 @@ export default function Hero() {
         {/* ── MILK SPLASH WAVE ── */}
         <div style={{ position:"relative", zIndex:5, marginTop:"auto" }} className="ms-splash">
           <svg
-            viewBox="0 0 1440 190"
+            viewBox="0 0 1440 220"
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             style={{ width:"100%", display:"block" }}
           >
-            {/* Shadow layer */}
+            {/* Deep shadow layer */}
             <path
-              d="M0,105 C80,72 180,130 320,95 C460,60 570,118 720,88 C870,58 990,108 1140,78 C1290,48 1380,92 1440,72 L1440,190 L0,190 Z"
-              fill="rgba(183,205,127,0.35)"
+              d="M0,128 C88,86 198,154 355,112 C512,70 618,138 770,104 C922,70 1040,128 1192,92 C1344,56 1396,114 1440,92 L1440,220 L0,220 Z"
+              fill="rgba(183,205,127,0.4)"
             />
             {/* Cream mid layer */}
             <path
-              d="M0,78 C100,42 220,110 370,68 C520,26 630,96 780,60 C930,24 1050,86 1190,54 C1330,22 1390,72 1440,52 L1440,190 L0,190 Z"
-              fill="rgba(255,255,255,0.6)"
+              d="M0,96 C115,52 238,128 398,84 C558,40 658,112 812,74 C966,36 1078,102 1218,66 C1358,30 1406,84 1440,64 L1440,220 L0,220 Z"
+              fill="rgba(255,255,255,0.58)"
             />
             {/* Main white wave */}
             <path
-              d="M0,58 C110,18 240,90 390,50 C540,10 640,78 790,42 C940,6 1060,68 1200,38 C1340,8 1400,56 1440,36 L1440,190 L0,190 Z"
+              d="M0,72 C124,24 256,106 418,60 C580,14 668,88 828,50 C988,12 1098,78 1240,44 C1382,10 1414,62 1440,42 L1440,220 L0,220 Z"
               fill="white"
             />
-            {/* Splash droplets */}
-            <ellipse cx="390"  cy="50"  rx="22" ry="14" fill="white" opacity=".95"/>
-            <ellipse cx="790"  cy="42"  rx="17" ry="11" fill="white" opacity=".9"/>
-            <ellipse cx="1200" cy="40"  rx="19" ry="12" fill="white" opacity=".95"/>
-            <ellipse cx="160"  cy="76"  rx="11" ry="7"  fill="white" opacity=".7"/>
-            <ellipse cx="580"  cy="70"  rx="9"  ry="6"  fill="white" opacity=".7"/>
-            <ellipse cx="980"  cy="65"  rx="10" ry="6"  fill="white" opacity=".7"/>
-            <ellipse cx="1340" cy="58"  rx="12" ry="7"  fill="white" opacity=".7"/>
-            {/* Mini splashes */}
-            <ellipse cx="290"  cy="65"  rx="6"  ry="4"  fill="white" opacity=".55"/>
-            <ellipse cx="690"  cy="56"  rx="5"  ry="3"  fill="white" opacity=".55"/>
-            <ellipse cx="1090" cy="52"  rx="6"  ry="4"  fill="white" opacity=".55"/>
+            {/* Large splash droplets */}
+            <ellipse cx="418"  cy="60"  rx="30" ry="18" fill="white" opacity=".97"/>
+            <ellipse cx="828"  cy="50"  rx="24" ry="15" fill="white" opacity=".93"/>
+            <ellipse cx="1240" cy="46"  rx="27" ry="17" fill="white" opacity=".97"/>
+            {/* Mid droplets */}
+            <ellipse cx="185"  cy="92"  rx="15" ry="9"  fill="white" opacity=".74"/>
+            <ellipse cx="608"  cy="80"  rx="13" ry="8"  fill="white" opacity=".74"/>
+            <ellipse cx="1020" cy="72"  rx="14" ry="8"  fill="white" opacity=".74"/>
+            <ellipse cx="1390" cy="68"  rx="15" ry="9"  fill="white" opacity=".74"/>
+            {/* Small splashes */}
+            <ellipse cx="302"  cy="78"  rx="8"  ry="5"  fill="white" opacity=".58"/>
+            <ellipse cx="718"  cy="66"  rx="7"  ry="4"  fill="white" opacity=".58"/>
+            <ellipse cx="1128" cy="60"  rx="8"  ry="5"  fill="white" opacity=".58"/>
+            {/* Micro dots */}
+            <circle cx="510"  cy="56" r="5" fill="white" opacity=".52"/>
+            <circle cx="920"  cy="48" r="4" fill="white" opacity=".52"/>
+            <circle cx="1330" cy="42" r="5" fill="white" opacity=".52"/>
+            <circle cx="90"   cy="88" r="4" fill="white" opacity=".45"/>
+            <circle cx="1440" cy="75" r="3" fill="white" opacity=".45"/>
           </svg>
         </div>
 
         {/* ── MARQUEE ── */}
         <div style={{
-          background: "white", zIndex: 6, overflow: "hidden",
-          padding: "10px 0", borderTop: "1px solid #dde8cc",
+          background:"white", zIndex:6, overflow:"hidden",
+          padding:"10px 0", borderTop:"1px solid #dde8cc",
         }}>
           <div style={{
-            display: "flex", width: "max-content",
-            animation: "marq 24s linear infinite",
+            display:"flex", width:"max-content",
+            animation:"marq 26s linear infinite",
           }}>
             {[...Array(2)].map((_, r) =>
               [
-                { t:"🧋 Black Sugar Boba",    c:"#62840b" },
-                { t:"🥛 Milku Strawberry",    c:"#97b64c" },
-                { t:"🍰 Cheesecake Series",   c:"#62840b" },
-                { t:"🍓 Fruit Tea",            c:"#97b64c" },
-                { t:"🍞 Fresh Bread",          c:"#62840b" },
-                { t:"⭐ Taiwan Recipe",        c:"#97b64c" },
-                { t:"🌿 Real Ingredients",     c:"#62840b" },
+                { t:"🧋 Black Sugar Boba",   c:"#62840b" },
+                { t:"🥛 Milku Strawberry",   c:"#97b64c" },
+                { t:"🍰 Cheesecake Series",  c:"#62840b" },
+                { t:"🍓 Fruit Tea",           c:"#97b64c" },
+                { t:"🍞 Fresh Bread",         c:"#62840b" },
+                { t:"⭐ Taiwan Recipe",       c:"#97b64c" },
+                { t:"🌿 Real Ingredients",    c:"#62840b" },
               ].map((item, j) => (
                 <span key={`${r}-${j}`} style={{
-                  padding: "0 28px",
-                  fontSize: 11, fontWeight: 800,
-                  letterSpacing: "0.2em",
-                  color: item.c,
-                  whiteSpace: "nowrap",
-                  fontFamily: "'DM Sans', sans-serif",
+                  padding:"0 30px",
+                  fontSize:11, fontWeight:800,
+                  letterSpacing:"0.2em",
+                  color:item.c,
+                  whiteSpace:"nowrap",
+                  fontFamily:"'DM Sans',sans-serif",
                 }}>
                   {item.t.toUpperCase()}
                 </span>

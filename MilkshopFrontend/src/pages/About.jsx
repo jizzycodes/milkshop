@@ -742,16 +742,7 @@ export default function About() {
           </h2>
 
           {/* Body */}
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "clamp(14px, 1.1vw, 16px)",
-            lineHeight: 1.75,
-            color: "#4d5c3a",
-            maxWidth: 460,
-            margin: 0,
-          }}>
-            Join a brand that's already proven in Taiwan and growing fast across the Philippines. Whether you're a first-time entrepreneur or a seasoned operator, Milkshop gives you the system, the supply chain, and the support to succeed.
-          </p>
+         
 
           {/* CTAs */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 4 }}>
@@ -770,89 +761,9 @@ export default function About() {
       <Slide direction="right" delay={120}>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-          {/* Stats row */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
-            gap: 12,
-          }}>
-            {[
-              { value: "15+", label: "Active Branches" },
-              { value: "3",   label: "Investment Tiers" },
-              { value: "9+",  label: "Years of Brand" },
-            ].map((s) => (
-              <div
-                key={s.label}
-                className="bmc-stat"
-                style={{
-                  background: "rgba(255,255,255,0.9)",
-                  border: "1px solid rgba(151,182,76,0.2)",
-                  borderRadius: 16,
-                  padding: "18px 12px",
-                  textAlign: "center",
-                  boxShadow: "0 4px 16px rgba(98,132,11,0.06)",
-                }}
-              >
-                <p style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
-                  fontWeight: 900,
-                  color: "#62840b",
-                  margin: 0,
-                  letterSpacing: "-0.03em",
-                  lineHeight: 1,
-                }}>{s.value}</p>
-                <p style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "10px",
-                  fontWeight: 700,
-                  color: "#7a8a6a",
-                  margin: "6px 0 0",
-                  letterSpacing: "0.04em",
-                  lineHeight: 1.3,
-                }}>{s.label}</p>
-              </div>
-            ))}
-          </div>
+        
 
-          {/* Perks list */}
-          <div style={{
-            background: "rgba(255,255,255,0.85)",
-            border: "1px solid rgba(151,182,76,0.18)",
-            borderRadius: 18,
-            padding: "20px 22px",
-            boxShadow: "0 6px 24px rgba(98,132,11,0.07)",
-            display: "flex",
-            flexDirection: "column",
-            gap: 12,
-          }}>
-            {[
-              { icon: "🏭", text: "Taiwan-sourced ingredients & centralized supply chain" },
-              { icon: "📋", text: "Full operations system — training, SOP, and ongoing support" },
-              { icon: "📍", text: "Exclusive territory rights per franchise location" },
-              { icon: "🫧", text: "Signature Popping Boba — first & only in the Philippines" },
-            ].map((p) => (
-              <div key={p.text} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                <span style={{
-                  fontSize: 16,
-                  width: 32, height: 32,
-                  borderRadius: 10,
-                  background: "rgba(151,182,76,0.12)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0,
-                }}>{p.icon}</span>
-                <p style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "13px",
-                  fontWeight: 500,
-                  color: "#3a4a2a",
-                  margin: 0,
-                  lineHeight: 1.55,
-                }}>{p.text}</p>
-              </div>
-            ))}
-          </div>
-
+      
         </div>
       </Slide>
 
