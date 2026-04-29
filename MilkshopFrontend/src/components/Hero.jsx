@@ -62,28 +62,28 @@ const CSS = `
 
   /* cups — rotation baked in so float keeps it */
   @keyframes floatCup0 {
-    0%,100% { transform:rotate(-20deg) translateY(0px); }
-    50%      { transform:rotate(-20deg) translateY(-24px); }
+    0%,100% { transform:rotate(-6deg) translateY(0px); }
+    50%      { transform:rotate(-6deg) translateY(-24px); }
   }
   @keyframes floatCup1 {
-    0%,100% { transform:rotate(-12deg) translateY(0px); }
-    50%      { transform:rotate(-12deg) translateY(-30px); }
+    0%,100% { transform:rotate(-4deg) translateY(0px); }
+    50%      { transform:rotate(-4deg) translateY(-30px); }
   }
   @keyframes floatCup2 {
-    0%,100% { transform:rotate(-4deg) translateY(0px); }
-    50%      { transform:rotate(-4deg) translateY(-26px); }
+    0%,100% { transform:rotate(-2deg) translateY(0px); }
+    50%      { transform:rotate(-2deg) translateY(-26px); }
   }
-  @keyframes cupDrop0 {
-    0%   { opacity:0; transform:rotate(-20deg) translateY(120px) scale(0.8); }
-    100% { opacity:1; transform:rotate(-20deg) translateY(0) scale(1); }
-  }
+ @keyframes cupDrop0 {
+  0%   { opacity:0; transform:rotate(-6deg) translateY(120px) scale(0.6); }
+  100% { opacity:1; transform:rotate(-6deg) translateY(0) scale(1); }
+}
   @keyframes cupDrop1 {
-    0%   { opacity:0; transform:rotate(-12deg) translateY(150px) scale(0.8); }
-    100% { opacity:1; transform:rotate(-12deg) translateY(0) scale(1); }
+    0%   { opacity:0; transform:rotate(-4deg) translateY(150px) scale(0.8); }
+    100% { opacity:1; transform:rotate(-4deg) translateY(0) scale(1); }
   }
   @keyframes cupDrop2 {
-    0%   { opacity:0; transform:rotate(-4deg) translateY(180px) scale(0.8); }
-    100% { opacity:1; transform:rotate(-4deg) translateY(0) scale(1); }
+    0%   { opacity:0; transform:rotate(-2deg) translateY(180px) scale(0.8); }
+    100% { opacity:1; transform:rotate(-2deg) translateY(0) scale(1); }
   }
 
   @keyframes floatLeaf {
@@ -153,31 +153,28 @@ const CSS = `
   .ms-btns    { opacity:0; animation: fadeUp .5s ease forwards 1.95s; }
   .ms-trust   { opacity:0; animation: fadeUp .5s ease forwards 2.15s; }
 
-  .ms-cta-main {
-    display:inline-flex; align-items:center; gap:9px;
-    padding:15px 34px; border-radius:999px;
-    background: linear-gradient(135deg,#3d5508,#62840b 45%,#97b64c);
-    color:white; font-weight:900; font-size:14px;
-    text-decoration:none; letter-spacing:.07em;
-    box-shadow:0 14px 38px rgba(98,132,11,.52), inset 0 1px 0 rgba(255,255,255,.22);
-    transition:transform .25s,box-shadow .25s;
-    font-family:'Fredoka One',cursive;
-    white-space:nowrap;
-  }
-  .ms-cta-main:hover { transform:translateY(-5px) scale(1.04); box-shadow:0 24px 46px rgba(98,132,11,.62); }
+ .ms-cta-main {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:12px 28px; border-radius:8px;
+  background: #62840b;
+  color:white; font-weight:800; font-size:14px;
+  text-decoration:none; letter-spacing:.05em;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition:transform .2s, box-shadow .2s;
+  font-family:'Fredoka One',cursive;
+}
+.ms-cta-main:hover { transform:translateY(-2px); }
 
-  .ms-cta-out {
-    display:inline-flex; align-items:center; gap:9px;
-    padding:15px 34px; border-radius:999px;
-    border:2.5px solid rgba(255,255,255,.78);
-    color:white; font-weight:700; font-size:14px;
-    text-decoration:none; background:rgba(255,255,255,.18);
-    backdrop-filter:blur(12px);
-    transition:all .25s;
-    font-family:'DM Sans',sans-serif;
-    white-space:nowrap;
-  }
-  .ms-cta-out:hover { background:rgba(255,255,255,.35); transform:translateY(-5px); border-color:white; }
+.ms-cta-out {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:12px 28px; border-radius:8px;
+  border: 2px solid white;
+  color:white; font-weight:700; font-size:14px;
+  text-decoration:none; background:transparent;
+  transition:all .2s;
+  font-family:'DM Sans',sans-serif;
+}
+.ms-cta-out:hover { background:rgba(255,255,255,.15); }
 `;
 
 /* ── SVG DECO ── */
@@ -287,31 +284,7 @@ export default function Hero() {
     return () => clearTimeout(t);
   }, []);
 
-  /* Cup sizing & transforms */
-  const cupCfg = [
-    {
-      rotate: -12, zIndex: 1,
-      enter: "ms-cup0-enter", float: "ms-cup0-float",
-      h:     isMobile ? 175 : 340,
-      mb:    isMobile ? 0   : 0,
-      ml:    0,
-    },
-    {
-      rotate: -12, zIndex: 2,
-      enter: "ms-cup1-enter", float: "ms-cup1-float",
-      h:     isMobile ? 228 : 450,
-      mb:    isMobile ? 22  : 55,
-      ml:    isMobile ? -30 : -68,
-    },
-    {
-      rotate: -4, zIndex: 3,
-      enter: "ms-cup2-enter", float: "ms-cup2-float",
-      h:     isMobile ? 270 : 545,
-      mb:    isMobile ? 46  : 125,
-      ml:    isMobile ? -36 : -82,
-    },
-  ];
-
+  
   return (
     <>
       <style>{CSS}</style>
@@ -421,10 +394,10 @@ export default function Hero() {
           position:"relative", zIndex:10,
           flex:1,
           maxWidth:1280, margin:"0 auto", width:"100%",
-          padding: isMobile ? "66px 22px 0" : "66px 52px 0",
+          padding: isMobile ? "66px 22px 0" : "66px 20px 0 0",
           display:"grid",
-          gridTemplateColumns: isMobile ? "1fr" : "1fr 1.1fr",
-          gap: isMobile ? 0 : 8,
+          gridTemplateColumns: isMobile ? "1fr" : "0.55fr 1.55fr",
+          gap: isMobile ? 0 : 0,
           alignItems:"flex-end",
         }}>
 
@@ -432,16 +405,17 @@ export default function Hero() {
           <div style={{
             display:"flex", flexDirection:"column",
             gap: isMobile ? 9 : 8,
-            textAlign: isMobile ? "center" : "left",
-            alignItems: isMobile ? "center" : "flex-start",
+            textAlign: "center",
+            alignItems: "center",
             paddingBottom: isMobile ? 18 : 115,
+            paddingLeft: isMobile ? 0 : 50,
             zIndex:2,
           }}>
 
             {/* Eyebrow */}
             <div className="ms-eyebrow" style={{
               display:"flex", alignItems:"center", gap:9,
-              justifyContent: isMobile ? "center" : "flex-start",
+              justifyContent: isMobile ? "flex-end" : "flex-start",
             }}>
               <span style={{ width:22, height:2, background:"rgba(255,255,255,.88)", borderRadius:2 }}/>
               <span style={{
@@ -486,7 +460,7 @@ export default function Hero() {
             {/* TAIWAN — 3D multicolor */}
             <div style={{
               display:"flex",
-              gap: isMobile ? 1 : 3,
+              gap: isMobile ? 1 : 1,
               alignItems:"center",
               justifyContent: isMobile ? "center" : "flex-start",
             }}>
@@ -498,26 +472,17 @@ export default function Hero() {
                     fontFamily:"'Fredoka One',cursive",
                     fontSize: isMobile
                       ? "clamp(3.2rem,14vw,5.2rem)"
-                      : "clamp(5rem,9vw,8.8rem)",
+                      : "clamp(4rem,7vw,6.5rem)",
                     fontWeight:400,
                     color: item.color,
                     lineHeight:1,
                     display:"inline-block",
                     /* true 3-D stacked shadow */
-                    textShadow:`
-                      1px 1px 0 ${item.shadow},
-                      2px 2px 0 ${item.shadow},
-                      3px 3px 0 ${item.shadow},
-                      4px 4px 0 ${item.shadow},
-                      5px 5px 0 ${item.shadow},
-                      6px 6px 0 ${item.shadow},
-                      7px 7px 0 ${item.shadow},
-                      8px 8px 14px rgba(0,0,0,0.28)
-                    `,
-                    WebkitTextStroke:"1.5px rgba(255,255,255,0.12)",
+                    textShadow: "-2px -2px 0 #1a1a1a, 2px -2px 0 #1a1a1a, -2px 2px 0 #1a1a1a, 2px 2px 0 #1a1a1a",
+                    WebkitTextStroke: "3px #1a1a1a",
                     opacity:0,
                     animationName:"letterPop",
-                    animationDuration:"0.7s",
+                    animationDuration:"5s",
                     animationTimingFunction:"cubic-bezier(.34,1.5,.64,1)",
                     animationFillMode:"forwards",
                     animationDelay:`${0.52 + i * 0.1}s`,
@@ -530,17 +495,21 @@ export default function Hero() {
 
             {/* Tagline */}
             <div className="ms-tag" style={{ marginTop:2 }}>
-              <div style={{
-                background:"var(--g-dark)",
-                borderRadius:8,
-                padding: isMobile ? "9px 22px" : "12px 28px",
-                display:"inline-flex", alignItems:"center", gap:8,
-                boxShadow:"0 10px 28px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,.15)",
-              }}>
+            <div style={{
+  background: "#2d4a06",
+  borderRadius: 6,
+  padding: isMobile ? "10px 28px" : "13px 36px",
+  display: "inline-flex",
+  alignItems: "center",
+  width: "100%",           // full width like reference
+  justifyContent: "center",
+  boxShadow: "0 6px 20px rgba(0,0,0,0.3), inset 0 -3px 0 rgba(0,0,0,0.2)",
+  border: "2px solid #1a3a02",
+}}>
                 <span style={{
-                  color:"white", fontWeight:900,
-                  fontSize: isMobile ? 13 : 17,
-                  letterSpacing:"0.06em",
+                  color:"white", fontWeight:800,
+                  fontSize: isMobile ? 13 : 20,
+                  letterSpacing:"0.09em",
                   fontFamily:"'Fredoka One',cursive",
                 }}>
                   Milky, Healthy, Chewy!
@@ -550,9 +519,9 @@ export default function Hero() {
 
             {/* CTAs */}
             <div className="ms-btns" style={{
-              display:"flex", flexWrap:"wrap", gap:10,
+              display:"flex", flexWrap:"wrap", gap:30,
               justifyContent: isMobile ? "center" : "flex-start",
-              marginTop:2,
+              marginTop:60,
             }}>
               <Link to="/franchise#inquiry" className="ms-cta-main">Franchise Now ✦</Link>
               <Link to="/products" className="ms-cta-out">View Menu</Link>
@@ -580,108 +549,85 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* ── RIGHT — 3 SLANTED CUPS ── */}
-          <div style={{
-            display:"flex",
-            justifyContent:"flex-end",
-            alignItems:"flex-end",
-            height: isMobile ? 308 : 650,
-            position:"relative",
-            overflow:"visible",
-          }}>
-            {/* Glow pool under cups */}
-            <div style={{
-              position:"absolute",
-              bottom: isMobile ? 24 : 50,
-              left:"50%", transform:"translateX(-50%)",
-              width:"82%", height: isMobile ? 55 : 110,
-              borderRadius:"50%",
-              background:"rgba(183,205,127,0.42)",
-              filter:"blur(36px)",
-              pointerEvents:"none",
-            }}/>
+    {/* ── RIGHT — 3 CUPS ── */}
+<div style={{
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center",
+  alignItems: "flex-end",
+  gap: isMobile ? 0 : 0,
+  height: isMobile ? 308 : 650,
+  overflow: "visible",
+}}>
+  {topDrinks.map((drink, i) => {
+    const heights = isMobile ? [180, 220, 260] : [540, 580, 620];
+    const offsets = isMobile ? [0, 20, 40]     : [-160, -130, -100];
+    const enters  = ["ms-cup0-enter","ms-cup1-enter","ms-cup2-enter"];
+    const floats  = ["ms-cup0-float","ms-cup1-float","ms-cup2-float"];
+    
 
-            {topDrinks.map((drink, i) => {
-              const c = cupCfg[i];
-              return (
-                <div
-                  key={drink.id}
-                  style={{
-                    position:"relative",
-                    zIndex: c.zIndex,
-                    marginLeft: c.ml,
-                    marginBottom: c.mb,
-                    opacity: 0,
-                    flexShrink: 0,
-                  }}
-                  className={cupsReady ? c.enter : ""}
-                >
-                  <div
-                    className={cupsReady ? c.float : ""}
-                    style={{ transform:`rotate(${c.rotate}deg)` }}
-                  >
-                    <img
-                      src={drink.imageUrl}
-                      alt={drink.name}
-                      draggable={false}
-                      style={{
-                        height: c.h,
-                        objectFit:"contain",
-                        filter:`drop-shadow(0 ${isMobile?20:38}px ${isMobile?30:56}px rgba(0,0,0,0.34))`,
-                        display:"block",
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+    return (
+      <div
+        key={drink.id}
+        className={cupsReady ? enters[i] : ""}
+        style={{
+          opacity: 0,
+          marginBottom: offsets[i],
+          marginLeft: i === 0 ? 350 : -300,
+          flexShrink: 0,
+        }}
+      >
+        <div
+          className={cupsReady ? floats[i] : ""}
+          style={{ transformOrigin: "bottom center" }}
+        >
+          <img
+            src={drink.imageUrl}
+            alt={drink.name}
+            draggable={false}
+            style={{
+              height: heights[i],
+              objectFit: "contain",
+              filter: "drop-shadow(0 30px 40px rgba(0,0,0,0.3))",
+              marginLeft: i === 0 ? 0 : -10,
+              display: "block",
+            }}
+          />
+        </div>
+      </div>
+    );
+  })}
+</div>
         </div>
 
         {/* ── MILK SPLASH WAVE ── */}
-        <div style={{ position:"relative", zIndex:5, marginTop:"auto" }} className="ms-splash">
-          <svg
-            viewBox="0 0 1440 220"
-            preserveAspectRatio="none"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{ width:"100%", display:"block" }}
-          >
-            {/* Deep shadow layer */}
-            <path
-              d="M0,128 C88,86 198,154 355,112 C512,70 618,138 770,104 C922,70 1040,128 1192,92 C1344,56 1396,114 1440,92 L1440,220 L0,220 Z"
-              fill="rgba(183,205,127,0.4)"
-            />
-            {/* Cream mid layer */}
-            <path
-              d="M0,96 C115,52 238,128 398,84 C558,40 658,112 812,74 C966,36 1078,102 1218,66 C1358,30 1406,84 1440,64 L1440,220 L0,220 Z"
-              fill="rgba(255,255,255,0.58)"
-            />
-            {/* Main white wave */}
-            <path
-              d="M0,72 C124,24 256,106 418,60 C580,14 668,88 828,50 C988,12 1098,78 1240,44 C1382,10 1414,62 1440,42 L1440,220 L0,220 Z"
-              fill="white"
-            />
-            {/* Large splash droplets */}
-            <ellipse cx="418"  cy="60"  rx="30" ry="18" fill="white" opacity=".97"/>
-            <ellipse cx="828"  cy="50"  rx="24" ry="15" fill="white" opacity=".93"/>
-            <ellipse cx="1240" cy="46"  rx="27" ry="17" fill="white" opacity=".97"/>
-            {/* Mid droplets */}
-            <ellipse cx="185"  cy="92"  rx="15" ry="9"  fill="white" opacity=".74"/>
-            <ellipse cx="608"  cy="80"  rx="13" ry="8"  fill="white" opacity=".74"/>
-            <ellipse cx="1020" cy="72"  rx="14" ry="8"  fill="white" opacity=".74"/>
-            <ellipse cx="1390" cy="68"  rx="15" ry="9"  fill="white" opacity=".74"/>
-            {/* Small splashes */}
-            <ellipse cx="302"  cy="78"  rx="8"  ry="5"  fill="white" opacity=".58"/>
-            <ellipse cx="718"  cy="66"  rx="7"  ry="4"  fill="white" opacity=".58"/>
-            <ellipse cx="1128" cy="60"  rx="8"  ry="5"  fill="white" opacity=".58"/>
-            {/* Micro dots */}
-            <circle cx="510"  cy="56" r="5" fill="white" opacity=".52"/>
-            <circle cx="920"  cy="48" r="4" fill="white" opacity=".52"/>
-            <circle cx="1330" cy="42" r="5" fill="white" opacity=".52"/>
-            <circle cx="90"   cy="88" r="4" fill="white" opacity=".45"/>
-            <circle cx="1440" cy="75" r="3" fill="white" opacity=".45"/>
-          </svg>
-        </div>
+        <div style={{ position: "relative", zIndex: 5, marginTop: "auto" }} className="ms-splash">
+  <svg
+    viewBox="0 0 1440 180"
+    preserveAspectRatio="none"
+    style={{ width: "100%", display: "block" }}
+  >
+    {/* soft shadow */}
+    <path
+      d="M0,100 C200,60 400,140 720,90 C1040,40 1240,120 1440,80 L1440,180 L0,180 Z"
+      fill="rgba(183,205,127,0.35)"
+    />
+
+    {/* main cream */}
+    <path
+      d="M0,80 C200,40 400,120 720,70 C1040,20 1240,100 1440,60 L1440,180 L0,180 Z"
+      fill="white"
+    />
+
+    {/* subtle highlight */}
+    <path
+      d="M0,70 C200,30 400,110 720,60 C1040,10 1240,90 1440,50"
+      stroke="rgba(255,255,255,0.6)"
+      strokeWidth="2"
+      fill="none"
+    />
+  </svg>
+</div>
 
         {/* ── MARQUEE ── */}
         <div style={{

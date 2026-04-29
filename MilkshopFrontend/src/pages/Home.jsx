@@ -803,31 +803,29 @@ function WhySection() {
               }} />
               <span style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.7rem", fontWeight: 700,
+                fontSize: "1rem", fontWeight: 700,
                 letterSpacing: "0.22em", textTransform: "uppercase",
                 color: "#62840b",
               }}>
-                Why Franchise With Us
+                Why Franchise With Us?
               </span>
             </div>
             <h2 style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "clamp(2.4rem, 4.5vw, 4rem)",
-              fontWeight: 900, letterSpacing: "-0.04em",
-              lineHeight: 0.95, color: T.ink, margin: 0,
-              maxWidth: 560,
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "clamp(2.4rem, 4.8vw, 4.2rem)",
+            fontWeight: 900, letterSpacing: "-0.04em",
+            lineHeight: 1.0, color: T.ink, margin: "0 0 18px",
+          }}>
+            Built for{" "}
+            <span style={{
+              background: "linear-gradient(135deg, #62840b, #97b64c, #b7cd7f)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
             }}>
-              Built for<br />
-              Franchisee{" "}
-              <span style={{
-                background: "linear-gradient(135deg, #62840b, #97b64c)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}>
-                Success.
-              </span>
-            </h2>
+              Franchisee Success
+            </span>
+          </h2>
           </div>
 
           {/* ── Main layout: Image left (large) + Steps right ── */}
@@ -1121,6 +1119,7 @@ function WhySection() {
 
           </div>
         </div>
+        
       </section>
     </>
   )
