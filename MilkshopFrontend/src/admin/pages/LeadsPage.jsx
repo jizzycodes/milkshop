@@ -4,6 +4,7 @@ import LeadModal from "../components/LeadModal"
 import Register from "./Register"
 import Orientation from "./Orientation"
 import Attended from "./Attended"
+import Reservation from "./Reservation"
 import Onboarding from "./Onboarding"
 import Archived from "./Archived"
 import Dropped from "./Dropped"
@@ -221,6 +222,7 @@ const STAGE_TABS = [
   { value: "register",    label: "Register"    },
   { value: "orientation", label: "Orientation" },
   { value: "attended",    label: "Attended"    },
+  { value: "reservation", label: "Reservation" },
   { value: "onboarding",  label: "Onboarding"  },
   { value: "archived",    label: "Archived"    },
   { value: "dropped",     label: "Dropped"     },
@@ -232,6 +234,7 @@ function getPipelineStageValue(lead) {
   if (status === "DROPPED")     return "dropped"
   if (status === "ARCHIVED")    return "archived"
   if (stage  === "ONBOARDING")  return "onboarding"
+  if (stage  === "RESERVATION") return "reservation"
   if (status === "APPROVED")    return "attended"
   if (stage  === "ORIENTATION") return "orientation"
   if (stage  === "REGISTERED")  return "register"
@@ -244,6 +247,7 @@ function getPipelineStageLabel(lead) {
   if (status === "DROPPED")     return "Dropped"
   if (status === "ARCHIVED")    return "Archived"
   if (stage  === "ONBOARDING")  return "Onboarding"
+  if (stage  === "RESERVATION") return "Reservation"
   if (status === "APPROVED")    return "Attended"
   if (stage  === "ORIENTATION") return "Orientation"
   if (stage  === "REGISTERED")  return "Register"
@@ -328,6 +332,7 @@ export default function LeadsPage() {
   if      (stage === "register")    content = <Register />
   else if (stage === "orientation") content = <Orientation initialSubStatus={orientationSubStatus} />
   else if (stage === "attended")    content = <Attended />
+  else if (stage === "reservation") content = <Reservation />
   else if (stage === "onboarding")  content = <Onboarding />
   else if (stage === "archived")    content = <Archived />
   else if (stage === "dropped")     content = <Dropped />

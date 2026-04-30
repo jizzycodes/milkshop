@@ -401,7 +401,14 @@ export default function Attended() {
     { key: "view",          label: ""                 },
   ]
 
-  const contactOptions = ["No Response", "Call back", "Paid", "Archive", "Drop"]
+  const contactOptions = [
+    "Callback",
+    "No Response",
+    "Paid - Franchise Fee",
+    "Paid - Reservation",
+    "Drop",
+    "Archive",
+  ]
 
   useEffect(() => {
     let cancelled = false
@@ -421,7 +428,8 @@ export default function Attended() {
       "No Response": "NO_ANSWER",
       Busy:          "NO_ANSWER",
       Callback:      "CALLBACK",
-      Paid:          "PAID",
+      "Paid - Franchise Fee": "PAID",
+      "Paid - Reservation": "PAID_RESERVATION",
       Drop:          "DROP",
       Archive:       "ARCHIVE",
     }
@@ -436,9 +444,11 @@ export default function Attended() {
       await updateLead(token, selectedLead.id, { status: "ARCHIVED" })
     } else if (contactRecord === "Drop") {
       await updateLead(token, selectedLead.id, { status: "DROPPED" })
-    } else if (contactRecord === "Paid") {
+    } else if (contactRecord === "Paid - Franchise Fee") {
       await updateLead(token, selectedLead.id, { stage: "ONBOARDING", status: "ACTIVE", next_followup_at: nextContactAt || null })
-    } else if (["No Response", "Call back"].includes(contactRecord) && nextContactAt) {
+    } else if (contactRecord === "Paid - Reservation") {
+      await updateLead(token, selectedLead.id, { stage: "RESERVATION", status: "ACTIVE", next_followup_at: nextContactAt || null })
+    } else if (["No Response", "Callback"].includes(contactRecord) && nextContactAt) {
       await updateLead(token, selectedLead.id, { next_followup_at: nextContactAt })
     }
     if (notes) await updateLead(token, selectedLead.id, { remarks_admin: notes })

@@ -55,7 +55,7 @@ const statements = [
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT franchise_leads_stage_check CHECK (stage IN (
-    'REGISTERED','ORIENTATION','ONBOARDING','CLOSED'
+    'REGISTERED','ORIENTATION','RESERVATION','ONBOARDING','CLOSED'
   )),
   CONSTRAINT franchise_leads_status_check CHECK (status IN (
     'NEW','ACTIVE','INACTIVE','FOR_FOLLOWUP','DROPPED','ARCHIVED','APPROVED'
@@ -84,7 +84,7 @@ $$ LANGUAGE plpgsql`,
   created_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT lead_contact_logs_contact_type_check CHECK (contact_type IN ('CALL','SMS','EMAIL')),
   CONSTRAINT lead_contact_logs_outcome_check CHECK (outcome IS NULL OR outcome IN (
-    'NO_ANSWER','INTERESTED','NOT_INTERESTED','PAID','PRESENT','ABSENT'
+    'NO_ANSWER','INTERESTED','NOT_INTERESTED','PAID','PAID_RESERVATION','PRESENT','ABSENT'
   ))
 )`,
   'CREATE INDEX IF NOT EXISTS idx_lead_contact_logs_lead_id ON lead_contact_logs(lead_id)',
@@ -97,7 +97,19 @@ $$ LANGUAGE plpgsql`,
   'ALTER TABLE lead_contact_logs DROP CONSTRAINT IF EXISTS lead_contact_logs_outcome_check',
   `ALTER TABLE lead_contact_logs
    ADD CONSTRAINT lead_contact_logs_outcome_check CHECK (outcome IS NULL OR outcome IN (
-     'NO_ANSWER','INTERESTED','NOT_INTERESTED','PAID','PRESENT','ABSENT',
+     'NO_ANSWER','INTERESTED','NOT_INTERESTED','PAID','PAID_RESERVATION','PRESENT','ABSENT',
+     'CALLBACK','CONFIRMED_SCHEDULE','ARCHIVE','DROP','CANCEL','REMIND_SUCCESS'
+   ))`,
+  // 009: reservation stage + paid reservation outcome
+  'ALTER TABLE franchise_leads DROP CONSTRAINT IF EXISTS franchise_leads_stage_check',
+  `ALTER TABLE franchise_leads
+   ADD CONSTRAINT franchise_leads_stage_check CHECK (stage IN (
+     'REGISTERED','ORIENTATION','RESERVATION','ONBOARDING','CLOSED'
+   ))`,
+  'ALTER TABLE lead_contact_logs DROP CONSTRAINT IF EXISTS lead_contact_logs_outcome_check',
+  `ALTER TABLE lead_contact_logs
+   ADD CONSTRAINT lead_contact_logs_outcome_check CHECK (outcome IS NULL OR outcome IN (
+     'NO_ANSWER','INTERESTED','NOT_INTERESTED','PAID','PAID_RESERVATION','PRESENT','ABSENT',
      'CALLBACK','CONFIRMED_SCHEDULE','ARCHIVE','DROP','CANCEL','REMIND_SUCCESS'
    ))`,
   // 005: admin remarks on franchise_leads (for existing tables)
