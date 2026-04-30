@@ -354,6 +354,7 @@ function getOutcomeMeta(code) {
     CALLBACK:           { label: "Callback",             variant: "amber" },
     PAID:               { label: "Paid - Franchise Fee", variant: "green" },
     PAID_RESERVATION:   { label: "Paid - Reservation",   variant: "green" },
+    FINISHED:           { label: "Finished",             variant: "green" },
     DROP:               { label: "Drop",                 variant: "red"   },
     ARCHIVE:            { label: "Archive",              variant: "gray"  },
     NOT_INTERESTED:     { label: "Issue",                variant: "red"   },
@@ -558,16 +559,18 @@ export default function LeadModal({ lead, onClose, contactOptions, onSaveContact
 
             <div className="lm-section-header">
               <p className="lm-section-label">Contact History</p>
-              <button
-                type="button"
-                className="lm-btn-add"
-                onClick={() => setShowAddModal(true)}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-                Add Record
-              </button>
+              {hasOptions && (
+                <button
+                  type="button"
+                  className="lm-btn-add"
+                  onClick={() => setShowAddModal(true)}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  Add Record
+                </button>
+              )}
             </div>
 
             {logsLoading && (

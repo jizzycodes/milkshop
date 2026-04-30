@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react"
 import LeadTable from "../components/LeadTable"
 import LeadModal from "../components/LeadModal"
+import StatusTabs from "../components/StatusTabs"
 import { useAdminAuth } from "../context/AdminAuthContext"
-import { fetchLeads } from "../services/leadService"
+import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
 
 const STYLES = `
@@ -326,12 +327,27 @@ const STYLES = `
   }
 `
 
+const ONBOARDING_SUBTABS = [
+  { value: "MANAGEMENT_TRAINING", label: "Management Training" },
+  { value: "BARISTA_TRAINING", label: "Barista Training" },
+  { value: "GRAND_OPENING", label: "Grand Opening" },
+]
+
+const ONBOARDING_ACTIVITY = [
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+]
+
 export default function Onboarding() {
   const { token } = useAdminAuth()
+  const [subtab, setSubtab] = useState("MANAGEMENT_TRAINING")
+  const [activity, setActivity] = useState("active")
   const [selectedLead, setSelectedLead] = useState(null)
   const [leads, setLeads]               = useState([])
   const [loading, setLoading]           = useState(true)
   const [error, setError]               = useState("")
+  const [refreshKey, setRefreshKey]     = useState(0)
+  const [success, setSuccess]           = useState("")
 
   const columns = [
     { key: "name",     label: "Lead"      },
@@ -344,12 +360,68 @@ export default function Onboarding() {
     if (!token) { setLoading(false); return }
     setLoading(true)
     setError("")
-    fetchLeads(token, { tab: "onboarding", page: 1, pageSize: 50 })
+    fetchLeads(token, { tab: "onboarding", onboardingStep: subtab, page: 1, pageSize: 50 })
       .then((res)  => { if (!cancelled) setLeads(res.data || []) })
       .catch((err) => { if (!cancelled) setError(err?.message || "Failed to load onboarding"); setLeads([]) })
       .finally(()  => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [token])
+  }, [token, subtab, refreshKey])
+
+  const getContactOptions = () => {
+    if (subtab === "GRAND_OPENING") return []
+    return ["No Response", "Callback", "Confirmed Schedule", "Finished"]
+  }
+
+  const handleSaveContact = async ({ contactRecord, nextContactAt, notes }) => {
+    if (!token || !selectedLead) return
+
+    const outcomeMap = {
+      "No Response": "NO_ANSWER",
+      Callback: "CALLBACK",
+      "Confirmed Schedule": "CONFIRMED_SCHEDULE",
+      Finished: "FINISHED",
+    }
+
+    const outcome = outcomeMap[contactRecord] || null
+    await createLeadContactLog(token, selectedLead.id, {
+      contactType: "CALL",
+      notes: notes || `Contact record: ${contactRecord}`,
+      outcome,
+      nextFollowupAt: nextContactAt || null,
+    })
+
+    if (contactRecord === "Finished") {
+      if (subtab === "MANAGEMENT_TRAINING") {
+        await updateLead(token, selectedLead.id, {
+          onboarding_step: "BARISTA_TRAINING",
+          next_followup_at: nextContactAt || null,
+        })
+      } else if (subtab === "BARISTA_TRAINING") {
+        await updateLead(token, selectedLead.id, {
+          onboarding_step: "GRAND_OPENING",
+          next_followup_at: nextContactAt || null,
+        })
+      }
+    } else if (nextContactAt) {
+      await updateLead(token, selectedLead.id, { next_followup_at: nextContactAt })
+    }
+
+    if (notes) {
+      await updateLead(token, selectedLead.id, { remarks_admin: notes })
+    }
+
+    setRefreshKey((k) => k + 1)
+  }
+
+  const filteredLeads = leads.filter((lead) => {
+    const ts = lead.next_followup_at || lead.best_contact_at
+    if (!ts) return activity === "inactive"
+    const now = new Date()
+    const d = new Date(ts)
+    return activity === "active"
+      ? d.getTime() <= now.getTime()
+      : d.getTime() > now.getTime()
+  })
 
   const calIcon = (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -383,7 +455,13 @@ export default function Onboarding() {
               </div>
               <h1 className="onb-banner-title">Onboarding</h1>
               <p className="onb-banner-desc">Leads that have paid and are moving into onboarding.</p>
+              <div style={{ marginTop: 12 }}>
+                <StatusTabs options={ONBOARDING_SUBTABS} value={subtab} onChange={setSubtab} />
+              </div>
             </div>
+          </div>
+          <div>
+            <StatusTabs options={ONBOARDING_ACTIVITY} value={activity} onChange={setActivity} />
           </div>
         </header>
 
@@ -408,13 +486,15 @@ export default function Onboarding() {
         ) : (
           <>
             <div className="onb-countbar">
-              <span className="onb-count-label">Onboarding leads</span>
-              <span className="onb-count-pill">{leads.length} leads</span>
+              <span className="onb-count-label">
+                {ONBOARDING_SUBTABS.find((s) => s.value === subtab)?.label} · {activity === "active" ? "Active" : "Inactive"}
+              </span>
+              <span className="onb-count-pill">{filteredLeads.length} leads</span>
             </div>
 
             <LeadTable
               columns={columns}
-              leads={leads}
+              leads={filteredLeads}
               renderRow={(lead) => (
                 <tr key={lead.id} className="onb-tr">
 
@@ -466,11 +546,28 @@ export default function Onboarding() {
         {selectedLead && (
           <LeadModal
             lead={selectedLead}
+            contactOptions={getContactOptions()}
+            onSaveContact={handleSaveContact}
             onClose={() => setSelectedLead(null)}
+            onSaved={() => {
+              setSuccess("Contact record saved.")
+              setTimeout(() => setSuccess(""), 3000)
+            }}
+            pipelineLabel={`Onboarding - ${ONBOARDING_SUBTABS.find((s) => s.value === subtab)?.label || "Onboarding"}`}
           />
         )}
 
       </div>
+      {success && !error && (
+        <div style={{ pointerEvents: "none", position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 72 }}>
+          <div style={{ pointerEvents: "auto", display: "flex", alignItems: "center", gap: 8, background: "#62840b", color: "#fff", padding: "10px 20px", borderRadius: 999, fontSize: 12.5, fontWeight: 500, boxShadow: "0 6px 24px rgba(10,20,5,0.18)" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            {success}
+          </div>
+        </div>
+      )}
     </>
   )
 }

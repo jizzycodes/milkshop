@@ -26,7 +26,7 @@ async function getLeads(req, res, next) {
   try {
     await runPastDueDetection()
 
-    const { page, pageSize, from, to, search, stage, status, tab } = req.query
+    const { page, pageSize, from, to, search, stage, status, tab, onboardingStep } = req.query
     const result = await listLeads({
       page,
       pageSize,
@@ -36,6 +36,7 @@ async function getLeads(req, res, next) {
       stage,
       status,
       tab,
+      onboardingStep,
     })
 
     const totalPages = Math.max(
@@ -112,7 +113,7 @@ async function patchLeadStage(req, res, next) {
 
 async function patchLead(req, res, next) {
   try {
-    const { status, stage, contact_outcome, next_followup_at, assigned_to } =
+    const { status, stage, contact_outcome, next_followup_at, assigned_to, onboarding_step } =
       req.body
     const fields = {}
     if (status != null && isValidStatus(status)) fields.status = status
@@ -127,6 +128,7 @@ async function patchLead(req, res, next) {
           : next_followup_at
     }
     if (assigned_to !== undefined) fields.assigned_to = assigned_to || null
+    if (onboarding_step !== undefined) fields.onboarding_step = onboarding_step || null
 
     const updated = await updateLeadFields(req.params.id, fields)
     if (!updated) throw notFound()

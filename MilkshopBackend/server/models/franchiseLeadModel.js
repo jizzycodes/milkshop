@@ -98,7 +98,7 @@ async function getLeadById(id) {
     `SELECT id, full_name, email, contact_number, best_contact_time, annual_income,
      proposed_location, package_type, remarks, remarks_admin, referral, stage, status, contact_outcome,
      followup_count, next_followup_at, last_contacted_at, assigned_to, created_at, updated_at,
-     best_contact_at
+     best_contact_at, onboarding_step
      FROM franchise_leads WHERE id = $1`,
     [id],
   )
@@ -115,6 +115,7 @@ async function listLeads(options = {}) {
     stage,
     status,
     tab,
+    onboardingStep,
   } = options
 
   const tabCfg = getTabConfig(tab)
@@ -151,6 +152,10 @@ async function listLeads(options = {}) {
     params.push(effectiveStatus)
     conditions.push(`status = $${params.length}`)
   }
+  if (onboardingStep) {
+    params.push(onboardingStep)
+    conditions.push(`onboarding_step = $${params.length}`)
+  }
 
   const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
   let safeOrderCol = 'updated_at'
@@ -174,7 +179,7 @@ async function listLeads(options = {}) {
     SELECT id, full_name, email, contact_number, best_contact_time, annual_income,
            proposed_location, package_type, remarks, remarks_admin, referral, stage, status, contact_outcome,
            followup_count, next_followup_at, last_contacted_at, assigned_to, created_at, updated_at,
-           best_contact_at
+           best_contact_at, onboarding_step
     FROM franchise_leads
     ${whereClause}
     ORDER BY ${safeOrderCol} ${safeDir} NULLS LAST, created_at DESC
@@ -258,6 +263,7 @@ async function updateLeadFields(id, fields) {
     'next_followup_at',
     'assigned_to',
     'remarks_admin',
+    'onboarding_step',
   ]
   const setClauses = []
   const values = []
