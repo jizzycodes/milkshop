@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react"
-import { localDatetimeLocalFloor } from "../../utils/dateInputConstraints"
+import {
+  clampDatetimeLocalMin,
+  formatDateToDatetimeLocal,
+  localDatetimeLocalFloor,
+  parseDatetimeLocal,
+} from "../../utils/dateInputConstraints"
 
 const DEFAULT_RESULT_OPTIONS = [
   "No Response",
@@ -275,6 +280,49 @@ const STYLES = `
     color: var(--text-secondary);
     line-height: 1.5;
   }
+
+  /* ── Next contact quick presets ── */
+  .acm-quick-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  @media (min-width: 400px) {
+    .acm-quick-row {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .acm-quick-btn {
+    padding: 7px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: -0.02em;
+    transition: border-color 0.12s, background 0.12s, color 0.12s, transform 0.08s;
+  }
+
+  .acm-quick-btn:hover:not(:disabled) {
+    border-color: var(--green-primary);
+    background: rgba(151, 182, 76, 0.08);
+    color: var(--green-dark);
+  }
+
+  .acm-quick-btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .acm-quick-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 `
 
 export default function AddContactRecordModal({ open, onClose, onSubmit, options }) {
@@ -341,6 +389,29 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
     }
   }
 
+  const applyNextContactShortcut = (mode) => {
+    if (skipsNextContact) return
+    const minStr = localDatetimeLocalFloor()
+    const trimmed = nextContactAt && String(nextContactAt).trim()
+    const baseParsed = trimmed ? parseDatetimeLocal(trimmed) : null
+    const base = baseParsed ?? parseDatetimeLocal(minStr) ?? new Date()
+    const d = new Date(base.getTime())
+
+    if (mode === "hour") {
+      d.setMinutes(d.getMinutes() + 60)
+    } else if (mode === "day") {
+      d.setDate(d.getDate() + 1)
+    } else if (mode === "3days") {
+      d.setDate(d.getDate() + 3)
+    } else if (mode === "week") {
+      d.setDate(d.getDate() + 7)
+    }
+
+    const nextStr = clampDatetimeLocalMin(formatDateToDatetimeLocal(d), minStr)
+    setNextContactAt(nextStr)
+    setError("")
+  }
+
   return (
     <>
       <style>{STYLES}</style>
@@ -393,6 +464,38 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
                     }}
                     className={`acm-input${skipsNextContact ? " readonly" : ""}`}
                   />
+                  {!skipsNextContact && (
+                    <div className="acm-quick-row">
+                      <button
+                        type="button"
+                        className="acm-quick-btn"
+                        onClick={() => applyNextContactShortcut("hour")}
+                      >
+                        1 Hour
+                      </button>
+                      <button
+                        type="button"
+                        className="acm-quick-btn"
+                        onClick={() => applyNextContactShortcut("day")}
+                      >
+                        1 Day
+                      </button>
+                      <button
+                        type="button"
+                        className="acm-quick-btn"
+                        onClick={() => applyNextContactShortcut("3days")}
+                      >
+                        3 Days
+                      </button>
+                      <button
+                        type="button"
+                        className="acm-quick-btn"
+                        onClick={() => applyNextContactShortcut("week")}
+                      >
+                        1 Week
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Result */}
