@@ -13,6 +13,8 @@ function normalizeDateTimePayload(payload = {}) {
     ...payload,
     next_followup_at: toIsoIfLocalDateTime(payload.next_followup_at),
     nextFollowupAt: toIsoIfLocalDateTime(payload.nextFollowupAt),
+    scheduleDateTime: toIsoIfLocalDateTime(payload.scheduleDateTime),
+    schedule_date_time: toIsoIfLocalDateTime(payload.schedule_date_time),
     bestContactTime: toIsoIfLocalDateTime(payload.bestContactTime),
   };
 }

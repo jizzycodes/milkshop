@@ -437,7 +437,15 @@ function getOutcomeMeta(code) {
   return map[code] || { label: code || "—", variant: "gray" }
 }
 
-export default function LeadModal({ lead, onClose, contactOptions, onSaveContact, onSaved, pipelineLabel }) {
+export default function LeadModal({
+  lead,
+  onClose,
+  contactOptions,
+  onSaveContact,
+  onSaved,
+  pipelineLabel,
+  enableNextScheduleField = false,
+}) {
   if (!lead) return null
 
   const { token } = useAdminAuth()
@@ -489,9 +497,9 @@ export default function LeadModal({ lead, onClose, contactOptions, onSaveContact
     return () => { cancelled = true }
   }, [token, lead?.id, logsRefreshKey])
 
-  const handleCreateRecord = async ({ contactRecord, nextContactAt, notes }) => {
+  const handleCreateRecord = async ({ contactRecord, nextContactAt, notes, nextScheduleAt }) => {
     if (!onSaveContact) return
-    const log = await onSaveContact({ contactRecord, nextContactAt, notes })
+    const log = await onSaveContact({ contactRecord, nextContactAt, notes, nextScheduleAt })
     if (onSaved) onSaved()
     setLogsRefreshKey((k) => k + 1)
 
@@ -661,13 +669,14 @@ export default function LeadModal({ lead, onClose, contactOptions, onSaveContact
                       <th className="lm-history-th">Contact Date</th>
                       <th className="lm-history-th">Result</th>
                       <th className="lm-history-th">Next Contact</th>
+                      <th className="lm-history-th">Next Schedule Date/Time</th>
                       <th className="lm-history-th">By</th>
                     </tr>
                   </thead>
                   <tbody>
                     {logs.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="lm-history-empty">
+                        <td colSpan={7} className="lm-history-empty">
                           No contact records yet.
                         </td>
                       </tr>
@@ -696,6 +705,9 @@ export default function LeadModal({ lead, onClose, contactOptions, onSaveContact
                             <td className="lm-history-td lm-history-td-mono">
                               {log.next_followup_at ? formatDateTime(log.next_followup_at) : "—"}
                             </td>
+                            <td className="lm-history-td lm-history-td-mono">
+                              {log.schedule_date_time ? formatDateTime(log.schedule_date_time) : "—"}
+                            </td>
                             <td className="lm-history-td" style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                               {log.created_by || "—"}
                             </td>
@@ -717,6 +729,7 @@ export default function LeadModal({ lead, onClose, contactOptions, onSaveContact
         onClose={() => setShowAddModal(false)}
         onSubmit={handleCreateRecord}
         options={contactOptions}
+        enableNextScheduleField={enableNextScheduleField}
       />
     </>
   )

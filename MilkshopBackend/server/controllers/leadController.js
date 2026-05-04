@@ -145,7 +145,8 @@ async function postContactLog(req, res, next) {
     const lead = await getLeadById(leadId)
     if (!lead) throw notFound()
 
-    const { contactType, notes, outcome, nextFollowupAt } = req.body
+    const { contactType, notes, outcome, nextFollowupAt, scheduleDateTime, schedule_date_time } =
+      req.body
     if (!isValidContactType(contactType)) {
       const err = new Error('Invalid contactType (use CALL, SMS, EMAIL)')
       err.status = 400
@@ -164,6 +165,7 @@ async function postContactLog(req, res, next) {
         notes: notes != null ? String(notes) : '',
         outcome: outcome || null,
         nextFollowupAt: nextFollowupAt || null,
+        scheduleDateTime: scheduleDateTime ?? schedule_date_time ?? null,
       },
       req.user?.email || req.user?.sub || null,
     )

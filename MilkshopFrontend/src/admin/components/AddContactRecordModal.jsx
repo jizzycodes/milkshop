@@ -325,10 +325,17 @@ const STYLES = `
   }
 `
 
-export default function AddContactRecordModal({ open, onClose, onSubmit, options }) {
+export default function AddContactRecordModal({
+  open,
+  onClose,
+  onSubmit,
+  options,
+  enableNextScheduleField = false,
+}) {
   const [now, setNow]                 = useState("")
   const [result, setResult]           = useState("")
   const [nextContactAt, setNextContactAt] = useState("")
+  const [nextScheduleAt, setNextScheduleAt] = useState("")
   const [remarks, setRemarks]         = useState("")
   const [saving, setSaving]           = useState(false)
   const [error, setError]             = useState("")
@@ -339,6 +346,7 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
     setNow(localDatetimeLocalFloor())
     setResult("")
     setNextContactAt("")
+    setNextScheduleAt("")
     setRemarks("")
     setError("")
     setSaving(false)
@@ -351,7 +359,13 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
 
   const skipsNextContact = result && SKIP_NEXT_CONTACT_RESULTS.has(result)
   const hasNextContactAt = Boolean(nextContactAt && String(nextContactAt).trim())
-  const canSaveRecord = Boolean(result) && (skipsNextContact || hasNextContactAt)
+  const needNextSchedule =
+    Boolean(enableNextScheduleField && result === "Confirmed Schedule")
+  const hasNextScheduleAt = Boolean(nextScheduleAt && String(nextScheduleAt).trim())
+  const canSaveRecord =
+    Boolean(result) &&
+    (skipsNextContact || hasNextContactAt) &&
+    (!needNextSchedule || hasNextScheduleAt)
 
   const handleReview = () => {
     if (!result) {
@@ -360,6 +374,10 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
     }
     if (!skipsNextContact && !hasNextContactAt) {
       setError("Please select next contact date and time.")
+      return
+    }
+    if (needNextSchedule && !hasNextScheduleAt) {
+      setError("Please select Next Schedule Date / Time.")
       return
     }
     setError("")
@@ -372,12 +390,18 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
       setConfirming(false)
       return
     }
+    if (needNextSchedule && !hasNextScheduleAt) {
+      setError("Please select Next Schedule Date / Time.")
+      setConfirming(false)
+      return
+    }
     setSaving(true)
     setError("")
     try {
       await onSubmit?.({
         contactRecord: result,
         nextContactAt: skipsNextContact ? null : nextContactAt.trim(),
+        nextScheduleAt: needNextSchedule ? nextScheduleAt.trim() : null,
         notes: remarks,
       })
       onClose?.()
@@ -409,6 +433,29 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
 
     const nextStr = clampDatetimeLocalMin(formatDateToDatetimeLocal(d), minStr)
     setNextContactAt(nextStr)
+    setError("")
+  }
+
+  const applyScheduleShortcut = (mode) => {
+    if (!needNextSchedule) return
+    const minStr = localDatetimeLocalFloor()
+    const trimmed = nextScheduleAt && String(nextScheduleAt).trim()
+    const baseParsed = trimmed ? parseDatetimeLocal(trimmed) : null
+    const base = baseParsed ?? parseDatetimeLocal(minStr) ?? new Date()
+    const d = new Date(base.getTime())
+
+    if (mode === "hour") {
+      d.setMinutes(d.getMinutes() + 60)
+    } else if (mode === "day") {
+      d.setDate(d.getDate() + 1)
+    } else if (mode === "3days") {
+      d.setDate(d.getDate() + 3)
+    } else if (mode === "week") {
+      d.setDate(d.getDate() + 7)
+    }
+
+    const nextStr = clampDatetimeLocalMin(formatDateToDatetimeLocal(d), minStr)
+    setNextScheduleAt(nextStr)
     setError("")
   }
 
@@ -508,6 +555,7 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
                       setResult(v)
                       setError("")
                       if (v && SKIP_NEXT_CONTACT_RESULTS.has(v)) setNextContactAt("")
+                      if (v !== "Confirmed Schedule") setNextScheduleAt("")
                     }}
                     className="acm-select"
                   >
@@ -517,6 +565,53 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
                     ))}
                   </select>
                 </div>
+
+                {needNextSchedule && (
+                  <div className="acm-field">
+                    <label className="acm-label">Next Schedule Date / Time</label>
+                    <input
+                      type="datetime-local"
+                      min={localDatetimeLocalFloor()}
+                      value={nextScheduleAt || ""}
+                      onChange={(e) => {
+                        const v = e.target.value
+                        const min = localDatetimeLocalFloor()
+                        setNextScheduleAt(!v || v >= min ? v : min)
+                      }}
+                      className="acm-input"
+                    />
+                    <div className="acm-quick-row">
+                      <button
+                        type="button"
+                        className="acm-quick-btn"
+                        onClick={() => applyScheduleShortcut("hour")}
+                      >
+                        1 Hour
+                      </button>
+                      <button
+                        type="button"
+                        className="acm-quick-btn"
+                        onClick={() => applyScheduleShortcut("day")}
+                      >
+                        1 Day
+                      </button>
+                      <button
+                        type="button"
+                        className="acm-quick-btn"
+                        onClick={() => applyScheduleShortcut("3days")}
+                      >
+                        3 Days
+                      </button>
+                      <button
+                        type="button"
+                        className="acm-quick-btn"
+                        onClick={() => applyScheduleShortcut("week")}
+                      >
+                        1 Week
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Remarks */}
                 <div className="acm-field">
@@ -566,6 +661,9 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
                   {nextContactAt && (
                     <> &nbsp;·&nbsp; Next contact: <strong>{nextContactAt.replace("T", " ")}</strong></>
                   )}
+                  {needNextSchedule && nextScheduleAt && (
+                    <> &nbsp;·&nbsp; Next schedule: <strong>{nextScheduleAt.replace("T", " ")}</strong></>
+                  )}
                 </p>
                 {error && <p className="acm-error" style={{ marginTop: 10 }}>{error}</p>}
               </div>
@@ -583,7 +681,11 @@ export default function AddContactRecordModal({ open, onClose, onSubmit, options
                   type="button"
                   className="acm-btn-save"
                   onClick={handleSave}
-                  disabled={saving || (!skipsNextContact && !hasNextContactAt)}
+                  disabled={
+                    saving ||
+                    (!skipsNextContact && !hasNextContactAt) ||
+                    (needNextSchedule && !hasNextScheduleAt)
+                  }
                 >
                   {saving ? "Saving..." : "Yes, save"}
                 </button>

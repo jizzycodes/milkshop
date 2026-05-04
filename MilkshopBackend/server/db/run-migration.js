@@ -179,6 +179,8 @@ $$ LANGUAGE plpgsql`,
   'CREATE INDEX IF NOT EXISTS idx_wte_occurred_at ON website_tracking_events(occurred_at)',
   'CREATE INDEX IF NOT EXISTS idx_wte_section_key ON website_tracking_events(section_key)',
   'CREATE INDEX IF NOT EXISTS idx_wte_event_type ON website_tracking_events(event_type)',
+  // 009: optional schedule datetime on contact logs (e.g. onboarding Confirmed Schedule)
+  'ALTER TABLE lead_contact_logs ADD COLUMN IF NOT EXISTS schedule_date_time timestamptz',
 ]
 
 async function run() {

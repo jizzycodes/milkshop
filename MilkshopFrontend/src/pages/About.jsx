@@ -757,13 +757,41 @@ export default function About() {
         </div>
       </Slide>
 
-      {/* ── RIGHT: Stats + perks grid ── */}
+      {/* ── RIGHT: Branch photo ── */}
       <Slide direction="right" delay={120}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-        
-
-      
+        <div
+          style={{
+            position: "relative",
+            borderRadius: 24,
+            overflow: "hidden",
+            border: "1px solid rgba(151,182,76,0.28)",
+            boxShadow: "0 28px 64px rgba(98,132,11,0.18), 0 10px 28px rgba(0,0,0,0.06)",
+            background: "linear-gradient(145deg, #eef5df 0%, #ffffff 100%)",
+          }}
+        >
+          <img
+            src="/HEROFRESH.jpg"
+            alt="Milkshop branch"
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            style={{
+              width: "100%",
+              display: "block",
+              objectFit: "cover",
+              aspectRatio: "4 / 5",
+              maxHeight: isMobile ? 380 : 520,
+            }}
+          />
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              background: "linear-gradient(180deg, transparent 55%, rgba(26,30,20,0.12) 100%)",
+            }}
+          />
         </div>
       </Slide>
 

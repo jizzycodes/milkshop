@@ -5,75 +5,82 @@ import { supabase } from "../lib/supabaseClient"
 const STATIC_LOCATIONS = [
   {
     id: 1,
-    name: "Milkshop PH - North Centrum Guiguinto",
-    address: "MacArthur Highway, Guiguinto, Bulacan",
-    lat: 14.8392246,
-    lng: 120.8599318
-  },
-  {
-    id: 2,
-    name: "Milkshop PH - Tabang Guiguinto",
-    address: "Tabang, Guiguinto, Bulacan",
-    lat: 14.8258097,
-    lng: 120.8658063
-  },
-  {
-    id: 3,
-    name: "Milkshop PH - GD Plaza Guiguinto",
+    name: "Milkshop GD Plaza Branch",
     address: "Front of WalterMart Guiguinto",
     lat: 14.8284535,
     lng: 120.8743037
   },
   {
-    id: 4,
-    name: "Milkshop PH - Malolos Convention",
-    address: "Malolos, Bulacan",
-    lat: 14.8588102,
-    lng: 120.8108367
-  },
-  {
-    id: 5,
-    name: "Milkshop PH - Vista Mall Malolos",
-    address: "Vista Mall Malolos",
-    lat: 14.8755907,
-    lng: 120.7973621
-  },
-  {
-    id: 6,
-    name: "Milkshop PH - MacArthur Hwy Malolos",
+    id: 2,
+    name: "Milkshop MacArthur Hway Malolos",
     address: "Front of WalterMart Malolos",
     lat: 14.8715939,
     lng: 120.7990442
   },
   {
-    id: 7,
-    name: "Milkshop PH - Marilao",
+    id: 3,
+    name: "Milkshop Starmall San Jose Del Monte",
+    address: "Starmall SJDM, Bulacan",
+    lat: 14.8139973,
+    lng: 121.0707105
+  },
+  {
+    id: 4,
+    name: "Milkshop Marilao",
     address: "Marilao, Bulacan",
     lat: 14.769961,
     lng: 120.941103
   },
   {
-    id: 8,
-    name: "Milkshop PH - Parada Valenzuela",
-    address: "Parada, Valenzuela City",
-    lat: 14.6962913,
-    lng: 120.9969947
-  },
-  {
-    id: 9,
-    name: "Milkshop PH - SM Valenzuela",
+    id: 5,
+    name: "SM Valenzuela",
     address: "SM City Valenzuela",
     lat: 14.6856445,
     lng: 120.9771159
   },
   {
+    id: 6,
+    name: "Milkshop Malolos Convention",
+    address: "Malolos, Bulacan",
+    lat: 14.8588102,
+    lng: 120.8108367
+  },
+  {
+    id: 7,
+    name: "Milkshop Tabang",
+    address: "Tabang, Guiguinto, Bulacan",
+    lat: 14.8258097,
+    lng: 120.8658063
+  },
+  {
+    id: 8,
+    name: "Milkshop Vista Mall Malolos",
+    address: "Vista Mall Malolos",
+    lat: 14.8755907,
+    lng: 120.7973621
+  },
+  {
+    id: 9,
+    name: "Milkshop North Centrum",
+    address: "MacArthur Highway, Guiguinto, Bulacan",
+    lat: 14.8392246,
+    lng: 120.8599318
+  },
+  {
     id: 10,
-    name: "Milkshop PH - Starmall SJDM",
-    address: "Starmall SJDM, Bulacan",
-    lat: 14.8139973,
-    lng: 121.0707105
-  }
-];
+    name: "Milkshop Parada",
+    address: "Parada, Valenzuela City",
+    lat: 14.6962913,
+    lng: 120.9969947
+  },
+  {
+    id: 11,
+    name: "Milkshop Recto",
+    address: "Recto, Manila",
+    lat: 14.5995,
+    lng: 120.9842
+  },
+]
 
 const regionAccent = {
   "Metro Manila": "#97b64c",
@@ -170,71 +177,53 @@ export default function Locations() {
         if (error) throw error
         if (!cancelled && Array.isArray(data) && data.length > 0) {
           const staticById = new Map(STATIC_LOCATIONS.map((loc) => [loc.id, loc]))
-          const staticByName = new Map(STATIC_LOCATIONS.map((loc) => [loc.name, loc]))
-          const pickNearestStatic = (lat, lng) => {
-            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
-            let best = null
-            let bestDist = Infinity
-            for (const loc of STATIC_LOCATIONS) {
-              const dLat = lat - loc.lat
-              const dLng = lng - loc.lng
-              const dist = dLat * dLat + dLng * dLng
-              if (dist < bestDist) {
-                bestDist = dist
-                best = loc
-              }
+          /* One row per id (last wins). Avoid name/lat mixups from duplicate rows. */
+          const uniqueRows = Array.from(
+            new Map(data.map((r) => [r.id, r])).values()
+          )
+          const merged = uniqueRows.map((row) => {
+            const stat = staticById.get(row.id)
+            const nameDb = row.name != null ? String(row.name).trim() : ""
+            const addrDb = row.address != null ? String(row.address).trim() : ""
+            return {
+              ...(stat || {}),
+              id: row.id,
+              /* DB drives label + image together; static only fills gaps by matching id. */
+              name: nameDb || stat?.name || "Milkshop Branch",
+              address: addrDb || stat?.address || "",
+              hours: row.hours ?? "",
+              phone: row.phone ?? "",
+              dateEstablished: row.date_established ? String(row.date_established) : "",
+              region: row.region ?? null,
+              tag: row.tag ?? null,
+              tagColor: row.tag_color_bg ? { bg: row.tag_color_bg, text: row.tag_color_text || "#fff" } : null,
+              photo: row.image_url || row.photo_url || row.photo || null,
+              facebookUrl: row.facebook_url || row.fb_link || row.fb_url || null,
+              lat: (() => {
+                const v = parseFloat(row.lat ?? row.latitude ?? row.Lat ?? row.LAT)
+                if (Number.isFinite(v)) return v
+                return stat?.lat ?? null
+              })(),
+              lng: (() => {
+                const v = parseFloat(row.lng ?? row.longitude ?? row.Lng ?? row.LNG)
+                if (Number.isFinite(v)) return v
+                return stat?.lng ?? null
+              })(),
             }
-            return best
-          }
-          setAllLocations(data.map(row => ({
-            ...(() => {
-              const parsedLat = parseFloat(row.lat || row.latitude)
-              const parsedLng = parseFloat(row.lng || row.longitude)
-              return (
-                pickNearestStatic(parsedLat, parsedLng) ||
-                staticById.get(row.id) ||
-                staticByName.get(row.name) ||
-                {}
-              )
-            })(),
-            id: row.id,
-            name: (() => {
-              const parsedLat = parseFloat(row.lat || row.latitude)
-              const parsedLng = parseFloat(row.lng || row.longitude)
-              const nearest = pickNearestStatic(parsedLat, parsedLng)
-              return nearest?.name || staticById.get(row.id)?.name || staticByName.get(row.name)?.name || row.name || "Milkshop Branch"
-            })(),
-            address: (() => {
-              const parsedLat = parseFloat(row.lat || row.latitude)
-              const parsedLng = parseFloat(row.lng || row.longitude)
-              const nearest = pickNearestStatic(parsedLat, parsedLng)
-              return nearest?.address || row.address || staticById.get(row.id)?.address || staticByName.get(row.name)?.address || ""
-            })(),
-            hours: row.hours ?? "",
-            phone: row.phone ?? "", dateEstablished: row.date_established ? String(row.date_established) : "",
-            region: row.region ?? null, tag: row.tag ?? null,
-            tagColor: row.tag_color_bg ? { bg: row.tag_color_bg, text: row.tag_color_text || "#fff" } : null,
-            photo: row.image_url || row.photo_url || row.photo || null,
-            facebookUrl: row.facebook_url || row.fb_link || row.fb_url || null,
-            lat: (() => {
-              const v = parseFloat(row.lat ?? row.latitude ?? row.Lat ?? row.LAT)
-              if (Number.isFinite(v)) return v
-              const nearest = pickNearestStatic(
-                parseFloat(row.lat ?? row.latitude),
-                parseFloat(row.lng ?? row.longitude)
-              )
-              return nearest?.lat ?? staticById.get(row.id)?.lat ?? staticByName.get(row.name)?.lat ?? null
-            })(),
-            lng: (() => {
-              const v = parseFloat(row.lng ?? row.longitude ?? row.Lng ?? row.LNG)
-              if (Number.isFinite(v)) return v
-              const nearest = pickNearestStatic(
-                parseFloat(row.lat ?? row.latitude),
-                parseFloat(row.lng ?? row.longitude)
-              )
-              return nearest?.lng ?? staticById.get(row.id)?.lng ?? staticByName.get(row.name)?.lng ?? null
-            })(),
-          })))
+          })
+          /* Drop duplicate map pins at the same spot (overlapping labels looked "doubled"). */
+          const seenKeys = new Set()
+          setAllLocations(
+            merged.filter((loc) => {
+              const la = parseFloat(loc.lat)
+              const ln = parseFloat(loc.lng)
+              if (!Number.isFinite(la) || !Number.isFinite(ln)) return false
+              const key = `${la.toFixed(5)},${ln.toFixed(5)}`
+              if (seenKeys.has(key)) return false
+              seenKeys.add(key)
+              return true
+            })
+          )
         }
       } catch (e) { console.error("Supabase error", e) }
       finally { if (!cancelled) setLoading(false) }
@@ -301,9 +290,6 @@ export default function Locations() {
       const lat = parseFloat(loc.lat), lng = parseFloat(loc.lng)
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
       const accent = regionAccent[loc.region] || "#97b64c"
-      const cityFromAddress = (loc.address || "").split(",").map(s => s.trim()).filter(Boolean)
-      const city = cityFromAddress.length > 1 ? cityFromAddress[cityFromAddress.length - 2] : (loc.region || "")
-      const pinLabel = `${loc.name}${city ? ` • ${city}` : ""}`
       const icon = L.divIcon({
         className: "",
         html: `
@@ -343,7 +329,7 @@ export default function Locations() {
       })
       const marker = L.marker([lat, lng], { icon }).addTo(map)
       .bindTooltip(loc.name, {
-        permanent: true,
+        permanent: false,
         direction: "top",
         offset: [0, -44],
         className: "ms-label",

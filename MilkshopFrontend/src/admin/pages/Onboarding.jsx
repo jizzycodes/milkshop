@@ -372,7 +372,7 @@ export default function Onboarding() {
     return ["No Response", "Callback", "Confirmed Schedule", "Finished"]
   }
 
-  const handleSaveContact = async ({ contactRecord, nextContactAt, notes }) => {
+  const handleSaveContact = async ({ contactRecord, nextContactAt, notes, nextScheduleAt }) => {
     if (!token || !selectedLead) return
 
     const outcomeMap = {
@@ -388,6 +388,8 @@ export default function Onboarding() {
       notes: notes || `Contact record: ${contactRecord}`,
       outcome,
       nextFollowupAt: nextContactAt || null,
+      scheduleDateTime:
+        outcome === "CONFIRMED_SCHEDULE" && nextScheduleAt ? nextScheduleAt : null,
     })
 
     if (contactRecord === "Finished") {
@@ -554,6 +556,7 @@ export default function Onboarding() {
               setTimeout(() => setSuccess(""), 3000)
             }}
             pipelineLabel={`Onboarding - ${ONBOARDING_SUBTABS.find((s) => s.value === subtab)?.label || "Onboarding"}`}
+            enableNextScheduleField
           />
         )}
 

@@ -2,7 +2,7 @@ const { query, getClient } = require('../config/db')
 
 async function listByLeadId(leadId) {
   const result = await query(
-    `SELECT id, lead_id, contact_type, notes, outcome, next_followup_at, created_by, created_at
+    `SELECT id, lead_id, contact_type, notes, outcome, next_followup_at, schedule_date_time, created_by, created_at
      FROM lead_contact_logs
      WHERE lead_id = $1
      ORDER BY created_at DESC`,
@@ -14,19 +14,33 @@ async function listByLeadId(leadId) {
 /**
  * Create contact log and apply Rule 2: update lead last_contacted_at, followup_count, next_followup_at.
  * @param {string} leadId - UUID
- * @param {object} payload - { contactType, notes, outcome?, nextFollowupAt? }
+ * @param {object} payload - { contactType, notes, outcome?, nextFollowupAt?, scheduleDateTime? }
  * @param {string} [createdBy] - optional admin user id
  */
 async function createContactLog(leadId, payload, createdBy = null) {
   const client = await getClient()
   try {
     const { contactType, notes, outcome, nextFollowupAt } = payload
+    const rawSchedule =
+      payload.scheduleDateTime != null
+        ? payload.scheduleDateTime
+        : payload.schedule_date_time
+    const scheduleDateTime =
+      outcome === 'CONFIRMED_SCHEDULE' && rawSchedule ? rawSchedule : null
 
     const insertResult = await client.query(
-      `INSERT INTO lead_contact_logs (lead_id, contact_type, notes, outcome, next_followup_at, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, lead_id, contact_type, notes, outcome, next_followup_at, created_by, created_at`,
-      [leadId, contactType, notes || '', outcome || null, nextFollowupAt || null, createdBy || null],
+      `INSERT INTO lead_contact_logs (lead_id, contact_type, notes, outcome, next_followup_at, schedule_date_time, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, lead_id, contact_type, notes, outcome, next_followup_at, schedule_date_time, created_by, created_at`,
+      [
+        leadId,
+        contactType,
+        notes || '',
+        outcome || null,
+        nextFollowupAt || null,
+        scheduleDateTime,
+        createdBy || null,
+      ],
     )
     const log = insertResult.rows[0]
 
