@@ -8,8 +8,10 @@ ALTER TABLE lead_contact_logs
     'INTERESTED',
     'NOT_INTERESTED',
     'PAID',
+    'PAID_RESERVATION',
     'PRESENT',
     'ABSENT',
+    'FINISHED',
     'CALLBACK',
     'CONFIRMED_SCHEDULE',
     'ARCHIVE',
@@ -17,4 +19,3 @@ ALTER TABLE lead_contact_logs
     'CANCEL',
     'REMIND_SUCCESS'
   ));
-
