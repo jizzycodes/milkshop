@@ -116,6 +116,260 @@ const franchisePageStyles = `
   }
 `;
 
+// ─── PACKAGE CARDS COMPONENT ────────────────────────────────────────────────
+
+const packages = [
+  {
+    id: "cart",
+    emoji: "🛒",
+    label: "Cart",
+    tagline: "Start Small, Dream Big",
+    price: "Entry-level investment",
+    term: "2-year term",
+    badge: null,
+    color: "#62840b",
+    accentBg: "rgba(151,182,76,0.07)",
+    borderSelected: "#97b64c",
+    features: [
+      "Compact footprint, any location",
+      "Low startup cost",
+      "Full Milkshop menu",
+      "Training & supply included",
+    ],
+    best: "Perfect for first-timers or tight spaces.",
+  },
+  {
+    id: "kiosk",
+    emoji: "🏪",
+    label: "Kiosk",
+    tagline: "The Sweet Spot",
+    price: "Mid-range investment",
+    term: "3-year term",
+    badge: "Most Popular",
+    color: "#4a6b08",
+    accentBg: "rgba(151,182,76,0.11)",
+    borderSelected: "#97b64c",
+    features: [
+      "Mall & commercial ready",
+      "Higher daily capacity",
+      "Exclusive territory radius",
+      "Brand signage & fixtures",
+    ],
+    best: "Ideal for malls, food parks & commercial areas.",
+  },
+  {
+    id: "inline",
+    emoji: "🏬",
+    label: "In-Line Store",
+    tagline: "Go Full-Scale",
+    price: "Premium investment",
+    term: "5-year term",
+    badge: "Best ROI",
+    color: "#3a5c06",
+    accentBg: "rgba(183,205,127,0.1)",
+    borderSelected: "#97b64c",
+    features: [
+      "Full store fit-out & design",
+      "Highest revenue potential",
+      "Premium exclusivity zone",
+      "Priority franchise support",
+    ],
+    best: "For serious operators ready to scale.",
+  },
+];
+
+function PackageCards({ formData, setFormData, setFieldErrors }) {
+  const selected = formData.preferredPackage;
+
+  const handleSelect = (id) => {
+    setFormData((p) => ({ ...p, preferredPackage: id }));
+    setFieldErrors((p) => ({ ...p, preferredPackage: "" }));
+  };
+
+  return (
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+      gap: 20,
+    }}>
+      {packages.map((pkg, i) => {
+        const isSelected = selected === pkg.id;
+        return (
+          <Slide key={pkg.id} direction="up" delay={i * 80}>
+            <div
+              className={`pkg-card${isSelected ? " selected" : ""}`}
+              onClick={() => handleSelect(pkg.id)}
+              style={{
+                borderRadius: 24,
+                border: isSelected
+                  ? `2px solid ${pkg.borderSelected}`
+                  : "1.5px solid rgba(151,182,76,0.2)",
+                background: isSelected
+                  ? "rgba(255,255,255,0.97)"
+                  : "rgba(255,255,255,0.82)",
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+                boxShadow: isSelected
+                  ? "0 16px 48px rgba(151,182,76,0.2)"
+                  : "0 4px 20px rgba(151,182,76,0.07)",
+                padding: "28px 26px 24px",
+                position: "relative",
+                overflow: "hidden",
+                userSelect: "none",
+              }}
+            >
+              {/* Selected top bar */}
+              {isSelected && (
+                <div style={{
+                  position: "absolute", top: 0, left: 0, right: 0, height: 4,
+                  background: "linear-gradient(90deg, #62840b, #97b64c, #b7cd7f)",
+                  borderRadius: "24px 24px 0 0",
+                }} />
+              )}
+
+              {/* Background accent circle */}
+              <div aria-hidden style={{
+                position: "absolute", bottom: -40, right: -40,
+                width: 160, height: 160, borderRadius: "50%",
+                background: isSelected ? "rgba(151,182,76,0.09)" : "rgba(151,182,76,0.04)",
+                pointerEvents: "none",
+                transition: "background 0.3s ease",
+              }} />
+
+              {/* Badge */}
+              {pkg.badge && (
+                <div className={isSelected ? "pkg-badge" : ""} style={{
+                  display: "inline-flex", alignItems: "center", gap: 5,
+                  padding: "5px 11px", borderRadius: 999,
+                  background: isSelected
+                    ? "linear-gradient(135deg, #62840b, #97b64c)"
+                    : "rgba(151,182,76,0.14)",
+                  color: isSelected ? "#fff" : "#62840b",
+                  fontSize: "10px", fontWeight: 800,
+                  letterSpacing: "0.12em", textTransform: "uppercase",
+                  fontFamily: "'DM Sans', sans-serif",
+                  marginBottom: 14,
+                  transition: "background 0.3s ease, color 0.3s ease",
+                }}>
+                  {isSelected && <span style={{ fontSize: 9 }}>★</span>}
+                  {pkg.badge}
+                </div>
+              )}
+              {!pkg.badge && <div style={{ height: 28, marginBottom: 14 }} />}
+
+              {/* Emoji + Label */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+                <span style={{
+                  fontSize: "2rem", lineHeight: 1,
+                  filter: isSelected ? "drop-shadow(0 2px 8px rgba(151,182,76,0.4))" : "none",
+                  transition: "filter 0.3s ease",
+                }}>{pkg.emoji}</span>
+                <div>
+                  <h3 style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "1.45rem", fontWeight: 900,
+                    color: isSelected ? pkg.color : "#2a3520",
+                    margin: 0, letterSpacing: "-0.025em",
+                    transition: "color 0.3s ease",
+                  }}>{pkg.label}</h3>
+                  <p style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.75rem", color: "#8aa06a",
+                    margin: 0, fontWeight: 600,
+                    letterSpacing: "0.01em",
+                  }}>{pkg.tagline}</p>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div style={{
+                height: 1,
+                background: isSelected
+                  ? "linear-gradient(90deg, rgba(151,182,76,0.4), transparent)"
+                  : "rgba(151,182,76,0.12)",
+                borderRadius: 1,
+                margin: "16px 0",
+                transition: "background 0.3s ease",
+              }} />
+
+              {/* Meta */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+                {[pkg.price, pkg.term].map((meta) => (
+                  <span key={meta} style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "10px", fontWeight: 700,
+                    letterSpacing: "0.08em",
+                    padding: "4px 10px", borderRadius: 999,
+                    background: isSelected ? "rgba(151,182,76,0.13)" : "rgba(151,182,76,0.07)",
+                    color: isSelected ? "#4a6b08" : "#7a9460",
+                    border: "1px solid rgba(151,182,76,0.18)",
+                    transition: "all 0.3s ease",
+                  }}>{meta}</span>
+                ))}
+              </div>
+
+              {/* Features */}
+              <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+                {pkg.features.map((f, fi) => (
+                  <li key={fi} style={{
+                    display: "flex", alignItems: "center", gap: 9,
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.85rem", color: isSelected ? "#3a4a2a" : "#627a50",
+                    fontWeight: isSelected ? 600 : 500,
+                    transition: "color 0.3s ease",
+                  }}>
+                    <span style={{
+                      width: 18, height: 18, borderRadius: "50%", flexShrink: 0,
+                      background: isSelected
+                        ? "linear-gradient(135deg, #62840b, #97b64c)"
+                        : "rgba(151,182,76,0.18)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: "9px", color: isSelected ? "#fff" : "#7a9460",
+                      fontWeight: 900,
+                      transition: "all 0.3s ease",
+                      boxShadow: isSelected ? "0 2px 8px rgba(151,182,76,0.3)" : "none",
+                    }}>✓</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              {/* Best for */}
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.78rem", lineHeight: 1.55,
+                color: isSelected ? "#62840b" : "#9ab07a",
+                margin: "14px 0 16px",
+                fontStyle: "italic",
+                transition: "color 0.3s ease",
+              }}>{pkg.best}</p>
+
+              {/* Select button */}
+              <div style={{
+                width: "100%", padding: "11px 0",
+                borderRadius: 999, textAlign: "center",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.82rem", fontWeight: 800,
+                letterSpacing: "0.04em",
+                background: isSelected
+                  ? "linear-gradient(135deg, #62840b, #97b64c)"
+                  : "rgba(151,182,76,0.1)",
+                color: isSelected ? "#fff" : "#62840b",
+                border: isSelected ? "none" : "1.5px solid rgba(151,182,76,0.3)",
+                boxShadow: isSelected ? "0 8px 24px rgba(151,182,76,0.28)" : "none",
+                transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)",
+              }}>
+                {isSelected ? "✓ Selected" : "Select Package"}
+              </div>
+
+            </div>
+          </Slide>
+        );
+      })}
+    </div>
+  );
+}
+
 
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 
@@ -801,6 +1055,139 @@ export default function Franchise() {
     }}>Scroll</span>
   </div>
 
+</section>
+
+
+
+
+
+
+{/* ══════════════════════════════════════
+     PACKAGE SELECTION SECTION
+══════════════════════════════════════ */}
+<section
+  id="packages"
+  data-track-section="Franchise Packages"
+  className="relative py-16 sm:py-20 lg:py-24 overflow-hidden"
+  style={{ background: "linear-gradient(160deg, #f7faf0 0%, #ffffff 50%, #f3f9ea 100%)" }}
+>
+  <style>{`
+    @keyframes pkgFadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pkgShimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes pkgGlow {
+      0%,100% { box-shadow: 0 0 0 0 rgba(151,182,76,0.3); }
+      50%      { box-shadow: 0 0 0 10px rgba(151,182,76,0); }
+    }
+    @keyframes pkgBadgePop {
+      0%   { transform: scale(0.7) translateY(-4px); opacity: 0; }
+      70%  { transform: scale(1.08) translateY(0); }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    @keyframes pkgDotPulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.45; transform: scale(0.6); }
+    }
+    .pkg-card {
+      transition: transform 0.35s cubic-bezier(0.16,1,0.3,1),
+                  box-shadow 0.35s ease,
+                  border-color 0.25s ease;
+      cursor: pointer;
+    }
+    .pkg-card:hover {
+      transform: translateY(-6px);
+    }
+    .pkg-card.selected {
+      animation: pkgGlow 2s ease-in-out infinite;
+    }
+    .pkg-badge {
+      animation: pkgBadgePop 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    .pkg-feature-dot {
+      animation: pkgDotPulse 2.4s ease-in-out infinite;
+    }
+    .pkg-shimmer-text {
+      background: linear-gradient(120deg, #3a5c06 0%, #62840b 30%, #97b64c 60%, #b7cd7f 80%, #62840b 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: pkgShimmer 4s linear infinite;
+    }
+  `}</style>
+
+  {/* Dot grid background */}
+  <div aria-hidden style={{
+    position: "absolute", inset: 0, pointerEvents: "none",
+    backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.14) 1.5px, transparent 1.5px)",
+    backgroundSize: "36px 36px",
+    maskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 68%)",
+    WebkitMaskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 68%)",
+  }} />
+  {/* Orb accents */}
+  <div aria-hidden style={{
+    position: "absolute", top: "-8%", right: "-4%",
+    width: 400, height: 400, borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(151,182,76,0.1) 0%, transparent 70%)",
+    filter: "blur(32px)", pointerEvents: "none",
+  }} />
+  <div aria-hidden style={{
+    position: "absolute", bottom: "-5%", left: "-3%",
+    width: 300, height: 300, borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(183,205,127,0.12) 0%, transparent 70%)",
+    filter: "blur(24px)", pointerEvents: "none",
+  }} />
+
+  <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-16 z-10">
+
+    {/* Header */}
+    <Slide direction="up" className="text-center mb-4">
+      <p style={{
+        fontSize: "11px", fontWeight: 800, letterSpacing: "0.3em",
+        textTransform: "uppercase", color: "#97b64c",
+        fontFamily: "'DM Sans', sans-serif",
+      }}>Choose Your Package</p>
+    </Slide>
+    <Slide direction="up" delay={60} className="text-center mb-3">
+      <h2 style={{
+        fontSize: "clamp(2.4rem, 5vw, 3.8rem)",
+        fontWeight: 900, letterSpacing: "-0.04em",
+        color: "#1a1e14", margin: 0,
+        fontFamily: "'DM Sans', sans-serif",
+        lineHeight: 1.05,
+      }}>
+        Find the Right <span className="pkg-shimmer-text">Fit for You</span>
+      </h2>
+    </Slide>
+    <Slide direction="up" delay={100} className="text-center mb-14">
+      <p style={{
+        fontSize: "0.95rem", color: "#5a6a4a", lineHeight: 1.75,
+        maxWidth: 420, margin: "12px auto 0",
+        fontFamily: "'DM Sans', sans-serif",
+      }}>
+        Three flexible formats — pick one and we'll build the rest together.
+      </p>
+    </Slide>
+
+    {/* Cards */}
+    <PackageCards formData={formData} setFormData={setFormData} setFieldErrors={setFieldErrors} />
+
+    {/* Bottom nudge */}
+    <Slide direction="up" delay={300} className="text-center mt-10">
+      <p style={{
+        fontSize: "0.82rem", color: "#8aa06a",
+        fontFamily: "'DM Sans', sans-serif",
+      }}>
+        Not sure? Select <strong style={{ color: "#62840b" }}>Not sure yet</strong> in the form below and we'll help you decide.
+      </p>
+    </Slide>
+
+  </div>
 </section>
 
 

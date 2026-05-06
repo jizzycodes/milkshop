@@ -63,6 +63,202 @@ function Slide({ children, className = "", style = {}, delay = 0, direction = "u
   );
 }
 
+// ─── TIMELINE V2 — CLEAN SINGLE LAYOUT ───────────────────────────────────────
+
+const TL2_ACCENTS = ["#7ab52e","#62840b","#4f7209","#62840b","#7ab52e","#97b64c"];
+
+function TL2Body() {
+  const spineRef = useRef(null);
+  const [spineInView, setSpineInView] = useState(false);
+
+  useEffect(() => {
+    const el = spineRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setSpineInView(true); obs.disconnect(); }
+    }, { threshold: 0.05 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div style={{ position:"relative" }}>
+
+      {/* Spine track */}
+      <div ref={spineRef} style={{
+        position:"absolute",
+        left: "clamp(20px,6vw,32px)",
+        top:0, bottom:0, width:2,
+        background:"rgba(151,182,76,0.1)",
+        borderRadius:2,
+      }}>
+        <div className="tl2-spine-fill" style={{
+          width:"100%", height:"100%", borderRadius:2,
+          background:"linear-gradient(180deg,#97b64c 0%,#b7cd7f 60%,rgba(183,205,127,0.3) 100%)",
+          opacity: spineInView ? 1 : 0,
+          animationPlayState: spineInView ? "running" : "paused",
+        }}/>
+      </div>
+
+      {/* Items */}
+      <div style={{ display:"flex", flexDirection:"column", gap:"clamp(28px,5vw,52px)" }}>
+        {milestones.map((m, i) => (
+          <TL2Item key={m.year} m={m} i={i} accent={TL2_ACCENTS[i % TL2_ACCENTS.length]} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TL2Item({ m, i, accent }) {
+  const [ref, inView] = useInView(0.1);
+  const delay = i * 90;
+
+  return (
+    <div ref={ref} style={{
+      display:"flex",
+      alignItems:"flex-start",
+      gap:"clamp(16px,4vw,32px)",
+    }}>
+
+      {/* ── DOT ── */}
+      <div style={{
+        flexShrink:0,
+        width:"clamp(40px,8vw,56px)",
+        display:"flex",
+        flexDirection:"column",
+        alignItems:"center",
+        paddingTop:4,
+        position:"relative",
+        zIndex:2,
+      }}>
+        <div style={{ position:"relative", display:"flex", alignItems:"center", justifyContent:"center" }}>
+          {/* Rings */}
+          {inView && (<>
+            <div className="tl2-ring" style={{
+              position:"absolute",
+              width:54, height:54, borderRadius:"50%",
+              border:`1.5px solid ${accent}`,
+              pointerEvents:"none",
+              animationDelay:`${delay}ms`,
+            }}/>
+            <div className="tl2-ring2" style={{
+              position:"absolute",
+              width:54, height:54, borderRadius:"50%",
+              border:`1px solid ${accent}`,
+              pointerEvents:"none",
+              animationDelay:`${delay + 800}ms`,
+            }}/>
+          </>)}
+
+          {/* Dot */}
+          <div
+            className={inView ? "tl2-dot" : ""}
+            style={{
+              width:"clamp(40px,6vw,52px)",
+              height:"clamp(40px,6vw,52px)",
+              borderRadius:"50%",
+              background:`linear-gradient(135deg, ${accent}, #c5dc8a)`,
+              display:"flex", alignItems:"center", justifyContent:"center",
+              fontSize:"clamp(1rem,2.5vw,1.3rem)",
+              boxShadow:`0 6px 22px rgba(151,182,76,0.35)`,
+              border:"3px solid #fff",
+              animationDelay:`${delay + 60}ms`,
+              opacity: inView ? 1 : 0,
+            }}
+          >
+            <span className="tl2-icon">{m.icon}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── CARD ── */}
+      <div
+        className={inView ? "tl2-card" : ""}
+        style={{
+          flex:1,
+          borderRadius:"clamp(16px,2vw,22px)",
+          background:"rgba(255,255,255,0.95)",
+          backdropFilter:"blur(12px)",
+          WebkitBackdropFilter:"blur(12px)",
+          border:"1px solid rgba(151,182,76,0.16)",
+          boxShadow:"0 6px 28px rgba(151,182,76,0.09)",
+          overflow:"hidden",
+          opacity: inView ? 1 : 0,
+          animationDelay:`${delay + 80}ms`,
+          position:"relative",
+        }}
+      >
+        {/* Top accent bar */}
+        <div
+          className={inView ? "tl2-bar" : ""}
+          style={{
+            height:4,
+            background:`linear-gradient(90deg, ${accent}, #c5dc8a)`,
+            animationDelay:`${delay + 200}ms`,
+          }}
+        />
+
+        <div style={{ padding:"clamp(16px,3vw,26px) clamp(16px,3vw,28px) clamp(16px,3vw,24px)" }}>
+
+          {/* Year watermark */}
+          <div aria-hidden style={{
+            position:"absolute", right:"clamp(12px,2vw,20px)", top:"clamp(10px,1.5vw,14px)",
+            fontFamily:"'DM Mono',monospace",
+            fontSize:"clamp(3rem,7vw,5.5rem)",
+            fontWeight:900, lineHeight:1,
+            color:"rgba(151,182,76,0.07)",
+            pointerEvents:"none", userSelect:"none",
+            letterSpacing:"-0.04em",
+          }}>{m.year}</div>
+
+          {/* Tag */}
+          <div style={{
+            display:"inline-flex", alignItems:"center", gap:6,
+            padding:"5px 12px", borderRadius:999,
+            background:"rgba(151,182,76,0.09)",
+            border:"1px solid rgba(151,182,76,0.2)",
+            marginBottom:"clamp(8px,1.5vw,12px)",
+            opacity: inView ? 1 : 0,
+            transform: inView ? "none" : "translateY(-6px)",
+            transition:`opacity 0.5s ease ${delay + 280}ms, transform 0.5s ease ${delay + 280}ms`,
+          }}>
+            <span style={{ fontSize:"11px" }}>{m.icon}</span>
+            <span style={{
+              fontFamily:"'DM Sans',sans-serif",
+              fontSize:"10px", fontWeight:800,
+              letterSpacing:"0.16em", textTransform:"uppercase",
+              color:"#62840b",
+            }}>{m.label}</span>
+          </div>
+
+          {/* Year text */}
+          <p style={{
+            fontFamily:"'DM Mono',monospace",
+            fontSize:"clamp(10px,1.2vw,12px)", fontWeight:800,
+            letterSpacing:"0.2em", color:accent,
+            margin:"0 0 clamp(6px,1vw,8px)",
+            opacity: inView ? 1 : 0,
+            transition:`opacity 0.5s ease ${delay + 320}ms`,
+          }}>{m.year}</p>
+
+          {/* Description */}
+          <p style={{
+            fontFamily:"'DM Sans',sans-serif",
+            fontSize:"clamp(0.82rem,1.3vw,0.93rem)",
+            lineHeight:1.78, color:"#4d5c3a", margin:0,
+            opacity: inView ? 1 : 0,
+            transform: inView ? "none" : "translateY(10px)",
+            transition:`opacity 0.55s ease ${delay + 360}ms, transform 0.55s ease ${delay + 360}ms`,
+          }}>{m.desc}</p>
+
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 
 export default function About() {
@@ -91,13 +287,60 @@ export default function About() {
   style={{
     position: "relative",
     overflow: "hidden",
-    background: "linear-gradient(155deg, #f4f9ec 0%, #ffffff 45%, #f0f7e6 100%)",
     minHeight: isMobile ? "88vh" : "100vh",
     display: "flex",
     alignItems: "center",
     fontFamily: "'DM Sans', sans-serif",
   }}
 >
+
+  {/* ── Video Background ── */}
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    aria-hidden
+    style={{
+      position: "absolute",
+      inset: 0,
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      objectPosition: "center",
+      filter: "brightness(0.75) saturate(0.9)",
+      pointerEvents: "none",
+      zIndex: 0,
+    }}
+  >
+    <source src="/public/Enhancer-HD-Boba.mp4" type="video/mp4" />
+  </video>
+
+  {/* ── Dim Overlay ── */}
+  <div
+    aria-hidden
+    style={{
+      position: "absolute",
+      inset: 0,
+      zIndex: 1,
+      background: "linear-gradient(158deg, rgba(18,26,8,0.62) 0%, rgba(24,34,12,0.50) 40%, rgba(20,30,10,0.58) 100%)",
+      pointerEvents: "none",
+    }}
+  />
+
+  {/* ── Soft green vignette edges ── */}
+  <div
+    aria-hidden
+    style={{
+      position: "absolute",
+      inset: 0,
+      zIndex: 2,
+      background: "radial-gradient(ellipse at center, transparent 40%, rgba(10,18,4,0.35) 100%)",
+      pointerEvents: "none",
+    }}
+  />
+
+  
   <style>{`
     @keyframes aboutScrollLine {
       0%   { transform: translateY(-100%); }
@@ -274,28 +517,7 @@ export default function About() {
     {/* LEFT — Text */}
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
-      {/* Eyebrow tag */}
-      <div className="about-hero-tag">
-        <span style={{
-          display: "inline-flex", alignItems: "center", gap: 8,
-          padding: "7px 16px", borderRadius: 999,
-          background: "rgba(151,182,76,0.09)",
-          border: "1px solid rgba(151,182,76,0.28)",
-          fontSize: "10px", fontWeight: 800,
-          letterSpacing: "0.22em", textTransform: "uppercase",
-          color: "#62840b",
-          animation: "aboutBadgePulse 3s ease-in-out infinite",
-          animationDelay: "1.5s",
-        }}>
-          <span style={{
-            width: 6, height: 6, borderRadius: "50%",
-            background: "#97b64c",
-            display: "inline-block",
-            animation: "aboutDotBounce 2s ease-in-out infinite",
-          }} />
-          Our Story · Est. Taiwan 2015
-        </span>
-      </div>
+     
 
       {/* Headline */}
       <div className="about-hero-h1">
@@ -305,7 +527,7 @@ export default function About() {
           lineHeight: 0.9,
           letterSpacing: "-0.05em",
           margin: 0,
-          color: "#1a1e14",
+          color: "#f4f9ec",
         }}>
           Born in<br />
           <span style={{
@@ -321,7 +543,7 @@ export default function About() {
             Taiwan.
           </span>
           <br />
-          <span style={{ color: "#1a1e14" }}>Brewed with Love.</span>
+          <span style={{ color: "#b7cd7f" }}>Brewed with Love.</span>
         </h1>
       </div>
 
@@ -330,7 +552,7 @@ export default function About() {
         <p style={{
           fontSize: "clamp(0.9rem, 1.5vw, 1.05rem)",
           lineHeight: 1.8,
-          color: "#4d5c3a",
+          color: "rgba(220,235,200,0.88)",
           maxWidth: 480,
           margin: 0,
         }}>
@@ -353,108 +575,7 @@ export default function About() {
 
     </div>
 
-    {/* RIGHT — Image */}
-    <div className="about-hero-img" style={{
-      display: "flex", justifyContent: "center", alignItems: "center",
-      position: "relative",
-    }}>
-
-      {/* Ripple rings behind image */}
-      {[0, 0.6, 1.2].map((delay, i) => (
-        <div key={i} aria-hidden style={{
-          position: "absolute",
-          width: isMobile ? 260 : 360,
-          height: isMobile ? 260 : 360,
-          borderRadius: "50%",
-          border: "1.5px solid rgba(151,182,76,0.18)",
-          animation: "aboutRingExpand 4s ease-out infinite",
-          animationDelay: `${delay}s`,
-          pointerEvents: "none",
-        }} />
-      ))}
-
-      {/* Green glow behind image */}
-      <div aria-hidden style={{
-        position: "absolute",
-        width: isMobile ? 280 : 420,
-        height: isMobile ? 280 : 420,
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(151,182,76,0.18) 0%, transparent 68%)",
-        filter: "blur(20px)",
-        pointerEvents: "none",
-      }} />
-
-      {/* Floating image frame */}
-      <div className="about-hero-img-inner" style={{
-        position: "relative", zIndex: 2,
-        borderRadius: isMobile ? 24 : 32,
-        overflow: "hidden",
-        border: "2px solid rgba(151,182,76,0.25)",
-        boxShadow: "0 32px 80px rgba(98,132,11,0.18), 0 8px 24px rgba(0,0,0,0.07)",
-        width: "100%",
-        maxWidth: isMobile ? 320 : 520,
-      }}>
-        {/* Green top accent bar */}
-        <div style={{
-          position: "absolute", top: 0, left: 0, right: 0, height: 4,
-          background: "linear-gradient(90deg, #62840b, #97b64c, #b7cd7f)",
-          zIndex: 3,
-        }} />
-
-        <img
-          src="/hero-custom.png"
-          alt="Milkshop signature drinks — Fresh Taste of Taiwan"
-          draggable={false}
-          style={{
-            width: "100%",
-            display: "block",
-            objectFit: "cover",
-          }}
-        />
-
-        {/* Subtle overlay */}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "linear-gradient(180deg, transparent 60%, rgba(240,248,230,0.25) 100%)",
-          pointerEvents: "none",
-        }} />
-
-        {/* Floating badge — bottom left */}
-        <div style={{
-          position: "absolute", bottom: 16, left: 16, zIndex: 4,
-          background: "rgba(255,255,255,0.95)",
-          backdropFilter: "blur(12px)",
-          borderRadius: 12, padding: "8px 14px",
-          border: "1px solid rgba(151,182,76,0.25)",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
-          display: "flex", alignItems: "center", gap: 8,
-        }}>
-          <span style={{ fontSize: 14 }}>🇹🇼</span>
-          <div>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", fontWeight: 800, color: "#1a1e14", margin: 0, letterSpacing: "-0.01em" }}>Taiwan Original</p>
-            <p style={{ fontFamily: "'DM Mono', monospace", fontSize: "9px", color: "#62840b", margin: 0, fontWeight: 700 }}>Est. 2015</p>
-          </div>
-        </div>
-
-        {/* Floating badge — top right */}
-        <div style={{
-          position: "absolute", top: 20, right: 16, zIndex: 4,
-          background: "rgba(255,255,255,0.95)",
-          backdropFilter: "blur(12px)",
-          borderRadius: 12, padding: "8px 14px",
-          border: "1px solid rgba(151,182,76,0.25)",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
-          display: "flex", alignItems: "center", gap: 8,
-        }}>
-          <span style={{ fontSize: 14 }}>🇵🇭</span>
-          <div>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", fontWeight: 800, color: "#1a1e14", margin: 0 }}>First in PH</p>
-            <p style={{ fontFamily: "'DM Mono', monospace", fontSize: "9px", color: "#62840b", margin: 0, fontWeight: 700 }}>Since 2022</p>
-          </div>
-        </div>
-      </div>
-
-    </div>
+  
   </div>
 
   {/* Scroll cue */}
@@ -462,7 +583,7 @@ export default function About() {
     position: "absolute", bottom: 28, left: "50%",
     transform: "translateX(-50%)",
     display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-    opacity: 0.45,
+    opacity: 0.65,
   }}>
     <div style={{
       width: 1, height: 44, overflow: "hidden",
@@ -524,71 +645,158 @@ export default function About() {
       </section>
 
  
+    {/* ══════════════════════════════════════════════
+    SLIDE 3 — TIMELINE (Clean Rebuild)
+══════════════════════════════════════════════ */}
+<section data-track-section="Company Timeline" className="relative overflow-hidden" style={{
+  background: "linear-gradient(170deg, #f7faf0 0%, #ffffff 50%, #f3f9ea 100%)",
+  padding: "clamp(72px,10vw,128px) 0",
+}}>
+  <style>{`
+    @keyframes tlShimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes tlOrbFloat {
+      0%,100% { transform: translate(0,0) scale(1); opacity:0.5; }
+      50%      { transform: translate(12px,-14px) scale(1.06); opacity:0.75; }
+    }
+    @keyframes tlSpineFill {
+      from { transform: scaleY(0); }
+      to   { transform: scaleY(1); }
+    }
+    @keyframes tlDotBounce {
+      0%   { transform: scale(0.3) rotate(-15deg); opacity:0; }
+      60%  { transform: scale(1.18) rotate(4deg); opacity:1; }
+      80%  { transform: scale(0.94) rotate(-2deg); }
+      100% { transform: scale(1) rotate(0deg); opacity:1; }
+    }
+    @keyframes tlRingOut {
+      0%   { transform: scale(1); opacity: 0.7; }
+      100% { transform: scale(2.6); opacity: 0; }
+    }
+    @keyframes tlCardSlide {
+      from { opacity:0; transform: translateX(36px); }
+      to   { opacity:1; transform: translateX(0); }
+    }
+    @keyframes tlBarGrow {
+      from { width: 0; }
+      to   { width: 100%; }
+    }
+    @keyframes tlIconSway {
+      0%,100% { transform: rotate(-6deg) scale(1); }
+      50%      { transform: rotate(6deg) scale(1.1); }
+    }
+    @keyframes tlFadeUp {
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .tl2-card {
+      animation: tlCardSlide 0.6s cubic-bezier(0.16,1,0.3,1) both;
+      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease;
+    }
+    .tl2-card:hover {
+      transform: translateY(-6px) translateX(3px) !important;
+      box-shadow: 0 24px 60px rgba(151,182,76,0.18) !important;
+    }
+    .tl2-dot {
+      animation: tlDotBounce 0.65s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .tl2-ring {
+      animation: tlRingOut 2.2s ease-out infinite;
+    }
+    .tl2-ring2 {
+      animation: tlRingOut 2.2s ease-out 0.8s infinite;
+    }
+    .tl2-icon {
+      animation: tlIconSway 4s ease-in-out infinite;
+      display: inline-block;
+    }
+    .tl2-bar {
+      animation: tlBarGrow 0.9s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .tl2-spine-fill {
+      transform-origin: top center;
+      animation: tlSpineFill 2.4s cubic-bezier(0.16,1,0.3,1) both;
+    }
+  `}</style>
+
+  {/* Orbs */}
+  <div aria-hidden style={{
+    position:"absolute", top:"-6%", right:"-3%",
+    width:480, height:480, borderRadius:"50%",
+    background:"radial-gradient(circle, rgba(151,182,76,0.1) 0%, transparent 68%)",
+    filter:"blur(40px)", pointerEvents:"none",
+    animation:"tlOrbFloat 15s ease-in-out infinite",
+  }}/>
+  <div aria-hidden style={{
+    position:"absolute", bottom:"-4%", left:"-2%",
+    width:320, height:320, borderRadius:"50%",
+    background:"radial-gradient(circle, rgba(183,205,127,0.13) 0%, transparent 70%)",
+    filter:"blur(28px)", pointerEvents:"none",
+    animation:"tlOrbFloat 19s ease-in-out infinite reverse",
+  }}/>
+  {/* Dot grid */}
+  <div aria-hidden style={{
+    position:"absolute", inset:0, pointerEvents:"none",
+    backgroundImage:"radial-gradient(circle, rgba(151,182,76,0.12) 1.5px, transparent 1.5px)",
+    backgroundSize:"36px 36px",
+    maskImage:"radial-gradient(ellipse at 50% 50%, black 0%, transparent 62%)",
+    WebkitMaskImage:"radial-gradient(ellipse at 50% 50%, black 0%, transparent 62%)",
+  }}/>
+
+  <div style={{
+    maxWidth:1000, margin:"0 auto",
+    padding:"0 clamp(16px,5vw,56px)",
+    position:"relative", zIndex:10,
+  }}>
+
+    {/* Header */}
+    <Slide direction="up" style={{ textAlign:"center", marginBottom:"clamp(8px,2vw,12px)" }}>
+      <p style={{
+        fontSize:"11px", fontWeight:800, letterSpacing:"0.3em",
+        textTransform:"uppercase", color:"#97b64c",
+        fontFamily:"'DM Sans',sans-serif", margin:0,
+      }}>Company History</p>
+    </Slide>
+    <Slide direction="up" delay={60} style={{ textAlign:"center", marginBottom:"clamp(12px,2vw,16px)" }}>
+      <h2 style={{
+        fontSize:"clamp(2.4rem,6vw,4.4rem)",
+        fontWeight:900, letterSpacing:"-0.04em",
+        color:"#1a1e14", margin:0,
+        fontFamily:"'DM Sans',sans-serif", lineHeight:1.0,
+      }}>
+        A Decade{" "}
+        <span style={{
+          background:"linear-gradient(120deg,#3a5c06 0%,#62840b 30%,#97b64c 65%,#b7cd7f 100%)",
+          backgroundSize:"200% auto",
+          WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
+          backgroundClip:"text",
+          animation:"tlShimmer 5s linear infinite",
+          display:"inline-block",
+        }}>in the Making</span>
+      </h2>
+    </Slide>
+    <Slide direction="up" delay={100} style={{ textAlign:"center", marginBottom:"clamp(52px,8vw,96px)" }}>
+      <p style={{
+        fontSize:"clamp(0.88rem,1.4vw,1rem)",
+        color:"#5a6a4a", lineHeight:1.75,
+        maxWidth:440, margin:"0 auto",
+        fontFamily:"'DM Sans',sans-serif",
+      }}>
+        From a single store in Taiwan to a growing franchise network in the Philippines.
+      </p>
+    </Slide>
+
+    {/* Timeline body */}
+    <TL2Body />
+
+  </div>
+</section>
+
       {/* ══════════════════════════════════════════════
-          SLIDE 3 — TIMELINE
-      ══════════════════════════════════════════════ */}
-      <section data-track-section="Company Timeline" className="relative py-28 bg-white overflow-hidden">
-        {/* Vertical line */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-px hidden lg:block" style={{ backgroundColor: "#e8f0dc" }} />
-
-        <div className="max-w-6xl mx-auto px-8 lg:px-16">
-          <Slide direction="up" className="text-center mb-4">
-            <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>Company History</p>
-          </Slide>
-          <Slide direction="up" delay={60} className="text-center mb-6">
-            <h2 className="font-black" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", color: "#1e1e1e", letterSpacing: "-0.03em" }}>
-              A Decade in the Making
-            </h2>
-          </Slide>
-          <Slide direction="up" delay={100} className="text-center mb-20">
-            <p className="text-base max-w-lg mx-auto leading-relaxed" style={{ color: "#5a5a5a" }}>
-              From a single store in Taiwan to a growing franchise network in the Philippines — here's how Milkshop became what it is today.
-            </p>
-          </Slide>
-
-          <div className="flex flex-col gap-0">
-            {milestones.map((m, i) => (
-              <Slide
-                key={m.year}
-                direction={i % 2 === 0 ? "left" : "right"}
-                delay={i * 60}
-                className={`relative flex flex-col lg:flex-row items-start lg:items-center gap-6 lg:gap-10 pb-14 ${i % 2 !== 0 ? "lg:flex-row-reverse" : ""}`}
-              >
-                {/* Card */}
-                <div className={`flex-1 ${i % 2 === 0 ? "lg:text-right" : "lg:text-left"}`}>
-                  <div
-                    className={`inline-block rounded-2xl p-6 max-w-sm transition-all duration-300 hover:shadow-lg ${i % 2 === 0 ? "lg:ml-auto" : ""}`}
-                    style={{ backgroundColor: "#f5f8ef", border: "1px solid #e0ebd0" }}
-                  >
-                    <div className={`flex items-center gap-2 mb-2 ${i % 2 === 0 ? "lg:justify-end" : ""}`}>
-                      <span className="text-xl">{m.icon}</span>
-                      <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#97b64c" }}>{m.label}</p>
-                    </div>
-                    <p className="text-sm leading-relaxed" style={{ color: "#5a5a5a" }}>{m.desc}</p>
-                  </div>
-                </div>
-
-                {/* Year dot */}
-                <div className="lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex flex-col items-center gap-1 shrink-0">
-                  <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg ring-4 ring-white" style={{ backgroundColor: "#97b64c" }}>
-                    <span className="text-white text-xs font-black" style={{ fontFamily: "'DM Mono', monospace" }}>'{m.year.slice(2)}</span>
-                  </div>
-                  <span className="text-xs font-bold hidden lg:block mt-1" style={{ color: "#1e1e1e", fontFamily: "'DM Mono', monospace" }}>{m.year}</span>
-                </div>
-
-                <div className="flex-1 hidden lg:block" />
-              </Slide>
-            ))}
-          </div>
-        </div>
-      </section>
-
-   
-
-      {/* ══════════════════════════════════════════════
-    BRING MILKSHOP CLOSER — Full Section
-    PASTE THIS to REPLACE line 583 to line 635
-    (replaces the compact promo section entirely)
+    BRING MILKSHOP CLOSER — 
 ══════════════════════════════════════════════ */}
 <section
   data-track-section="Bring Milkshop Closer"
