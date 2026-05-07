@@ -329,7 +329,7 @@ export default function Locations() {
       })
       const marker = L.marker([lat, lng], { icon }).addTo(map)
       .bindTooltip(loc.name, {
-        permanent: false,
+        permanent: true,
         direction: "top",
         offset: [0, -44],
         className: "ms-label",

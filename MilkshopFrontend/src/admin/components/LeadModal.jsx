@@ -315,6 +315,14 @@ const STYLES = `
     background: var(--surface-bg);
   }
 
+  .lm-history-row.clickable {
+    cursor: pointer;
+  }
+
+  .lm-history-row.clickable:hover td {
+    background: var(--surface-bg);
+  }
+
   .lm-history-row:not(:last-child) td {
     border-bottom: 1px solid #eef5df;
   }
@@ -415,6 +423,92 @@ const STYLES = `
   .lm-body > .lm-feedback-err {
     flex-shrink: 0;
   }
+
+  /* ── Remarks Modal (per history row) ── */
+  .lm-rm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 20, 5, 0.5);
+    backdrop-filter: blur(6px);
+    padding: 20px;
+  }
+
+  .lm-rm-card {
+    width: 100%;
+    max-width: 560px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(10, 20, 5, 0.2);
+    animation: lm-up 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .lm-rm-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(145deg, #fbfdf8 0%, #ffffff 70%);
+  }
+
+  .lm-rm-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .lm-rm-sub {
+    margin-top: 3px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+
+  .lm-rm-body {
+    padding: 16px 18px 18px;
+  }
+
+  .lm-rm-box {
+    border: 1px solid var(--border);
+    background: var(--surface-bg);
+    border-radius: 12px;
+    padding: 12px 12px;
+    font-size: 12.5px;
+    color: var(--text-primary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .lm-rm-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+    flex-shrink: 0;
+  }
+
+  .lm-rm-close:hover {
+    background: #fff1f1;
+    border-color: #fca5a5;
+    color: #c0392b;
+  }
 `
 
 function getOutcomeMeta(code) {
@@ -470,6 +564,7 @@ export default function LeadModal({
   const [logsError, setLogsError]         = useState("")
   const [logsRefreshKey, setLogsRefreshKey] = useState(0)
   const [showAddModal, setShowAddModal]   = useState(false)
+  const [openRemarkLog, setOpenRemarkLog] = useState(null)
 
   const avatarLetter = (name?.[0] || "?").toUpperCase()
   const hasOptions   = Array.isArray(contactOptions) && contactOptions.length > 0
@@ -684,7 +779,12 @@ export default function LeadModal({
                       logs.map((log, index) => {
                         const { label, variant } = getOutcomeMeta(log.outcome)
                         return (
-                          <tr key={log.id} className="lm-history-row">
+                          <tr
+                            key={log.id}
+                            className="lm-history-row clickable"
+                            onClick={() => setOpenRemarkLog(log)}
+                            title="View remarks"
+                          >
                             <td className="lm-history-td">
                               <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                                 {pipelineLabel || lead.status || "—"}
@@ -731,6 +831,36 @@ export default function LeadModal({
         options={contactOptions}
         enableNextScheduleField={enableNextScheduleField}
       />
+
+      {openRemarkLog && (
+        <div
+          className="lm-rm-overlay"
+          onClick={(e) => e.target === e.currentTarget && setOpenRemarkLog(null)}
+        >
+          <div className="lm-rm-card">
+            <div className="lm-rm-head">
+              <div>
+                <div className="lm-rm-title">Remarks</div>
+                <div className="lm-rm-sub">
+                  {formatDateTime(openRemarkLog.created_at) || "—"}
+                  {openRemarkLog.created_by ? ` · ${openRemarkLog.created_by}` : ""}
+                </div>
+              </div>
+              <button
+                type="button"
+                className="lm-rm-close"
+                onClick={() => setOpenRemarkLog(null)}
+                aria-label="Close remarks"
+              >
+                ×
+              </button>
+            </div>
+            <div className="lm-rm-body">
+              <div className="lm-rm-box">{openRemarkLog.notes || "—"}</div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

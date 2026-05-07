@@ -18,7 +18,25 @@ import AdminLayout from './admin/components/AdminLayout'
 import ProtectedRoute from './admin/components/ProtectedRoute'
 import { AdminAuthProvider } from './admin/context/AdminAuthContext'
 import TrackingBootstrap from './tracking/TrackingBootstrap'
+import RouteLoader from './components/RouteLoader'
 import './App.css'
+
+// Preload loader assets so they're cached before RouteLoader mounts
+const PRELOAD_ASSETS = ['/milkshop-mark.png']
+
+function PreloadAssets() {
+  useEffect(() => {
+    PRELOAD_ASSETS.forEach((href) => {
+      if (document.querySelector(`link[rel="preload"][href="${href}"]`)) return
+      const link = document.createElement('link')
+      link.rel = 'preload'
+      link.as = 'image'
+      link.href = href
+      document.head.appendChild(link)
+    })
+  }, [])
+  return null
+}
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -36,7 +54,9 @@ function AppRoutes() {
   const location = useLocation()
 
   return (
-    <Routes location={location} key={location.pathname}>
+    <>
+      <RouteLoader />
+      <Routes location={location} key={location.pathname}>
       <Route
         path="/admin/login"
         element={<AdminLogin />}
@@ -128,7 +148,8 @@ function AppRoutes() {
           </>
         }
       />
-    </Routes>
+      </Routes>
+    </>
   )
 }
 
@@ -136,6 +157,7 @@ function App() {
   return (
     <BrowserRouter>
       <AdminAuthProvider>
+        <PreloadAssets />
         <AppRoutes />
       </AdminAuthProvider>
     </BrowserRouter>
