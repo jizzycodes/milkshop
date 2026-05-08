@@ -38,7 +38,6 @@ export default function RouteLoader({ minDurationMs = 450, initialDurationMs = 9
           display: grid;
           place-items: center;
           background: radial-gradient(120% 120% at 50% 0%, rgba(248,252,241,1) 0%, rgba(245,248,239,1) 42%, rgba(238,245,223,1) 100%);
-          backdrop-filter: blur(10px);
         }
         .ms-loader-card{
           display:flex;
@@ -75,7 +74,7 @@ export default function RouteLoader({ minDurationMs = 450, initialDurationMs = 9
       <div className="ms-loader-overlay" role="status" aria-live="polite" aria-label="Loading">
         <div className="ms-loader-card">
           <div className="ms-loader-ring">
-            <img className="ms-loader-logo" src="/milkshop-mark.png" alt="Milkshop" draggable={false} />
+            <img className="ms-loader-logo" src="/milkshop-logo-removebg-preview.png" alt="Milkshop" draggable={false} />
           </div>
           <div className="ms-loader-text">Loading</div>
         </div>

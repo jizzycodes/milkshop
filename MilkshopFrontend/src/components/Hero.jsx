@@ -32,7 +32,7 @@ const TAIWAN_LETTERS = [
 ];
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=DM+Sans:ital,wght@0,400;0,700;0,800;0,900;1,900&family=Caveat:wght@700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Caveat:wght@700;800&display=swap');
 
   :root {
     --g-mod: #97b64c;

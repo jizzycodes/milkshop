@@ -107,7 +107,7 @@ function BranchPanel({ loc, onClose }) {
     }}>
       <div style={{ position: "relative", height: 170, background: `${accent}10`, overflow: "hidden" }}>
         {loc.photo ? (
-          <img src={loc.photo} alt={loc.name} draggable={false}
+          <img src={loc.photo} alt={loc.name} draggable={false} loading="lazy" decoding="async"
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         ) : (
           <div style={{
@@ -303,7 +303,7 @@ export default function Locations() {
             display:flex;align-items:center;justify-content:center;
             transition:all 0.25s ease;
           ">
-            <img src="/milkshop-logo.png" alt="Milkshop" style="transform:rotate(45deg);width:18px;height:18px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.2));" />
+            <img src="/milkshop-logo-removebg-preview.png" alt="Milkshop" style="transform:rotate(45deg);width:18px;height:18px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.2));" />
           </div>
           ${loc.tag ? `<span style="
             position:absolute;top:-10px;right:-10px;

@@ -433,7 +433,7 @@ export default function AdminLayout({ children }) {
     <>
       <div className="al-brand">
         <Link to="/admin/dashboard" className="al-brand-link" onClick={onLinkClick}>
-          <img src="/milkshop-logo.png" alt="Milkshop" className="al-brand-logo" />
+          <img src="/milkshop-logo-removebg-preview.png" alt="Milkshop" className="al-brand-logo" />
         </Link>
         <p className="al-brand-sub">Admin Console</p>
       </div>
@@ -503,7 +503,7 @@ export default function AdminLayout({ children }) {
           {/* Mobile Header */}
           <header className="al-mobile-header">
             <Link to="/admin/dashboard">
-              <img src="/milkshop-logo.png" alt="Milkshop" className="al-brand-logo" style={{ height: 28 }} />
+              <img src="/milkshop-logo-removebg-preview.png" alt="Milkshop" className="al-brand-logo" style={{ height: 28 }} />
             </Link>
             <button className="al-hamburger" onClick={() => setMobileOpen(true)} aria-label="Open menu">
               <span /><span /><span />
@@ -518,7 +518,7 @@ export default function AdminLayout({ children }) {
           {/* Mobile Drawer */}
           <div className={`al-mobile-drawer${mobileOpen ? " open" : ""}`}>
             <div className="al-drawer-top">
-              <img src="/milkshop-logo.png" alt="Milkshop" className="al-brand-logo" style={{ height: 28 }} />
+              <img src="/milkshop-logo-removebg-preview.png" alt="Milkshop" className="al-brand-logo" style={{ height: 28 }} />
               <button className="al-drawer-close" onClick={() => setMobileOpen(false)} aria-label="Close menu">
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                   <path d="M1 1l11 11M12 1L1 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />

@@ -19,6 +19,7 @@ import ProtectedRoute from './admin/components/ProtectedRoute'
 import { AdminAuthProvider } from './admin/context/AdminAuthContext'
 import TrackingBootstrap from './tracking/TrackingBootstrap'
 import RouteLoader from './components/RouteLoader'
+import FranchiseCTAFloating from './components/FranchiseCTAFloating'
 import './App.css'
 
 // Preload loader assets so they're cached before RouteLoader mounts
@@ -145,6 +146,7 @@ function AppRoutes() {
               </Routes>
             </div>
             <Footer />
+            <FranchiseCTAFloating />
           </>
         }
       />

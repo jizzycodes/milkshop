@@ -865,7 +865,7 @@ function WhySection() {
                       }}
                     >
                       {img?.url ? (
-                        <img src={img.url} alt="" draggable={false}
+                        <img src={img.url} alt="" draggable={false} loading="lazy" decoding="async"
                           style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       ) : (
                         <div style={{
@@ -896,6 +896,8 @@ function WhySection() {
                       src={activeImage.url}
                       alt={activeImage.name || "Milkshop branch"}
                       draggable={false}
+                      loading="lazy"
+                      decoding="async"
                       style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                     />
                   ) : (
@@ -1017,7 +1019,7 @@ function WhySection() {
                       aria-label={`View step ${i + 1}`}
                     >
                       {img?.url ? (
-                        <img src={img.url} alt="" draggable={false}
+                        <img src={img.url} alt="" draggable={false} loading="lazy" decoding="async"
                           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                       ) : (
                         <div style={{

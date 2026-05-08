@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
-import logo from "../assets/milkshop-logo.png"
+const logo = "/milkshop-logo-removebg-preview.png";
 
 // ─── DATA (unchanged) ────────────────────────────────────────────────────────
+
 
 const milestones = [
   { year: "2015", label: "Founded in Taiwan",      desc: "Milkshop 秘客侠 opens its first store in Taiwan with a singular mission — to redefine what milk tea could be. Real milk. Real flavor. No shortcuts.", icon: "🏪" },
@@ -125,6 +126,8 @@ export default function About() {
     muted
     loop
     playsInline
+    preload="none"
+    poster="/HEROFRESH.jpg"
     aria-hidden
     style={{
       position: "absolute",
@@ -942,7 +945,7 @@ export default function About() {
           }}
         >
           <img
-            src="/HEROFRESH.jpg"
+            src="/closer.jpg"
             alt="Milkshop branch"
             loading="lazy"
             decoding="async"

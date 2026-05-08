@@ -1239,7 +1239,7 @@ export default function Franchise() {
 
       {/* LOGO — replace the src below with your actual logo file path */}
       <img
-        src="/public/milkshop-logo.png"
+        src="/milkshop-logo-removebg-preview.png"
         alt="Milkshop Logo"
         style={{
           width: 80,
