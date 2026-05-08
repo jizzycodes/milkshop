@@ -363,8 +363,6 @@ export default function Locations() {
         .loc-a4{opacity:0;animation:heroFadeUp 0.7s ease forwards;animation-delay:0.55s}
         .loc-a5{opacity:0;animation:heroFadeUp 0.7s ease forwards;animation-delay:0.65s}
         input::placeholder{color:#a0b080}
-        *::-webkit-scrollbar{display:none}
-        *{scrollbar-width:none}
         .leaflet-control-attribution{font-size:9px!important;opacity:0.45!important}
         .leaflet-attribution-flag{display:none!important}
         .leaflet-control-zoom{border:1px solid rgba(151,182,76,0.28)!important;border-radius:12px!important;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.07)!important}

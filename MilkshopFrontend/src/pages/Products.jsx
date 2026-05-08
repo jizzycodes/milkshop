@@ -105,11 +105,11 @@ function SeriesCupsCarousel({ products }) {
 
   const current = products[activeIndex];
   const cupImgClass =
-    "object-contain drop-shadow-2xl select-none h-56 w-auto max-w-[200px] sm:h-64 sm:max-w-[220px]";
+    "object-contain drop-shadow-2xl select-none h-64 w-auto max-w-[240px] sm:h-80 sm:max-w-[300px] lg:h-[22rem] lg:max-w-[340px]";
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 lg:px-10">
-      <div className="relative h-72 sm:h-80 flex items-center justify-center overflow-hidden">
+      <div className="relative h-80 sm:h-[26rem] lg:h-[30rem] flex items-center justify-center overflow-hidden">
         {products.map((product, i) => {
           const pos = getPos(i);
           return (
@@ -128,7 +128,7 @@ function SeriesCupsCarousel({ products }) {
                   className={cupImgClass}
                 />
               ) : (
-                <div className="flex h-56 w-[168px] sm:h-64 sm:w-[188px] shrink-0 items-center justify-center">
+                <div className="flex h-64 w-[220px] sm:h-80 sm:w-[280px] lg:h-[22rem] lg:w-[320px] shrink-0 items-center justify-center">
                   <svg width="40" height="40" fill="none" stroke="#97b64c" strokeWidth="1.5" viewBox="0 0 24 24" aria-hidden>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 001.5 2.121" />
                   </svg>
@@ -617,15 +617,15 @@ export default function Products() {
     }
 
     /* ── Cup image ── */
-    .ph-cup-img {
-      height: clamp(200px, 35vh, 400px);
-      object-fit: contain;
-      display: block;
-      filter: drop-shadow(0 24px 32px rgba(0,0,0,0.13));
-    }
-    @media(min-width:1024px){
-      .ph-cup-img { height: clamp(280px, 48vh, 520px); }
-    }
+   .ph-cup-img {
+  height: clamp(260px, 45vh, 520px);  /* was clamp(200px, 35vh, 400px) */
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 24px 32px rgba(0,0,0,0.13));
+}
+@media(min-width:1024px){
+  .ph-cup-img { height: clamp(360px, 58vh, 680px); }  /* was clamp(280px, 48vh, 520px) */
+}
 
     /* ── Marquee strip ── */
     .ph-marquee-track {
@@ -877,7 +877,7 @@ export default function Products() {
       }}
     >
       {topDrinks.slice(0, 5).map((d, i) => {
-        const scales     = [0.72, 0.88, 1.14, 0.88, 0.72]
+      const scales = [2.00, 1.88, 3.28, 1.88, 2.15]  // was 1.14 → 1.28 for center
         const translateY = [44, 22, 0, 22, 44]
         const rotations  = [-4, -2, 0, 2, 4]
         const isCenter   = i === 2
@@ -1116,8 +1116,6 @@ export default function Products() {
         @keyframes cardFadeUp    { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes bounce        { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         .review-fadein { animation: reviewFadeIn 0.45s ease forwards; }
-        * { -ms-overflow-style: none; scrollbar-width: none; }
-        *::-webkit-scrollbar { display: none; }
       `}</style>
     </main>
   );
