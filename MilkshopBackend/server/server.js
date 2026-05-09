@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
+const xss = require('xss-clean')
 const { loadEnv } = require('./utils/env')
 require('dotenv').config();
 const apiRouter = require('./routes')
@@ -12,18 +13,43 @@ loadEnv()
 
 const app = express()
 
+app.disable('x-powered-by')
+
 // Required when behind a reverse proxy (e.g. ngrok); avoids ERR_ERL_UNEXPECTED_X_FORWARDED_FOR
 app.set('trust proxy', 1)
 
-const corsOrigin = process.env.CORS_ORIGIN || '*'
+const corsOriginRaw = process.env.CORS_ORIGIN || '*'
+const corsAllowlist = corsOriginRaw
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
+const corsAllowAll = corsAllowlist.includes('*')
 
 app.use(
   cors({
-    origin: corsOrigin,
+    origin: (origin, cb) => {
+      // Allow non-browser clients (no Origin header)
+      if (!origin) return cb(null, true)
+      if (corsAllowAll) return cb(null, true)
+      if (corsAllowlist.includes(origin)) return cb(null, true)
+      return cb(new Error('Not allowed by CORS'))
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 204,
+    maxAge: 86400,
   }),
 )
 
-app.use(helmet())
+app.use(
+  helmet({
+    // Only meaningful when served over HTTPS in production
+    hsts:
+      process.env.NODE_ENV === 'production'
+        ? { maxAge: 15552000, includeSubDomains: true, preload: true }
+        : false,
+  }),
+)
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -46,6 +72,7 @@ const authLimiter = rateLimit({
 app.use(globalLimiter)
 
 app.use(express.json({ limit: '1mb' }))
+app.use(xss())
 app.use(requestLogger)
 
 app.use('/api/admin/login', authLimiter)

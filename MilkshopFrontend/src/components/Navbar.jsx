@@ -20,6 +20,16 @@ const styles = `
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
 
+  /* Same motion as About hero “Taiwan.” shimmer */
+@keyframes navWordmarkShimmer {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 240% center;
+  }
+}
+
   .nav-root {
     animation: navFade 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
@@ -121,6 +131,60 @@ const styles = `
 
   .cta-btn:hover .cta-arrow {
     transform: translateX(3px);
+  }
+
+  .nav-brand-wordmark {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.07em;
+  line-height: 0.92;
+  white-space: nowrap;
+  user-select: none;
+  display: inline-block;
+  position: relative;
+
+ background: linear-gradient(
+  135deg,
+  #5E7E1F 0%,
+  #88B04B 50%,
+  #D6A23D 100%
+);
+
+  background-size: 240% auto;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+
+  animation: navWordmarkShimmer 7s cubic-bezier(0.4,0,0.2,1) infinite;
+
+  filter:
+    drop-shadow(0 2px 10px rgba(127,163,58,0.12))
+    drop-shadow(0 1px 2px rgba(0,0,0,0.08));
+
+  transition:
+    font-size 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s ease,
+    filter 0.25s ease;
+
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+.nav-brand-wordmark:hover {
+  transform: translateY(-1px);
+  filter:
+    drop-shadow(0 4px 16px rgba(127,163,58,0.18))
+    drop-shadow(0 2px 4px rgba(0,0,0,0.10));
+}
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-brand-wordmark {
+      animation: none;
+      background-position: center;
+    }
   }
 
   /* ── Mobile menu links ── */
@@ -264,11 +328,12 @@ export default function Navbar() {
           <Link
             to="/"
             aria-label="Milkshop home"
-            style={{ display: "flex", alignItems: "center", textDecoration: "none", flexShrink: 0 }}
+            style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }}
           >
             <img
               src="/milkshop-logo-removebg-preview.png"
-              alt="Milkshop"
+              alt=""
+              aria-hidden
               style={{
                 height:     isMobile ? (scrolled ? "30px" : "34px") : (scrolled ? "42px" : "48px"),
                 width:      "auto",
@@ -277,6 +342,16 @@ export default function Navbar() {
                 filter:     "drop-shadow(0 1px 6px rgba(0,0,0,0.12))",
               }}
             />
+            <span
+              className="nav-brand-wordmark"
+              style={{
+                fontSize: isMobile
+                  ? (scrolled ? "1.25rem" : "1.38rem")
+                  : (scrolled ? "1.6rem" : "1.78rem"),
+              }}
+            >
+              Milkshop
+            </span>
           </Link>
 
           {/* ── DESKTOP LINKS (centered) ── */}

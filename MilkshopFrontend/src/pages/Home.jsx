@@ -1400,9 +1400,9 @@ function FranchiseTestimonialsSection() {
   const prev = () => { clearInterval(autoRef.current); goTo((activeIndex - 1 + total) % total) }
   const next = () => { clearInterval(autoRef.current); goTo((activeIndex + 1) % total) }
 
-   // ── Landscape card dimensions ──
+   // ── Card dimensions (wider than tall, closer to 4:3 for clearer photos) ──
    const rectW = isMobile ? Math.min(window.innerWidth * 0.82, 320) : Math.min(window.innerWidth * 0.52, 620)
-   const rectH = isMobile ? Math.round(rectW * 0.62) : Math.round(rectW * 0.58)
+   const rectH = isMobile ? Math.round(rectW * 0.78) : Math.round(rectW * 0.72)
 
    // ── Fan layout positions (5 visible slots: -2, -1, 0, +1, +2) ──
    const getRect = (i) => {
@@ -1609,7 +1609,7 @@ function FranchiseTestimonialsSection() {
         {/* Stage */}
         <div style={{
           position: "relative",
-          height: rectH + (isMobile ? 24 : 40),
+          height: rectH + (isMobile ? 32 : 48),
           overflow: "visible",
         }}>
  

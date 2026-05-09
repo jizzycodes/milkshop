@@ -401,14 +401,16 @@ export default function Hero() {
           alignItems:"flex-end",
         }}>
 
-          {/* ── LEFT TEXT ── */}
+          {/* ── LEFT TEXT — alignment only affects this column; grid tracks unchanged so cups stay put ── */}
           <div style={{
             display:"flex", flexDirection:"column",
             gap: isMobile ? 9 : 8,
-            textAlign: "center",
-            alignItems: "center",
+            textAlign: isMobile ? "center" : "left",
+            alignItems: isMobile ? "center" : "flex-start",
             paddingBottom: isMobile ? 18 : 115,
-            paddingLeft: isMobile ? 0 : 50,
+            paddingLeft: isMobile ? 0 : 0,
+            /* Nudge copy left inside the fixed left track without resizing the cup column */
+            marginLeft: isMobile ? 0 : "clamp(-6px, -1vw, -20px)",
             zIndex:2,
           }}>
 

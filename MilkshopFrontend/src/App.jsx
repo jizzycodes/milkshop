@@ -1,19 +1,7 @@
-import { useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-import Home from './pages/Home'
-import Products from './pages/Products'
-import About from './pages/About'
-import Locations from './pages/Locations'
-import Franchise from './pages/Franchise'
-import AdminLogin from './admin/pages/AdminLogin'
-import AdminDashboard from './admin/pages/AdminDashboard'
-import LeadsPage from './admin/pages/LeadsPage'
-import QrAndEmail from './admin/pages/QrAndEmail'
-import AccountSettings from './admin/pages/AccountSettings'
-import Monitor from './admin/pages/Monitor'
-import LeadDetails from './admin/pages/LeadDetails'
 import AdminLayout from './admin/components/AdminLayout'
 import ProtectedRoute from './admin/components/ProtectedRoute'
 import { AdminAuthProvider } from './admin/context/AdminAuthContext'
@@ -21,6 +9,20 @@ import TrackingBootstrap from './tracking/TrackingBootstrap'
 import RouteLoader from './components/RouteLoader'
 import FranchiseCTAFloating from './components/FranchiseCTAFloating'
 import './App.css'
+
+const Home = lazy(() => import('./pages/Home'))
+const Products = lazy(() => import('./pages/Products'))
+const About = lazy(() => import('./pages/About'))
+const Locations = lazy(() => import('./pages/Locations'))
+const Franchise = lazy(() => import('./pages/Franchise'))
+
+const AdminLogin = lazy(() => import('./admin/pages/AdminLogin'))
+const AdminDashboard = lazy(() => import('./admin/pages/AdminDashboard'))
+const LeadsPage = lazy(() => import('./admin/pages/LeadsPage'))
+const QrAndEmail = lazy(() => import('./admin/pages/QrAndEmail'))
+const AccountSettings = lazy(() => import('./admin/pages/AccountSettings'))
+const Monitor = lazy(() => import('./admin/pages/Monitor'))
+const LeadDetails = lazy(() => import('./admin/pages/LeadDetails'))
 
 // Preload loader assets so they're cached before RouteLoader mounts
 const PRELOAD_ASSETS = ['/milkshop-mark.png']
@@ -57,6 +59,7 @@ function AppRoutes() {
   return (
     <>
       <RouteLoader />
+      <Suspense fallback={null}>
       <Routes location={location} key={location.pathname}>
       <Route
         path="/admin/login"
@@ -137,6 +140,7 @@ function AppRoutes() {
             <TrackingBootstrap />
             <Navbar />
             <div className="animate-page-in mt-0 pt-0">
+              <Suspense fallback={null}>
               <Routes>
                 <Route path="/"          element={<Home />} />
                 <Route path="/products"  element={<Products />} />
@@ -144,6 +148,7 @@ function AppRoutes() {
                 <Route path="/locations" element={<Locations />} />
                 <Route path="/franchise" element={<Franchise />} />
               </Routes>
+              </Suspense>
             </div>
             <Footer />
             <FranchiseCTAFloating />
@@ -151,6 +156,7 @@ function AppRoutes() {
         }
       />
       </Routes>
+      </Suspense>
     </>
   )
 }

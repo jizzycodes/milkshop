@@ -420,7 +420,7 @@ export default function About() {
     }}
   >
     Born in
-    <br />
+    
 
     <span
       style={{
@@ -434,7 +434,7 @@ export default function About() {
         display: "inline-block",
       }}
     >
-      Taiwan.
+           Taiwan.
     </span>
 
     <br />

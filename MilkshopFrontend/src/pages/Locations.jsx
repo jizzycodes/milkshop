@@ -163,6 +163,7 @@ export default function Locations() {
   const [activeRegion, setActiveRegion] = useState("All")
   const [showDirectory, setShowDirectory] = useState(true)
   const [mapReady, setMapReady]         = useState(false)
+  const [mapShouldInit, setMapShouldInit] = useState(false)
   const mapContainerRef                 = useRef(null)
   const leafletInstanceRef              = useRef(null)
   const markersRef                      = useRef([])
@@ -232,7 +233,34 @@ export default function Locations() {
     return () => { cancelled = true }
   }, [])
 
+  // Lazy-mount Leaflet only when map is near viewport (big perf win on first load)
   useEffect(() => {
+    if (mapShouldInit) return
+    const el = mapContainerRef.current
+    if (!el) return
+
+    if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') {
+      setMapShouldInit(true)
+      return
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const hit = entries.some((e) => e.isIntersecting)
+        if (hit) {
+          setMapShouldInit(true)
+          io.disconnect()
+        }
+      },
+      { root: null, rootMargin: '260px 0px', threshold: 0.01 },
+    )
+
+    io.observe(el)
+    return () => io.disconnect()
+  }, [mapShouldInit])
+
+  useEffect(() => {
+    if (!mapShouldInit) return
     if (leafletInstanceRef.current || !mapContainerRef.current) return
 
     function loadCSS() {
@@ -261,7 +289,8 @@ export default function Locations() {
       // Step 1: start zoomed out on Philippines
       // Step 2: fly into Bulacan (center of 14.59–15.37°N, 120.61–121.42°E)
       setTimeout(() => {
-        map.flyTo([14.86, 120.88], 13, {
+        // Nudge slightly west (keep same zoom)
+        map.flyTo([14.86, 120.86], 13, {
           duration: 2.8,
           easeLinearity: 0.18,
         })
@@ -277,7 +306,7 @@ export default function Locations() {
     }
 
     return () => { if (leafletInstanceRef.current) { leafletInstanceRef.current.remove(); leafletInstanceRef.current = null; markersRef.current = [] } }
-  }, [])
+  }, [mapShouldInit])
 
   useEffect(() => {
     if (!mapReady || !leafletInstanceRef.current) return
@@ -293,17 +322,17 @@ export default function Locations() {
       const icon = L.divIcon({
         className: "",
         html: `
-        <div class="ms-pin-wrap" style="position:relative;width:40px;height:50px;cursor:pointer;filter:drop-shadow(0 5px 10px rgba(0,0,0,0.24));">
+        <div class="ms-pin-wrap" style="position:relative;width:54px;height:66px;cursor:pointer;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.26));">
           <div class="ms-pin-body" style="
-            width:38px;height:38px;
+            width:50px;height:50px;
             border-radius:50% 50% 50% 0;
             transform:rotate(-45deg);
-            background:linear-gradient(135deg,${accent} 0%,${accent}dd 100%);
-            border:2.5px solid rgba(255,255,255,0.95);
+            background:linear-gradient(145deg,#ffffff 0%,#f4f5f4 100%);
+            border:3px solid rgba(98,132,11,0.38);
             display:flex;align-items:center;justify-content:center;
             transition:all 0.25s ease;
           ">
-            <img src="/milkshop-logo-removebg-preview.png" alt="Milkshop" style="transform:rotate(45deg);width:18px;height:18px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.2));" />
+            <img src="/milkshop-logo-removebg-preview.png" alt="Milkshop" style="transform:rotate(45deg);width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.25));" />
           </div>
           ${loc.tag ? `<span style="
             position:absolute;top:-10px;right:-10px;
@@ -316,22 +345,22 @@ export default function Locations() {
             white-space:nowrap;
           ">${loc.tag}</span>` : ""}
           ${loc.tag === "Flagship" ? `<div style="
-            position:absolute;top:-6px;left:-6px;
-            width:42px;height:42px;border-radius:50%;
+            position:absolute;top:-8px;left:-8px;
+            width:58px;height:58px;border-radius:50%;
             border:1.5px solid ${accent};
             animation:pinRipple 2s ease-out infinite;
             pointer-events:none;
           "></div>` : ""}
         </div>
       `,
-      iconSize: [40, 50],
-      iconAnchor: [20, 50],
+      iconSize: [54, 66],
+      iconAnchor: [27, 66],
       })
       const marker = L.marker([lat, lng], { icon }).addTo(map)
       .bindTooltip(loc.name, {
         permanent: true,
         direction: "top",
-        offset: [0, -44],
+        offset: [0, -58],
         className: "ms-label",
       })
       .on("click", () => { setSelectedLoc(loc); map.flyTo([lat, lng], 17, { duration: 1.3, easeLinearity: 0.28 }) })
@@ -373,7 +402,8 @@ export default function Locations() {
           .loc-hero{padding: 92px 16px 56px !important}
           .loc-hero-content{gap: 22px !important}
           .loc-hero-right{min-width: 100% !important}
-          .loc-map-section{padding: 36px 12px 56px !important}
+          /* leave room for fixed navbar */
+          .loc-map-section{padding: 92px 12px 56px !important}
           .loc-map-header{gap: 14px !important; margin-bottom: 16px !important}
           .loc-map-layout{
             grid-template-columns: 1fr !important;
@@ -405,7 +435,8 @@ export default function Locations() {
     {/* ══ MAP SECTION — PREMIUM REDESIGN ══ */}
     <section className="loc-map-section" data-track-section="Branch Map" style={{
         background: "radial-gradient(120% 120% at 50% 0%, #f8fcf1 0%, #eef5e2 40%, #e8f0da 100%)",
-        padding: "24px 48px 96px",
+        /* leave room for fixed navbar */
+        padding: "104px 48px 28px",
         position: "relative",
         overflow: "hidden",
       }}>
@@ -478,11 +509,12 @@ export default function Locations() {
             overflow: "visible",
             boxShadow: "none",
             border: "none",
-            minHeight: "clamp(620px, 80vh, 920px)",
+            height: "clamp(680px, calc(100svh - 160px), 980px)",
+            minHeight: "clamp(680px, calc(100svh - 160px), 980px)",
           }}>
 
             {/* MAP */}
-            <div className="loc-map-pane" style={{ position: "relative", background: "#e8f0da", minHeight: "clamp(620px, 80vh, 920px)", order: 2, borderRadius: 22, overflow: "hidden", border: "1px solid rgba(151,182,76,0.26)", boxShadow: "0 24px 70px rgba(98,132,11,0.14), 0 8px 22px rgba(0,0,0,0.08)" }}>
+            <div className="loc-map-pane" style={{ position: "relative", background: "#e8f0da", height: "100%", minHeight: "clamp(680px, calc(100svh - 160px), 980px)", order: 2, borderRadius: 22, overflow: "hidden", border: "1px solid rgba(151,182,76,0.26)", boxShadow: "0 24px 70px rgba(98,132,11,0.14), 0 8px 22px rgba(0,0,0,0.08)" }}>
               <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 5, background: "linear-gradient(180deg, rgba(248,252,241,0.18) 0%, rgba(255,255,255,0.04) 45%, rgba(0,0,0,0.04) 100%)" }} />
               <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 6, border: "1px solid rgba(255,255,255,0.5)" }} />
               <div ref={mapContainerRef} style={{ width: "100%", height: "100%" }} />
