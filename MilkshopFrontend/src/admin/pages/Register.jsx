@@ -480,7 +480,7 @@ export default function Register() {
     return () => { cancelled = true }
   }, [token, refreshKey])
 
-  const handleSaveContact = async ({ contactRecord, nextContactAt, notes }) => {
+  const handleSaveContact = async ({ contactRecord, nextContactAt, notes, nextScheduleAt }) => {
     if (!token || !selectedLead) return
     const outcomeMap = {
       "No Response":       "NO_ANSWER",
@@ -497,6 +497,8 @@ export default function Register() {
       notes: notes || `Contact record: ${contactRecord}`,
       outcome,
       nextFollowupAt: nextContactAt || null,
+      scheduleDateTime:
+        outcome === "CONFIRMED_SCHEDULE" && nextScheduleAt ? nextScheduleAt : null,
     })
     if (contactRecord === "Archive") {
       await updateLead(token, selectedLead.id, { status: "ARCHIVED" })
@@ -652,6 +654,7 @@ export default function Register() {
               setTimeout(() => setSuccess(""), 3000)
             }}
             pipelineLabel="Register"
+            enableNextScheduleField
           />
         )}
 

@@ -419,7 +419,7 @@ export default function Orientation({ initialSubStatus }) {
     return () => { cancelled = true }
   }, [token, refreshKey])
 
-  const handleSaveContact = async ({ contactRecord, nextContactAt, notes }) => {
+  const handleSaveContact = async ({ contactRecord, nextContactAt, notes, nextScheduleAt }) => {
     if (!token || !selectedLead) return
 
     const outcomeMap = {
@@ -441,6 +441,8 @@ export default function Orientation({ initialSubStatus }) {
       notes: notes || `Contact record: ${contactRecord}`,
       outcome,
       nextFollowupAt: nextContactAt || null,
+      scheduleDateTime:
+        outcome === "CONFIRMED_SCHEDULE" && nextScheduleAt ? nextScheduleAt : null,
     })
 
     if (contactRecord === "Archive") {
@@ -609,6 +611,7 @@ export default function Orientation({ initialSubStatus }) {
               setTimeout(() => setSuccess(""), 3000)
             }}
             pipelineLabel="Orientation"
+            enableNextScheduleField
           />
         )}
 
