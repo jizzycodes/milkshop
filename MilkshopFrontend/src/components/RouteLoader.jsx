@@ -1,30 +1,46 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react"
-import { useLocation } from "react-router-dom"
+import { useLayoutEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 
+/**
+ * Full-screen route transition loader.
+ * - First paint: shows for `initialDurationMs` (so the animation feels finished).
+ * - Later navigations: shows for `minDurationMs` (covers lazy chunk paint without feeling stuck).
+ */
 export default function RouteLoader({ minDurationMs = 450, initialDurationMs = 900 }) {
-  const { pathname } = useLocation()
-  const [visible, setVisible] = useState(true)
-  const hideTimerRef = useRef(null)
-  const didInitialRef = useRef(false)
+  const { pathname } = useLocation();
+  const [visible, setVisible] = useState(true);
+  const hideTimerRef = useRef(null);
+  const bootstrappedRef = useRef(false);
+  const prevPathnameRef = useRef(pathname);
 
   useLayoutEffect(() => {
-    // initial load
-    if (didInitialRef.current) return
-    didInitialRef.current = true
-    hideTimerRef.current = setTimeout(() => setVisible(false), initialDurationMs)
-    return () => clearTimeout(hideTimerRef.current)
-  }, [initialDurationMs])
+    const clear = () => {
+      if (hideTimerRef.current != null) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+    };
 
-  useLayoutEffect(() => {
-    // route change
-    if (!didInitialRef.current) return
-    setVisible(true)
-    clearTimeout(hideTimerRef.current)
-    hideTimerRef.current = setTimeout(() => setVisible(false), minDurationMs)
-    return () => clearTimeout(hideTimerRef.current)
-  }, [pathname, minDurationMs])
+    if (!bootstrappedRef.current) {
+      bootstrappedRef.current = true;
+      prevPathnameRef.current = pathname;
+      clear();
+      hideTimerRef.current = window.setTimeout(() => setVisible(false), initialDurationMs);
+      return clear;
+    }
 
-  if (!visible) return null
+    if (prevPathnameRef.current === pathname) {
+      return clear;
+    }
+
+    prevPathnameRef.current = pathname;
+    setVisible(true);
+    clear();
+    hideTimerRef.current = window.setTimeout(() => setVisible(false), minDurationMs);
+    return clear;
+  }, [pathname, initialDurationMs, minDurationMs]);
+
+  if (!visible) return null;
 
   return (
     <>
@@ -80,6 +96,5 @@ export default function RouteLoader({ minDurationMs = 450, initialDurationMs = 9
         </div>
       </div>
     </>
-  )
+  );
 }
-

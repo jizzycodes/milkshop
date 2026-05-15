@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useRef } from "react"
+import { createPortal } from "react-dom"
 import { Link } from "react-router-dom"
 import { createFranchiseRequest } from "../services/api"
 import { localDatetimeLocalFloor } from "../utils/dateInputConstraints"
@@ -6,13 +7,14 @@ import { localDatetimeLocalFloor } from "../utils/dateInputConstraints"
 
 // ─── DATA (unchanged) ────────────────────────────────────────────────────────
 
+/** Drop files here: `public/franchise/process/step-01.jpg` … `step-06.jpg` (or change paths below). */
 const steps = [
-  { step: "01", icon: "📋", title: "Submit Inquiry",    desc: "Fill out the form below. Our franchise team reviews every application within 3–5 business days." },
-  { step: "02", icon: "🤝", title: "Initial Interview", desc: "We set up a call or meeting to discuss your goals, target location, and the right package for you." },
-  { step: "03", icon: "📍", title: "Site Validation",   desc: "Our team assesses your proposed location against Milkshop's foot traffic and visibility standards." },
-  { step: "04", icon: "✍️", title: "Sign Agreement",    desc: "Once approved, we finalize the franchise agreement and you secure your slot with the franchise fee." },
-  { step: "05", icon: "🏗️", title: "Setup & Training",  desc: "Store build-out begins. Your team undergoes official Milkshop training — operations, drinks, service." },
-  { step: "06", icon: "🎉", title: "Grand Opening",     desc: "Launch day! Our team is on-site with you from day one. Start serving Milkshop to your community." },
+  { step: "01", icon: "📋", title: "APPLICATION",    desc: "Contact us or fill out our franchise application form and provide us with some basic information about your background and what you envision for your store.",    image: "/franchise/process/step-01.jpg" },
+  { step: "02", icon: "🤝", title: "INTERVIEW & QUALIFICATIONS", desc: "Contact us or fill out our franchise application form and provide us with some basic information about your background and what you envision for your store.", image: "/franchise/process/step-02.jpg" },
+  { step: "03", icon: "📍", title: "LOCATION ASSESSMENT & SUPPORT",   desc: "We will work with you to find the perfect location and negotiate a lease for your new store.", image: "/franchise/process/step-03.jpg" },
+  { step: "04", icon: "✍️", title: "CONTRACT SIGNING",    desc: "Together we will sign our commitment to bring the Fresh Taste of Taiwan here in the Philippines.", image: "/franchise/process/step-04.jpg" },
+  { step: "05", icon: "🏗️", title: "SETUP & TRAINING",  desc: "We will help you set up your store and provide you with the training you need to run a successful Milkshop Franchise.", image: "/franchise/process/step-05.jpg" },
+  { step: "06", icon: "🎉", title: "GRAND OPENING",     desc: "Finally, following the successful completion of your training, your store will open and you will become a Milkshop Franchisee!", image: "/franchise/process/step-06.jpg" },
 ];
 
 const faqs = [
@@ -53,6 +55,8 @@ function Slide({ children, className = "", style = {}, delay = 0, direction = "u
   const from = { up: "translateY(40px)", left: "translateX(-40px)", right: "translateX(40px)", none: "none" };
   return (
     <div ref={ref} className={className} style={{
+      width: "100%",
+      minWidth: 0,
       ...style,
       opacity:    inView ? 1 : 0,
       transform:  inView ? "none" : from[direction],
@@ -130,6 +134,7 @@ const packages = [
     color: "#62840b",
     accentBg: "rgba(151,182,76,0.07)",
     borderSelected: "#97b64c",
+    image: "/franchise/packages/2.png",
     features: [
       "Compact footprint, any location",
       "Low startup cost",
@@ -149,8 +154,8 @@ const packages = [
     color: "#4a6b08",
     accentBg: "rgba(151,182,76,0.11)",
     borderSelected: "#97b64c",
+    image: "/franchise/packages/4.png",
     features: [
-      "Mall & commercial ready",
       "Higher daily capacity",
       "Exclusive territory radius",
       "Brand signage & fixtures",
@@ -168,8 +173,8 @@ const packages = [
     color: "#3a5c06",
     accentBg: "rgba(183,205,127,0.1)",
     borderSelected: "#97b64c",
+    image: "/franchise/packages/8.png",
     features: [
-      "Full store fit-out & design",
       "Highest revenue potential",
       "Premium exclusivity zone",
       "Priority franchise support",
@@ -178,200 +183,557 @@ const packages = [
   },
 ];
 
+const PACKAGE_IMG_FALLBACK = "/hero-bg-3.png";
+
 function PackageCards({ formData, setFormData, setFieldErrors }) {
   const selected = formData.preferredPackage;
+  const [pkgImgTier, setPkgImgTier] = useState({});
+  const [lightbox, setLightbox] = useState(null);
 
   const handleSelect = (id) => {
     setFormData((p) => ({ ...p, preferredPackage: id }));
     setFieldErrors((p) => ({ ...p, preferredPackage: "" }));
   };
 
+  const srcFor = (pkg) => {
+    const t = pkgImgTier[pkg.id] ?? 0;
+    if (t === 0) return pkg.image;
+    if (t === 1) return PACKAGE_IMG_FALLBACK;
+    return null;
+  };
+
+  const bumpImgTier = (pkgId) => {
+    setPkgImgTier((prev) => {
+      const t = prev[pkgId] ?? 0;
+      if (t >= 2) return prev;
+      return { ...prev, [pkgId]: t + 1 };
+    });
+  };
+
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setLightbox(null);
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [lightbox]);
+
   return (
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-      gap: 20,
-    }}>
-      {packages.map((pkg, i) => {
-        const isSelected = selected === pkg.id;
-        return (
-          <Slide key={pkg.id} direction="up" delay={i * 80}>
-            <div
-              className={`pkg-card${isSelected ? " selected" : ""}`}
-              onClick={() => handleSelect(pkg.id)}
+    <>
+      <style>{`
+        @keyframes pkg-img-zoom {
+          from { transform: scale(1.08); }
+          to   { transform: scale(1); }
+        }
+        @keyframes pkg-check-pop {
+          0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+          65%  { transform: scale(1.18) rotate(4deg); opacity: 1; }
+          100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes pkg-glow-pulse {
+          0%,100% { box-shadow: 0 0 0 0 rgba(151,182,76,0.35), 0 24px 64px rgba(98,132,11,0.18); }
+          50%     { box-shadow: 0 0 0 8px rgba(151,182,76,0),  0 24px 64px rgba(98,132,11,0.18); }
+        }
+        .pkg-new-card {
+          transition:
+            transform 0.38s cubic-bezier(0.16,1,0.3,1),
+            box-shadow 0.38s ease,
+            border-color 0.25s ease;
+          will-change: transform;
+        }
+        .pkg-new-card:hover {
+          transform: translateY(-8px) scale(1.012);
+        }
+        .pkg-new-card:hover .pkg-img-inner {
+          transform: scale(1.07);
+        }
+        .pkg-new-card.is-selected {
+          animation: pkg-glow-pulse 2.2s ease-in-out infinite;
+          transform: translateY(-6px) scale(1.015);
+        }
+        .pkg-img-inner {
+          transition: transform 0.55s cubic-bezier(0.16,1,0.3,1);
+          will-change: transform;
+        }
+        .pkg-check-icon {
+          animation: pkg-check-pop 0.42s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+        .pkg-select-btn {
+          transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.18s ease;
+        }
+        .pkg-select-btn:hover {
+          transform: translateY(-1px);
+        }
+        .pkg-select-btn:active {
+          transform: scale(0.97);
+        }
+      `}</style>
+
+      <div className="grid w-full min-w-0 grid-cols-1 items-stretch gap-[clamp(1.25rem,3.5vw,2.25rem)] md:grid-cols-3 md:items-stretch md:gap-x-[clamp(1.25rem,2.8vw,2rem)] md:gap-y-[clamp(1.5rem,3vw,2.5rem)]">
+        {packages.map((pkg, i) => {
+          const isSelected = selected === pkg.id;
+          const imgSrc = srcFor(pkg);
+
+          return (
+            <Slide key={pkg.id} direction="up" delay={i * 90} className="flex h-full min-h-0 w-full min-w-0 flex-col">
+              <article
+                className={`pkg-new-card${isSelected ? " is-selected" : ""}`}
+                role="button"
+                tabIndex={0}
+                aria-pressed={isSelected}
+                aria-label={`Select ${pkg.label} package`}
+                onClick={() => handleSelect(pkg.id)}
+                onKeyDown={(ev) => {
+                  if (ev.key === "Enter" || ev.key === " ") {
+                    ev.preventDefault();
+                    handleSelect(pkg.id);
+                  }
+                }}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  flex: 1,
+                  borderRadius: 24,
+                  overflow: "hidden",
+                  cursor: "pointer",
+                  userSelect: "none",
+                  WebkitTapHighlightColor: "transparent",
+                  width: "100%",
+                  minHeight: "clamp(22rem, 52vw, 32rem)",
+                  border: isSelected
+                    ? "2px solid #97b64c"
+                    : "1.5px solid rgba(151,182,76,0.2)",
+                  background: "#ffffff",
+                  boxShadow: isSelected
+                    ? "0 24px 64px rgba(98,132,11,0.18)"
+                    : "0 8px 28px rgba(98,132,11,0.08)",
+                  position: "relative",
+                }}
+              >
+                {/* ── TOP GRADIENT BAR (selected only) ── */}
+                <div
+                  style={{
+                    height: 4,
+                    flexShrink: 0,
+                    background: isSelected ? "#97b64c" : "transparent",
+                    transition: "background 0.3s ease",
+                  }}
+                />
+
+                {/* ── IMAGE BLOCK ── */}
+                <div
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    flexShrink: 0,
+                    aspectRatio: "20 / 15",
+                    overflow: "hidden",
+                    background: "#eef3e4",
+                  }}
+                >
+                  {/* Badge */}
+                  {pkg.badge && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 14,
+                        right: 14,
+                        zIndex: 10,
+                        background: "#62840b",
+                        color: "#fff",
+                        fontSize: "0.58rem",
+                        fontWeight: 800,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        padding: "5px 11px",
+                        borderRadius: 999,
+                        fontFamily: "'DM Sans', sans-serif",
+                        boxShadow: "0 4px 12px rgba(98,132,11,0.35)",
+                      }}
+                    >
+                      {pkg.badge}
+                    </div>
+                  )}
+
+                  {/* Selected checkmark overlay */}
+                  {isSelected && (
+                    <div
+                      className="pkg-check-icon"
+                      style={{
+                        position: "absolute",
+                        top: 14,
+                        left: 14,
+                        zIndex: 10,
+                        width: 32,
+                        height: 32,
+                        borderRadius: "50%",
+                        background: "#62840b",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "0 4px 14px rgba(98,132,11,0.4)",
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path
+                          d="M2.5 7.5l3 3 6-6"
+                          stroke="#fff"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  )}
+
+                  {/* Image */}
+                  {imgSrc ? (
+                    <img
+                      key={`${pkg.id}-${imgSrc}`}
+                      src={imgSrc}
+                      alt={`Milkshop ${pkg.label} package`}
+                      loading="lazy"
+                      decoding="async"
+                      draggable={false}
+                      className="pkg-img-inner"
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        objectPosition: "center",
+                        display: "block",
+                      }}
+                      onError={() => bumpImgTier(pkg.id)}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: "#62840b",
+                      }}
+                    >
+                      <span style={{ fontSize: 28, marginBottom: 8 }}>{pkg.emoji}</span>
+                      Add photo
+                      <span style={{ fontSize: 10, color: "#7b9461", marginTop: 4 }}>
+                        packages/{pkg.id}.jpg
+                      </span>
+                    </div>
+                  )}
+                  {imgSrc && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLightbox(pkg);
+                      }}
+                      style={{
+                        position: "absolute",
+                        bottom: 14,
+                        right: 14,
+                        zIndex: 20,
+                        background: "rgba(0,0,0,0.45)",
+                        backdropFilter: "blur(6px)",
+                        WebkitBackdropFilter: "blur(6px)",
+                        color: "#fff",
+                        border: "1px solid rgba(255,255,255,0.25)",
+                        borderRadius: 999,
+                        padding: "5px 12px",
+                        fontSize: "0.68rem",
+                        fontWeight: 700,
+                        fontFamily: "'DM Sans',sans-serif",
+                        cursor: "pointer",
+                        letterSpacing: "0.04em",
+                      }}
+                    >
+                      ⤢ View
+                    </button>
+                  )}
+
+                  {/* Bottom image gradient overlay */}
+                  <div
+                    aria-hidden
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: "45%",
+                      background:
+                        "linear-gradient(to top, rgba(255,255,255,0.95) 0%, transparent 100%)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                </div>
+
+                {/* ── CONTENT BLOCK ── */}
+                <div
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: 0,
+                    padding: "clamp(1rem, 2.8vw, 1.35rem) clamp(1.1rem, 3vw, 1.5rem) clamp(1.15rem, 3vw, 1.6rem)",
+                  }}
+                >
+
+                  {/* Type pill + term */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: 10,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "0.58rem",
+                        fontWeight: 900,
+                        letterSpacing: "0.15em",
+                        textTransform: "uppercase",
+                        color: "#1a2e0a",
+                        background: "rgba(183,205,127,0.5)",
+                        border: "1px solid rgba(151,182,76,0.4)",
+                        borderRadius: 999,
+                        padding: "4px 10px",
+                      }}
+                    >
+                      {pkg.label.toUpperCase()}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "9px",
+                        fontWeight: 700,
+                        letterSpacing: "0.06em",
+                        padding: "3px 8px",
+                        borderRadius: 999,
+                        background: "rgba(151,182,76,0.12)",
+                        color: "#4a6b08",
+                        border: "1px solid rgba(151,182,76,0.25)",
+                      }}
+                    >
+                      {pkg.term}
+                    </span>
+                  </div>
+
+                  {/* Title + tagline */}
+                  <div style={{ marginBottom: 12 }}>
+                    <h3
+                      style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "clamp(1.2rem, 2.8vw, 1.45rem)",
+                        fontWeight: 900,
+                        color: isSelected ? pkg.color : "#1f2a17",
+                        margin: "0 0 3px",
+                        letterSpacing: "-0.035em",
+                        lineHeight: 1.1,
+                        transition: "color 0.25s ease",
+                      }}
+                    >
+                      {pkg.emoji} {pkg.label}
+                    </h3>
+                    <p
+                      style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "0.78rem",
+                        fontWeight: 600,
+                        color: "#5a6a4a",
+                        margin: 0,
+                      }}
+                    >
+                      {pkg.tagline}
+                    </p>
+                  </div>
+
+            
+
+                  {/* Divider */}
+                  <div
+                    style={{
+                      height: 1,
+                      background: "rgba(151,182,76,0.15)",
+                      marginBottom: 12,
+                    }}
+                  />
+
+                  {/* Features */}
+                  <ul
+                    style={{
+                      listStyle: "none",
+                      margin: "0 0 10px",
+                      padding: 0,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 6,
+                    }}
+                  >
+                    {pkg.features.map((f, fi) => (
+                      <li
+                        key={fi}
+                        style={{
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: "0.75rem",
+                          fontWeight: 600,
+                          lineHeight: 1.35,
+                          color: "#3a4a2a",
+                          paddingLeft: 14,
+                          position: "relative",
+                        }}
+                      >
+                        <span
+                          style={{
+                            position: "absolute",
+                            left: 0,
+                            top: "0.38em",
+                            width: 5,
+                            height: 5,
+                            borderRadius: "50%",
+                            background: isSelected ? "#62840b" : "#97b64c",
+                            transition: "background 0.25s ease",
+                          }}
+                        />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Best for */}
+                  <p
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.68rem",
+                      lineHeight: 1.5,
+                      color: "#62840b",
+                      margin: "0 0 14px",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    {pkg.best}
+                  </p>
+
+                  {/* CTA Button */}
+                  <button
+                    className="pkg-select-btn"
+                    type="button"
+                    style={{
+                      width: "100%",
+                      marginTop: "auto",
+                      padding: "11px 0",
+                      borderRadius: 999,
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.8rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.03em",
+                      cursor: "pointer",
+                      background: isSelected ? "#62840b" : "rgba(151,182,76,0.12)",
+                      color: isSelected ? "#fff" : "#62840b",
+                      boxShadow: isSelected
+                        ? "0 6px 20px rgba(98,132,11,0.35)"
+                        : "none",
+                      border: isSelected ? "1px solid #4a6b08" : "none",
+                      outline: !isSelected ? "1.5px solid rgba(151,182,76,0.3)" : "none",
+                    }}
+                  >
+                    {isSelected ? "✓ Selected" : "Select Package"}
+                  </button>
+                </div>
+              </article>
+            </Slide>
+          );
+        })}
+      </div>
+      {lightbox &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Enlarged package photo"
+            onClick={() => setLightbox(null)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 2147483646,
+              background: "rgba(0,0,0,0.94)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "min(4vw, 24px)",
+              isolation: "isolate",
+            }}
+          >
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightbox(null);
+              }}
               style={{
-                borderRadius: 24,
-                border: isSelected
-                  ? `2px solid ${pkg.borderSelected}`
-                  : "1.5px solid rgba(151,182,76,0.2)",
-                background: isSelected
-                  ? "rgba(255,255,255,0.97)"
-                  : "rgba(255,255,255,0.82)",
-                backdropFilter: "blur(10px)",
-                WebkitBackdropFilter: "blur(10px)",
-                boxShadow: isSelected
-                  ? "0 16px 48px rgba(151,182,76,0.2)"
-                  : "0 4px 20px rgba(151,182,76,0.07)",
-                padding: "28px 26px 24px",
-                position: "relative",
-                overflow: "hidden",
-                userSelect: "none",
+                position: "fixed",
+                top: "max(16px, env(safe-area-inset-top))",
+                right: "max(16px, env(safe-area-inset-right))",
+                zIndex: 2147483647,
+                background: "rgba(255,255,255,0.15)",
+                border: "1px solid rgba(255,255,255,0.35)",
+                color: "#fff",
+                borderRadius: "50%",
+                width: 44,
+                height: 44,
+                fontSize: "1.25rem",
+                lineHeight: 1,
+                cursor: "pointer",
+                fontWeight: 700,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              {/* Selected top bar */}
-              {isSelected && (
-                <div style={{
-                  position: "absolute", top: 0, left: 0, right: 0, height: 4,
-                  background: "linear-gradient(90deg, #62840b, #97b64c, #b7cd7f)",
-                  borderRadius: "24px 24px 0 0",
-                }} />
-              )}
-
-              {/* Background accent circle */}
-              <div aria-hidden style={{
-                position: "absolute", bottom: -40, right: -40,
-                width: 160, height: 160, borderRadius: "50%",
-                background: isSelected ? "rgba(151,182,76,0.09)" : "rgba(151,182,76,0.04)",
-                pointerEvents: "none",
-                transition: "background 0.3s ease",
-              }} />
-
-              {/* Badge */}
-              {pkg.badge && (
-                <div className={isSelected ? "pkg-badge" : ""} style={{
-                  display: "inline-flex", alignItems: "center", gap: 5,
-                  padding: "5px 11px", borderRadius: 999,
-                  background: isSelected
-                    ? "linear-gradient(135deg, #62840b, #97b64c)"
-                    : "rgba(151,182,76,0.14)",
-                  color: isSelected ? "#fff" : "#62840b",
-                  fontSize: "10px", fontWeight: 800,
-                  letterSpacing: "0.12em", textTransform: "uppercase",
-                  fontFamily: "'DM Sans', sans-serif",
-                  marginBottom: 14,
-                  transition: "background 0.3s ease, color 0.3s ease",
-                }}>
-                  {isSelected && <span style={{ fontSize: 9 }}>★</span>}
-                  {pkg.badge}
-                </div>
-              )}
-              {!pkg.badge && <div style={{ height: 28, marginBottom: 14 }} />}
-
-              {/* Emoji + Label */}
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
-                <span style={{
-                  fontSize: "2rem", lineHeight: 1,
-                  filter: isSelected ? "drop-shadow(0 2px 8px rgba(151,182,76,0.4))" : "none",
-                  transition: "filter 0.3s ease",
-                }}>{pkg.emoji}</span>
-                <div>
-                  <h3 style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "1.45rem", fontWeight: 900,
-                    color: isSelected ? pkg.color : "#2a3520",
-                    margin: 0, letterSpacing: "-0.025em",
-                    transition: "color 0.3s ease",
-                  }}>{pkg.label}</h3>
-                  <p style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.75rem", color: "#8aa06a",
-                    margin: 0, fontWeight: 600,
-                    letterSpacing: "0.01em",
-                  }}>{pkg.tagline}</p>
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div style={{
-                height: 1,
-                background: isSelected
-                  ? "linear-gradient(90deg, rgba(151,182,76,0.4), transparent)"
-                  : "rgba(151,182,76,0.12)",
-                borderRadius: 1,
-                margin: "16px 0",
-                transition: "background 0.3s ease",
-              }} />
-
-              {/* Meta */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-                {[pkg.price, pkg.term].map((meta) => (
-                  <span key={meta} style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "10px", fontWeight: 700,
-                    letterSpacing: "0.08em",
-                    padding: "4px 10px", borderRadius: 999,
-                    background: isSelected ? "rgba(151,182,76,0.13)" : "rgba(151,182,76,0.07)",
-                    color: isSelected ? "#4a6b08" : "#7a9460",
-                    border: "1px solid rgba(151,182,76,0.18)",
-                    transition: "all 0.3s ease",
-                  }}>{meta}</span>
-                ))}
-              </div>
-
-              {/* Features */}
-              <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
-                {pkg.features.map((f, fi) => (
-                  <li key={fi} style={{
-                    display: "flex", alignItems: "center", gap: 9,
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.85rem", color: isSelected ? "#3a4a2a" : "#627a50",
-                    fontWeight: isSelected ? 600 : 500,
-                    transition: "color 0.3s ease",
-                  }}>
-                    <span style={{
-                      width: 18, height: 18, borderRadius: "50%", flexShrink: 0,
-                      background: isSelected
-                        ? "linear-gradient(135deg, #62840b, #97b64c)"
-                        : "rgba(151,182,76,0.18)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: "9px", color: isSelected ? "#fff" : "#7a9460",
-                      fontWeight: 900,
-                      transition: "all 0.3s ease",
-                      boxShadow: isSelected ? "0 2px 8px rgba(151,182,76,0.3)" : "none",
-                    }}>✓</span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              {/* Best for */}
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.78rem", lineHeight: 1.55,
-                color: isSelected ? "#62840b" : "#9ab07a",
-                margin: "14px 0 16px",
-                fontStyle: "italic",
-                transition: "color 0.3s ease",
-              }}>{pkg.best}</p>
-
-              {/* Select button */}
-              <div style={{
-                width: "100%", padding: "11px 0",
-                borderRadius: 999, textAlign: "center",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.82rem", fontWeight: 800,
-                letterSpacing: "0.04em",
-                background: isSelected
-                  ? "linear-gradient(135deg, #62840b, #97b64c)"
-                  : "rgba(151,182,76,0.1)",
-                color: isSelected ? "#fff" : "#62840b",
-                border: isSelected ? "none" : "1.5px solid rgba(151,182,76,0.3)",
-                boxShadow: isSelected ? "0 8px 24px rgba(151,182,76,0.28)" : "none",
-                transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)",
-              }}>
-                {isSelected ? "✓ Selected" : "Select Package"}
-              </div>
-
-            </div>
-          </Slide>
-        );
-      })}
-    </div>
+              ✕
+            </button>
+            <img
+              src={srcFor(lightbox)}
+              alt=""
+              draggable={false}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                maxWidth: "min(96vw, 1600px)",
+                maxHeight: "min(92vh, 1200px)",
+                width: "auto",
+                height: "auto",
+                objectFit: "contain",
+                borderRadius: 12,
+                boxShadow: "0 24px 64px rgba(0,0,0,0.55)",
+              }}
+            />
+          </div>,
+          document.body
+        )}
+    </>
   );
 }
 
 
 // ─── MAIN ────────────────────────────────────────────────────────────────────
+
 
 export default function Franchise() {
   const [openFaq, setOpenFaq]           = useState(null);
@@ -381,6 +743,9 @@ export default function Franchise() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [activeStep, setActiveStep] = useState(0);
+  const activeStepRef = useRef(0);
+  activeStepRef.current = activeStep;
+  const [heroProcessImgFailed, setHeroProcessImgFailed] = useState(false);
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth < 768;
@@ -390,6 +755,30 @@ export default function Franchise() {
   const processLockRef = useRef(false);
   const processWheelDeltaRef = useRef(0);
   const processTouchYRef = useRef(null);
+  const [heroStatDisplay, setHeroStatDisplay] = useState({ branches: 0, roiMonths: 0, formats: 0 });
+
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const dur = 1500;
+    const ease = (t) => 1 - (1 - t) ** 3;
+    let lastKey = "";
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / dur);
+      const e = ease(p);
+      const branches = Math.round(50 * e);
+      const roiMonths = Math.round(12 * e);
+      const formats = Math.round(3 * e);
+      const key = `${branches}|${roiMonths}|${formats}`;
+      if (key !== lastKey) {
+        lastKey = key;
+        setHeroStatDisplay({ branches, roiMonths, formats });
+      }
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   useEffect(() => {
     if (window.location.hash !== `#${FRANCHISE_FORM_ID}`) return;
@@ -398,33 +787,54 @@ export default function Franchise() {
   }, []);
 
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768);
+    let raf = 0;
+    const onResize = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        setIsMobile(window.innerWidth < 768);
+      });
+    };
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
+
+  useEffect(() => {
+    setHeroProcessImgFailed(false);
+  }, [activeStep]);
 
   useEffect(() => {
     const panel = heroProcessPanelRef.current;
     const heroSection = processSectionRef.current;
     if (!panel || !heroSection) return;
 
-    const THRESHOLD = 48;
+    /** Scroll / touch delta needed before advancing one step (~3 mouse wheel notches). */
+    const THRESHOLD = 500;
     const htmlEl = document.documentElement;
     const bodyEl = document.body;
     const prevHtmlOverflow = htmlEl.style.overflow;
+    const prevHtmlPaddingRight = htmlEl.style.paddingRight;
     const prevBodyOverflow = bodyEl.style.overflow;
     const prevHtmlOverscroll = htmlEl.style.overscrollBehavior;
     const prevBodyOverscroll = bodyEl.style.overscrollBehavior;
 
     const setPageScrollLocked = (locked) => {
       if (locked) {
+        const gap = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
         htmlEl.style.overflow = "hidden";
+        if (gap > 0) {
+          htmlEl.style.paddingRight = `${gap}px`;
+        }
         bodyEl.style.overflow = "hidden";
         htmlEl.style.overscrollBehavior = "none";
         bodyEl.style.overscrollBehavior = "none";
         return;
       }
       htmlEl.style.overflow = prevHtmlOverflow;
+      htmlEl.style.paddingRight = prevHtmlPaddingRight;
       bodyEl.style.overflow = prevBodyOverflow;
       htmlEl.style.overscrollBehavior = prevHtmlOverscroll;
       bodyEl.style.overscrollBehavior = prevBodyOverscroll;
@@ -459,19 +869,28 @@ export default function Franchise() {
       return heroSection.contains(eventTarget) || processLockRef.current;
     };
 
+    let syncRaf = 0;
     const syncLockState = () => {
-      if (!isHeroEngaged()) {
-        setLocked(false);
-        processWheelDeltaRef.current = 0;
-        processTouchYRef.current = null;
-      }
+      if (syncRaf) return;
+      syncRaf = requestAnimationFrame(() => {
+        syncRaf = 0;
+        if (!isHeroEngaged()) {
+          setLocked(false);
+          processWheelDeltaRef.current = 0;
+          processTouchYRef.current = null;
+        }
+      });
     };
 
     const onWheel = (e) => {
       if (!shouldCaptureFromEvent(e.target)) return;
 
-      const isTryingToLeaveForward = activeStep === steps.length - 1 && e.deltaY > 0;
-      const isTryingToLeaveBackward = activeStep === 0 && e.deltaY < 0;
+      const useX = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+      const delta = useX ? e.deltaX : e.deltaY;
+      const step = activeStepRef.current;
+
+      const isTryingToLeaveForward = step === steps.length - 1 && delta > 0;
+      const isTryingToLeaveBackward = step === 0 && delta < 0;
       if (isTryingToLeaveForward || isTryingToLeaveBackward) {
         setLocked(false);
         processWheelDeltaRef.current = 0;
@@ -483,7 +902,7 @@ export default function Franchise() {
       }
 
       e.preventDefault();
-      processWheelDeltaRef.current += e.deltaY;
+      processWheelDeltaRef.current += delta;
 
       if (Math.abs(processWheelDeltaRef.current) < THRESHOLD) return;
 
@@ -518,8 +937,9 @@ export default function Franchise() {
       const deltaY = startY - currentY;
       processTouchYRef.current = currentY;
 
-      const isTryingToLeaveForward = activeStep === steps.length - 1 && deltaY > 0;
-      const isTryingToLeaveBackward = activeStep === 0 && deltaY < 0;
+      const step = activeStepRef.current;
+      const isTryingToLeaveForward = step === steps.length - 1 && deltaY > 0;
+      const isTryingToLeaveBackward = step === 0 && deltaY < 0;
       if (isTryingToLeaveForward || isTryingToLeaveBackward) {
         setLocked(false);
         processWheelDeltaRef.current = 0;
@@ -558,6 +978,7 @@ export default function Franchise() {
     window.addEventListener("resize", syncLockState);
     syncLockState();
     return () => {
+      if (syncRaf) cancelAnimationFrame(syncRaf);
       setLocked(false);
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("touchstart", onTouchStart);
@@ -565,7 +986,7 @@ export default function Franchise() {
       window.removeEventListener("scroll", syncLockState);
       window.removeEventListener("resize", syncLockState);
     };
-  }, [activeStep]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -648,413 +1069,816 @@ export default function Franchise() {
       SLIDE 1 — HERO (PREMIUM UPGRADE)
 ══════════════════════════════════════ */}
 {/* ══════════════════════════════════════
-    FRANCHISE HERO — Premium Animated
+   FRANCHISE HERO — MODERN PREMIUM
 ══════════════════════════════════════ */}
 <section
-  ref={processSectionRef}
   data-track-section="Franchise Hero"
   className="relative overflow-hidden"
   style={{
-    background: "linear-gradient(158deg, #f3f9ea 0%, #ffffff 50%, #f0f7e6 100%)",
-    minHeight: "100vh",
+    minHeight: "100svh",
+    background:
+      "linear-gradient(180deg,#f3f9ea 0%,#ffffff 48%,#eef6e5 100%)",
     display: "flex",
     alignItems: "center",
     fontFamily: "'DM Sans', sans-serif",
   }}
 >
   <style>{`
-    @keyframes fhFadeUp    { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes fhFadeLeft  { from{opacity:0;transform:translateX(-30px)} to{opacity:1;transform:translateX(0)} }
-    @keyframes fhFadeRight { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
-    @keyframes fhShimmer   { 0%{background-position:-200% center} 100%{background-position:200% center} }
-    @keyframes fhOrbDrift  { 0%,100%{transform:translate(0,0) scale(1);opacity:0.5} 50%{transform:translate(18px,-14px) scale(1.07);opacity:0.85} }
-    @keyframes fhTagPulse  { 0%,100%{box-shadow:0 0 0 0 rgba(151,182,76,0.45)} 50%{box-shadow:0 0 0 9px rgba(151,182,76,0)} }
-    @keyframes fhDotBlink  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.65)} }
-    @keyframes fhCardIn    { from{opacity:0;transform:translateY(14px) scale(0.99)} to{opacity:1;transform:translateY(0) scale(1)} }
-    @keyframes fhDescIn    { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes fhScrollLine{ 0%{transform:translateY(-100%)} 100%{transform:translateY(220%)} }
-    @keyframes fhSoftPulse { 0%,100%{ box-shadow:0 0 0 0 rgba(151,182,76,0.2) } 50%{ box-shadow:0 0 0 10px rgba(151,182,76,0) } }
-    @keyframes fhCheckIn   { from{opacity:0;transform:scale(0)} to{opacity:1;transform:scale(1)} }
-
-    .fh-tag   { opacity:0; animation:fhFadeUp   0.6s ease forwards; animation-delay:0.1s }
-    .fh-h1    { opacity:0; animation:fhFadeLeft 0.75s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay:0.25s }
-    .fh-p     { opacity:0; animation:fhFadeLeft 0.7s ease forwards; animation-delay:0.42s }
-    .fh-list  { opacity:0; animation:fhFadeUp   0.7s ease forwards; animation-delay:0.55s }
-    .fh-cta   { opacity:0; animation:fhFadeUp   0.7s ease forwards; animation-delay:0.68s }
-    .fh-stats { opacity:0; animation:fhFadeUp   0.7s ease forwards; animation-delay:0.8s }
-    .fh-right { opacity:0; animation:fhFadeRight 0.85s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay:0.15s }
-
-    .fh-cta-primary {
-      display:inline-flex; align-items:center; gap:7px;
-      padding:15px 32px; border-radius:999px;
-      background:linear-gradient(135deg,#62840b,#97b64c);
-      color:#fff; font-family:'DM Sans',sans-serif;
-      font-size:0.9rem; font-weight:800;
-      text-decoration:none; border:none; cursor:pointer;
-      box-shadow:0 10px 32px rgba(151,182,76,0.4);
-      transition:all 0.3s ease; letter-spacing:0.01em;
+    @keyframes fhFadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    .fh-cta-primary:hover { transform:translateY(-3px); box-shadow:0 18px 44px rgba(151,182,76,0.52) }
 
-    .fh-cta-secondary {
-      display:inline-flex; align-items:center; gap:7px;
-      padding:15px 28px; border-radius:999px;
-      background:transparent; color:#62840b;
-      font-family:'DM Sans',sans-serif;
-      font-size:0.9rem; font-weight:700;
-      text-decoration:none;
-      border:1.5px solid rgba(151,182,76,0.38);
-      transition:all 0.3s ease;
+    @keyframes fhFloat {
+      0%,100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-14px);
+      }
     }
-    .fh-cta-secondary:hover { background:rgba(151,182,76,0.08); border-color:#97b64c; transform:translateY(-2px) }
 
-    .fh-step-track-fill {
-      transition: height 0.6s cubic-bezier(0.16,1,0.3,1);
+    @keyframes fhFloatSlow {
+      0%,100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
     }
-    .fh-step-card {
-      animation: fhCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+
+    @keyframes fhRotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
     }
-    .fh-step-desc {
-      animation: fhDescIn 0.45s ease forwards;
-      animation-delay: 0.1s;
+
+    @keyframes fhGradientShift {
+      0% {
+        background-position: 0% 30%;
+      }
+      100% {
+        background-position: 100% 70%;
+      }
+    }
+
+    @keyframes fhOrbDriftA {
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.38;
+      }
+      50% {
+        transform: translate(4%, -5%) scale(1.12);
+        opacity: 0.62;
+      }
+    }
+
+    @keyframes fhOrbDriftB {
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.32;
+      }
+      50% {
+        transform: translate(-6%, 5%) scale(1.08);
+        opacity: 0.55;
+      }
+    }
+
+    @keyframes fhGridPulse {
+      0%,
+      100% {
+        opacity: 0.22;
+      }
+      50% {
+        opacity: 0.38;
+      }
+    }
+
+    @keyframes fhPkgBob {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-11px);
+      }
+    }
+
+    .fh-reveal {
       opacity: 0;
+      animation: fhFadeUp .9s cubic-bezier(.16,1,.3,1) forwards;
     }
-    .fh-stat-item { transition:transform 0.3s ease; }
-    .fh-stat-item:hover { transform:translateY(-3px) }
-    .fh-check { animation:fhCheckIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
-    .fh-node-active {
-      animation: fhSoftPulse 1.8s ease-in-out infinite;
+
+    .fh-btn-main {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:16px 34px;
+      border-radius:999px;
+      background:linear-gradient(135deg,#62840b,#97b64c);
+      color:#fff;
+      text-decoration:none;
+      font-size:.92rem;
+      font-weight:800;
+      box-shadow:0 18px 40px rgba(98,132,11,.28);
+      transition:.28s ease;
+    }
+
+    .fh-btn-main:hover{
+      transform:translateY(-4px);
+    }
+
+    .fh-btn-secondary {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px 28px;
+      border-radius:999px;
+      background:rgba(255,255,255,.72);
+      border:1px solid rgba(151,182,76,.22);
+      color:#62840b;
+      text-decoration:none;
+      font-size:.9rem;
+      font-weight:700;
+      backdrop-filter:blur(10px);
+      transition:.28s ease;
+    }
+
+    .fh-btn-secondary:hover{
+      transform:translateY(-3px);
+      background:#fff;
+    }
+
+    .fh-glass {
+      background:rgba(255,255,255,.62);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      border:1px solid rgba(255,255,255,.45);
+      box-shadow:0 18px 40px rgba(58,92,6,.08);
     }
   `}</style>
 
-  {/* ── Backgrounds ── */}
-  <div aria-hidden style={{
-    position:"absolute", inset:0, pointerEvents:"none",
-    backgroundImage:"radial-gradient(circle, rgba(151,182,76,0.2) 1.5px, transparent 1.5px)",
-    backgroundSize:"32px 32px",
-    maskImage:"radial-gradient(ellipse at 8% 55%, black 5%, transparent 52%)",
-    WebkitMaskImage:"radial-gradient(ellipse at 8% 55%, black 5%, transparent 52%)",
-  }} />
-  <div aria-hidden style={{
-    position:"absolute", inset:0, pointerEvents:"none",
-    backgroundImage:"radial-gradient(circle, rgba(151,182,76,0.1) 1.5px, transparent 1.5px)",
-    backgroundSize:"26px 26px",
-    maskImage:"radial-gradient(ellipse at 94% 42%, black 5%, transparent 50%)",
-    WebkitMaskImage:"radial-gradient(ellipse at 94% 42%, black 5%, transparent 50%)",
-  }} />
-  <div aria-hidden style={{
-    position:"absolute", top:"-10%", right:"-6%",
-    width:600, height:600, borderRadius:"50%",
-    background:"radial-gradient(circle, rgba(151,182,76,0.11) 0%, transparent 68%)",
-    filter:"blur(28px)", pointerEvents:"none",
-    animation:"fhOrbDrift 16s ease-in-out infinite",
-  }} />
-  <div aria-hidden style={{
-    position:"absolute", bottom:"0%", left:"-5%",
-    width:360, height:360, borderRadius:"50%",
-    background:"radial-gradient(circle, rgba(183,205,127,0.13) 0%, transparent 70%)",
-    filter:"blur(22px)", pointerEvents:"none",
-    animation:"fhOrbDrift 20s ease-in-out infinite reverse",
-  }} />
-  <div aria-hidden style={{
-    position:"absolute", right:"4%", top:"50%", transform:"translateY(-50%)",
-    width:"min(540px,55vw)", height:"min(540px,55vw)", borderRadius:"50%",
-    border:"1px solid rgba(151,182,76,0.09)", pointerEvents:"none",
-  }} />
-  <div aria-hidden style={{
-    position:"absolute", bottom:0, left:0, right:0, height:1,
-    background:"linear-gradient(90deg, transparent, rgba(151,182,76,0.25), transparent)",
-  }} />
-
-  {/* ── Content ── */}
-  <div style={{
-    position:"relative", zIndex:10,
-    maxWidth:1380, margin:"0 auto",
-    padding:"clamp(100px,12vw,130px) clamp(20px,4vw,56px) clamp(80px,10vw,110px)",
-    width:"100%", boxSizing:"border-box",
-    display:"grid",
-    gridTemplateColumns:"0.78fr 1.22fr",
-    gap:34,
-    alignItems:"center",
-  }}
-    className="max-lg:grid-cols-1 max-lg:gap-12"
+  {/* Animated backdrop (mesh + orbs + soft grid) */}
+  <div
+    aria-hidden
+    style={{
+      position: "absolute",
+      inset: 0,
+      overflow: "hidden",
+      pointerEvents: "none",
+      zIndex: 0,
+    }}
   >
+    <div
+      style={{
+        position: "absolute",
+        inset: "-35%",
+        background:
+          "linear-gradient(118deg, rgba(243,249,234,0.97) 0%, rgba(255,255,255,0.55) 18%, rgba(210,232,180,0.5) 38%, rgba(255,255,255,0.65) 58%, rgba(230,244,212,0.75) 78%, rgba(255,255,255,0.6) 100%)",
+        backgroundSize: "260% 260%",
+        animation: "fhGradientShift 24s ease-in-out infinite alternate",
+      }}
+    />
+    <div
+      style={{
+        position: "absolute",
+        width: "min(95vw, 920px)",
+        height: "min(95vw, 920px)",
+        borderRadius: "50%",
+        top: "-22%",
+        right: "-28%",
+        background:
+          "radial-gradient(circle at 38% 42%, rgba(151,182,76,0.42) 0%, rgba(151,182,76,0.08) 45%, transparent 62%)",
+        filter: "blur(56px)",
+        animation: "fhOrbDriftA 18s ease-in-out infinite",
+      }}
+    />
+    <div
+      style={{
+        position: "absolute",
+        width: "min(85vw, 640px)",
+        height: "min(85vw, 640px)",
+        borderRadius: "50%",
+        bottom: "-18%",
+        left: "-22%",
+        background:
+          "radial-gradient(circle at 55% 45%, rgba(183,205,127,0.38) 0%, rgba(255,255,255,0.12) 48%, transparent 65%)",
+        filter: "blur(48px)",
+        animation: "fhOrbDriftB 21s ease-in-out infinite",
+      }}
+    />
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        backgroundImage:
+          "radial-gradient(circle, rgba(98,132,11,0.11) 1.2px, transparent 1.2px)",
+        backgroundSize: "34px 34px",
+        animation: "fhGridPulse 6.5s ease-in-out infinite",
+      }}
+    />
+  </div>
 
-    {/* ══ LEFT ══ */}
-    <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+  {/* background glow */}
+  <div
+    aria-hidden
+    style={{
+      position: "absolute",
+      width: 760,
+      height: 760,
+      borderRadius: "50%",
+      right: "-12%",
+      top: "-14%",
+      background:
+        "radial-gradient(circle, rgba(151,182,76,.18) 0%, transparent 72%)",
+      filter: "blur(40px)",
+      animation: "fhFloatSlow 8s ease-in-out infinite",
+      zIndex: 1,
+    }}
+  />
 
+  <div
+    aria-hidden
+    style={{
+      position: "absolute",
+      width: 520,
+      height: 520,
+      borderRadius: "50%",
+      left: "-10%",
+      bottom: "-20%",
+      background:
+        "radial-gradient(circle, rgba(183,205,127,.18) 0%, transparent 72%)",
+      filter: "blur(40px)",
+      animation: "fhFloat 10s ease-in-out infinite",
+      zIndex: 1,
+    }}
+  />
 
-
-      {/* Headline */}
-      <div className="fh-h1">
-        <h1 style={{
-          fontSize:"clamp(3rem,6.5vw,5.6rem)",
-          fontWeight:900, lineHeight:0.88,
-          letterSpacing:"-0.055em", margin:0,
-          color:"#1a1e14",
-        }}>
-          Own a Milkshop.<br />
-          <span style={{
-            background:"linear-gradient(135deg, #3a5c06 0%, #62840b 30%, #97b64c 65%, #b7cd7f 100%)",
-            backgroundSize:"200% auto",
-            WebkitBackgroundClip:"text",
-            WebkitTextFillColor:"transparent",
-            backgroundClip:"text",
-            animation:"fhShimmer 5s linear infinite",
-            animationDelay:"1s",
-            display:"inline-block",
-          }}>Build Your Future.</span>
-        </h1>
-      </div>
-
-      {/* Body */}
-      <div className="fh-p">
-        <p style={{
-          fontSize:"clamp(0.9rem,1.5vw,1.05rem)",
-          lineHeight:1.8, color:"#4d5c3a",
-          maxWidth:480, margin:0,
-        }}>
-          Proven system, fast setup, and full support from day one. Start your business with a brand trusted by Filipino milk tea customers.
-        </p>
-      </div>
-
-      {/* Key points */}
-      <ul className="fh-list" style={{
-        listStyle:"none", margin:0, padding:0,
-        display:"flex", flexDirection:"column", gap:10,
-      }}>
-        {["No experience required", "12–18 months ROI target", "Exclusive territory available"].map((item, i) => (
-          <li key={item} style={{
-            display:"flex", alignItems:"center", gap:10,
-            fontFamily:"'DM Sans', sans-serif",
-            fontSize:"0.9rem", fontWeight:600, color:"#3a4a2a",
-          }}>
-            <span className="fh-check" style={{
-              width:20, height:20, borderRadius:"50%",
-              background:"linear-gradient(135deg, #62840b, #97b64c)",
-              display:"flex", alignItems:"center", justifyContent:"center",
-              flexShrink:0, fontSize:"10px", color:"white", fontWeight:800,
-              boxShadow:"0 3px 10px rgba(151,182,76,0.35)",
-              animationDelay:`${0.6 + i * 0.1}s`,
-            }}>✓</span>
-            {item}
-          </li>
-        ))}
-      </ul>
-
-      {/* CTAs */}
-      <div className="fh-cta" style={{ display:"flex", flexWrap:"wrap", gap:12 }}>
-        <a href="#inquiry" className="fh-cta-primary">Apply for Franchise →</a>
-        <a href="#process" className="fh-cta-secondary">View Process</a>
-      </div>
-
-  
-
-    </div>
-
-    {/* ══ RIGHT — Minimal Timeline Panel ══ */}
-    <div className="fh-right" style={{ position:"relative", width:"100%", justifySelf:"end" }}>
+  {/* content */}
+  <div
+    style={{
+      width: "100%",
+      maxWidth: 1380,
+      margin: "0 auto",
+      padding: "120px 40px 90px",
+      position: "relative",
+      zIndex: 5,
+    }}
+  >
+    <div
+      className="max-lg:grid-cols-1"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1fr 1.1fr",
+        alignItems: "center",
+        gap: 40,
+      }}
+    >
+      {/* LEFT */}
       <div
-        ref={heroProcessPanelRef}
+        className="fh-reveal"
         style={{
-          width:"min(100%, 860px)",
-          marginLeft:"auto",
-          background:"rgba(255,255,255,0.93)",
-          backdropFilter:"blur(12px)",
-          WebkitBackdropFilter:"blur(12px)",
-          borderRadius:30,
-          border:"1px solid rgba(151,182,76,0.22)",
-          boxShadow:"0 20px 56px rgba(151,182,76,0.14)",
-          overflow:"hidden",
-          position:"relative",
+          display: "flex",
+          flexDirection: "column",
+          gap: 26,
+          maxWidth: 560,
         }}
       >
-        <div style={{
-          height:6,
-          background:"linear-gradient(90deg, rgba(151,182,76,0.7), rgba(183,205,127,0.45))",
-        }} />
+        {/* badge */}
+        <div
+          className="fh-glass"
+          style={{
+            width: "fit-content",
+            padding: "10px 18px",
+            borderRadius: 999,
+            fontSize: ".72rem",
+            fontWeight: 800,
+            letterSpacing: ".12em",
+            textTransform: "uppercase",
+            color: "#62840b",
+          }}
+        >
+          MILKSHOP FRANCHISE OPPORTUNITY
+        </div>
 
-        <div style={{ padding:"34px 34px 28px", display:"flex", flexDirection:"column", gap:0 }}>
-          <div style={{
-            display:"flex", alignItems:"center", justifyContent:"space-between",
-            marginBottom:20,
-          }}>
-            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-              <span style={{
-                fontFamily:"'DM Sans',sans-serif",
-                fontSize:"10px", fontWeight:800,
-                letterSpacing:"0.2em", textTransform:"uppercase",
-                color:"#62840b",
-              }}>How It Works</span>
-            </div>
-            <span style={{
-              fontFamily:"'DM Mono',monospace",
-              fontSize:"11px", fontWeight:700,
-              letterSpacing:"0.1em", color:"#62840b",
-              background:"rgba(151,182,76,0.12)",
-              border:"1px solid rgba(151,182,76,0.25)",
-              borderRadius:999,
-              padding:"5px 10px",
-            }}>
-              {String(activeStep + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
-            </span>
-          </div>
-
-          <div key={activeStep} className="fh-step-card" style={{
-            display:"flex", flexDirection:"column", gap:10,
-            padding:"24px 22px",
-            borderRadius:20,
-            background:"linear-gradient(180deg, rgba(248,252,241,0.95) 0%, rgba(255,255,255,0.96) 100%)",
-            border:"1px solid rgba(151,182,76,0.2)",
-            marginBottom:22,
-            position:"relative",
-            overflow:"hidden",
-          }}>
-            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-              <span style={{
-                fontFamily:"'DM Mono',monospace",
-                fontSize:"10px", fontWeight:800,
-                letterSpacing:"0.18em", color:"#97b64c",
-              }}>{steps[activeStep].step}</span>
-              <div style={{ width:26, height:1, background:"rgba(151,182,76,0.35)" }} />
-              <span style={{ fontSize:"1.05rem" }}>{steps[activeStep].icon}</span>
-            </div>
-            <h4 style={{
-              fontFamily:"'DM Sans',sans-serif",
-              fontSize:"1.38rem", fontWeight:800,
-              color:"#1f2a17", margin:0,
-              letterSpacing:"-0.02em",
-            }}>{steps[activeStep].title}</h4>
-            <p className="fh-step-desc" style={{
-              fontFamily:"'DM Sans',sans-serif",
-              fontSize:"0.96rem", lineHeight:1.75,
-              color:"#506244", margin:0, maxWidth:560,
-            }}>{steps[activeStep].desc}</p>
-          </div>
-
-          <div style={{ display:"flex", flexDirection:"column", gap:4, position:"relative", minHeight:260 }}>
-            <div style={{
-              position:"absolute", left:15, top:4, bottom:14,
-              width:2, background:"rgba(151,182,76,0.12)", borderRadius:999,
-            }}>
-              <div className="fh-step-track-fill" style={{
-                width:"100%", borderRadius:999,
-                background:"linear-gradient(180deg, #97b64c, #b7cd7f)",
-                height:`${((activeStep + 1) / steps.length) * 100}%`,
-              }} />
-            </div>
-
-            {steps.map((s, i) => {
-              const isActive = activeStep === i
-              const isPast   = i < activeStep
-              return (
-                <div
-                  key={i}
-                  onClick={() => setActiveStep(i)}
-                  style={{
-                    display:"flex", alignItems:"center", gap:12,
-                    padding:"9px 8px 9px 0",
-                    cursor:"pointer",
-                    transition:"all 0.2s ease",
-                  }}
-                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.paddingLeft = "3px" }}
-                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.paddingLeft = "0px" }}
-                >
-                  <div className={isActive ? "fh-node-active" : ""} style={{
-                    width:30, height:30, borderRadius:"50%", flexShrink:0,
-                    background: isActive ? "#f1f7e8" : isPast ? "#f4f8ef" : "#fafcf7",
-                    border:`1.5px solid ${isActive ? "#97b64c" : isPast ? "rgba(151,182,76,0.42)" : "rgba(151,182,76,0.2)"}`,
-                    display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:"10px", color:"#62840b",
-                    boxShadow: isActive ? "0 8px 20px rgba(151,182,76,0.18)" : "none",
-                    transition:"all 0.3s ease",
-                    zIndex:1, position:"relative",
-                  }}>
-                    {isPast
-                      ? <span style={{ fontSize:10, color:"#62840b", fontWeight:800 }}>✓</span>
-                      : <span style={{ fontSize:11 }}>{isActive ? "●" : "○"}</span>
-                    }
-                  </div>
-
-                  <span style={{
-                    fontFamily:"'DM Sans',sans-serif",
-                    fontSize:"0.9rem",
-                    fontWeight: isActive ? 700 : 500,
-                    color: isActive ? "#25321c" : isPast ? "#62840b" : "#879a79",
-                    transition:"all 0.3s ease",
-                    letterSpacing:"-0.005em",
-                  }}>{s.title}</span>
-
-                  {isActive && (
-                    <span style={{
-                      marginLeft:"auto", fontSize:10, color:"#97b64c", fontWeight:700,
-                    }}>active</span>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-
-          <div style={{
-            display:"flex", alignItems:"center",
-            justifyContent:"space-between",
-            marginTop:22,
-            paddingTop:18,
-            borderTop:"1px solid rgba(151,182,76,0.14)",
-          }}>
-            <p style={{
-              fontFamily:"'DM Sans',sans-serif",
-              fontSize:"11px", color:"#7b9461",
-              margin:0, letterSpacing:"0.03em",
-              opacity: activeStep === 0 ? 1 : 0,
-              transform: activeStep === 0 ? "translateY(0)" : "translateY(-5px)",
-              transition:"all 0.4s ease",
-            }}>↓ Scroll to walk through each step</p>
-
-            <a href="#inquiry" style={{
-              display:"inline-flex", alignItems:"center", gap:5,
-              padding:"10px 19px", borderRadius:999,
-              background:"#97b64c",
-              color:"white", textDecoration:"none",
-              fontFamily:"'DM Sans',sans-serif",
-              fontSize:"11px", fontWeight:700,
-              boxShadow:"0 6px 16px rgba(151,182,76,0.22)",
-              transition:"all 0.25s ease",
-              letterSpacing:"0.02em",
+        {/* headline */}
+        <h1
+          style={{
+            margin: 0,
+            fontSize: "clamp(3.4rem,7vw,6.2rem)",
+            lineHeight: .9,
+            letterSpacing: "-.06em",
+            fontWeight: 900,
+            color: "#1a1e14",
+          }}
+        >
+          Build Your
+          <br />
+          <span
+            style={{
+              background:
+                "linear-gradient(135deg,#3a5c06 0%,#62840b 40%,#97b64c 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
             }}
-              onMouseEnter={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 10px 20px rgba(151,182,76,0.28)" }}
-              onMouseLeave={e => { e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 6px 16px rgba(151,182,76,0.22)" }}
-            >Apply Now →</a>
+          >
+            Milkshop Empire.
+          </span>
+        </h1>
+
+        {/* desc */}
+        <p
+          style={{
+            margin: 0,
+            maxWidth: 480,
+            fontSize: "1rem",
+            lineHeight: 1.9,
+            color: "#526142",
+          }}
+        >
+          Start with a trusted milk tea brand built for modern Filipino entrepreneurs. Fast setup, premium branding, and full operational support.
+        </p>
+
+        {/* buttons */}
+        <div
+          style={{
+            display: "flex",
+            gap: 14,
+            flexWrap: "wrap",
+          }}
+        >
+          <a href="#inquiry" className="fh-btn-main">
+            Apply for Franchise →
+          </a>
+
+          <a href="#packages" className="fh-btn-secondary">
+            Explore Packages
+          </a>
+        </div>
+
+        {/* mini stats */}
+        <div
+          className="max-sm:grid-cols-1"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3,1fr)",
+            gap: 14,
+            marginTop: 8,
+          }}
+        >
+          {[
+            ["150+", "Branches"],
+            ["12-18", "ROI Months"],
+            ["3", "Store Formats"],
+          ].map((item) => (
+            <div
+              key={item[1]}
+              className="fh-glass"
+              style={{
+                borderRadius: 22,
+                padding: "18px 18px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "1.6rem",
+                  fontWeight: 900,
+                  color: "#1a2e0a",
+                  letterSpacing: "-.04em",
+                }}
+              >
+                {item[0]}
+              </div>
+
+              <div
+                style={{
+                  marginTop: 4,
+                  fontSize: ".76rem",
+                  color: "#62840b",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: ".08em",
+                }}
+              >
+                {item[1]}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* RIGHT VISUAL */}
+      <div
+        className="fh-reveal"
+        style={{
+          position: "relative",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 720,
+          animationDelay: ".15s",
+        }}
+      >
+        {/* rotating ring */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            width: 640,
+            height: 640,
+            borderRadius: "50%",
+            border: "1px solid rgba(151,182,76,.12)",
+            animation: "fhRotate 26s linear infinite",
+            zIndex: 0,
+          }}
+        />
+
+        {/* floating cards */}
+        <div
+          className="fh-glass"
+          style={{
+            position: "absolute",
+            top: 90,
+            left: 20,
+            padding: "16px 18px",
+            borderRadius: 24,
+            animation: "fhFloat 5s ease-in-out infinite",
+            zIndex: 5,
+          }}
+        >
+          <div
+            style={{
+              fontSize: ".7rem",
+              fontWeight: 800,
+              color: "#62840b",
+              letterSpacing: ".08em",
+            }}
+          >
+            ROI TARGET
           </div>
 
+          <div
+            style={{
+              marginTop: 6,
+              fontSize: "1.6rem",
+              fontWeight: 900,
+              color: "#1a2e0a",
+            }}
+          >
+            12–18 mo
+          </div>
+        </div>
+
+        <div
+          className="fh-glass"
+          style={{
+            position: "absolute",
+            right: 20,
+            bottom: 110,
+            padding: "18px 20px",
+            borderRadius: 24,
+            animation: "fhFloatSlow 6s ease-in-out infinite",
+            zIndex: 5,
+          }}
+        >
+          <div
+            style={{
+              fontSize: ".72rem",
+              fontWeight: 800,
+              color: "#62840b",
+              letterSpacing: ".08em",
+            }}
+          >
+            ACTIVE BRANCHES
+          </div>
+
+          <div
+            style={{
+              marginTop: 6,
+              fontSize: "1.8rem",
+              fontWeight: 900,
+              color: "#1a2e0a",
+            }}
+          >
+            150+
+          </div>
+        </div>
+
+        {/* main image */}
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            maxWidth: 560,
+            borderRadius: 40,
+            overflow: "hidden",
+            boxShadow: "0 40px 100px rgba(58,92,6,.22)",
+            animation: "fhFloat 6s ease-in-out infinite",
+            zIndex: 2,
+          }}
+        >
+          <img
+            src={packages[1].image}
+            alt="Milkshop Franchise"
+            style={{
+              width: "100%",
+              height: "720px",
+              objectFit: "cover",
+              display: "block",
+            }}
+          />
+
+          {/* overlay */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "linear-gradient(180deg, rgba(26,34,20,.02) 0%, rgba(26,34,20,.5) 100%)",
+            }}
+          />
+
+          {/* bottom glass */}
+          <div
+            className="fh-glass"
+            style={{
+              position: "absolute",
+              left: 24,
+              right: 24,
+              bottom: 24,
+              borderRadius: 28,
+              padding: "22px 24px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: ".72rem",
+                fontWeight: 800,
+                letterSpacing: ".12em",
+                color: "#62840b",
+                textTransform: "uppercase",
+              }}
+            >
+              Featured Package
+            </div>
+
+            <div
+              style={{
+                marginTop: 10,
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 20,
+                alignItems: "flex-end",
+                flexWrap: "wrap",
+              }}
+            >
+              <div>
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: "1.6rem",
+                    fontWeight: 900,
+                    letterSpacing: "-.04em",
+                    color: "#1a2e0a",
+                  }}
+                >
+                  {packages[1].emoji} {packages[1].label}
+                </h3>
+
+                <p
+                  style={{
+                    margin: "8px 0 0",
+                    fontSize: ".92rem",
+                    color: "#526142",
+                  }}
+                >
+                  {packages[1].tagline}
+                </p>
+              </div>
+
+              <a
+                href="#packages"
+                className="fh-btn-main"
+                style={{
+                  padding: "14px 24px",
+                  fontSize: ".82rem",
+                }}
+              >
+                View Package →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Three floating package images (Cart, Kiosk, In-line) — desktop */}
+        <div
+          className="max-lg:hidden"
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            zIndex: 4,
+          }}
+        >
+          {[
+            { pkg: packages[0], top: "5%", right: "2%", width: "clamp(104px, 11vw, 144px)", rot: 8, dur: "5.8s", delay: "0s" },
+            { pkg: packages[2], top: "32%", left: "-2%", width: "clamp(110px, 11.5vw, 150px)", rot: -7, dur: "6.4s", delay: "0.28s" },
+            { pkg: packages[1], bottom: "30%", right: "1%", width: "clamp(96px, 10vw, 132px)", rot: 5, dur: "6s", delay: "0.5s" },
+          ].map(({ pkg, top, right, bottom, left, width, rot, dur, delay }) => (
+            <a
+              key={`hero-float-${pkg.id}`}
+              href="#packages"
+              aria-label={`View ${pkg.label} franchise package`}
+              className="fh-glass"
+              style={{
+                position: "absolute",
+                ...(top != null ? { top } : {}),
+                ...(bottom != null ? { bottom } : {}),
+                ...(left != null ? { left } : {}),
+                ...(right != null ? { right } : {}),
+                width,
+                padding: 9,
+                borderRadius: 22,
+                textDecoration: "none",
+                pointerEvents: "auto",
+                animation: `fhPkgBob ${dur} ease-in-out infinite`,
+                animationDelay: delay,
+                boxShadow: "0 18px 44px rgba(58,92,6,0.2)",
+              }}
+            >
+              <div
+                style={{
+                  borderRadius: 14,
+                  overflow: "hidden",
+                  transform: `rotate(${rot}deg)`,
+                  border: "1px solid rgba(151,182,76,0.28)",
+                  lineHeight: 0,
+                  background: "rgba(255,255,255,0.55)",
+                }}
+              >
+                <img
+                  src={pkg.image}
+                  alt=""
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    aspectRatio: "4 / 3",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.src = PACKAGE_IMG_FALLBACK;
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  marginTop: 7,
+                  fontSize: ".62rem",
+                  fontWeight: 800,
+                  color: "#62840b",
+                  textAlign: "center",
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                }}
+              >
+                {pkg.emoji} {pkg.label}
+              </div>
+            </a>
+          ))}
         </div>
       </div>
     </div>
   </div>
+</section>
 
-  {/* Scroll cue */}
-  <div style={{
-    position:"absolute", bottom:24, right:"clamp(24px, 5vw, 64px)",
-    display:"flex", alignItems:"center", gap:8,
-    opacity:0.46, zIndex:5,
-  }}>
-    <div style={{
-      width:36, height:1, overflow:"hidden",
-      background:"rgba(98,132,11,0.2)", borderRadius:1, position:"relative",
-    }}>
-      <div style={{
-        position:"absolute", left:0, width:"42%", height:"100%",
-        background:"#97b64c", borderRadius:1,
-        animation:"fhScrollLine 1.8s ease-in-out infinite",
-      }} />
+{/* ══════════════════════════════════════
+     FRANCHISING PROCESS SECTION
+══════════════════════════════════════ */}
+<section
+  ref={processSectionRef}
+  id="process"
+  data-track-section="Franchising Process"
+  className="relative overflow-hidden"
+  style={{ background:"linear-gradient(160deg,#f3f9ea 0%,#ffffff 50%,#f0f7e6 100%)", padding:"clamp(60px,8vw,100px) 0" }}
+>
+  <div style={{ maxWidth:1380, margin:"0 auto", padding:"0 clamp(20px,4vw,56px)", width:"100%", boxSizing:"border-box" }}>
+
+    {/* Section header */}
+    <Slide direction="up" className="text-center" style={{ marginBottom:48 }}>
+      <p style={{ fontSize:"11px", fontWeight:800, letterSpacing:"0.3em", textTransform:"uppercase", color:"#97b64c", fontFamily:"'DM Sans',sans-serif", marginBottom:8 }}>How It Works</p>
+      <h2 style={{ fontSize:"clamp(2.2rem,5vw,3.5rem)", fontWeight:900, letterSpacing:"-0.04em", color:"#1a1e14", margin:0, fontFamily:"'DM Sans',sans-serif" }}>
+        Your Path to Ownership
+      </h2>
+    </Slide>
+
+    {/* Main content: image left, details right */}
+    <div style={{ display:"grid", gridTemplateColumns:"1.1fr 0.9fr", gap:"clamp(24px,4vw,56px)", alignItems:"center" }} className="max-lg:grid-cols-1">
+
+      {/* LEFT — Image */}
+      <div
+        ref={heroProcessPanelRef}
+        key={activeStep}
+        className="fh-step-card"
+        style={{ borderRadius:24, overflow:"hidden", position:"relative", height:"clamp(340px,52vh,560px)", border:"1px solid rgba(151,182,76,0.2)", background:"#1a2214", boxShadow:"0 24px 64px rgba(98,132,11,0.14)" }}
+      >
+        {!heroProcessImgFailed ? (
+          <img
+            key={steps[activeStep].image}
+            src={steps[activeStep].image}
+            alt={`Milkshop franchise — ${steps[activeStep].title}`}
+            loading={activeStep === 0 ? "eager" : "lazy"}
+            decoding="async"
+            style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", display:"block" }}
+            onError={() => setHeroProcessImgFailed(true)}
+          />
+        ) : (
+          <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", background:"#eef3e4", fontFamily:"'DM Sans',sans-serif", fontSize:12, fontWeight:600, color:"#62840b" }}>
+            Add photo
+            <span style={{ fontWeight:500, color:"#7b9461", fontSize:11, marginTop:6 }}>public/franchise/process/step-{steps[activeStep].step}.jpg</span>
+          </div>
+        )}
+        {!heroProcessImgFailed && <div aria-hidden style={{ position:"absolute", inset:0, background:"rgba(26,34,20,0.18)", pointerEvents:"none" }} />}
+
+        {/* Step number badge on image */}
+        <div style={{ position:"absolute", top:20, left:20, zIndex:2, background:"rgba(26,34,20,0.75)", backdropFilter:"blur(8px)", border:"1px solid rgba(255,255,255,0.12)", borderRadius:999, padding:"6px 14px", display:"flex", alignItems:"center", gap:8 }}>
+          <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"10px", fontWeight:800, letterSpacing:"0.15em", color:"#c5d9a3" }}>STEP {steps[activeStep].step}</span>
+          <span style={{ fontSize:"0.9rem" }}>{steps[activeStep].icon}</span>
+        </div>
+      </div>
+
+      {/* RIGHT — Step details + nav */}
+      <div style={{ display:"flex", flexDirection:"column", gap:28 }}>
+
+        {/* Step counter */}
+        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+          <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"clamp(2.5rem,5vw,4rem)", fontWeight:900, color:"rgba(151,182,76,0.2)", lineHeight:1 }}>
+            {String(activeStep + 1).padStart(2,"0")}
+          </span>
+          <div style={{ width:1, height:48, background:"rgba(151,182,76,0.25)" }} />
+          <div>
+            <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"10px", fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:"#97b64c", margin:"0 0 2px" }}>Current Step</p>
+            <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"0.75rem", color:"#7b9461", margin:0 }}>of {steps.length} total steps</p>
+          </div>
+        </div>
+
+        {/* Title + desc */}
+        <div>
+          <h3 style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"clamp(1.5rem,3vw,2.1rem)", fontWeight:900, color:"#1a2e0a", margin:"0 0 12px", letterSpacing:"-0.03em", lineHeight:1.1 }}>
+            {steps[activeStep].title}
+          </h3>
+          <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"clamp(0.88rem,1.5vw,1rem)", lineHeight:1.75, color:"#4d5c3a", margin:0 }}>
+            {steps[activeStep].desc}
+          </p>
+        </div>
+
+        {/* Progress bar */}
+        <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+          <div style={{ display:"flex", justifyContent:"space-between" }}>
+            <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"10px", fontWeight:700, color:"#97b64c" }}>Progress</span>
+            <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"10px", color:"#7b9461" }}>{Math.round(((activeStep + 1) / steps.length) * 100)}%</span>
+          </div>
+          <div style={{ height:5, background:"rgba(151,182,76,0.14)", borderRadius:999, overflow:"hidden" }}>
+            <div style={{ height:"100%", width:`${((activeStep + 1) / steps.length) * 100}%`, background:"linear-gradient(90deg,#62840b,#97b64c)", borderRadius:999, transition:"width 0.5s cubic-bezier(0.16,1,0.3,1)" }} />
+          </div>
+        </div>
+
+        {/* Step dots */}
+        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+          {steps.map((s, i) => (
+            <button key={s.step} onClick={() => setActiveStep(i)} aria-label={s.title}
+              style={{ width: activeStep === i ? 28 : 8, height:8, borderRadius:999, border:"none", cursor:"pointer", background: i < activeStep ? "#97b64c" : activeStep === i ? "#62840b" : "rgba(151,182,76,0.25)", transition:"all 0.35s cubic-bezier(0.16,1,0.3,1)", padding:0 }} />
+          ))}
+        </div>
+
+        {/* Prev / Next buttons */}
+        <div style={{ display:"flex", gap:12 }}>
+          <button onClick={() => setActiveStep((p) => Math.max(0, p - 1))} disabled={activeStep === 0}
+            style={{ flex:1, padding:"12px 0", borderRadius:999, border:"1.5px solid rgba(151,182,76,0.35)", background: activeStep === 0 ? "rgba(151,182,76,0.05)" : "rgba(151,182,76,0.1)", color: activeStep === 0 ? "#bdd49a" : "#62840b", fontFamily:"'DM Sans',sans-serif", fontSize:"0.85rem", fontWeight:700, cursor: activeStep === 0 ? "not-allowed" : "pointer", transition:"all 0.2s ease" }}>
+            ‹ Previous
+          </button>
+          <button onClick={() => setActiveStep((p) => Math.min(steps.length - 1, p + 1))} disabled={activeStep === steps.length - 1}
+            style={{ flex:1, padding:"12px 0", borderRadius:999, border:"none", background: activeStep === steps.length - 1 ? "#b7cd7f" : "linear-gradient(135deg,#62840b,#97b64c)", color:"#fff", fontFamily:"'DM Sans',sans-serif", fontSize:"0.85rem", fontWeight:700, cursor: activeStep === steps.length - 1 ? "not-allowed" : "pointer", boxShadow: activeStep === steps.length - 1 ? "none" : "0 8px 24px rgba(98,132,11,0.28)", transition:"all 0.2s ease" }}>
+            Next ›
+          </button>
+        </div>
+
+      </div>
     </div>
-    <span style={{
-      fontFamily:"'DM Mono',monospace",
-      fontSize:"8px", letterSpacing:"0.14em",
-      textTransform:"uppercase", color:"#62840b",
-    }}>Scroll</span>
   </div>
-
 </section>
 
 
@@ -1143,7 +1967,7 @@ export default function Franchise() {
     filter: "blur(24px)", pointerEvents: "none",
   }} />
 
-  <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-16 z-10">
+  <div className="relative max-w-[min(100%,1600px)] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 z-10">
 
     {/* Header */}
     <Slide direction="up" className="text-center mb-4">
