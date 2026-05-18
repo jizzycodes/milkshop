@@ -5,14 +5,72 @@ const logo = "/milkshop-logo-removebg-preview.png";
 // ─── DATA (unchanged) ────────────────────────────────────────────────────────
 
 
-const milestones = [
-  { year: "2015", label: "Founded in Taiwan",      desc: "Milkshop 秘客侠 opens its first store in Taiwan with a singular mission — to redefine what milk tea could be. Real milk. Real flavor. No shortcuts.", icon: "🏪" },
-  { year: "2018", label: "Popping Boba Born",      desc: "After 3 years of R&D, Milkshop introduces the Popping Boba series — a first in Taiwanese beverage culture. Each boba bursts with real fruit juice on first bite.", icon: "🫧" },
-  { year: "2020", label: "Brand Expansion",        desc: "Milkshop grows beyond its first store, establishing its production facility and standardized supply chain to ensure every cup tastes exactly the same — everywhere.", icon: "🏭" },
-  { year: "2022", label: "Philippines Launch",     desc: "Milkshop lands in Manila as the first Taiwanese Popping Boba brand in the Philippines. The response from Filipino milk tea lovers is overwhelming.", icon: "🇵🇭" },
-  { year: "2023", label: "Franchise Program Opens",desc: "The official Milkshop franchise program launches, offering Filipino entrepreneurs three investment tiers to bring the brand to their own communities.", icon: "🤝" },
-  { year: "2024", label: "15+ Branches Nationwide",desc: "From Metro Manila to Mindanao, Milkshop now operates 15 branches across the Philippines — with more territories opening every quarter.", icon: "📍" },
+const historyBlocks = [
+  {
+    image: "/about/history/storefront.png",
+    fallback: "/HEROFRESH.jpg",
+    alt: "Milkshop storefront — The Fresh Taste of Taiwan",
+    label: "2022 — Arrival in PH",
+    content: (
+      <>
+        Since <strong>January 2022</strong>, we&apos;ve brought the authentic taste of Taiwan to the Philippines!
+      </>
+    ),
+  },
+  {
+    image: "/about/history/grand-opening.png",
+    fallback: "/closer.jpg",
+    alt: "Milkshop grand opening ribbon cutting",
+    label: "Local Taste Evolution",
+    content: (
+      <>
+        By learning local preferences, we continually improve to satisfy every taste bud.
+      </>
+    ),
+  },
+  {
+    image: "/about/history/ingredientss.png",
+    fallback: "/hero-bg-3.png",
+    alt: "Milkshop signature Taiwan green, black, and oolong tea",
+    label: "Premium Ingredients",
+    content: (
+      <>
+        We craft <em>authentic</em> Taiwanese flavors using premium ingredients{" "}
+        <strong>imported from Taiwan.</strong>
+      </>
+    ),
+  },
+  {
+    image: "/hero-bg-3.png",
+    fallback: "/LOGOLAND.png",
+    alt: "Milkshop brand",
+    imageFirst: false,
+    content: (
+      <>
+        Our true Taiwanese taste won hearts, making <strong>originality</strong> Milkshop&apos;s hallmark.
+      </>
+    ),
+  },
 ];
+
+function HistoryImage({ src, fallback, alt }) {
+  const [imgSrc, setImgSrc] = useState(src);
+  return (
+    <img
+      src={imgSrc}
+      alt={alt}
+      onError={() => {
+        if (imgSrc !== fallback) setImgSrc(fallback);
+      }}
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        display: "block",
+      }}
+    />
+  );
+}
 
 const rawMaterials = [
   {
@@ -699,65 +757,452 @@ export default function About() {
       </section>
 
  
-      {/* ══════════════════════════════════════════════
-          SLIDE 3 — TIMELINE
-      ══════════════════════════════════════════════ */}
-      <section data-track-section="Company Timeline" className="relative py-28 bg-white overflow-hidden">
-        {/* Vertical line */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-px hidden lg:block" style={{ backgroundColor: "#e8f0dc" }} />
+     {/* ══════════════════════════════════════════════
+    COMPANY HISTORY — PREMIUM TIMELINE
+══════════════════════════════════════════════ */}
+<section
+  data-track-section="Company History"
+  className="relative overflow-hidden py-24 sm:py-32"
+  style={{
+    background:
+      "linear-gradient(180deg, #eef6d6 0%, #e4f0c8 45%, #edf5dc 100%)",
+  }}
+>
+  <style>{`
+    @keyframes historyOrbDrift {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50%      { transform: translate(28px, -22px) scale(1.06); }
+    }
+    @keyframes historyHeaderIn {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes historyTitlePop {
+      0%   { opacity: 0; transform: translateY(20px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes historyAccentGrow {
+      from { transform: scaleX(0); opacity: 0; }
+      to   { transform: scaleX(1); opacity: 1; }
+    }
+    @keyframes historyLeafSway {
+      0%, 100% { transform: rotate(-6deg); }
+      50%      { transform: rotate(8deg); }
+    }
+    @keyframes historyDotPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(232,160,32,0.45), 0 0 20px rgba(232,160,32,0.35); }
+      50%      { box-shadow: 0 0 0 10px rgba(232,160,32,0), 0 0 28px rgba(232,160,32,0.5); }
+    }
+    @keyframes historyShine {
+      0%   { transform: translateX(-120%) skewX(-12deg); }
+      100% { transform: translateX(220%) skewX(-12deg); }
+    }
+    .history-header-wrap {
+      animation: historyHeaderIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .history-title-about {
+      display: inline-block;
+      animation: historyTitlePop 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+      color: #62840b;
+      text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.95), 0 3px 18px rgba(98, 132, 11, 0.22);
+    }
+    .history-title-milkshop {
+      display: inline-block;
+      animation: historyTitlePop 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
+      color: #E8A020;
+      text-shadow: 2px 2px 0 rgba(72, 48, 0, 0.12), 0 4px 22px rgba(232, 160, 32, 0.38);
+    }
+    .history-accent-bar {
+      height: 4px;
+      width: min(200px, 42vw);
+      margin: 22px auto 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #62840b, #97b64c, #E8A020);
+      transform-origin: center;
+      animation: historyAccentGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+    }
+    .history-icon-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: clamp(52px, 8vw, 64px);
+      height: clamp(52px, 8vw, 64px);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.72);
+      border: 2px solid rgba(151, 182, 76, 0.35);
+      box-shadow: 0 8px 24px rgba(98, 132, 11, 0.12);
+      font-size: clamp(1.5rem, 3vw, 1.85rem);
+      flex-shrink: 0;
+    }
+    .history-icon-leaf { animation: historyLeafSway 4s ease-in-out infinite; }
+    .history-orb-a { animation: historyOrbDrift 16s ease-in-out infinite; }
+    .history-orb-b { animation: historyOrbDrift 20s ease-in-out infinite reverse; }
+    .history-timeline-dot { animation: historyDotPulse 2.8s ease-in-out infinite; }
+    .history-img-card {
+      transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.55s ease;
+    }
+    .history-img-card:hover {
+      transform: perspective(1200px) rotateY(0deg) translateY(-6px) !important;
+      box-shadow: 0 36px 90px rgba(98, 132, 11, 0.24) !important;
+    }
+    .history-img-card img { transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1); }
+    .history-img-card:hover img { transform: scale(1.05); }
+    .history-img-shine {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      border-radius: inherit;
+    }
+    .history-img-shine::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 45%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+      animation: historyShine 5s ease-in-out infinite;
+      animation-delay: 1.2s;
+    }
+    .history-text-panel { transition: transform 0.4s ease; }
+    .history-text-panel:hover { transform: translateY(-4px); }
+    @media (prefers-reduced-motion: reduce) {
+      .history-header-wrap, .history-title-about, .history-title-milkshop, .history-accent-bar {
+        animation: none; opacity: 1; transform: none;
+      }
+      .history-icon-leaf, .history-orb-a, .history-orb-b, .history-timeline-dot, .history-img-shine::after {
+        animation: none;
+      }
+      .history-img-card:hover { transform: none !important; }
+      .history-img-card:hover img { transform: none; }
+    }
+  `}</style>
 
-        <div className="max-w-6xl mx-auto px-8 lg:px-16">
-          <Slide direction="up" className="text-center mb-4">
-            <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>Company History</p>
-          </Slide>
-          <Slide direction="up" delay={60} className="text-center mb-6">
-            <h2 className="font-black" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", color: "#1e1e1e", letterSpacing: "-0.03em" }}>
-              A Decade in the Making
-            </h2>
-          </Slide>
-          <Slide direction="up" delay={100} className="text-center mb-20">
-            <p className="text-base max-w-lg mx-auto leading-relaxed" style={{ color: "#5a5a5a" }}>
-              From a single store in Taiwan to a growing franchise network in the Philippines — here's how Milkshop became what it is today.
-            </p>
-          </Slide>
+  {/* ── BACKGROUND GLOWS ── */}
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      overflow: "hidden",
+      pointerEvents: "none",
+    }}
+  >
+    <div
+      className="history-orb-a"
+      style={{
+        position: "absolute",
+        width: 420,
+        height: 420,
+        borderRadius: "50%",
+        background: "rgba(232,160,32,.10)",
+        filter: "blur(80px)",
+        top: -120,
+        left: -120,
+      }}
+    />
 
-          <div className="flex flex-col gap-0">
-            {milestones.map((m, i) => (
-              <Slide
-                key={m.year}
-                direction={i % 2 === 0 ? "left" : "right"}
-                delay={i * 60}
-                className={`relative flex flex-col lg:flex-row items-start lg:items-center gap-6 lg:gap-10 pb-14 ${i % 2 !== 0 ? "lg:flex-row-reverse" : ""}`}
+    <div
+      className="history-orb-b"
+      style={{
+        position: "absolute",
+        width: 380,
+        height: 380,
+        borderRadius: "50%",
+        background: "rgba(98,132,11,.12)",
+        filter: "blur(80px)",
+        bottom: -100,
+        right: -100,
+      }}
+    />
+
+    <div
+      aria-hidden
+      style={{
+        position: "absolute",
+        inset: 0,
+        opacity: 0.35,
+        backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.12) 1px, transparent 1px)",
+        backgroundSize: "26px 26px",
+      }}
+    />
+  </div>
+
+  {/* ── CENTER TIMELINE ── */}
+  {!isMobile && (
+    <div
+      style={{
+        position: "absolute",
+        left: "50%",
+        top: 220,
+        transform: "translateX(-50%)",
+        width: 4,
+        height: "68%",
+        borderRadius: 999,
+        background:
+          "linear-gradient(to bottom, rgba(98,132,11,0), rgba(98,132,11,.35), rgba(98,132,11,0))",
+      }}
+    />
+  )}
+
+  <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-10 lg:px-16">
+    {/* ── HEADER ── */}
+    <div className="history-header-wrap text-center mb-20 sm:mb-24">
+      <div
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 12,
+          marginBottom: 20,
+        }}
+      >
+        <div style={{ width: 32, height: 1.5, background: "linear-gradient(to right, transparent, #97b64c)" }} />
+        <p
+          style={{
+            margin: 0,
+            fontSize: ".78rem",
+            fontWeight: 800,
+            letterSpacing: ".32em",
+            textTransform: "uppercase",
+            color: "#62840b",
+          }}
+        >
+          Company History
+        </p>
+        <div style={{ width: 32, height: 1.5, background: "linear-gradient(to left, transparent, #97b64c)" }} />
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "clamp(16px, 4vw, 36px)",
+          flexWrap: "wrap",
+        }}
+      >
+        <span className="history-icon-badge" aria-hidden>
+          🇹🇼
+        </span>
+
+        <h2
+          style={{
+            margin: 0,
+            fontFamily: "'Signia Pro', 'DM Sans', sans-serif",
+            fontSize: "clamp(2.6rem, 7.5vw, 5.6rem)",
+            lineHeight: 0.95,
+            fontWeight: 900,
+            letterSpacing: "-0.05em",
+          }}
+        >
+          <span className="history-title-about">ABOUT </span>
+          <span className="history-title-milkshop">MILKSHOP</span>
+        </h2>
+
+        <span className="history-icon-badge history-icon-leaf" aria-hidden>
+          🍃
+        </span>
+      </div>
+
+      <div className="history-accent-bar" aria-hidden />
+
+      <p
+        style={{
+          marginTop: 28,
+          maxWidth: 640,
+          marginInline: "auto",
+          fontSize: "clamp(1rem, 2vw, 1.15rem)",
+          lineHeight: 1.75,
+          color: "#4d5c3a",
+          fontWeight: 500,
+        }}
+      >
+        Bringing the authentic taste of Taiwan to the Philippines — crafted with premium
+        ingredients, evolving with every Filipino taste bud.
+      </p>
+    </div>
+
+    {/* ── TIMELINE BLOCKS ── */}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "clamp(42px, 6vw, 78px)",
+      }}
+    >
+      {historyBlocks.map((block, i) => {
+        const imageLeft = isMobile ? true : i % 2 === 0;
+
+        return (
+          <Slide
+            key={block.image}
+            direction={imageLeft ? "left" : "right"}
+            delay={i * 100}
+          >
+            <div
+              style={{
+                position: "relative",
+                display: "grid",
+                gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                gap: "clamp(26px, 4vw, 58px)",
+                alignItems: "center",
+              }}
+            >
+              {/* ── TIMELINE DOT ── */}
+              {!isMobile && (
+                <div
+                  className="history-timeline-dot"
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: "translate(-50%, -50%)",
+                    width: 24,
+                    height: 24,
+                    borderRadius: "50%",
+                    background: "#E8A020",
+                    border: "5px solid white",
+                    zIndex: 20,
+                  }}
+                />
+              )}
+
+              {/* ── IMAGE ── */}
+              <div
+                style={{
+                  order: imageLeft ? 0 : 1,
+                  position: "relative",
+                }}
               >
-                {/* Card */}
-                <div className={`flex-1 ${i % 2 === 0 ? "lg:text-right" : "lg:text-left"}`}>
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: -12,
+                    borderRadius: 30,
+                    background:
+                      "linear-gradient(135deg, rgba(255,255,255,.5), rgba(255,255,255,.08))",
+                    filter: "blur(12px)",
+                  }}
+                />
+
+                <div
+                  className="history-img-card"
+                  style={{
+                    position: "relative",
+                    overflow: "hidden",
+                    borderRadius: 28,
+                    background: "rgba(255,255,255,.55)",
+                    backdropFilter: "blur(14px)",
+                    border: "1px solid rgba(255,255,255,.7)",
+                    boxShadow: "0 30px 80px rgba(98,132,11,0.18)",
+                    transform: imageLeft
+                      ? "perspective(1200px) rotateY(-5deg)"
+                      : "perspective(1200px) rotateY(5deg)",
+                  }}
+                >
                   <div
-                    className={`inline-block rounded-2xl p-6 max-w-sm transition-all duration-300 hover:shadow-lg ${i % 2 === 0 ? "lg:ml-auto" : ""}`}
-                    style={{ backgroundColor: "#f5f8ef", border: "1px solid #e0ebd0" }}
+                    style={{
+                      aspectRatio: "4 / 3",
+                      overflow: "hidden",
+                    }}
                   >
-                    <div className={`flex items-center gap-2 mb-2 ${i % 2 === 0 ? "lg:justify-end" : ""}`}>
-                      <span className="text-xl">{m.icon}</span>
-                      <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#97b64c" }}>{m.label}</p>
-                    </div>
-                    <p className="text-sm leading-relaxed" style={{ color: "#5a5a5a" }}>{m.desc}</p>
+                    <HistoryImage
+                      src={block.image}
+                      fallback={block.fallback}
+                      alt={block.alt}
+                    />
                   </div>
+
+                  <div className="history-img-shine" aria-hidden />
+
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        "linear-gradient(to top, rgba(0,0,0,.18), transparent 40%)",
+                      pointerEvents: "none",
+                    }}
+                  />
                 </div>
+              </div>
 
-                {/* Year dot */}
-                <div className="lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex flex-col items-center gap-1 shrink-0">
-                  <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg ring-4 ring-white" style={{ backgroundColor: "#97b64c" }}>
-                    <span className="text-white text-xs font-black" style={{ fontFamily: "'DM Mono', monospace" }}>'{m.year.slice(2)}</span>
-                  </div>
-                  <span className="text-xs font-bold hidden lg:block mt-1" style={{ color: "#1e1e1e", fontFamily: "'DM Mono', monospace" }}>{m.year}</span>
-                </div>
+              {/* ── TEXT ── */}
+              <div
+                className="history-text-panel"
+                style={{
+                  order: imageLeft ? 1 : 0,
+                  textAlign: isMobile
+                    ? "center"
+                    : imageLeft
+                    ? "left"
+                    : "right",
+                }}
+              >
+                <p
+                  style={{
+                    margin: 0,
+                    marginBottom: 14,
+                    fontSize: ".82rem",
+                    fontWeight: 800,
+                    letterSpacing: ".18em",
+                    textTransform: "uppercase",
+                    color: "#62840b",
+                  }}
+                >
+                  {i === 0
+                    ? "2022 — Arrival in PH"
+                    : i === 1
+                    ? "Local Taste Evolution"
+                    : "Authentic Taiwanese Craft"}
+                </p>
 
-                <div className="flex-1 hidden lg:block" />
-              </Slide>
-            ))}
-          </div>
-        </div>
-      </section>
+                <p
+                  style={{
+                    margin: 0,
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "clamp(1.1rem, 2.1vw, 1.38rem)",
+                    lineHeight: 1.8,
+                    color: "#1a1e14",
+                    fontWeight: 500,
+                  }}
+                >
+                  {block.content}
+                </p>
+              </div>
+            </div>
+          </Slide>
+        );
+      })}
+    </div>
 
+    {/* ── ENDING STATEMENT ── */}
+    <Slide direction="up">
+      <div
+        style={{
+          textAlign: "center",
+          marginTop: "clamp(80px, 10vw, 140px)",
+        }}
+      >
+        <p
+          style={{
+            margin: 0,
+            fontFamily: "'Signia Pro', 'DM Sans', sans-serif",
+            fontSize: "clamp(2rem, 4vw, 3.4rem)",
+            fontWeight: 900,
+            lineHeight: 1.2,
+            letterSpacing: "-0.04em",
+            color: "#62840b",
+          }}
+        >
+          From Taiwan to the Philippines —
+          <br />
+          one cup at a time.
+        </p>
+      </div>
+    </Slide>
+  </div>
+</section>
    
 
       {/* ══════════════════════════════════════════════
