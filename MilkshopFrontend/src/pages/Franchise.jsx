@@ -87,7 +87,13 @@ const inputErr  = "border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 fo
 
 const FRANCHISE_FORM_ID = "inquiry";
 
-/** Scoped to this page route — prevents horizontal overflow and scrollbar gutter jump when scroll-lock runs */
+/** ~100 ≈ one mouse-wheel detent; sum 3 detents → advance one process step. */
+const PROCESS_WHEEL_NOTCHES_PER_STEP = 3;
+const PROCESS_DELTA_PER_WHEEL_NOTCH = 100;
+const PROCESS_WHEEL_STEP_THRESHOLD =
+  PROCESS_WHEEL_NOTCHES_PER_STEP * PROCESS_DELTA_PER_WHEEL_NOTCH;
+
+/** Scoped to this page route — overflow + stable gutter when process scroll-lock runs */
 const franchisePageStyles = `
   html {
     overflow-x: hidden;
@@ -120,17 +126,21 @@ const franchisePageStyles = `
   }
 `;
 
+
+
 // ─── PACKAGE CARDS COMPONENT ────────────────────────────────────────────────
+// Drop-in replacement. Requires: useState, useEffect from "react", createPortal from "react-dom"
+// Requires: Slide component from parent scope (already defined in Franchise.jsx)
 
 const packages = [
   {
     id: "cart",
-    emoji: "🛒",
+    emoji: "",
     label: "Cart",
     tagline: "Start Small, Dream Big",
     price: "Entry-level investment",
     term: "2-year term",
-    badge: null,
+    badge: "Best Starter",
     color: "#62840b",
     accentBg: "rgba(151,182,76,0.07)",
     borderSelected: "#97b64c",
@@ -145,7 +155,7 @@ const packages = [
   },
   {
     id: "kiosk",
-    emoji: "🏪",
+    emoji: "",
     label: "Kiosk",
     tagline: "The Sweet Spot",
     price: "Mid-range investment",
@@ -212,9 +222,7 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
 
   useEffect(() => {
     if (!lightbox) return;
-    const onKey = (e) => {
-      if (e.key === "Escape") setLightbox(null);
-    };
+    const onKey = (e) => { if (e.key === "Escape") setLightbox(null); };
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
@@ -227,439 +235,441 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
   return (
     <>
       <style>{`
-        @keyframes pkg-img-zoom {
-          from { transform: scale(1.08); }
-          to   { transform: scale(1); }
-        }
         @keyframes pkg-check-pop {
-          0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
-          65%  { transform: scale(1.18) rotate(4deg); opacity: 1; }
+          0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+          60%  { transform: scale(1.22) rotate(5deg); opacity: 1; }
           100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
-        @keyframes pkg-glow-pulse {
-          0%,100% { box-shadow: 0 0 0 0 rgba(151,182,76,0.35), 0 24px 64px rgba(98,132,11,0.18); }
-          50%     { box-shadow: 0 0 0 8px rgba(151,182,76,0),  0 24px 64px rgba(98,132,11,0.18); }
+        @keyframes pkg-selected-lift {
+          from { transform: translateY(0) scale(1); }
+          to   { transform: translateY(-10px) scale(1.018); }
         }
-        .pkg-new-card {
+        @keyframes pkg-glow-ring {
+          0%,100% { box-shadow: 0 0 0 0 rgba(151,182,76,0.4), 0 28px 72px rgba(98,132,11,0.22); }
+          50%     { box-shadow: 0 0 0 10px rgba(151,182,76,0), 0 28px 72px rgba(98,132,11,0.22); }
+        }
+        @keyframes pkg-header-wash {
+          from { opacity: 0; transform: translateY(-8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pkg-img-enter {
+          from { transform: scale(1.06); }
+          to   { transform: scale(1); }
+        }
+        @keyframes pkg-btn-pop {
+          0%   { transform: scale(0.94); }
+          60%  { transform: scale(1.03); }
+          100% { transform: scale(1); }
+        }
+
+        .pkg-card-wrap {
           transition:
-            transform 0.38s cubic-bezier(0.16,1,0.3,1),
-            box-shadow 0.38s ease,
-            border-color 0.25s ease;
-          will-change: transform;
+            opacity 0.4s cubic-bezier(0.16,1,0.3,1),
+            transform 0.4s cubic-bezier(0.16,1,0.3,1);
+          will-change: transform, opacity;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
         }
-        .pkg-new-card:hover {
-          transform: translateY(-8px) scale(1.012);
+        .pkg-card-wrap.is-selected-wrap {
+          animation: pkg-selected-lift 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
         }
-        .pkg-new-card:hover .pkg-img-inner {
-          transform: scale(1.07);
+
+        .pkg-card {
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+          border-radius: 26px;
+          overflow: hidden;
+          cursor: pointer;
+          user-select: none;
+          -webkit-tap-highlight-color: transparent;
+          width: 100%;
+          position: relative;
+          background: #ffffff;
+          transition:
+            border-color 0.3s ease,
+            box-shadow 0.4s ease;
         }
-        .pkg-new-card.is-selected {
-          animation: pkg-glow-pulse 2.2s ease-in-out infinite;
-          transform: translateY(-6px) scale(1.015);
+        .pkg-card.is-selected {
+          animation: pkg-glow-ring 2.4s ease-in-out infinite;
+          border: 2.5px solid #97b64c !important;
         }
+        .pkg-card:not(.is-selected) {
+          border: 1.5px solid rgba(151,182,76,0.18);
+          box-shadow: 0 6px 24px rgba(98,132,11,0.07);
+        }
+
         .pkg-img-inner {
-          transition: transform 0.55s cubic-bezier(0.16,1,0.3,1);
+          transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
           will-change: transform;
         }
-        .pkg-check-icon {
-          animation: pkg-check-pop 0.42s cubic-bezier(0.16,1,0.3,1) forwards;
+        .pkg-card-wrap:not(.is-selected-wrap) .pkg-card:hover .pkg-img-inner {
+          transform: scale(1.06);
         }
+
+        .pkg-check-anim {
+          animation: pkg-check-pop 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+        .pkg-header-wash {
+          animation: pkg-header-wash 0.38s ease forwards;
+        }
+        .pkg-btn-selected {
+          animation: pkg-btn-pop 0.38s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+
         .pkg-select-btn {
           transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.18s ease;
         }
         .pkg-select-btn:hover {
-          transform: translateY(-1px);
+          transform: translateY(-2px);
         }
         .pkg-select-btn:active {
-          transform: scale(0.97);
+          transform: scale(0.96);
+        }
+
+        .pkg-view-btn {
+          transition: opacity 0.2s ease, background 0.2s ease;
+        }
+        .pkg-view-btn:hover {
+          opacity: 1 !important;
+          background: rgba(0,0,0,0.62) !important;
         }
       `}</style>
 
-      <div className="grid w-full min-w-0 grid-cols-1 items-stretch gap-[clamp(1.25rem,3.5vw,2.25rem)] md:grid-cols-3 md:items-stretch md:gap-x-[clamp(1.25rem,2.8vw,2rem)] md:gap-y-[clamp(1.5rem,3vw,2.5rem)]">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "clamp(1rem, 2.5vw, 1.75rem)",
+          width: "100%",
+          alignItems: "stretch",
+        }}
+        className="max-md:grid-cols-1"
+      >
         {packages.map((pkg, i) => {
           const isSelected = selected === pkg.id;
           const imgSrc = srcFor(pkg);
 
           return (
-            <Slide key={pkg.id} direction="up" delay={i * 90} className="flex h-full min-h-0 w-full min-w-0 flex-col">
-              <article
-                className={`pkg-new-card${isSelected ? " is-selected" : ""}`}
-                role="button"
-                tabIndex={0}
-                aria-pressed={isSelected}
-                aria-label={`Select ${pkg.label} package`}
-                onClick={() => handleSelect(pkg.id)}
-                onKeyDown={(ev) => {
-                  if (ev.key === "Enter" || ev.key === " ") {
-                    ev.preventDefault();
-                    handleSelect(pkg.id);
-                  }
-                }}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  flex: 1,
-                  borderRadius: 24,
-                  overflow: "hidden",
-                  cursor: "pointer",
-                  userSelect: "none",
-                  WebkitTapHighlightColor: "transparent",
-                  width: "100%",
-                  minHeight: "clamp(22rem, 52vw, 32rem)",
-                  border: isSelected
-                    ? "2px solid #97b64c"
-                    : "1.5px solid rgba(151,182,76,0.2)",
-                  background: "#ffffff",
-                  boxShadow: isSelected
-                    ? "0 24px 64px rgba(98,132,11,0.18)"
-                    : "0 8px 28px rgba(98,132,11,0.08)",
-                  position: "relative",
-                }}
+            <Slide key={pkg.id} direction="up" delay={i * 80} className="flex flex-col h-full">
+              <div
+                className={`pkg-card-wrap${isSelected ? " is-selected-wrap" : ""}`}
               >
-                {/* ── TOP GRADIENT BAR (selected only) ── */}
-                <div
-                  style={{
-                    height: 4,
-                    flexShrink: 0,
-                    background: isSelected ? "#97b64c" : "transparent",
-                    transition: "background 0.3s ease",
+                <article
+                  className={`pkg-card${isSelected ? " is-selected" : ""}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isSelected}
+                  aria-label={`Select ${pkg.label} package`}
+                  onClick={() => handleSelect(pkg.id)}
+                  onKeyDown={(ev) => {
+                    if (ev.key === "Enter" || ev.key === " ") {
+                      ev.preventDefault();
+                      handleSelect(pkg.id);
+                    }
                   }}
-                />
-
-                {/* ── IMAGE BLOCK ── */}
-                <div
                   style={{
+                    minHeight: "clamp(24rem, 54vw, 34rem)",
+                  }}
+                >
+
+                  {/* ── SELECTED HEADER WASH ── */}
+                  {isSelected ? (
+                    <div
+                      className="pkg-header-wash"
+                      style={{
+                        background: "linear-gradient(135deg, #62840b 0%, #97b64c 60%, #b7cd7f 100%)",
+                        padding: "14px 20px 12px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <div
+                          className="pkg-check-anim"
+                          style={{
+                            width: 22, height: 22, borderRadius: "50%",
+                            background: "rgba(255,255,255,0.25)",
+                            border: "1.5px solid rgba(255,255,255,0.5)",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                          }}
+                        >
+                          <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                            <path d="M2 5.5l2.5 2.5 4.5-4.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                        <span style={{
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: "0.72rem", fontWeight: 800,
+                          letterSpacing: "0.1em", textTransform: "uppercase",
+                          color: "rgba(255,255,255,0.92)",
+                        }}>Selected</span>
+                      </div>
+                      <span style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "0.65rem", fontWeight: 700,
+                        color: "rgba(255,255,255,0.7)",
+                        letterSpacing: "0.05em",
+                      }}>{pkg.term}</span>
+                    </div>
+                  ) : (
+                    /* ── IDLE TOP BAR ── */
+                    <div style={{
+                      height: 4, flexShrink: 0,
+                      background: "rgba(151,182,76,0.12)",
+                    }} />
+                  )}
+
+                  {/* ── IMAGE BLOCK ── */}
+                  <div style={{
                     position: "relative",
                     width: "100%",
                     flexShrink: 0,
-                    aspectRatio: "20 / 15",
+                    aspectRatio: "4 / 3",
                     overflow: "hidden",
                     background: "#eef3e4",
-                  }}
-                >
-                  {/* Badge */}
-                  {pkg.badge && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: 14,
-                        right: 14,
-                        zIndex: 10,
-                        background: "#62840b",
-                        color: "#fff",
-                        fontSize: "0.58rem",
-                        fontWeight: 800,
-                        letterSpacing: "0.1em",
-                        textTransform: "uppercase",
-                        padding: "5px 11px",
-                        borderRadius: 999,
+                  }}>
+                    {/* Badge */}
+                    {pkg.badge && (
+                      <div style={{
+                        position: "absolute", top: 12, right: 12, zIndex: 10,
+                        background: isSelected
+                          ? "rgba(255,255,255,0.92)"
+                          : "#62840b",
+                        color: isSelected ? "#62840b" : "#fff",
+                        fontSize: "0.55rem", fontWeight: 900,
+                        letterSpacing: "0.12em", textTransform: "uppercase",
+                        padding: "5px 11px", borderRadius: 999,
                         fontFamily: "'DM Sans', sans-serif",
-                        boxShadow: "0 4px 12px rgba(98,132,11,0.35)",
-                      }}
-                    >
-                      {pkg.badge}
-                    </div>
-                  )}
+                        boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
+                        transition: "all 0.3s ease",
+                      }}>
+                        {pkg.badge}
+                      </div>
+                    )}
 
-                  {/* Selected checkmark overlay */}
-                  {isSelected && (
-                    <div
-                      className="pkg-check-icon"
-                      style={{
-                        position: "absolute",
-                        top: 14,
-                        left: 14,
-                        zIndex: 10,
-                        width: 32,
-                        height: 32,
-                        borderRadius: "50%",
-                        background: "#62840b",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        boxShadow: "0 4px 14px rgba(98,132,11,0.4)",
-                      }}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path
-                          d="M2.5 7.5l3 3 6-6"
-                          stroke="#fff"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </div>
-                  )}
-
-                  {/* Image */}
-                  {imgSrc ? (
-                    <img
-                      key={`${pkg.id}-${imgSrc}`}
-                      src={imgSrc}
-                      alt={`Milkshop ${pkg.label} package`}
-                      loading="lazy"
-                      decoding="async"
-                      draggable={false}
-                      className="pkg-img-inner"
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        objectPosition: "center",
-                        display: "block",
-                      }}
-                      onError={() => bumpImgTier(pkg.id)}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: "#62840b",
-                      }}
-                    >
-                      <span style={{ fontSize: 28, marginBottom: 8 }}>{pkg.emoji}</span>
-                      Add photo
-                      <span style={{ fontSize: 10, color: "#7b9461", marginTop: 4 }}>
-                        packages/{pkg.id}.jpg
-                      </span>
-                    </div>
-                  )}
-                  {imgSrc && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLightbox(pkg);
-                      }}
-                      style={{
-                        position: "absolute",
-                        bottom: 14,
-                        right: 14,
-                        zIndex: 20,
-                        background: "rgba(0,0,0,0.45)",
-                        backdropFilter: "blur(6px)",
-                        WebkitBackdropFilter: "blur(6px)",
-                        color: "#fff",
-                        border: "1px solid rgba(255,255,255,0.25)",
-                        borderRadius: 999,
-                        padding: "5px 12px",
-                        fontSize: "0.68rem",
-                        fontWeight: 700,
-                        fontFamily: "'DM Sans',sans-serif",
-                        cursor: "pointer",
-                        letterSpacing: "0.04em",
-                      }}
-                    >
-                      ⤢ View
-                    </button>
-                  )}
-
-                  {/* Bottom image gradient overlay */}
-                  <div
-                    aria-hidden
-                    style={{
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      height: "45%",
-                      background:
-                        "linear-gradient(to top, rgba(255,255,255,0.95) 0%, transparent 100%)",
-                      pointerEvents: "none",
-                    }}
-                  />
-                </div>
-
-                {/* ── CONTENT BLOCK ── */}
-                <div
-                  style={{
-                    flex: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                    minHeight: 0,
-                    padding: "clamp(1rem, 2.8vw, 1.35rem) clamp(1.1rem, 3vw, 1.5rem) clamp(1.15rem, 3vw, 1.6rem)",
-                  }}
-                >
-
-                  {/* Type pill + term */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      marginBottom: 10,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "0.58rem",
-                        fontWeight: 900,
-                        letterSpacing: "0.15em",
-                        textTransform: "uppercase",
-                        color: "#1a2e0a",
-                        background: "rgba(183,205,127,0.5)",
-                        border: "1px solid rgba(151,182,76,0.4)",
-                        borderRadius: 999,
-                        padding: "4px 10px",
-                      }}
-                    >
-                      {pkg.label.toUpperCase()}
-                    </span>
-                    <span
-                      style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "9px",
-                        fontWeight: 700,
-                        letterSpacing: "0.06em",
-                        padding: "3px 8px",
-                        borderRadius: 999,
-                        background: "rgba(151,182,76,0.12)",
-                        color: "#4a6b08",
-                        border: "1px solid rgba(151,182,76,0.25)",
-                      }}
-                    >
-                      {pkg.term}
-                    </span>
-                  </div>
-
-                  {/* Title + tagline */}
-                  <div style={{ marginBottom: 12 }}>
-                    <h3
-                      style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "clamp(1.2rem, 2.8vw, 1.45rem)",
-                        fontWeight: 900,
-                        color: isSelected ? pkg.color : "#1f2a17",
-                        margin: "0 0 3px",
-                        letterSpacing: "-0.035em",
-                        lineHeight: 1.1,
-                        transition: "color 0.25s ease",
-                      }}
-                    >
-                      {pkg.emoji} {pkg.label}
-                    </h3>
-                    <p
-                      style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "0.78rem",
-                        fontWeight: 600,
-                        color: "#5a6a4a",
-                        margin: 0,
-                      }}
-                    >
-                      {pkg.tagline}
-                    </p>
-                  </div>
-
-            
-
-                  {/* Divider */}
-                  <div
-                    style={{
-                      height: 1,
-                      background: "rgba(151,182,76,0.15)",
-                      marginBottom: 12,
-                    }}
-                  />
-
-                  {/* Features */}
-                  <ul
-                    style={{
-                      listStyle: "none",
-                      margin: "0 0 10px",
-                      padding: 0,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 6,
-                    }}
-                  >
-                    {pkg.features.map((f, fi) => (
-                      <li
-                        key={fi}
+                    {/* Image */}
+                    {imgSrc ? (
+                      <img
+                        key={`${pkg.id}-${imgSrc}`}
+                        src={imgSrc}
+                        alt={`Milkshop ${pkg.label} package`}
+                        loading="lazy"
+                        decoding="async"
+                        draggable={false}
+                        className="pkg-img-inner"
                         style={{
+                          position: "absolute", inset: 0,
+                          width: "100%", height: "100%",
+                          objectFit: "cover", objectPosition: "center",
+                          display: "block",
+                        }}
+                        onError={() => bumpImgTier(pkg.id)}
+                      />
+                    ) : (
+                      <div style={{
+                        position: "absolute", inset: 0,
+                        display: "flex", flexDirection: "column",
+                        alignItems: "center", justifyContent: "center",
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 12, fontWeight: 700, color: "#62840b",
+                      }}>
+                        <span style={{ fontSize: 28, marginBottom: 8 }}>{pkg.emoji}</span>
+                        Add photo
+                        <span style={{ fontSize: 10, color: "#7b9461", marginTop: 4 }}>
+                          packages/{pkg.id}.jpg
+                        </span>
+                      </div>
+                    )}
+
+                    {/* View button */}
+                    {imgSrc && (
+                      <button
+                        type="button"
+                        className="pkg-view-btn"
+                        onClick={(e) => { e.stopPropagation(); setLightbox(pkg); }}
+                        style={{
+                          position: "absolute", bottom: 12, right: 12, zIndex: 20,
+                          background: "rgba(0,0,0,0.42)",
+                          backdropFilter: "blur(6px)",
+                          WebkitBackdropFilter: "blur(6px)",
+                          color: "#fff",
+                          border: "1px solid rgba(255,255,255,0.22)",
+                          borderRadius: 999,
+                          padding: "5px 13px",
+                          fontSize: "0.65rem", fontWeight: 700,
                           fontFamily: "'DM Sans', sans-serif",
-                          fontSize: "0.75rem",
-                          fontWeight: 600,
-                          lineHeight: 1.35,
-                          color: "#3a4a2a",
-                          paddingLeft: 14,
-                          position: "relative",
+                          cursor: "pointer",
+                          letterSpacing: "0.04em",
+                          opacity: 0.85,
                         }}
                       >
-                        <span
-                          style={{
-                            position: "absolute",
-                            left: 0,
-                            top: "0.38em",
-                            width: 5,
-                            height: 5,
-                            borderRadius: "50%",
-                            background: isSelected ? "#62840b" : "#97b64c",
-                            transition: "background 0.25s ease",
-                          }}
-                        />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
+                        ⤢ View
+                      </button>
+                    )}
 
-                  {/* Best for */}
-                  <p
-                    style={{
+                    {/* Bottom gradient fade */}
+                    <div aria-hidden style={{
+                      position: "absolute", bottom: 0, left: 0, right: 0, height: "50%",
+                      background: "linear-gradient(to top, rgba(255,255,255,1) 0%, transparent 100%)",
+                      pointerEvents: "none",
+                    }} />
+                  </div>
+
+                  {/* ── CONTENT BLOCK ── */}
+                  <div style={{
+                    flex: 1, display: "flex", flexDirection: "column", minHeight: 0,
+                    padding: "clamp(1rem, 2.5vw, 1.3rem) clamp(1.1rem, 2.8vw, 1.45rem) clamp(1.1rem, 2.8vw, 1.45rem)",
+                  }}>
+
+                    {/* Type pill + term row (idle only — selected shows term in header) */}
+                    <div style={{
+                      display: "flex", alignItems: "center",
+                      justifyContent: "space-between", marginBottom: 10,
+                    }}>
+                      <span style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "0.55rem", fontWeight: 900,
+                        letterSpacing: "0.16em", textTransform: "uppercase",
+                        color: isSelected ? "#fff" : "#1a2e0a",
+                        background: isSelected
+                          ? "rgba(98,132,11,0.85)"
+                          : "rgba(183,205,127,0.5)",
+                        border: `1px solid ${isSelected ? "rgba(98,132,11,0.6)" : "rgba(151,182,76,0.4)"}`,
+                        borderRadius: 999, padding: "4px 10px",
+                        transition: "all 0.3s ease",
+                      }}>
+                        {pkg.label.toUpperCase()}
+                      </span>
+                      {!isSelected && (
+                        <span style={{
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: "9px", fontWeight: 700,
+                          letterSpacing: "0.06em", padding: "3px 8px",
+                          borderRadius: 999,
+                          background: "rgba(151,182,76,0.12)",
+                          color: "#4a6b08",
+                          border: "1px solid rgba(151,182,76,0.25)",
+                        }}>
+                          {pkg.term}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Title + tagline */}
+                    <div style={{ marginBottom: 11 }}>
+                      <h3 style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "clamp(1.15rem, 2.5vw, 1.4rem)",
+                        fontWeight: 900,
+                        color: isSelected ? "#62840b" : "#1f2a17",
+                        margin: "0 0 3px",
+                        letterSpacing: "-0.035em", lineHeight: 1.1,
+                        transition: "color 0.3s ease",
+                      }}>
+                        {pkg.emoji} {pkg.label}
+                      </h3>
+                      <p style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "0.76rem", fontWeight: 600,
+                        color: isSelected ? "#7a9460" : "#5a6a4a",
+                        margin: 0,
+                        transition: "color 0.3s ease",
+                      }}>
+                        {pkg.tagline}
+                      </p>
+                    </div>
+
+                    {/* Divider */}
+                    <div style={{
+                      height: 1,
+                      background: isSelected
+                        ? "linear-gradient(90deg, rgba(151,182,76,0.5), transparent)"
+                        : "rgba(151,182,76,0.13)",
+                      marginBottom: 11,
+                      transition: "background 0.3s ease",
+                    }} />
+
+                    {/* Features */}
+                    <ul style={{
+                      listStyle: "none", margin: "0 0 10px", padding: 0,
+                      display: "flex", flexDirection: "column", gap: 7,
+                    }}>
+                      {pkg.features.map((f, fi) => (
+                        <li key={fi} style={{
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: "0.76rem", fontWeight: 600,
+                          lineHeight: 1.35, color: isSelected ? "#2e3d1e" : "#3a4a2a",
+                          paddingLeft: 16, position: "relative",
+                          transition: "color 0.3s ease",
+                        }}>
+                          <span style={{
+                            position: "absolute", left: 0, top: "0.35em",
+                            width: isSelected ? 7 : 5,
+                            height: isSelected ? 7 : 5,
+                            borderRadius: "50%",
+                            background: isSelected
+                              ? "linear-gradient(135deg, #62840b, #97b64c)"
+                              : "#97b64c",
+                            transition: "all 0.3s ease",
+                            boxShadow: isSelected ? "0 1px 6px rgba(151,182,76,0.45)" : "none",
+                          }} />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Best for */}
+                    <p style={{
                       fontFamily: "'DM Sans', sans-serif",
-                      fontSize: "0.68rem",
-                      lineHeight: 1.5,
-                      color: "#62840b",
+                      fontSize: "0.68rem", lineHeight: 1.5,
+                      color: isSelected ? "#62840b" : "#8aa06a",
                       margin: "0 0 14px",
                       fontStyle: "italic",
-                    }}
-                  >
-                    {pkg.best}
-                  </p>
+                      fontWeight: isSelected ? 600 : 400,
+                      transition: "color 0.3s ease",
+                    }}>
+                      {pkg.best}
+                    </p>
 
-                  {/* CTA Button */}
-                  <button
-                    className="pkg-select-btn"
-                    type="button"
-                    style={{
-                      width: "100%",
-                      marginTop: "auto",
-                      padding: "11px 0",
-                      borderRadius: 999,
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: "0.8rem",
-                      fontWeight: 800,
-                      letterSpacing: "0.03em",
-                      cursor: "pointer",
-                      background: isSelected ? "#62840b" : "rgba(151,182,76,0.12)",
-                      color: isSelected ? "#fff" : "#62840b",
-                      boxShadow: isSelected
-                        ? "0 6px 20px rgba(98,132,11,0.35)"
-                        : "none",
-                      border: isSelected ? "1px solid #4a6b08" : "none",
-                      outline: !isSelected ? "1.5px solid rgba(151,182,76,0.3)" : "none",
-                    }}
-                  >
-                    {isSelected ? "✓ Selected" : "Select Package"}
-                  </button>
-                </div>
-              </article>
+                    {/* CTA Button */}
+                    <button
+                      className={`pkg-select-btn${isSelected ? " pkg-btn-selected" : ""}`}
+                      type="button"
+                      style={{
+                        width: "100%", marginTop: "auto",
+                        padding: isSelected ? "13px 0" : "11px 0",
+                        borderRadius: 999,
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "0.82rem", fontWeight: 800,
+                        letterSpacing: "0.04em", cursor: "pointer",
+                        background: isSelected
+                          ? "linear-gradient(135deg, #62840b, #97b64c)"
+                          : "rgba(151,182,76,0.1)",
+                        color: isSelected ? "#fff" : "#62840b",
+                        boxShadow: isSelected
+                          ? "0 8px 28px rgba(98,132,11,0.38)"
+                          : "none",
+                        border: isSelected
+                          ? "1px solid rgba(98,132,11,0.4)"
+                          : "1.5px solid rgba(151,182,76,0.28)",
+                        transition: isSelected ? "none" : "all 0.25s ease",
+                      }}
+                    >
+                      {isSelected ? "✓ Package Selected" : "Select Package"}
+                    </button>
+                  </div>
+                </article>
+              </div>
             </Slide>
           );
         })}
       </div>
+
+      {/* ── LIGHTBOX ── */}
       {lightbox &&
         typeof document !== "undefined" &&
         createPortal(
@@ -669,46 +679,60 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
             aria-label="Enlarged package photo"
             onClick={() => setLightbox(null)}
             style={{
-              position: "fixed",
-              inset: 0,
+              position: "fixed", inset: 0,
               zIndex: 2147483646,
-              background: "rgba(0,0,0,0.94)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              background: "rgba(0,0,0,0.92)",
+              display: "flex", alignItems: "center", justifyContent: "center",
               padding: "min(4vw, 24px)",
               isolation: "isolate",
+              backdropFilter: "blur(4px)",
+              WebkitBackdropFilter: "blur(4px)",
             }}
           >
+            {/* Label strip */}
+            <div style={{
+              position: "fixed", top: "max(20px, env(safe-area-inset-top))", left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 2147483647,
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              borderRadius: 999, padding: "7px 18px",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "0.72rem", fontWeight: 700,
+              color: "rgba(255,255,255,0.8)",
+              letterSpacing: "0.08em", textTransform: "uppercase",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              whiteSpace: "nowrap",
+            }}>
+              {lightbox.emoji} {lightbox.label}
+            </div>
+
+            {/* Close button */}
             <button
               type="button"
               aria-label="Close"
-              onClick={(e) => {
-                e.stopPropagation();
-                setLightbox(null);
-              }}
+              onClick={(e) => { e.stopPropagation(); setLightbox(null); }}
               style={{
                 position: "fixed",
                 top: "max(16px, env(safe-area-inset-top))",
                 right: "max(16px, env(safe-area-inset-right))",
                 zIndex: 2147483647,
-                background: "rgba(255,255,255,0.15)",
-                border: "1px solid rgba(255,255,255,0.35)",
-                color: "#fff",
-                borderRadius: "50%",
-                width: 44,
-                height: 44,
-                fontSize: "1.25rem",
-                lineHeight: 1,
-                cursor: "pointer",
-                fontWeight: 700,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                background: "rgba(255,255,255,0.12)",
+                border: "1px solid rgba(255,255,255,0.28)",
+                color: "#fff", borderRadius: "50%",
+                width: 44, height: 44,
+                fontSize: "1.1rem", lineHeight: 1, cursor: "pointer",
+                fontWeight: 700, display: "flex",
+                alignItems: "center", justifyContent: "center",
+                transition: "background 0.2s ease",
               }}
+              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.22)"}
+              onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
             >
               ✕
             </button>
+
             <img
               src={srcFor(lightbox)}
               alt=""
@@ -716,12 +740,11 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
               onClick={(e) => e.stopPropagation()}
               style={{
                 maxWidth: "min(96vw, 1600px)",
-                maxHeight: "min(92vh, 1200px)",
-                width: "auto",
-                height: "auto",
+                maxHeight: "min(88vh, 1200px)",
+                width: "auto", height: "auto",
                 objectFit: "contain",
-                borderRadius: 12,
-                boxShadow: "0 24px 64px rgba(0,0,0,0.55)",
+                borderRadius: 14,
+                boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
               }}
             />
           </div>,
@@ -807,12 +830,7 @@ export default function Franchise() {
   }, [activeStep]);
 
   useEffect(() => {
-    const panel = heroProcessPanelRef.current;
-    const heroSection = processSectionRef.current;
-    if (!panel || !heroSection) return;
-
-    /** Scroll / touch delta needed before advancing one step (~3 mouse wheel notches). */
-    const THRESHOLD = 500;
+    const THRESHOLD = PROCESS_WHEEL_STEP_THRESHOLD;
     const htmlEl = document.documentElement;
     const bodyEl = document.body;
     const prevHtmlOverflow = htmlEl.style.overflow;
@@ -845,7 +863,11 @@ export default function Franchise() {
       setPageScrollLocked(locked);
     };
 
+    /** Always read current DOM nodes — the image panel remounts on `key={activeStep}` so stale refs break engagement after step 1. */
     const isHeroEngaged = () => {
+      const heroSection = processSectionRef.current;
+      const panel = heroProcessPanelRef.current;
+      if (!heroSection || !panel) return false;
       const heroRect = heroSection.getBoundingClientRect();
       const panelRect = panel.getBoundingClientRect();
       const viewportH = window.innerHeight;
@@ -865,6 +887,8 @@ export default function Franchise() {
 
     const shouldCaptureFromEvent = (eventTarget) => {
       if (!isHeroEngaged()) return false;
+      const heroSection = processSectionRef.current;
+      if (!heroSection) return false;
       if (!(eventTarget instanceof Node)) return processLockRef.current;
       return heroSection.contains(eventTarget) || processLockRef.current;
     };
@@ -1069,15 +1093,14 @@ export default function Franchise() {
       SLIDE 1 — HERO (PREMIUM UPGRADE)
 ══════════════════════════════════════ */}
 {/* ══════════════════════════════════════
-   FRANCHISE HERO — MODERN PREMIUM
+   FRANCHISE HERO — REDESIGN
 ══════════════════════════════════════ */}
 <section
   data-track-section="Franchise Hero"
   className="relative overflow-hidden"
   style={{
     minHeight: "100svh",
-    background:
-      "linear-gradient(180deg,#f3f9ea 0%,#ffffff 48%,#eef6e5 100%)",
+    background: "#f5f9ee",
     display: "flex",
     alignItems: "center",
     fontFamily: "'DM Sans', sans-serif",
@@ -1085,393 +1108,227 @@ export default function Franchise() {
 >
   <style>{`
     @keyframes fhFadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(40px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-
     @keyframes fhFloat {
-      0%,100% {
-        transform: translateY(0px);
-      }
-      50% {
-        transform: translateY(-14px);
-      }
+      0%,100% { transform: translateY(0px); }
+      50%      { transform: translateY(-10px); }
     }
-
     @keyframes fhFloatSlow {
-      0%,100% {
-        transform: translateY(0px);
-      }
-      50% {
-        transform: translateY(-8px);
-      }
+      0%,100% { transform: translateY(0px); }
+      50%      { transform: translateY(-6px); }
     }
-
-    @keyframes fhRotate {
-      from {
-        transform: rotate(0deg);
-      }
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    @keyframes fhGradientShift {
-      0% {
-        background-position: 0% 30%;
-      }
-      100% {
-        background-position: 100% 70%;
-      }
-    }
-
-    @keyframes fhOrbDriftA {
-      0%,
-      100% {
-        transform: translate(0, 0) scale(1);
-        opacity: 0.38;
-      }
-      50% {
-        transform: translate(4%, -5%) scale(1.12);
-        opacity: 0.62;
-      }
-    }
-
-    @keyframes fhOrbDriftB {
-      0%,
-      100% {
-        transform: translate(0, 0) scale(1);
-        opacity: 0.32;
-      }
-      50% {
-        transform: translate(-6%, 5%) scale(1.08);
-        opacity: 0.55;
-      }
-    }
-
-    @keyframes fhGridPulse {
-      0%,
-      100% {
-        opacity: 0.22;
-      }
-      50% {
-        opacity: 0.38;
-      }
-    }
-
     @keyframes fhPkgBob {
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-11px);
-      }
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-9px); }
     }
 
     .fh-reveal {
       opacity: 0;
-      animation: fhFadeUp .9s cubic-bezier(.16,1,.3,1) forwards;
+      animation: fhFadeUp .85s cubic-bezier(.16,1,.3,1) forwards;
     }
 
     .fh-btn-main {
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      padding:16px 34px;
-      border-radius:999px;
-      background:linear-gradient(135deg,#62840b,#97b64c);
-      color:#fff;
-      text-decoration:none;
-      font-size:.92rem;
-      font-weight:800;
-      box-shadow:0 18px 40px rgba(98,132,11,.28);
-      transition:.28s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 15px 32px;
+      border-radius: 999px;
+      background: #62840b;
+      color: #fff;
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 800;
+      transition: background .2s ease, transform .2s ease;
     }
-
-    .fh-btn-main:hover{
-      transform:translateY(-4px);
+    .fh-btn-main:hover {
+      background: #4e6a09;
+      transform: translateY(-2px);
     }
 
     .fh-btn-secondary {
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:16px 28px;
-      border-radius:999px;
-      background:rgba(255,255,255,.72);
-      border:1px solid rgba(151,182,76,.22);
-      color:#62840b;
-      text-decoration:none;
-      font-size:.9rem;
-      font-weight:700;
-      backdrop-filter:blur(10px);
-      transition:.28s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px 28px;
+      border-radius: 999px;
+      background: transparent;
+      border: 1.5px solid rgba(98,132,11,0.35);
+      color: #62840b;
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 700;
+      transition: border-color .2s ease, background .2s ease, transform .2s ease;
+    }
+    .fh-btn-secondary:hover {
+      border-color: #62840b;
+      background: rgba(98,132,11,0.05);
+      transform: translateY(-2px);
     }
 
-    .fh-btn-secondary:hover{
-      transform:translateY(-3px);
-      background:#fff;
-    }
-
-    .fh-glass {
-      background:rgba(255,255,255,.62);
-      backdrop-filter:blur(18px);
-      -webkit-backdrop-filter:blur(18px);
-      border:1px solid rgba(255,255,255,.45);
-      box-shadow:0 18px 40px rgba(58,92,6,.08);
+    .fh-pkg-card {
+      position: absolute;
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 18px;
+      padding: 8px;
+      text-decoration: none;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.10);
+      pointer-events: auto;
     }
   `}</style>
 
-  {/* Animated backdrop (mesh + orbs + soft grid) */}
-  <div
-    aria-hidden
-    style={{
-      position: "absolute",
-      inset: 0,
-      overflow: "hidden",
-      pointerEvents: "none",
-      zIndex: 0,
-    }}
-  >
-    <div
+  {/* Background image — right side only */}
+  <div aria-hidden style={{
+    position: "absolute",
+    top: 0, right: 0,
+    width: "58%",
+    height: "100%",
+    zIndex: 0,
+    pointerEvents: "none",
+  }}>
+    <img
+      src="/public/8.png"
+      alt=""
       style={{
-        position: "absolute",
-        inset: "-35%",
-        background:
-          "linear-gradient(118deg, rgba(243,249,234,0.97) 0%, rgba(255,255,255,0.55) 18%, rgba(210,232,180,0.5) 38%, rgba(255,255,255,0.65) 58%, rgba(230,244,212,0.75) 78%, rgba(255,255,255,0.6) 100%)",
-        backgroundSize: "260% 260%",
-        animation: "fhGradientShift 24s ease-in-out infinite alternate",
-      }}
-    />
-    <div
-      style={{
-        position: "absolute",
-        width: "min(95vw, 920px)",
-        height: "min(95vw, 920px)",
-        borderRadius: "50%",
-        top: "-22%",
-        right: "-28%",
-        background:
-          "radial-gradient(circle at 38% 42%, rgba(151,182,76,0.42) 0%, rgba(151,182,76,0.08) 45%, transparent 62%)",
-        filter: "blur(56px)",
-        animation: "fhOrbDriftA 18s ease-in-out infinite",
-      }}
-    />
-    <div
-      style={{
-        position: "absolute",
-        width: "min(85vw, 640px)",
-        height: "min(85vw, 640px)",
-        borderRadius: "50%",
-        bottom: "-18%",
-        left: "-22%",
-        background:
-          "radial-gradient(circle at 55% 45%, rgba(183,205,127,0.38) 0%, rgba(255,255,255,0.12) 48%, transparent 65%)",
-        filter: "blur(48px)",
-        animation: "fhOrbDriftB 21s ease-in-out infinite",
-      }}
-    />
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        backgroundImage:
-          "radial-gradient(circle, rgba(98,132,11,0.11) 1.2px, transparent 1.2px)",
-        backgroundSize: "34px 34px",
-        animation: "fhGridPulse 6.5s ease-in-out infinite",
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        objectPosition: "center",
+        display: "block",
+        opacity: 0.13,
+        maskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.9) 100%)",
+        WebkitMaskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.9) 100%)",
       }}
     />
   </div>
 
-  {/* background glow */}
-  <div
-    aria-hidden
-    style={{
-      position: "absolute",
-      width: 760,
-      height: 760,
-      borderRadius: "50%",
-      right: "-12%",
-      top: "-14%",
-      background:
-        "radial-gradient(circle, rgba(151,182,76,.18) 0%, transparent 72%)",
-      filter: "blur(40px)",
-      animation: "fhFloatSlow 8s ease-in-out infinite",
-      zIndex: 1,
-    }}
-  />
-
-  <div
-    aria-hidden
-    style={{
-      position: "absolute",
-      width: 520,
-      height: 520,
-      borderRadius: "50%",
-      left: "-10%",
-      bottom: "-20%",
-      background:
-        "radial-gradient(circle, rgba(183,205,127,.18) 0%, transparent 72%)",
-      filter: "blur(40px)",
-      animation: "fhFloat 10s ease-in-out infinite",
-      zIndex: 1,
-    }}
-  />
-
-  {/* content */}
-  <div
-    style={{
-      width: "100%",
-      maxWidth: 1380,
-      margin: "0 auto",
-      padding: "120px 40px 90px",
-      position: "relative",
-      zIndex: 5,
-    }}
-  >
+  {/* Content */}
+  <div style={{
+    width: "100%",
+    maxWidth: 1380,
+    margin: "0 auto",
+    padding: "120px 48px 90px",
+    position: "relative",
+    zIndex: 5,
+  }}>
     <div
       className="max-lg:grid-cols-1"
       style={{
         display: "grid",
         gridTemplateColumns: "1fr 1.1fr",
         alignItems: "center",
-        gap: 40,
+        gap: 48,
       }}
     >
-      {/* LEFT */}
+
+      {/* ── LEFT ── */}
       <div
         className="fh-reveal"
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 26,
-          maxWidth: 560,
+          gap: 28,
+          maxWidth: 520,
         }}
       >
-        {/* badge */}
-        <div
-          className="fh-glass"
-          style={{
-            width: "fit-content",
-            padding: "10px 18px",
-            borderRadius: 999,
-            fontSize: ".72rem",
-            fontWeight: 800,
-            letterSpacing: ".12em",
-            textTransform: "uppercase",
-            color: "#62840b",
-          }}
-        >
-          MILKSHOP FRANCHISE OPPORTUNITY
+        {/* Badge */}
+        <div style={{
+          width: "fit-content",
+          padding: "7px 16px",
+          borderRadius: 6,
+          border: "1.5px solid rgba(98,132,11,0.3)",
+          fontSize: ".7rem",
+          fontWeight: 800,
+          letterSpacing: ".14em",
+          textTransform: "uppercase",
+          color: "#62840b",
+        }}>
+          Milkshop Franchise Opportunity
         </div>
 
-        {/* headline */}
-        <h1
-          style={{
-            margin: 0,
-            fontSize: "clamp(3.4rem,7vw,6.2rem)",
-            lineHeight: .9,
-            letterSpacing: "-.06em",
-            fontWeight: 900,
-            color: "#1a1e14",
-          }}
-        >
-          Build Your
-          <br />
-          <span
-            style={{
-              background:
-                "linear-gradient(135deg,#3a5c06 0%,#62840b 40%,#97b64c 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
+        {/* Headline */}
+        <h1 style={{
+          margin: 0,
+          fontSize: "clamp(3.2rem, 6.5vw, 5.8rem)",
+          lineHeight: .92,
+          letterSpacing: "-.05em",
+          fontWeight: 900,
+          color: "#1a1e14",
+        }}>
+          Build Your<br />
+          <span style={{
+            color: "#62840b",
+          }}>
             Milkshop Empire.
           </span>
         </h1>
 
-        {/* desc */}
-        <p
-          style={{
-            margin: 0,
-            maxWidth: 480,
-            fontSize: "1rem",
-            lineHeight: 1.9,
-            color: "#526142",
-          }}
-        >
+        {/* Description */}
+        <p style={{
+          margin: 0,
+          maxWidth: 440,
+          fontSize: ".95rem",
+          lineHeight: 1.8,
+          color: "#526142",
+        }}>
           Start with a trusted milk tea brand built for modern Filipino entrepreneurs. Fast setup, premium branding, and full operational support.
         </p>
 
-        {/* buttons */}
-        <div
-          style={{
-            display: "flex",
-            gap: 14,
-            flexWrap: "wrap",
-          }}
-        >
+        {/* Buttons */}
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <a href="#inquiry" className="fh-btn-main">
             Apply for Franchise →
           </a>
-
           <a href="#packages" className="fh-btn-secondary">
             Explore Packages
           </a>
         </div>
 
-        {/* mini stats */}
-        <div
-          className="max-sm:grid-cols-1"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3,1fr)",
-            gap: 14,
-            marginTop: 8,
-          }}
-        >
+        {/* Stats */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: 1,
+          marginTop: 8,
+          background: "rgba(98,132,11,0.12)",
+          borderRadius: 14,
+          overflow: "hidden",
+          border: "1px solid rgba(98,132,11,0.12)",
+        }}>
           {[
             ["150+", "Branches"],
-            ["12-18", "ROI Months"],
+            ["12–18", "ROI Months"],
             ["3", "Store Formats"],
-          ].map((item) => (
+          ].map((item, i) => (
             <div
               key={item[1]}
-              className="fh-glass"
               style={{
-                borderRadius: 22,
-                padding: "18px 18px",
+                background: "#ffffff",
+                padding: "18px 20px",
+                borderRadius: i === 0 ? "13px 0 0 13px" : i === 2 ? "0 13px 13px 0" : 0,
               }}
             >
-              <div
-                style={{
-                  fontSize: "1.6rem",
-                  fontWeight: 900,
-                  color: "#1a2e0a",
-                  letterSpacing: "-.04em",
-                }}
-              >
+              <div style={{
+                fontSize: "1.7rem",
+                fontWeight: 900,
+                color: "#1a2e0a",
+                letterSpacing: "-.04em",
+              }}>
                 {item[0]}
               </div>
-
-              <div
-                style={{
-                  marginTop: 4,
-                  fontSize: ".76rem",
-                  color: "#62840b",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: ".08em",
-                }}
-              >
+              <div style={{
+                marginTop: 3,
+                fontSize: ".72rem",
+                color: "#62840b",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: ".08em",
+              }}>
                 {item[1]}
               </div>
             </div>
@@ -1479,7 +1336,7 @@ export default function Franchise() {
         </div>
       </div>
 
-      {/* RIGHT VISUAL */}
+      {/* ── RIGHT VISUAL ── */}
       <div
         className="fh-reveal"
         style={{
@@ -1487,202 +1344,75 @@ export default function Franchise() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          minHeight: 720,
-          animationDelay: ".15s",
+          minHeight: 680,
+          animationDelay: ".12s",
         }}
       >
-        {/* rotating ring */}
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            width: 640,
-            height: 640,
-            borderRadius: "50%",
-            border: "1px solid rgba(151,182,76,.12)",
-            animation: "fhRotate 26s linear infinite",
-            zIndex: 0,
-          }}
-        />
-
-        {/* floating cards */}
-        <div
-          className="fh-glass"
-          style={{
-            position: "absolute",
-            top: 90,
-            left: 20,
-            padding: "16px 18px",
-            borderRadius: 24,
-            animation: "fhFloat 5s ease-in-out infinite",
-            zIndex: 5,
-          }}
-        >
-          <div
-            style={{
-              fontSize: ".7rem",
-              fontWeight: 800,
-              color: "#62840b",
-              letterSpacing: ".08em",
-            }}
-          >
-            ROI TARGET
+        {/* ROI card — top left */}
+        <div style={{
+          position: "absolute",
+          top: 72,
+          left: 0,
+          zIndex: 6,
+          background: "rgba(255,255,255,0.88)",
+          backdropFilter: "blur(14px)",
+          border: "1px solid rgba(255,255,255,0.55)",
+          borderRadius: 16,
+          padding: "14px 18px",
+          boxShadow: "0 6px 24px rgba(0,0,0,0.09)",
+          animation: "fhFloat 5.5s ease-in-out infinite",
+        }}>
+          <div style={{
+            fontSize: ".68rem",
+            fontWeight: 800,
+            color: "#62840b",
+            letterSpacing: ".1em",
+            textTransform: "uppercase",
+          }}>
+            ROI Target
           </div>
-
-          <div
-            style={{
-              marginTop: 6,
-              fontSize: "1.6rem",
-              fontWeight: 900,
-              color: "#1a2e0a",
-            }}
-          >
+          <div style={{
+            marginTop: 5,
+            fontSize: "1.5rem",
+            fontWeight: 900,
+            color: "#1a2e0a",
+            letterSpacing: "-.03em",
+          }}>
             12–18 mo
           </div>
         </div>
 
-        <div
-          className="fh-glass"
-          style={{
-            position: "absolute",
-            right: 20,
-            bottom: 110,
-            padding: "18px 20px",
-            borderRadius: 24,
-            animation: "fhFloatSlow 6s ease-in-out infinite",
-            zIndex: 5,
-          }}
-        >
-          <div
-            style={{
-              fontSize: ".72rem",
-              fontWeight: 800,
-              color: "#62840b",
-              letterSpacing: ".08em",
-            }}
-          >
-            ACTIVE BRANCHES
-          </div>
-
-          <div
-            style={{
-              marginTop: 6,
-              fontSize: "1.8rem",
-              fontWeight: 900,
-              color: "#1a2e0a",
-            }}
-          >
-            150+
-          </div>
-        </div>
-
-        {/* main image */}
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            maxWidth: 560,
-            borderRadius: 40,
-            overflow: "hidden",
-            boxShadow: "0 40px 100px rgba(58,92,6,.22)",
-            animation: "fhFloat 6s ease-in-out infinite",
-            zIndex: 2,
-          }}
-        >
+        {/* Main image */}
+        <div style={{
+          position: "relative",
+          width: "100%",
+          maxWidth: 500,
+          borderRadius: 28,
+          overflow: "hidden",
+          boxShadow: "0 24px 64px rgba(0,0,0,0.16)",
+          animation: "fhFloatSlow 7s ease-in-out infinite",
+          zIndex: 2,
+        }}>
           <img
             src={packages[1].image}
             alt="Milkshop Franchise"
             style={{
               width: "100%",
-              height: "720px",
+              height: "640px",
               objectFit: "cover",
               display: "block",
             }}
           />
-
-          {/* overlay */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "linear-gradient(180deg, rgba(26,34,20,.02) 0%, rgba(26,34,20,.5) 100%)",
-            }}
-          />
-
-          {/* bottom glass */}
-          <div
-            className="fh-glass"
-            style={{
-              position: "absolute",
-              left: 24,
-              right: 24,
-              bottom: 24,
-              borderRadius: 28,
-              padding: "22px 24px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: ".72rem",
-                fontWeight: 800,
-                letterSpacing: ".12em",
-                color: "#62840b",
-                textTransform: "uppercase",
-              }}
-            >
-              Featured Package
-            </div>
-
-            <div
-              style={{
-                marginTop: 10,
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 20,
-                alignItems: "flex-end",
-                flexWrap: "wrap",
-              }}
-            >
-              <div>
-                <h3
-                  style={{
-                    margin: 0,
-                    fontSize: "1.6rem",
-                    fontWeight: 900,
-                    letterSpacing: "-.04em",
-                    color: "#1a2e0a",
-                  }}
-                >
-                  {packages[1].emoji} {packages[1].label}
-                </h3>
-
-                <p
-                  style={{
-                    margin: "8px 0 0",
-                    fontSize: ".92rem",
-                    color: "#526142",
-                  }}
-                >
-                  {packages[1].tagline}
-                </p>
-              </div>
-
-              <a
-                href="#packages"
-                className="fh-btn-main"
-                style={{
-                  padding: "14px 24px",
-                  fontSize: ".82rem",
-                }}
-              >
-                View Package →
-              </a>
-            </div>
-          </div>
+          {/* Subtle bottom fade */}
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(180deg, transparent 55%, rgba(0,0,0,0.28) 100%)",
+            pointerEvents: "none",
+          }} />
         </div>
 
-        {/* Three floating package images (Cart, Kiosk, In-line) — desktop */}
+        {/* Floating package cards — scattered organically */}
         <div
           className="max-lg:hidden"
           style={{
@@ -1693,74 +1423,82 @@ export default function Franchise() {
           }}
         >
           {[
-            { pkg: packages[0], top: "5%", right: "2%", width: "clamp(104px, 11vw, 144px)", rot: 8, dur: "5.8s", delay: "0s" },
-            { pkg: packages[2], top: "32%", left: "-2%", width: "clamp(110px, 11.5vw, 150px)", rot: -7, dur: "6.4s", delay: "0.28s" },
-            { pkg: packages[1], bottom: "30%", right: "1%", width: "clamp(96px, 10vw, 132px)", rot: 5, dur: "6s", delay: "0.5s" },
+            {
+              pkg: packages[0],
+              top: "4%", right: "-2%",
+              width: "clamp(108px, 11vw, 140px)",
+              rot: 6,
+              dur: "5.8s", delay: "0s",
+            },
+            {
+              pkg: packages[2],
+              top: "38%", left: "-4%",
+              width: "clamp(112px, 11.5vw, 148px)",
+              rot: -5,
+              dur: "6.6s", delay: "0.4s",
+            },
+            {
+              pkg: packages[1],
+              bottom: "8%", right: "-3%",
+              width: "clamp(100px, 10vw, 130px)",
+              rot: 4,
+              dur: "6.2s", delay: "0.2s",
+            },
           ].map(({ pkg, top, right, bottom, left, width, rot, dur, delay }) => (
             <a
               key={`hero-float-${pkg.id}`}
               href="#packages"
               aria-label={`View ${pkg.label} franchise package`}
-              className="fh-glass"
+              className="fh-pkg-card"
               style={{
                 position: "absolute",
-                ...(top != null ? { top } : {}),
+                ...(top != null    ? { top }    : {}),
                 ...(bottom != null ? { bottom } : {}),
-                ...(left != null ? { left } : {}),
-                ...(right != null ? { right } : {}),
+                ...(left != null   ? { left }   : {}),
+                ...(right != null  ? { right }  : {}),
                 width,
-                padding: 9,
-                borderRadius: 22,
-                textDecoration: "none",
                 pointerEvents: "auto",
+                textDecoration: "none",
                 animation: `fhPkgBob ${dur} ease-in-out infinite`,
                 animationDelay: delay,
-                boxShadow: "0 18px 44px rgba(58,92,6,0.2)",
               }}
             >
-              <div
-                style={{
-                  borderRadius: 14,
-                  overflow: "hidden",
-                  transform: `rotate(${rot}deg)`,
-                  border: "1px solid rgba(151,182,76,0.28)",
-                  lineHeight: 0,
-                  background: "rgba(255,255,255,0.55)",
-                }}
-              >
+              <div style={{
+                borderRadius: 12,
+                overflow: "hidden",
+                transform: `rotate(${rot}deg)`,
+                lineHeight: 0,
+              }}>
                 <img
                   src={pkg.image}
                   alt=""
                   style={{
                     width: "100%",
                     height: "auto",
-                    aspectRatio: "4 / 3",
+                    aspectRatio: "4/3",
                     objectFit: "cover",
                     display: "block",
                   }}
-                  onError={(e) => {
-                    e.currentTarget.src = PACKAGE_IMG_FALLBACK;
-                  }}
+                  onError={e => { e.currentTarget.src = PACKAGE_IMG_FALLBACK }}
                 />
               </div>
-              <div
-                style={{
-                  marginTop: 7,
-                  fontSize: ".62rem",
-                  fontWeight: 800,
-                  color: "#62840b",
-                  textAlign: "center",
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
-                }}
-              >
+              <div style={{
+                marginTop: 6,
+                fontSize: ".6rem",
+                fontWeight: 800,
+                color: "#62840b",
+                textAlign: "center",
+                fontFamily: "'DM Sans', sans-serif",
+                letterSpacing: "0.07em",
+                textTransform: "uppercase",
+              }}>
                 {pkg.emoji} {pkg.label}
               </div>
             </a>
           ))}
         </div>
       </div>
+
     </div>
   </div>
 </section>
@@ -1893,7 +1631,7 @@ export default function Franchise() {
   id="packages"
   data-track-section="Franchise Packages"
   className="relative py-16 sm:py-20 lg:py-24 overflow-hidden"
-  style={{ background: "linear-gradient(160deg, #f7faf0 0%, #ffffff 50%, #f3f9ea 100%)" }}
+  style={{ background: "linear-gradient(165deg, #aac86e 0%, #97b64c 45%, #8aab4a 100%)" }}
 >
   <style>{`
     @keyframes pkgFadeUp {
@@ -1905,8 +1643,8 @@ export default function Franchise() {
       100% { background-position: 200% center; }
     }
     @keyframes pkgGlow {
-      0%,100% { box-shadow: 0 0 0 0 rgba(151,182,76,0.3); }
-      50%      { box-shadow: 0 0 0 10px rgba(151,182,76,0); }
+      0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.35); }
+      50%      { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
     }
     @keyframes pkgBadgePop {
       0%   { transform: scale(0.7) translateY(-4px); opacity: 0; }
@@ -1936,7 +1674,7 @@ export default function Franchise() {
       animation: pkgDotPulse 2.4s ease-in-out infinite;
     }
     .pkg-shimmer-text {
-      background: linear-gradient(120deg, #3a5c06 0%, #62840b 30%, #97b64c 60%, #b7cd7f 80%, #62840b 100%);
+      background: linear-gradient(120deg, #ffffff 0%, #f4fce8 35%, #ffffff 55%, #e8f5d4 75%, #ffffff 100%);
       background-size: 200% auto;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -1948,7 +1686,7 @@ export default function Franchise() {
   {/* Dot grid background */}
   <div aria-hidden style={{
     position: "absolute", inset: 0, pointerEvents: "none",
-    backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.14) 1.5px, transparent 1.5px)",
+    backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.22) 1.5px, transparent 1.5px)",
     backgroundSize: "36px 36px",
     maskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 68%)",
     WebkitMaskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 68%)",
@@ -1957,13 +1695,13 @@ export default function Franchise() {
   <div aria-hidden style={{
     position: "absolute", top: "-8%", right: "-4%",
     width: 400, height: 400, borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(151,182,76,0.1) 0%, transparent 70%)",
+    background: "radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%)",
     filter: "blur(32px)", pointerEvents: "none",
   }} />
   <div aria-hidden style={{
     position: "absolute", bottom: "-5%", left: "-3%",
     width: 300, height: 300, borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(183,205,127,0.12) 0%, transparent 70%)",
+    background: "radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%)",
     filter: "blur(24px)", pointerEvents: "none",
   }} />
 
@@ -1973,7 +1711,7 @@ export default function Franchise() {
     <Slide direction="up" className="text-center mb-4">
       <p style={{
         fontSize: "11px", fontWeight: 800, letterSpacing: "0.3em",
-        textTransform: "uppercase", color: "#97b64c",
+        textTransform: "uppercase", color: "rgba(255,255,255,0.82)",
         fontFamily: "'DM Sans', sans-serif",
       }}>Choose Your Package</p>
     </Slide>
@@ -1981,16 +1719,17 @@ export default function Franchise() {
       <h2 style={{
         fontSize: "clamp(2.4rem, 5vw, 3.8rem)",
         fontWeight: 900, letterSpacing: "-0.04em",
-        color: "#1a1e14", margin: 0,
+        color: "#ffffff", margin: 0,
         fontFamily: "'DM Sans', sans-serif",
         lineHeight: 1.05,
+        textShadow: "0 1px 18px rgba(255,255,255,0.15)",
       }}>
         Find the Right <span className="pkg-shimmer-text">Fit for You</span>
       </h2>
     </Slide>
     <Slide direction="up" delay={100} className="text-center mb-14">
       <p style={{
-        fontSize: "0.95rem", color: "#5a6a4a", lineHeight: 1.75,
+        fontSize: "0.95rem", color: "rgba(255,255,255,0.9)", lineHeight: 1.75,
         maxWidth: 420, margin: "12px auto 0",
         fontFamily: "'DM Sans', sans-serif",
       }}>
@@ -2004,10 +1743,10 @@ export default function Franchise() {
     {/* Bottom nudge */}
     <Slide direction="up" delay={300} className="text-center mt-10">
       <p style={{
-        fontSize: "0.82rem", color: "#8aa06a",
+        fontSize: "0.82rem", color: "rgba(255,255,255,0.88)",
         fontFamily: "'DM Sans', sans-serif",
       }}>
-        Not sure? Select <strong style={{ color: "#62840b" }}>Not sure yet</strong> in the form below and we'll help you decide.
+        Not sure? Select <strong style={{ color: "#ffffff" }}>Not sure yet</strong> in the form below and we'll help you decide.
       </p>
     </Slide>
 
@@ -2330,9 +2069,9 @@ export default function Franchise() {
       {/* ══════════════════════════════════════
           SLIDE 5 — FAQ
       ══════════════════════════════════════ */}
-      <section data-track-section="Franchise FAQs" className="relative py-14 sm:py-16 lg:py-20 overflow-hidden" style={{ backgroundColor: "#f5f8ef" }}>
+      <section data-track-section="Franchise FAQs" className="relative py-14 sm:py-16 lg:py-20 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
         <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.15) 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(circle, rgba(250, 8, 8, 0.06) 1px, transparent 1px)",
           backgroundSize: "40px 40px",
           maskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 65%)",
           WebkitMaskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 65%)",
@@ -2343,7 +2082,7 @@ export default function Franchise() {
             <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>Common Questions</p>
           </Slide>
           <Slide direction="up" delay={60} className="text-center mb-8">
-            <h2 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 900, letterSpacing: "-0.03em", color: "#1e1e1e" }}>FAQs</h2>
+            <h2 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 900, letterSpacing: "-0.03em", color: "#fafafa" }}>FAQs</h2>
           </Slide>
 
           <div className="flex flex-col gap-3">
@@ -2351,7 +2090,7 @@ export default function Franchise() {
               <Slide key={i} direction="up" delay={i * 50}>
                 <div
                   className="rounded-2xl overflow-hidden transition-all duration-200"
-                  style={{ border: openFaq === i ? "1.5px solid #97b64c" : "1px solid #d0e0b0", boxShadow: openFaq === i ? "0 4px 20px rgba(151,182,76,0.12)" : "none" }}
+                  style={{ border: openFaq === i ? "1.5px solid #97b64c" : "1px solid rgba(255,255,255,0.12)", boxShadow: openFaq === i ? "0 4px 20px rgba(151,182,76,0.12)" : "none" }}
                 >
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}

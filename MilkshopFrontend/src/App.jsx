@@ -25,7 +25,7 @@ const Monitor = lazy(() => import('./admin/pages/Monitor'))
 const LeadDetails = lazy(() => import('./admin/pages/LeadDetails'))
 
 // Preload loader assets so they're cached before RouteLoader mounts
-const PRELOAD_ASSETS = ['/milkshop-mark.png']
+const PRELOAD_ASSETS = ['/milkshop-logo-removebg-preview.png']
 
 function PreloadAssets() {
   useEffect(() => {

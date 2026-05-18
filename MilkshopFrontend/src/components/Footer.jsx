@@ -57,62 +57,102 @@ const MailIcon = () => (
 export default function Footer() {
   return (
     <footer style={{
-      position:   "relative",
-      overflow:   "hidden",
-      background: "linear-gradient(160deg, #7fa038 0%, #6b8c2e 55%, #5a7626 100%)",
-      color:      "#fff",
+      position: "relative",
+      overflow: "hidden",
+      background: "linear-gradient(160deg, #97b64c 0%, #84a23d 40%, #62840b 100%)",
+      color: "#fff",
       fontFamily: "'DM Sans', sans-serif",
     }}>
 
-      {/* top separator */}
+      {/* Top highlight line */}
       <div style={{
-        position: "absolute", top: 0, left: 0, right: 0, height: 1,
-        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.22) 30%, rgba(255,255,255,0.22) 70%, transparent)",
+        position: "absolute", top: 0, left: 0, right: 0, height: 2,
+        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.5) 35%, rgba(183,205,127,0.6) 65%, transparent)",
       }} />
 
-      {/* ambient orb */}
+      {/* Subtle dot grid texture */}
       <div aria-hidden style={{
-        position: "absolute", top: "-60px", right: "-80px",
-        width: 280, height: 280, borderRadius: "50%",
-        background: "rgba(255,255,255,0.06)",
-        filter: "blur(60px)", pointerEvents: "none",
+        position: "absolute", inset: 0, pointerEvents: "none",
+        backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px)",
+        backgroundSize: "28px 28px",
+        maskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 72%)",
+        WebkitMaskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 72%)",
       }} />
+
+      {/* Ambient orbs */}
+      <div aria-hidden style={{
+        position: "absolute", top: "-50%", right: "-10%",
+        width: "min(420px, 60vw)", height: "min(420px, 60vw)", borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(183,205,127,0.25) 0%, transparent 68%)",
+        filter: "blur(40px)", pointerEvents: "none",
+      }} />
+      <div aria-hidden style={{
+        position: "absolute", bottom: "-40%", left: "-8%",
+        width: "min(320px, 50vw)", height: "min(320px, 50vw)", borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(98,132,11,0.3) 0%, transparent 65%)",
+        filter: "blur(36px)", pointerEvents: "none",
+      }} />
+
+      {/* Mobile styles */}
+      <style>{`
+        @media (max-width: 600px) {
+          .footer-main-row {
+            flex-direction: column !important;
+            gap: 28px !important;
+          }
+          .footer-right-cols {
+            gap: 32px !important;
+          }
+        }
+      `}</style>
 
       <div style={{ maxWidth: 1320, margin: "0 auto", padding: "0 28px", position: "relative", zIndex: 2 }}>
 
         {/* ══ MAIN ROW ══ */}
-        <div style={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          gap: 40,
-          padding: "24px 0 16px",
-          flexWrap: "wrap",
-        }}>
+        <div
+          className="footer-main-row"
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: 40,
+            padding: "36px 0 24px",
+            flexWrap: "wrap",
+          }}
+        >
 
           {/* ── Brand ── */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 160 }}>
-            <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 170 }}>
+            <Link to="/" style={{ display: "flex", alignItems: "center", gap: 11, textDecoration: "none" }}>
               <div style={{
-                width: 38, height: 38, borderRadius: 12, flexShrink: 0,
-                background: "rgba(255,255,255,0.13)",
-                border: "1px solid rgba(255,255,255,0.18)",
+                width: 42, height: 42, borderRadius: 14, flexShrink: 0,
+                background: "rgba(255,255,255,0.18)",
+                border: "1.5px solid rgba(255,255,255,0.35)",
                 display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
               }}>
-                <img src={logo} alt="Milkshop" style={{ width: 22, height: 22, objectFit: "contain" }} />
+                <img src={logo} alt="Milkshop" style={{ width: 26, height: 26, objectFit: "contain" }} />
               </div>
               <div>
-                <div style={{ fontSize: "1.05rem", fontWeight: 900, letterSpacing: "-0.03em", color: "#fff", lineHeight: 1 }}>
+                <div style={{
+                  fontSize: "1.1rem", fontWeight: 900,
+                  letterSpacing: "-0.03em", color: "#fff", lineHeight: 1,
+                  textShadow: "0 1px 4px rgba(0,0,0,0.1)",
+                }}>
                   Milkshop
                 </div>
-                <div style={{ fontSize: "0.6rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.58)", marginTop: 3 }}>
+                <div style={{
+                  fontSize: "0.58rem", letterSpacing: "0.22em",
+                  textTransform: "uppercase", color: "rgba(255,255,255,0.65)",
+                  marginTop: 3,
+                }}>
                   秘客侠 · Milk Tea
                 </div>
               </div>
             </Link>
 
             {/* Socials */}
-            <div style={{ display: "flex", gap: 7 }}>
+            <div style={{ display: "flex", gap: 8 }}>
               {socials.map((s) => (
                 <a
                   key={s.label}
@@ -121,23 +161,23 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label={s.label}
                   style={{
-                    width: 32, height: 32, borderRadius: 10,
+                    width: 34, height: 34, borderRadius: 10,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    color: "rgba(255,255,255,0.85)",
-                    background: "rgba(255,255,255,0.10)",
-                    border: "1px solid rgba(255,255,255,0.14)",
+                    color: "#fff",
+                    background: "rgba(255,255,255,0.15)",
+                    border: "1.5px solid rgba(255,255,255,0.25)",
                     textDecoration: "none",
                     transition: "transform 0.22s ease, background 0.22s ease, border-color 0.22s ease",
                   }}
                   onMouseEnter={e => {
                     e.currentTarget.style.transform = "translateY(-3px)";
-                    e.currentTarget.style.background = "rgba(255,255,255,0.2)";
-                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
+                    e.currentTarget.style.background = "rgba(255,255,255,0.28)";
+                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.5)";
                   }}
                   onMouseLeave={e => {
                     e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.background = "rgba(255,255,255,0.10)";
-                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.14)";
+                    e.currentTarget.style.background = "rgba(255,255,255,0.15)";
+                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)";
                   }}
                 >
                   {s.icon}
@@ -147,32 +187,32 @@ export default function Footer() {
           </div>
 
           {/* ── Right side: Nav + Contact ── */}
-          <div style={{ display: "flex", gap: 64, flexWrap: "wrap" }}>
+          <div className="footer-right-cols" style={{ display: "flex", gap: 64, flexWrap: "wrap" }}>
 
             {/* Navigation */}
             <div>
               <p style={{
-                margin: "0 0 10px",
-                fontSize: "0.6rem", fontWeight: 800,
-                letterSpacing: "0.22em", textTransform: "uppercase",
-                color: "rgba(255,255,255,0.42)",
+                margin: "0 0 12px",
+                fontSize: "0.58rem", fontWeight: 800,
+                letterSpacing: "0.25em", textTransform: "uppercase",
+                color: "rgba(255,255,255,0.55)",
               }}>Navigation</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
                 {navLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
                     style={{
                       textDecoration: "none",
-                      color: "rgba(255,255,255,0.76)",
-                      fontSize: "0.84rem",
+                      color: "rgba(255,255,255,0.82)",
+                      fontSize: "0.875rem",
                       fontWeight: 600,
                       whiteSpace: "nowrap",
                       display: "inline-block",
                       transition: "color 0.18s ease, transform 0.18s ease",
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.transform = "translateX(3px)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.76)"; e.currentTarget.style.transform = "translateX(0)"; }}
+                    onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.transform = "translateX(4px)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.82)"; e.currentTarget.style.transform = "translateX(0)"; }}
                   >
                     {link.label}
                   </Link>
@@ -183,12 +223,12 @@ export default function Footer() {
             {/* Contact */}
             <div>
               <p style={{
-                margin: "0 0 10px",
-                fontSize: "0.6rem", fontWeight: 800,
-                letterSpacing: "0.22em", textTransform: "uppercase",
-                color: "rgba(255,255,255,0.42)",
+                margin: "0 0 12px",
+                fontSize: "0.58rem", fontWeight: 800,
+                letterSpacing: "0.25em", textTransform: "uppercase",
+                color: "rgba(255,255,255,0.55)",
               }}>Contact</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
                 {[
                   { href: "tel:09952908161",              icon: <PhoneIcon />, label: "0995 290 8161" },
                   { href: "mailto:franchise@milkshop.ph", icon: <MailIcon />, label: "franchise@milkshop.ph" },
@@ -197,21 +237,21 @@ export default function Footer() {
                     key={item.href}
                     href={item.href}
                     style={{
-                      display: "inline-flex", alignItems: "center", gap: 8,
+                      display: "inline-flex", alignItems: "center", gap: 9,
                       textDecoration: "none",
-                      color: "rgba(255,255,255,0.76)",
-                      fontSize: "0.84rem", fontWeight: 500,
+                      color: "rgba(255,255,255,0.82)",
+                      fontSize: "0.875rem", fontWeight: 500,
                       transition: "color 0.18s ease",
                     }}
                     onMouseEnter={e => e.currentTarget.style.color = "#fff"}
-                    onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.76)"}
+                    onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.82)"}
                   >
                     <span style={{
-                      width: 26, height: 26, borderRadius: 8, flexShrink: 0,
-                      background: "rgba(255,255,255,0.12)",
-                      border: "1px solid rgba(255,255,255,0.16)",
+                      width: 28, height: 28, borderRadius: 9, flexShrink: 0,
+                      background: "rgba(255,255,255,0.15)",
+                      border: "1.5px solid rgba(255,255,255,0.25)",
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      color: "rgba(255,255,255,0.9)",
+                      color: "#fff",
                     }}>
                       {item.icon}
                     </span>
@@ -227,28 +267,25 @@ export default function Footer() {
         {/* ══ BOTTOM BAR ══ */}
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          flexWrap: "wrap", gap: 4,
-          padding: "10px 0 16px",
-          borderTop: "1px solid rgba(255,255,255,0.1)",
+          flexWrap: "wrap", gap: 6,
+          padding: "12px 0 20px",
+          borderTop: "1px solid rgba(255,255,255,0.18)",
         }}>
-          <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.42)", letterSpacing: "0.02em" }}>
+          <span style={{
+            fontSize: "0.7rem", color: "rgba(255,255,255,0.52)",
+            letterSpacing: "0.02em",
+          }}>
             © {new Date().getFullYear()} Milkshop Philippines. All rights reserved.
           </span>
-          <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", letterSpacing: "0.03em", fontStyle: "italic" }}>
+          <span style={{
+            fontSize: "0.7rem", color: "rgba(255,255,255,0.4)",
+            letterSpacing: "0.03em", fontStyle: "italic",
+          }}>
             Freshly brewed from Taiwan 🧋
           </span>
         </div>
 
       </div>
-
-      {/* Mobile styles */}
-      <style>{`
-        @media (max-width: 600px) {
-          .footer-inner-main {
-            flex-direction: column !important;
-          }
-        }
-      `}</style>
     </footer>
   );
 }

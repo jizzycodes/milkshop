@@ -158,7 +158,6 @@ export default function Locations() {
   const [allLocations, setAllLocations] = useState(STATIC_LOCATIONS)
   const [loading, setLoading]           = useState(true)
   const [search, setSearch]             = useState("")
-  const [heroVisible, setHeroVisible]   = useState(false)
   const [selectedLoc, setSelectedLoc]   = useState(null)
   const [activeRegion, setActiveRegion] = useState("All")
   const [showDirectory, setShowDirectory] = useState(true)
@@ -167,8 +166,6 @@ export default function Locations() {
   const mapContainerRef                 = useRef(null)
   const leafletInstanceRef              = useRef(null)
   const markersRef                      = useRef([])
-
-  useEffect(() => { const t = setTimeout(() => setHeroVisible(true), 60); return () => clearTimeout(t) }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -489,14 +486,54 @@ export default function Locations() {
 
           {/* ── Section header ── */}
           <div className="loc-map-header" style={{
-            display: "flex", flexWrap: "wrap",
-            alignItems: "flex-end", justifyContent: "space-between",
-            gap: 10, marginBottom: 10,
-            
-  
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: 20,
+            marginBottom: 22,
           }}>
-            <div />
-
+            <div style={{ flex: "1 1 320px", minWidth: 0 }}>
+              <p className="loc-a1" style={{
+                margin: "0 0 8px",
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: "0.28em",
+                textTransform: "uppercase",
+                color: "#62840b",
+              }}>
+                Store locator
+              </p>
+              <h1 className="loc-a2" style={{
+                margin: "0 0 12px",
+                fontSize: "clamp(2rem, 4.8vw, 3.25rem)",
+                fontWeight: 900,
+                letterSpacing: "-0.045em",
+                lineHeight: 1.05,
+                color: "#1a1e14",
+              }}>
+                Your next cup is{" "}
+                <span style={{
+                  background: "linear-gradient(135deg, #3a5c06, #62840b 40%, #97b64c)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}>
+                  closer than you think
+                </span>
+              </h1>
+              <p className="loc-a3" style={{
+                margin: 0,
+                maxWidth: 520,
+                fontSize: "clamp(0.9rem, 1.6vw, 1.02rem)",
+                lineHeight: 1.65,
+                color: "#4d5c3a",
+                fontWeight: 500,
+              }}>
+                Search, filter by region, or tap a pin — find the Milkshop that fits your craving, from Metro Manila to wherever we’re brewing next.
+              </p>
+            </div>
+         
           </div>
 
           {/* ── Main content: map + sidebar ── */}
@@ -573,229 +610,214 @@ export default function Locations() {
               )}
 
              {/* Branch detail card — floats over map */}
-             
-              {selectedLoc && (() => {
-                const accent = regionAccent[selectedLoc.region] || "#97b64c"
-                return (
-                  <div
-                    className="loc-selected-card"
-                    style={{
-                      position: "absolute",
-                      bottom: 20,
-                      right: 20,
-                      width: "clamp(100px, 32vw, 550px)",
-                      zIndex: 1000,
-                      background: "#ffffff",
-                      borderRadius: 20,
-                      overflow: "hidden",
-                      boxShadow: "0 32px 80px rgba(0,0,0,0.2), 0 8px 24px rgba(98,132,11,0.12)",
-                      border: "1px solid rgba(151,182,76,0.25)",
-                      animation: "sidebarIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards",
-                    }}
-                  >
-                    {/* ── Image area ── */}
-                    <div style={{ position: "relative", height: 402, overflow: "hidden", background: `linear-gradient(145deg, ${accent}18, ${accent}08)` }}>
-                      {selectedLoc.photo ? (
-                        <img
-                          src={selectedLoc.photo}
-                          alt={selectedLoc.name}
-                          draggable={false}
-                          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                        />
-                      ) : (
-                        /* Placeholder with brand mark */
-                        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="1.4">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
-                          </svg>
-                        </div>
-                      )}
+             {selectedLoc && (() => {
+  const accent = regionAccent[selectedLoc.region] || "#97b64c"
+  return (
+    <div
+      className="loc-selected-card"
+      style={{
+        position: "absolute",
+        bottom: 20,
+        right: 20,
+        width: "clamp(280px, 28vw, 400px)",
+        zIndex: 1000,
+        background: "#ffffff",
+        borderRadius: 16,
+        overflow: "hidden",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06)",
+        border: "1px solid rgba(0,0,0,0.08)",
+        animation: "sidebarIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards",
+      }}
+    >
+      {/* ── Image ── */}
+      <div style={{ position: "relative", height: "clamp(260px, 32vh, 360px)", minHeight: 260, overflow: "hidden", background: "#f0f4e8" }}>
+        {selectedLoc.photo ? (
+          <img
+            src={selectedLoc.photo}
+            alt={selectedLoc.name}
+            draggable={false}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+        ) : (
+          <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="1.4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+            </svg>
+          </div>
+        )}
 
-                      {/* Bottom gradient bleed into card */}
-                      <div style={{
-                        position: "absolute", inset: 0,
-                        background: "linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.52) 100%)",
-                        pointerEvents: "none",
-                      }} />
+        {/* Subtle bottom fade so name reads cleanly */}
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0,
+          height: 80,
+          background: "linear-gradient(to top, rgba(0,0,0,0.45), transparent)",
+          pointerEvents: "none",
+        }} />
 
-                      {/* Top accent line */}
-                      <div style={{
-                        position: "absolute", top: 0, left: 0, right: 0,
-                        height: 3,
-                        background: `linear-gradient(90deg, ${accent}, #b7cd7f)`,
-                      }} />
+        {/* Tags — bottom left over image */}
+        <div style={{
+          position: "absolute", bottom: 10, left: 12,
+          display: "flex", gap: 5,
+        }}>
+          {selectedLoc.region && (
+            <span style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "9px", fontWeight: 800,
+              letterSpacing: "0.12em", textTransform: "uppercase",
+              padding: "3px 8px", borderRadius: 4,
+              background: accent,
+              color: "#fff",
+            }}>
+              {selectedLoc.region}
+            </span>
+          )}
+          {selectedLoc.tag && (
+            <span style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "9px", fontWeight: 800,
+              letterSpacing: "0.1em", textTransform: "uppercase",
+              padding: "3px 8px", borderRadius: 4,
+              background: selectedLoc.tagColor?.bg || "rgba(255,255,255,0.18)",
+              color: selectedLoc.tagColor?.text || "#fff",
+              border: "1px solid rgba(255,255,255,0.25)",
+            }}>
+              {selectedLoc.tag}
+            </span>
+          )}
+        </div>
 
-                      {/* Region tag — overlaid on image bottom-left */}
-                      <div style={{
-                        position: "absolute", bottom: 10, left: 12,
-                        display: "flex", gap: 5, flexWrap: "wrap",
-                      }}>
-                        {selectedLoc.region && (
-                          <span style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: "8px", fontWeight: 900,
-                            letterSpacing: "0.18em", textTransform: "uppercase",
-                            padding: "3px 9px", borderRadius: 999,
-                            background: accent,
-                            color: "#fff",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.22)",
-                          }}>
-                            {selectedLoc.region}
-                          </span>
-                        )}
-                        {selectedLoc.tag && (
-                          <span style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: "8px", fontWeight: 800,
-                            letterSpacing: "0.1em", textTransform: "uppercase",
-                            padding: "3px 9px", borderRadius: 999,
-                            background: selectedLoc.tagColor?.bg || "rgba(255,255,255,0.2)",
-                            color: selectedLoc.tagColor?.text || "#fff",
-                            border: "1px solid rgba(255,255,255,0.3)",
-                            backdropFilter: "blur(6px)",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-                          }}>
-                            {selectedLoc.tag}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+        {/* Close button */}
+        <button
+          type="button"
+          onClick={() => setSelectedLoc(null)}
+          style={{
+            position: "absolute", top: 10, right: 10,
+            width: 28, height: 28, borderRadius: "50%",
+            background: "rgba(0,0,0,0.45)",
+            border: "none",
+            cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#fff",
+            fontSize: 14,
+            fontWeight: 700,
+            lineHeight: 1,
+            zIndex: 10,
+            transition: "background 0.15s ease",
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = "rgba(0,0,0,0.65)"}
+          onMouseLeave={e => e.currentTarget.style.background = "rgba(0,0,0,0.45)"}
+        >
+          ×
+        </button>
+      </div>
 
-                    {/* ── Content ── */}
-                    <div style={{ padding: "14px 15px 16px" }}>
+      {/* ── Content ── */}
+      <div style={{ padding: "14px 16px 16px" }}>
 
-                      {/* Branch name */}
-                      <h3 style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "1.50rem",
-                        fontWeight: 800,
-                        color: "#1a2410",
-                        margin: "0 0 12px",
-                        letterSpacing: "-0.02em",
-                        lineHeight: 1.25,
-                        paddingRight: 20,
-                      }}>
-                        {selectedLoc.name}
-                      </h3>
+        {/* Branch name */}
+        <h3 style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "1rem",
+          fontWeight: 800,
+          color: "#1a1a1a",
+          margin: "0 0 10px",
+          letterSpacing: "-0.02em",
+          lineHeight: 1.3,
+        }}>
+          {selectedLoc.name}
+        </h3>
 
-                      {/* Info rows with SVG icons */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+        {/* Divider */}
+        <div style={{ height: 1, background: "rgba(0,0,0,0.07)", marginBottom: 10 }} />
 
-                        {/* Address */}
-                        {selectedLoc.address && (
-                          <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
-                            </svg>
-                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#4a5c38", lineHeight: 1.55, fontWeight: 500 }}>
-                              {selectedLoc.address}
-                            </span>
-                          </div>
-                        )}
+        {/* Info rows */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
 
-                        {/* Hours */}
-                        {selectedLoc.hours && (
-                          <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#97b64c" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
-                              <circle cx="12" cy="12" r="9"/>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 3"/>
-                            </svg>
-                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#4a5c38", lineHeight: 1.55, fontWeight: 500 }}>
-                              {selectedLoc.hours}
-                            </span>
-                          </div>
-                        )}
+          {selectedLoc.address && (
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 9 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" style={{ flexShrink: 0, marginTop: 2 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+              </svg>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#4a4a4a", lineHeight: 1.5, fontWeight: 500 }}>
+                {selectedLoc.address}
+              </span>
+            </div>
+          )}
 
-                        {/* Phone */}
-                        {selectedLoc.phone && (
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#97b64c" strokeWidth="2" style={{ flexShrink: 0 }}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>
-                            </svg>
-                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#4a5c38", fontWeight: 600 }}>
-                              {selectedLoc.phone}
-                            </span>
-                          </div>
-                        )}
+          {selectedLoc.hours && (
+            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" style={{ flexShrink: 0 }}>
+                <circle cx="12" cy="12" r="9"/>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 3"/>
+              </svg>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#4a4a4a", fontWeight: 500 }}>
+                {selectedLoc.hours}
+              </span>
+            </div>
+          )}
 
-                        {/* Est. date */}
-                        {selectedLoc.dateEstablished && (
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#97b64c" strokeWidth="2" style={{ flexShrink: 0 }}>
-                              <rect x="3" y="4" width="18" height="18" rx="2"/>
-                              <path strokeLinecap="round" d="M16 2v4M8 2v4M3 10h18"/>
-                            </svg>
-                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#7a8a6a", fontWeight: 500 }}>
-                              Est. {selectedLoc.dateEstablished}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+          {selectedLoc.phone && (
+            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" style={{ flexShrink: 0 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>
+              </svg>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#4a4a4a", fontWeight: 500 }}>
+                {selectedLoc.phone}
+              </span>
+            </div>
+          )}
 
-                      {/* Facebook CTA — always visible if available */}
-                      {selectedLoc.facebookUrl && (
-                        <a
-                          href={selectedLoc.facebookUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: 6,
-                            marginTop: 14,
-                            padding: "9px 0",
-                            borderRadius: 10,
-                            background: `linear-gradient(135deg, ${accent}, #b7cd7f)`,
-                            color: "#fff",
-                            textDecoration: "none",
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: "11px",
-                            fontWeight: 800,
-                            letterSpacing: "0.04em",
-                            boxShadow: `0 6px 18px ${accent}40`,
-                            transition: "opacity 0.2s ease, transform 0.2s ease",
-                          }}
-                          onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "translateY(-1px)" }}
-                          onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)" }}
-                        >
-                          View Facebook Page
-                          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                            <path d="M2.5 6h7M6.5 3l3 3-3 3" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </a>
-                      )}
-                    </div>
+          {selectedLoc.dateEstablished && (
+            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" style={{ flexShrink: 0 }}>
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <path strokeLinecap="round" d="M16 2v4M8 2v4M3 10h18"/>
+              </svg>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#8a8a8a", fontWeight: 500 }}>
+                Est. {selectedLoc.dateEstablished}
+              </span>
+            </div>
+          )}
+        </div>
 
-                    {/* ── Close button ── */}
-                    <button
-                      type="button"
-                      onClick={() => setSelectedLoc(null)}
-                      style={{
-                        position: "absolute", top: 10, right: 10,
-                        width: 26, height: 26, borderRadius: "50%",
-                        background: "rgba(255,255,255,0.92)",
-                        border: "1px solid rgba(255,255,255,0.6)",
-                        cursor: "pointer",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        boxShadow: "0 2px 10px rgba(0,0,0,0.18)",
-                        zIndex: 10,
-                        color: "#333",
-                        fontSize: 13,
-                        fontWeight: 700,
-                        lineHeight: 1,
-                        transition: "background 0.15s ease",
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,1)"}
-                      onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.92)"}
-                    >
-                      ×
-                    </button>
-                  </div>
-                )
-              })()}
+        {/* Facebook CTA */}
+        {selectedLoc.facebookUrl && (
+          <a
+            href={selectedLoc.facebookUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+              marginTop: 14,
+              padding: "10px 0",
+              borderRadius: 8,
+              background: "#62840b",
+              color: "#fff",
+              textDecoration: "none",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "12px",
+              fontWeight: 700,
+              letterSpacing: "0.02em",
+              transition: "background 0.15s ease",
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = "#4e6a09"}
+            onMouseLeave={e => e.currentTarget.style.background = "#62840b"}
+          >
+            View Facebook Page
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <path d="M2.5 6h7M6.5 3l3 3-3 3" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </a>
+        )}
+      </div>
+    </div>
+  )
+})()}
 
               {/* Top center label */}
               {mapReady && (
@@ -844,275 +866,252 @@ export default function Locations() {
          
             </div>
 
-      {/* ── RIGHT SIDEBAR: Branch directory ── */}
-           
-            <div
-              className="loc-sidebar"
+    {/* ── RIGHT SIDEBAR: Branch directory ── */}
+<div
+  className="loc-sidebar"
+  style={{
+    background: "#ffffff",
+    border: "1px solid rgba(151,182,76,0.18)",
+    borderRadius: 16,
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    position: "absolute",
+    top: 14,
+    left: 14,
+    bottom: 14,
+    zIndex: 650,
+    width: showDirectory ? "300px" : "0px",
+    opacity: showDirectory ? 1 : 0,
+    pointerEvents: showDirectory ? "auto" : "none",
+    transition: "width 0.28s cubic-bezier(0.16,1,0.3,1), opacity 0.2s ease",
+    boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+  }}
+>
+  {/* ── Header ── */}
+  <div style={{
+    padding: "16px 16px 0",
+    flexShrink: 0,
+  }}>
+    {/* Title + count */}
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 12,
+    }}>
+      <span style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: "13px",
+        fontWeight: 800,
+        color: "#1a1a1a",
+        letterSpacing: "-0.01em",
+      }}>
+        Our Branches
+      </span>
+      <span style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: "11px",
+        fontWeight: 600,
+        color: "#97b64c",
+      }}>
+        {filtered.length} locations
+      </span>
+    </div>
+
+    {/* Search input */}
+    <div style={{ position: "relative", marginBottom: 10 }}>
+      <svg
+        width="13" height="13" viewBox="0 0 24 24" fill="none"
+        stroke="#97b64c" strokeWidth="2.2"
+        style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+      >
+        <circle cx="11" cy="11" r="8"/>
+        <path strokeLinecap="round" d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input
+        type="text"
+        placeholder="Search branches…"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        style={{
+          width: "100%",
+          boxSizing: "border-box",
+          padding: "9px 10px 9px 30px",
+          borderRadius: 9,
+          border: "1px solid rgba(151,182,76,0.25)",
+          background: "#f7faf0",
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "12px",
+          fontWeight: 500,
+          color: "#1a1a1a",
+          outline: "none",
+        }}
+        onFocus={e => e.target.style.borderColor = "#97b64c"}
+        onBlur={e => e.target.style.borderColor = "rgba(151,182,76,0.25)"}
+      />
+    </div>
+
+
+  </div>
+
+  {/* ── Scrollable list ── */}
+  <div style={{
+    flex: 1,
+    overflowY: "auto",
+    padding: "8px 10px 12px",
+    scrollbarWidth: "none",
+  }}>
+
+    {/* Loading skeletons */}
+    {loading ? (
+      <div style={{ display: "flex", flexDirection: "column", gap: 1, paddingTop: 4 }}>
+        {[1, 2, 3, 4, 5, 6].map(i => (
+          <div key={i} style={{
+            height: 52,
+            borderRadius: 8,
+            background: "#f5f5f5",
+            marginBottom: 1,
+          }} />
+        ))}
+      </div>
+
+    ) : filtered.length === 0 ? (
+      <div style={{
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        gap: 8, padding: "48px 16px", textAlign: "center",
+      }}>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontWeight: 700, fontSize: "13px",
+          color: "#1a1a1a", margin: 0,
+        }}>No branches found</p>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "11px", color: "#9aaa8a", margin: 0,
+        }}>Try a different search or region</p>
+        <button
+          onClick={() => { setSearch(""); setActiveRegion("All") }}
+          style={{
+            marginTop: 4,
+            padding: "6px 16px", borderRadius: 999,
+            border: "1px solid #97b64c",
+            background: "white", color: "#62840b",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "11px", fontWeight: 700, cursor: "pointer",
+          }}
+        >
+          Clear filters
+        </button>
+      </div>
+
+    ) : (
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {filtered.map((loc, idx) => {
+          const accent = regionAccent[loc.region] || "#97b64c"
+          const isSelected = selectedLoc?.id === loc.id
+
+          return (
+            <button
+              key={loc.id}
+              type="button"
+              onClick={() => { setSelectedLoc(loc); flyTo(loc) }}
               style={{
-                background: "linear-gradient(160deg, rgba(255,255,255,0.98) 0%, rgba(247,252,238,0.97) 100%)",
-                backdropFilter: "blur(16px) saturate(1.1)",
-                border: "1px solid rgba(151,182,76,0.22)",
-                borderRadius: 20,
+                all: "unset",
+                cursor: "pointer",
                 display: "flex",
-                flexDirection: "column",
-                overflow: "hidden",
-                position: "absolute",
-                top: 14,
-                left: 14,
-                bottom: 14,
-                zIndex: 650,
-                width: showDirectory ? "300px" : "0px",
-                opacity: showDirectory ? 1 : 0,
-                pointerEvents: showDirectory ? "auto" : "none",
-                transition: "width 0.28s cubic-bezier(0.16,1,0.3,1), opacity 0.2s ease",
-                boxShadow: "0 20px 60px rgba(0,0,0,0.18), 0 6px 20px rgba(98,132,11,0.1)",
+                alignItems: "center",
+                padding: "11px 10px",
+                borderRadius: 10,
+                gap: 10,
+                background: isSelected ? "#f4f9ea" : "transparent",
+                borderBottom: idx < filtered.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none",
+                transition: "background 0.15s ease",
               }}
+              onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = "#fafdf4" }}
+              onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = "transparent" }}
             >
-              {/* ── Header ── */}
-              <div
-                style={{
-                  padding: "16px 14px 12px",
-                  borderBottom: "1px solid rgba(151,182,76,0.14)",
-                  background: "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,253,240,0.9) 100%)",
-                  flexShrink: 0,
-                  position: "sticky",
-                  top: 0,
-                  zIndex: 5,
-                }}
-              >
-                {/* Title row */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    {/* Live dot */}
-                    <span style={{
-                      position: "relative",
-                      width: 8, height: 8, borderRadius: "50%",
-                      background: "#97b64c",
-                      display: "inline-block",
-                      flexShrink: 0,
-                    }}>
-                      <span style={{
-                        position: "absolute", inset: -3,
-                        borderRadius: "50%",
-                        border: "1.5px solid rgba(151,182,76,0.4)",
-                        animation: "pinRipple 2s ease-out infinite",
-                      }} />
-                    </span>
-                    <span style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: "10px",
-                      fontWeight: 900,
-                      letterSpacing: "0.26em",
-                      textTransform: "uppercase",
-                      color: "#62840b",
-                    }}>
-                      Our Branches
-                    </span>
-                  </div>
+              {/* Number index */}
+              <span style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "11px",
+                fontWeight: 800,
+                color: isSelected ? accent : "#c5d4a8",
+                width: 18,
+                flexShrink: 0,
+                textAlign: "right",
+                letterSpacing: "-0.02em",
+                transition: "color 0.15s ease",
+              }}>
+                {String(idx + 1).padStart(2, "0")}
+              </span>
 
-                  {/* Branch count badge */}
-                  <span style={{
-                    background: "linear-gradient(135deg, #62840b, #97b64c)",
-                    color: "#fff",
-                    fontSize: "9px",
-                    fontWeight: 800,
+              {/* Divider line */}
+              <div style={{
+                width: 1,
+                alignSelf: "stretch",
+                background: isSelected ? accent : "rgba(0,0,0,0.08)",
+                borderRadius: 999,
+                flexShrink: 0,
+                transition: "background 0.15s ease",
+              }} />
+
+              {/* Text content */}
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "12px",
+                  fontWeight: isSelected ? 800 : 600,
+                  color: isSelected ? "#1a2e0a" : "#2a2a2a",
+                  margin: "0 0 2px",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  letterSpacing: "-0.01em",
+                }}>
+                  {loc.name.replace("Milkshop PH - ", "").replace("Milkshop PH – ", "")}
+                </p>
+                {loc.address && (
+                  <p style={{
                     fontFamily: "'DM Sans', sans-serif",
-                    padding: "3px 9px",
-                    borderRadius: 999,
-                    letterSpacing: "0.05em",
+                    fontSize: "10px",
+                    fontWeight: 400,
+                    color: "#9aaa8a",
+                    margin: 0,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
                   }}>
-                    {filtered.length} {filtered.length === 1 ? "branch" : "branches"}
-                  </span>
-                </div>
-              </div>
-
-              {/* ── Scrollable list ── */}
-              <div
-                style={{
-                  flex: 1,
-                  overflowY: "auto",
-                  padding: "8px 8px 12px",
-                  scrollbarWidth: "none",
-                }}
-              >
-                {/* Loading skeletons */}
-                {loading ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "10px 0" }}>
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <div
-                        key={i}
-                        style={{
-                          height: 58,
-                          borderRadius: 12,
-                          background: "linear-gradient(90deg, #f0f5e8 0%, #e4efcf 50%, #f0f5e8 100%)",
-                          backgroundSize: "200% 100%",
-                          animation: `shimmerBar 1.5s ease infinite`,
-                          animationDelay: `${i * 0.08}s`,
-                        }}
-                      />
-                    ))}
-                  </div>
-
-                ) : filtered.length === 0 ? (
-                  /* Empty state */
-                  <div style={{
-                    display: "flex", flexDirection: "column",
-                    alignItems: "center", justifyContent: "center",
-                    gap: 10, padding: "40px 16px", textAlign: "center",
-                  }}>
-                    <span style={{ fontSize: 28 }}>🔍</span>
-                    <p style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontWeight: 700, fontSize: "13px",
-                      color: "#1e1e1e", margin: 0,
-                    }}>No branches found</p>
-                    <button
-                      onClick={() => { setSearch(""); setActiveRegion("All") }}
-                      style={{
-                        padding: "7px 18px", borderRadius: 999,
-                        border: "1.5px solid #97b64c",
-                        background: "white", color: "#62840b",
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "11px", fontWeight: 700, cursor: "pointer",
-                      }}
-                    >
-                      Clear filters
-                    </button>
-                  </div>
-
-                ) : (
-                  /* Branch cards */
-                  <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                    {filtered.map((loc) => {
-                      const accent = regionAccent[loc.region] || "#97b64c"
-                      const isSelected = selectedLoc?.id === loc.id
-
-                      return (
-                        <button
-                          key={loc.id}
-                          type="button"
-                          onClick={() => { setSelectedLoc(loc); flyTo(loc) }}
-                          style={{
-                            all: "unset",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "stretch",
-                            borderRadius: 13,
-                            overflow: "hidden",
-                            background: isSelected
-                              ? "linear-gradient(135deg, rgba(223,242,185,0.95), rgba(210,236,165,0.92))"
-                              : "rgba(255,255,255,0.88)",
-                            border: `1px solid ${isSelected ? "rgba(151,182,76,0.55)" : "rgba(151,182,76,0.14)"}`,
-                            boxShadow: isSelected
-                              ? "0 4px 18px rgba(98,132,11,0.18)"
-                              : "0 2px 8px rgba(0,0,0,0.04)",
-                            transition: "all 0.18s ease",
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!isSelected) {
-                              e.currentTarget.style.background = "rgba(245,251,233,0.95)"
-                              e.currentTarget.style.boxShadow = "0 4px 14px rgba(98,132,11,0.12)"
-                              e.currentTarget.style.transform = "translateX(3px)"
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isSelected) {
-                              e.currentTarget.style.background = "rgba(255,255,255,0.88)"
-                              e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"
-                              e.currentTarget.style.transform = "translateX(0)"
-                            }
-                          }}
-                        >
-                          {/* Left accent bar */}
-                          <div style={{
-                            width: 3,
-                            flexShrink: 0,
-                            background: isSelected
-                              ? `linear-gradient(180deg, ${accent}, ${accent}88)`
-                              : "transparent",
-                            borderRadius: "13px 0 0 13px",
-                            transition: "background 0.18s ease",
-                          }} />
-
-                          {/* Content */}
-                          <div style={{
-                            flex: 1,
-                            padding: "10px 12px",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 10,
-                            minWidth: 0,
-                          }}>
-                            {/* Dot indicator */}
-                            <div style={{
-                              width: 8, height: 8,
-                              borderRadius: "50%",
-                              background: isSelected ? accent : "rgba(151,182,76,0.4)",
-                              flexShrink: 0,
-                              boxShadow: isSelected ? `0 0 0 3px ${accent}28` : "none",
-                              transition: "all 0.18s ease",
-                            }} />
-
-                            {/* Text */}
-                            <div style={{ minWidth: 0, flex: 1 }}>
-                              <p style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: "12px",
-                                fontWeight: isSelected ? 800 : 600,
-                                color: isSelected ? "#1a2e0a" : "#3a4a2a",
-                                margin: "0 0 2px",
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                letterSpacing: "-0.01em",
-                                transition: "color 0.18s ease",
-                              }}>
-                                {loc.name.replace("Milkshop PH - ", "").replace("Milkshop PH – ", "")}
-                              </p>
-                              {loc.address ? (
-                                <p style={{
-                                  fontFamily: "'DM Sans', sans-serif",
-                                  fontSize: "10px",
-                                  fontWeight: 400,
-                                  color: "#7a8a6a",
-                                  margin: 0,
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                }}>
-                                  {loc.address}
-                                </p>
-                              ) : null}
-                            </div>
-
-                            {/* Right side: tag or arrow */}
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, flexShrink: 0 }}>
-                              {loc.tag && (
-                                <span style={{
-                                  fontSize: "7px", fontWeight: 800,
-                                  letterSpacing: "0.06em", textTransform: "uppercase",
-                                  padding: "2px 7px", borderRadius: 999,
-                                  background: loc.tagColor?.bg || accent,
-                                  color: loc.tagColor?.text || "#fff",
-                                  fontFamily: "'DM Sans', sans-serif",
-                                }}>
-                                  {loc.tag}
-                                </span>
-                              )}
-                              {isSelected && (
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                  <path d="M2.5 6h7M6.5 3l3 3-3 3" stroke={accent} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                              )}
-                            </div>
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
+                    {loc.address}
+                  </p>
                 )}
               </div>
-            </div>
+
+              {/* Tag only */}
+              {loc.tag && (
+                <span style={{
+                  flexShrink: 0,
+                  fontSize: "7px",
+                  fontWeight: 800,
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  padding: "2px 7px",
+                  borderRadius: 999,
+                  background: loc.tagColor?.bg || accent,
+                  color: loc.tagColor?.text || "#fff",
+                  fontFamily: "'DM Sans', sans-serif",
+                }}>
+                  {loc.tag}
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
+    )}
+  </div>
+</div>
 
           </div>
         </div>

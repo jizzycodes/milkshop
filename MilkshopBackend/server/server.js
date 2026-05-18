@@ -2,7 +2,6 @@ const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
-const xss = require('xss-clean')
 const { loadEnv } = require('./utils/env')
 require('dotenv').config();
 const apiRouter = require('./routes')
@@ -72,7 +71,6 @@ const authLimiter = rateLimit({
 app.use(globalLimiter)
 
 app.use(express.json({ limit: '1mb' }))
-app.use(xss())
 app.use(requestLogger)
 
 app.use('/api/admin/login', authLimiter)

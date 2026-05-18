@@ -40,12 +40,12 @@ const styles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 38px;
-    padding: 0 15px;
+    height: 46px;
+    padding: 0 20px;
     border-radius: 999px;
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
+    font-size: 1.02rem;
     font-weight: 700;
     letter-spacing: -0.01em;
     color: rgba(17, 24, 39, 0.72);
@@ -80,57 +80,42 @@ const styles = `
     background: #b7cd7f;
   }
 
-  /* ── Gold CTA ── */
-  .cta-btn {
-    height: 42px;
-    padding: 0 20px;
-    border-radius: 999px;
+  /* Franchise CTA — flat pill (like Apply for Franchise ref), solid orange */
+  .franchise-cta {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 8px;
+    height: 48px;
+    padding: 0 28px;
+    border-radius: 999px;
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.86rem;
-    font-weight: 800;
-    letter-spacing: 0.01em;
-    color: #1a1000;
-    background: linear-gradient(135deg, #f5bc35, #E8A020, #d09018);
-    border: 1px solid rgba(255, 200, 70, 0.45);
-    box-shadow: 0 4px 18px rgba(232, 160, 32, 0.5), inset 0 1px 0 rgba(255,225,100,0.5);
-    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, filter 0.25s ease;
-    position: relative;
-    overflow: hidden;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #ffffff;
+    background: #E8A020;
+    border: none;
+    box-shadow: none;
     white-space: nowrap;
     flex-shrink: 0;
+    transition: background 0.2s ease;
   }
 
-  .cta-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 55%);
-    border-radius: inherit;
-    pointer-events: none;
+  .franchise-cta:hover {
+    background: #d49218;
+    color: #ffffff;
   }
 
-  .cta-btn:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 8px 26px rgba(232,160,32,0.62), inset 0 1px 0 rgba(255,225,100,0.5);
-    filter: brightness(1.05);
+  .franchise-cta:active {
+    background: #c28415;
   }
 
-  .cta-btn:active {
-    transform: scale(0.98);
-  }
-
-  .cta-arrow {
+  .franchise-cta-arrow {
     font-style: normal;
-    display: inline-block;
-    transition: transform 0.2s ease;
-  }
-
-  .cta-btn:hover .cta-arrow {
-    transform: translateX(3px);
+    font-weight: 400;
+    line-height: 1;
   }
 
   .nav-brand-wordmark {
@@ -196,7 +181,7 @@ const styles = `
     border-radius: 12px;
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: rgba(17, 24, 39, 0.78);
     border: 1px solid transparent;
@@ -313,9 +298,9 @@ export default function Navbar() {
           style={{
             position:       "relative",
             height:         isMobile
-              ? (scrolled ? "58px" : "64px")
-              : (scrolled ? "68px" : "76px"),
-            padding:        isMobile ? "0 12px" : "0 24px",
+              ? (scrolled ? "66px" : "72px")
+              : (scrolled ? "80px" : "88px"),
+            padding:        isMobile ? "0 14px" : "0 28px",
             display:        "flex",
             alignItems:     "center",
             justifyContent: "space-between",
@@ -335,7 +320,7 @@ export default function Navbar() {
               alt=""
               aria-hidden
               style={{
-                height:     isMobile ? (scrolled ? "30px" : "34px") : (scrolled ? "42px" : "48px"),
+                height:     isMobile ? (scrolled ? "36px" : "40px") : (scrolled ? "48px" : "54px"),
                 width:      "auto",
                 objectFit:  "contain",
                 transition: "height 0.35s cubic-bezier(0.16,1,0.3,1)",
@@ -346,8 +331,8 @@ export default function Navbar() {
               className="nav-brand-wordmark"
               style={{
                 fontSize: isMobile
-                  ? (scrolled ? "1.25rem" : "1.38rem")
-                  : (scrolled ? "1.6rem" : "1.78rem"),
+                  ? (scrolled ? "1.38rem" : "1.5rem")
+                  : (scrolled ? "1.75rem" : "1.95rem"),
               }}
             >
               Milkshop
@@ -359,7 +344,7 @@ export default function Navbar() {
             <ul style={{
               display:   "flex",
               alignItems:"center",
-              gap:       "2px",
+              gap:       "4px",
               position:  "absolute",
               left:      "50%",
               transform: "translateX(-50%)",
@@ -383,9 +368,9 @@ export default function Navbar() {
 
             {/* Desktop CTA */}
             {!isMobile && (
-              <Link to="/franchise#inquiry" className="cta-btn">
+              <Link to="/franchise#inquiry" className="franchise-cta">
                 Franchise Now
-                <em className="cta-arrow">→</em>
+                <span className="franchise-cta-arrow" aria-hidden>→</span>
               </Link>
             )}
 
@@ -394,11 +379,11 @@ export default function Navbar() {
               <>
                 <Link
                   to="/franchise#inquiry"
-                  className="cta-btn"
-                  style={{ height: "36px", padding: "0 14px", fontSize: "0.78rem" }}
+                  className="franchise-cta"
+                  style={{ height: "42px", padding: "0 18px", fontSize: "0.9rem", gap: "6px" }}
                 >
                   Franchise
-                  <em className="cta-arrow">→</em>
+                  <span className="franchise-cta-arrow" aria-hidden>→</span>
                 </Link>
 
                 <button

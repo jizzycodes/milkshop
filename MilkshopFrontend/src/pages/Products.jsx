@@ -74,131 +74,98 @@ const topDrinks = [
   },
 ];
 
-// ─── SERIES CUPS (Fan Favorites layout: manual, equal cups, full opacity, tight gap) ─
-function SeriesCupsCarousel({ products }) {
-  const [active, setActive] = useState(0);
-  const total = products.length;
-  const activeIndex = total === 0 ? 0 : Math.min(active, total - 1);
-
-  const getPos = (index) => {
-    if (total === 0) return "hidden";
-    let d = index - activeIndex;
-    const half = total / 2;
-    if (d > half) d -= total;
-    if (d < -half) d += total;
-    if (d === 0) return "center";
-    if (d === 1) return "right1";
-    if (d === -1) return "left1";
-    if (d === 2) return "right2";
-    if (d === -2) return "left2";
-    return "hidden";
-  };
-
-  const posStyles = {
-    center:  "z-40 opacity-100 translate-x-0",
-    right1:  "z-30 opacity-50 translate-x-[100%]",
-    left1:   "z-30 opacity-50 -translate-x-[100%]",
-    right2:  "z-20 opacity-30 translate-x-[200%]",
-    left2:   "z-20 opacity-30 -translate-x-[200%]",
-    hidden:  "z-10 opacity-0 pointer-events-none translate-x-0",
-  };
-
-  const current = products[activeIndex];
-  const cupImgClass =
-    "object-contain drop-shadow-2xl select-none h-64 w-auto max-w-[240px] sm:h-80 sm:max-w-[300px] lg:h-[22rem] lg:max-w-[340px]";
-
+// ─── SERIES CUPS GRID (all products visible: image + name only) ───────────────
+function SeriesCupsGrid({ products }) {
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 lg:px-10">
-      <div className="relative h-80 sm:h-[26rem] lg:h-[30rem] flex items-center justify-center overflow-hidden">
-        {products.map((product, i) => {
-          const pos = getPos(i);
-          return (
-            <button
-              key={product.id}
-              type="button"
-              onClick={() => setActive(i)}
-              className={`absolute transition-all duration-500 ease-in-out flex flex-col items-center cursor-pointer ${posStyles[pos]}`}
-              aria-label={product.name}
+    <>
+      <style>{`
+        .series-cups-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: clamp(24px, 3vw, 40px);
+          justify-items: center;
+          align-items: start;
+        }
+        @media (min-width: 640px) {
+          .series-cups-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (min-width: 900px) {
+          .series-cups-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+        @media (min-width: 1024px) {
+          .series-cups-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+        }
+        .series-cups-item {
+          width: 100%;
+          max-width: 260px;
+        }
+      `}</style>
+      <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-10 pb-10">
+        <div className="series-cups-grid">
+        {products.map((product) => (
+          <article
+            key={product.id}
+            className="series-cups-item"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-end",
+                justifyContent: "center",
+                width: "100%",
+                minHeight: "clamp(260px, 40vw, 400px)",
+                marginBottom: "16px",
+              }}
             >
               {product.image_url ? (
                 <img
                   src={product.image_url}
-                  alt=""
+                  alt={product.name}
                   draggable={false}
-                  className={cupImgClass}
+                  style={{
+                    width: "auto",
+                    height: "clamp(260px, 40vw, 400px)",
+                    maxWidth: "100%",
+                    objectFit: "contain",
+                    filter: "drop-shadow(0 16px 32px rgba(0,0,0,0.12))",
+                  }}
                 />
               ) : (
-                <div className="flex h-64 w-[220px] sm:h-80 sm:w-[280px] lg:h-[22rem] lg:w-[320px] shrink-0 items-center justify-center">
-                  <svg width="40" height="40" fill="none" stroke="#97b64c" strokeWidth="1.5" viewBox="0 0 24 24" aria-hidden>
+                <div
+                  className="flex items-center justify-center w-full"
+                  style={{ height: "clamp(260px, 40vw, 400px)", color: "#97b64c" }}
+                  aria-hidden
+                >
+                  <svg width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 001.5 2.121" />
                   </svg>
                 </div>
               )}
-            </button>
-          );
-        })}
-
-        {total > 1 && (
-          <>
-            <button
-              type="button"
-              onClick={() => setActive((activeIndex - 1 + total) % total)}
-              className="hidden sm:flex items-center justify-center absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border text-xs transition-colors"
+            </div>
+            <h3
               style={{
-                borderColor: "#b7cd7f",
-                backgroundColor: "rgba(183,205,127,0.18)",
-                color: "#62840b",
+                fontFamily: "'Signia Pro', 'DM Sans', sans-serif",
+                fontSize: "clamp(1.05rem, 1.8vw, 1.35rem)",
+                fontWeight: 700,
+                color: "#1e1e1e",
+                textAlign: "center",
+                lineHeight: 1.3,
+                margin: 0,
+                letterSpacing: "-0.02em",
               }}
-              aria-label="Previous"
             >
-              ←
-            </button>
-            <button
-              type="button"
-              onClick={() => setActive((activeIndex + 1) % total)}
-              className="hidden sm:flex items-center justify-center absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border text-xs transition-colors"
-              style={{
-                borderColor: "#b7cd7f",
-                backgroundColor: "rgba(183,205,127,0.18)",
-                color: "#62840b",
-              }}
-              aria-label="Next"
-            >
-              →
-            </button>
-          </>
-        )}
+              {product.name}
+            </h3>
+          </article>
+        ))}
+        </div>
       </div>
-
-      {current && (
-        <div className="mt-6 flex flex-col items-center text-center px-4 min-h-[3.5rem]">
-          <h3
-            className="text-xl sm:text-2xl font-bold text-[#1e1e1e] max-w-lg"
-            style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
-          >
-            {current.name}
-          </h3>
-        </div>
-      )}
-
-      {total > 1 && (
-        <div className="flex justify-center gap-2 mt-5 mb-4 flex-wrap">
-          {products.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setActive(i)}
-              className={`rounded-full transition-all duration-300 ${
-                i === activeIndex
-                  ? "w-6 h-2 bg-[#97b64c]"
-                  : "w-2 h-2 bg-[#d0e0b0] hover:bg-[#b7cd7f]"
-              }`}
-              aria-label={`Slide ${i + 1}`}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+    </>
   );
 }
 
@@ -406,7 +373,7 @@ function CategorySection({ category, products }) {
       </div>
 
       {/* Carousel */}
-      <SeriesCupsCarousel products={products} />
+      <SeriesCupsGrid products={products} />
 
       {/* Section Divider */}
       <div style={{

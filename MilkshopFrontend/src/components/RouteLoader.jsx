@@ -1,98 +1,178 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 
+const EXIT_MS = 280;
+const LOGO_SRC = "/milkshop-logo-removebg-preview.png";
+
 /**
- * Full-screen route transition loader.
- * - First paint: shows for `initialDurationMs` (so the animation feels finished).
- * - Later navigations: shows for `minDurationMs` (covers lazy chunk paint without feeling stuck).
+ * Full-screen route transition loader (Milkshop brand — pour bar + logo sway).
+ * - First paint: `initialDurationMs`
+ * - Navigations: `minDurationMs`
+ *
+ * Two layout effects keep React Strict Mode from leaving the overlay stuck visible.
  */
-export default function RouteLoader({ minDurationMs = 450, initialDurationMs = 900 }) {
+export default function RouteLoader({ minDurationMs = 900, initialDurationMs = 1400 }) {
   const { pathname } = useLocation();
-  const [visible, setVisible] = useState(true);
+  const [show, setShow] = useState(true);
+  const [leaving, setLeaving] = useState(false);
+  const [activeMs, setActiveMs] = useState(initialDurationMs);
   const hideTimerRef = useRef(null);
-  const bootstrappedRef = useRef(false);
-  const prevPathnameRef = useRef(pathname);
+  const prevPathnameRef = useRef(null);
+
+  const clearTimer = () => {
+    if (hideTimerRef.current != null) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+  };
+
+  const scheduleHide = (ms) => {
+    clearTimer();
+    setActiveMs(ms);
+    hideTimerRef.current = window.setTimeout(() => {
+      setLeaving(true);
+      hideTimerRef.current = window.setTimeout(() => {
+        setShow(false);
+        setLeaving(false);
+      }, EXIT_MS);
+    }, ms);
+  };
 
   useLayoutEffect(() => {
-    const clear = () => {
-      if (hideTimerRef.current != null) {
-        clearTimeout(hideTimerRef.current);
-        hideTimerRef.current = null;
-      }
-    };
+    scheduleHide(initialDurationMs);
+    return clearTimer;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- first paint only
+  }, []);
 
-    if (!bootstrappedRef.current) {
-      bootstrappedRef.current = true;
+  useLayoutEffect(() => {
+    if (prevPathnameRef.current === null) {
       prevPathnameRef.current = pathname;
-      clear();
-      hideTimerRef.current = window.setTimeout(() => setVisible(false), initialDurationMs);
-      return clear;
+      return;
     }
-
-    if (prevPathnameRef.current === pathname) {
-      return clear;
-    }
+    if (prevPathnameRef.current === pathname) return;
 
     prevPathnameRef.current = pathname;
-    setVisible(true);
-    clear();
-    hideTimerRef.current = window.setTimeout(() => setVisible(false), minDurationMs);
-    return clear;
-  }, [pathname, initialDurationMs, minDurationMs]);
+    setShow(true);
+    setLeaving(false);
+    scheduleHide(minDurationMs);
+    return clearTimer;
+  }, [pathname, minDurationMs]);
 
-  if (!visible) return null;
+  if (!show && !leaving) return null;
 
   return (
     <>
       <style>{`
-        @keyframes msSpin { to { transform: rotate(360deg); } }
-        @keyframes msPulse { 0%,100% { opacity: 0.65; } 50% { opacity: 1; } }
-        .ms-loader-overlay{
+        @keyframes msSway {
+          0%, 100% { transform: translateY(0) rotate(-1deg); }
+          50%      { transform: translateY(-6px) rotate(1deg); }
+        }
+        @keyframes msPour {
+          from { transform: scaleX(0); }
+          to   { transform: scaleX(1); }
+        }
+        @keyframes msDotDrift {
+          0%   { background-position: 0 0; }
+          100% { background-position: 28px 28px; }
+        }
+        .ms-loader-overlay {
           position: fixed;
           inset: 0;
           z-index: 9999;
           display: grid;
           place-items: center;
-          background: radial-gradient(120% 120% at 50% 0%, rgba(248,252,241,1) 0%, rgba(245,248,239,1) 42%, rgba(238,245,223,1) 100%);
+          background-color: #f7f9f2;
+          opacity: 1;
+          transition: opacity ${EXIT_MS}ms ease;
+          pointer-events: all;
         }
-        .ms-loader-card{
-          display:flex;
-          flex-direction:column;
-          align-items:center;
-          gap:14px;
+        .ms-loader-overlay.is-leaving {
+          opacity: 0;
+          pointer-events: none;
         }
-        .ms-loader-ring{
-          width:72px;height:72px;
-          border-radius:50%;
-          border: 3px solid rgba(151,182,76,0.22);
-          border-top-color: rgba(98,132,11,0.9);
-          animation: msSpin 0.9s linear infinite;
-          display:grid;
-          place-items:center;
-          box-shadow: 0 10px 30px rgba(98,132,11,0.12);
-          background: rgba(255,255,255,0.55);
+        .ms-loader-overlay::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          opacity: 0.45;
+          background-image: radial-gradient(circle, rgba(151,182,76,0.14) 1px, transparent 1px);
+          background-size: 22px 22px;
+          animation: msDotDrift 12s linear infinite;
+          pointer-events: none;
         }
-        .ms-loader-logo{
-          width:34px;height:34px;
-          object-fit:contain;
-          filter: drop-shadow(0 2px 8px rgba(0,0,0,0.10));
+        .ms-loader-card {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 18px;
         }
-        .ms-loader-text{
-          font-family: 'DM Sans', sans-serif;
-          font-size: 12px;
-          font-weight: 800;
-          letter-spacing: 0.22em;
+        .ms-loader-logo-wrap {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 88px;
+          height: 88px;
+        }
+        .ms-loader-logo {
+          width: 56px;
+          height: 56px;
+          object-fit: contain;
+          filter: drop-shadow(0 10px 22px rgba(98,132,11,0.18));
+          animation: msSway 2.8s ease-in-out infinite;
+        }
+        .ms-loader-track {
+          width: 128px;
+          height: 3px;
+          border-radius: 999px;
+          background: rgba(151,182,76,0.22);
+          overflow: hidden;
+        }
+        .ms-loader-fill {
+          display: block;
+          height: 100%;
+          width: 100%;
+          border-radius: inherit;
+          background: linear-gradient(90deg, #62840b 0%, #97b64c 55%, #b7cd7f 100%);
+          transform: scaleX(0);
+          transform-origin: left center;
+          animation: msPour var(--ms-loader-ms, 1400ms) cubic-bezier(0.33, 1, 0.32, 1) forwards;
+        }
+        .ms-loader-label {
+          font-family: 'Signia Pro', 'DM Sans', sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.28em;
           text-transform: uppercase;
-          color: rgba(98,132,11,0.88);
-          animation: msPulse 1.2s ease-in-out infinite;
+          color: #62840b;
+          margin: 0;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .ms-loader-overlay::before { animation: none; }
+          .ms-loader-logo { animation: none; }
+          .ms-loader-fill {
+            animation: none;
+            transform: scaleX(1);
+          }
+          .ms-loader-overlay { transition: none; }
         }
       `}</style>
-      <div className="ms-loader-overlay" role="status" aria-live="polite" aria-label="Loading">
+      <div
+        className={`ms-loader-overlay${leaving ? " is-leaving" : ""}`}
+        style={{ "--ms-loader-ms": `${activeMs}ms` }}
+        role="status"
+        aria-live="polite"
+        aria-label="Loading page"
+      >
         <div className="ms-loader-card">
-          <div className="ms-loader-ring">
-            <img className="ms-loader-logo" src="/milkshop-logo-removebg-preview.png" alt="Milkshop" draggable={false} />
+          <div className="ms-loader-logo-wrap">
+            <img className="ms-loader-logo" src={LOGO_SRC} alt="" draggable={false} />
           </div>
-          <div className="ms-loader-text">Loading</div>
+          <div className="ms-loader-track" aria-hidden>
+            <span key={`${pathname}-${activeMs}-${show}`} className="ms-loader-fill" />
+          </div>
+          <p className="ms-loader-label">Brewing</p>
         </div>
       </div>
     </>
