@@ -29,8 +29,8 @@ const historyBlocks = [
     ),
   },
   {
-    image: "/about/history/ingredientss.png",
-    fallback: "/hero-bg-3.png",
+    image: "/about/history/ingredientss.jpg",
+    fallback: "/about/history/ingredients.png",
     alt: "Milkshop signature Taiwan green, black, and oolong tea",
     label: "Premium Ingredients",
     content: (
@@ -957,18 +957,7 @@ export default function About() {
         }}
       >
         <div style={{ width: 32, height: 1.5, background: "linear-gradient(to right, transparent, #97b64c)" }} />
-        <p
-          style={{
-            margin: 0,
-            fontSize: ".78rem",
-            fontWeight: 800,
-            letterSpacing: ".32em",
-            textTransform: "uppercase",
-            color: "#62840b",
-          }}
-        >
-          Company History
-        </p>
+    
         <div style={{ width: 32, height: 1.5, background: "linear-gradient(to left, transparent, #97b64c)" }} />
       </div>
 

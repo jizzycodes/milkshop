@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { Link } from "react-router-dom"
 import { supabase } from "../lib/supabaseClient"
 
+const milkshopLogo = "/milkshop-logo-removebg-preview.png"
+
 const STATIC_LOCATIONS = [
   {
     id: 1,
@@ -893,13 +895,8 @@ export default function Locations() {
     padding: "16px 16px 0",
     flexShrink: 0,
   }}>
-    {/* Title + count */}
-    <div style={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      marginBottom: 12,
-    }}>
+    {/* Title */}
+    <div style={{ marginBottom: 12 }}>
       <span style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: "13px",
@@ -908,14 +905,6 @@ export default function Locations() {
         letterSpacing: "-0.01em",
       }}>
         Our Branches
-      </span>
-      <span style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: "11px",
-        fontWeight: 600,
-        color: "#97b64c",
-      }}>
-        {filtered.length} locations
       </span>
     </div>
 
@@ -1032,20 +1021,19 @@ export default function Locations() {
               onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = "#fafdf4" }}
               onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = "transparent" }}
             >
-              {/* Number index */}
-              <span style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "11px",
-                fontWeight: 800,
-                color: isSelected ? accent : "#c5d4a8",
-                width: 18,
-                flexShrink: 0,
-                textAlign: "right",
-                letterSpacing: "-0.02em",
-                transition: "color 0.15s ease",
-              }}>
-                {String(idx + 1).padStart(2, "0")}
-              </span>
+              {/* Logo marker */}
+              <img
+                src={milkshopLogo}
+                alt=""
+                style={{
+                  width: 20,
+                  height: 20,
+                  objectFit: "contain",
+                  flexShrink: 0,
+                  opacity: isSelected ? 1 : 0.55,
+                  transition: "opacity 0.15s ease",
+                }}
+              />
 
               {/* Divider line */}
               <div style={{

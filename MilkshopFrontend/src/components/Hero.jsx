@@ -154,27 +154,58 @@ const CSS = `
   .ms-trust   { opacity:0; animation: fadeUp .5s ease forwards 2.15s; }
 
  .ms-cta-main {
-  display:inline-flex; align-items:center; gap:8px;
-  padding:12px 28px; border-radius:8px;
-  background: #62840b;
-  color:white; font-weight:800; font-size:14px;
-  text-decoration:none; letter-spacing:.05em;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-width: 168px;
+  padding:14px 32px; border-radius:999px;
+  background: linear-gradient(135deg, #E8A020 0%, #d49218 100%);
+  color:#fff; font-weight:800; font-size:14px;
+  text-decoration:none; letter-spacing:.04em;
+  box-shadow: 0 8px 24px rgba(232,160,32,0.42);
   transition:transform .2s, box-shadow .2s;
-  font-family:'Fredoka One',cursive;
-}
-.ms-cta-main:hover { transform:translateY(-2px); }
-
-.ms-cta-out {
-  display:inline-flex; align-items:center; gap:8px;
-  padding:12px 28px; border-radius:8px;
-  border: 2px solid white;
-  color:white; font-weight:700; font-size:14px;
-  text-decoration:none; background:transparent;
-  transition:all .2s;
   font-family:'DM Sans',sans-serif;
 }
-.ms-cta-out:hover { background:rgba(255,255,255,.15); }
+.ms-cta-main:hover {
+  transform:translateY(-2px);
+  box-shadow: 0 12px 32px rgba(232,160,32,0.52);
+}
+
+.ms-cta-out {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-width: 148px;
+  padding:14px 30px; border-radius:999px;
+  border: 2px solid rgba(255,255,255,0.9);
+  color:#62840b; font-weight:800; font-size:14px;
+  text-decoration:none;
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  transition:transform .2s, background .2s, box-shadow .2s;
+  font-family:'DM Sans',sans-serif;
+}
+.ms-cta-out:hover {
+  background:#fff;
+  transform:translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.16);
+}
+
+  .ms-copy-shade {
+    position: absolute;
+    inset: -12px -28px -16px -36px;
+    border-radius: 28px;
+    background: radial-gradient(ellipse 88% 78% at 18% 42%, rgba(20,32,8,0.2) 0%, transparent 72%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .ms-trust-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.22);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
 `;
 
 /* ── SVG DECO ── */
@@ -404,20 +435,22 @@ export default function Hero() {
           {/* ── LEFT TEXT — alignment only affects this column; grid tracks unchanged so cups stay put ── */}
           <div style={{
             display:"flex", flexDirection:"column",
-            gap: isMobile ? 9 : 8,
+            gap: isMobile ? 10 : 6,
             textAlign: isMobile ? "center" : "left",
             alignItems: isMobile ? "center" : "flex-start",
             paddingBottom: isMobile ? 18 : 115,
             paddingLeft: isMobile ? 0 : 0,
             /* Nudge copy left inside the fixed left track without resizing the cup column */
             marginLeft: isMobile ? 0 : "clamp(-6px, -1vw, -20px)",
-            zIndex:2,
+            zIndex: 2,
+            position: "relative",
           }}>
+            {!isMobile && <div aria-hidden className="ms-copy-shade" />}
 
             {/* Eyebrow */}
             <div className="ms-eyebrow" style={{
               display:"flex", alignItems:"center", gap:9,
-              justifyContent: isMobile ? "flex-end" : "flex-start",
+              justifyContent: isMobile ? "center" : "flex-start",
             }}>
               <span style={{ width:22, height:2, background:"rgba(255,255,255,.88)", borderRadius:2 }}/>
               <span style={{
@@ -439,7 +472,7 @@ export default function Hero() {
               fontWeight:800,
               color:"white",
               lineHeight:1,
-              textShadow:"0 4px 18px rgba(0,0,0,0.24)",
+              textShadow:"0 2px 6px rgba(0,0,0,0.35), 0 8px 28px rgba(0,0,0,0.22)",
               marginBottom: -6,
             }}>
               Fresh Taste
@@ -452,9 +485,10 @@ export default function Hero() {
                 ? "clamp(1.3rem,6vw,1.9rem)"
                 : "clamp(1.7rem,2.9vw,2.6rem)",
               fontWeight:700,
-              color:"rgba(255,255,255,.88)",
+              color:"rgba(255,255,255,.96)",
               lineHeight:1,
               marginBottom: -4,
+              textShadow:"0 2px 8px rgba(0,0,0,0.28)",
             }}>
               of
             </div>
@@ -496,34 +530,35 @@ export default function Hero() {
             </div>
 
             {/* Tagline */}
-            <div className="ms-tag" style={{ marginTop:2 }}>
-            <div style={{
-  background: "#2d4a06",
-  borderRadius: 6,
-  padding: isMobile ? "10px 28px" : "13px 36px",
-  display: "inline-flex",
-  alignItems: "center",
-  width: "100%",           // full width like reference
-  justifyContent: "center",
-  boxShadow: "0 6px 20px rgba(0,0,0,0.3), inset 0 -3px 0 rgba(0,0,0,0.2)",
-  border: "2px solid #1a3a02",
-}}>
-                <span style={{
-                  color:"white", fontWeight:800,
-                  fontSize: isMobile ? 13 : 20,
-                  letterSpacing:"0.09em",
-                  fontFamily:"'Fredoka One',cursive",
-                }}>
-                  Milky, Healthy, Chewy!
-                </span>
-              </div>
+            <div className="ms-tag" style={{ marginTop: isMobile ? 12 : 16 }}>
+              <span style={{
+                display: "inline-flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: isMobile ? "center" : "flex-start",
+                gap: "0.35em 0.5em",
+                color: "#fff",
+                fontWeight: 800,
+                fontSize: isMobile ? "clamp(1.05rem, 4.8vw, 1.35rem)" : "clamp(1.2rem, 2.2vw, 1.55rem)",
+                letterSpacing: "0.04em",
+                fontFamily: "'Fredoka One', cursive",
+                textShadow: "0 2px 12px rgba(0,0,0,0.32), 0 0 24px rgba(255,255,255,0.15)",
+                lineHeight: 1.25,
+              }}>
+                {["Milky", "Healthy", "Chewy!"].map((word, wi) => (
+                  <span key={word} style={{ display: "inline-flex", alignItems: "center", gap: "0.35em" }}>
+                    {wi > 0 && <span aria-hidden style={{ opacity: 0.55, fontWeight: 400 }}>·</span>}
+                    {word}
+                  </span>
+                ))}
+              </span>
             </div>
 
             {/* CTAs */}
             <div className="ms-btns" style={{
-              display:"flex", flexWrap:"wrap", gap:30,
+              display:"flex", flexWrap:"wrap", gap:14,
               justifyContent: isMobile ? "center" : "flex-start",
-              marginTop:60,
+              marginTop: isMobile ? 22 : 28,
             }}>
               <Link to="/franchise#inquiry" className="ms-cta-main">Franchise Now ✦</Link>
               <Link to="/products" className="ms-cta-out">View Menu</Link>
@@ -531,19 +566,20 @@ export default function Hero() {
 
             {/* Trust badges */}
             <div className="ms-trust" style={{
-              display:"flex", gap:18, flexWrap:"wrap",
+              display:"flex", gap:10, flexWrap:"wrap",
               justifyContent: isMobile ? "center" : "flex-start",
+              marginTop: isMobile ? 14 : 18,
             }}>
               {["Real Ingredients","No Powders","Taiwan Recipe"].map(t => (
-                <span key={t} style={{
+                <span key={t} className="ms-trust-pill" style={{
                   fontSize:10, fontWeight:700,
-                  color:"rgba(255,255,255,.88)",
-                  letterSpacing:"0.1em",
-                  display:"flex", alignItems:"center", gap:5,
+                  color:"rgba(255,255,255,.95)",
+                  letterSpacing:"0.08em",
+                  textTransform:"uppercase",
                 }}>
                   <span style={{
                     width:5, height:5, borderRadius:"50%",
-                    background:"white", opacity:.78, display:"inline-block",
+                    background:"#E8A020", flexShrink:0,
                   }}/>
                   {t}
                 </span>

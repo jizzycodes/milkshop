@@ -235,44 +235,10 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
   return (
     <>
       <style>{`
-        @keyframes pkg-check-pop {
-          0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
-          60%  { transform: scale(1.22) rotate(5deg); opacity: 1; }
-          100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-        @keyframes pkg-selected-lift {
-          from { transform: translateY(0) scale(1); }
-          to   { transform: translateY(-10px) scale(1.018); }
-        }
-        @keyframes pkg-glow-ring {
-          0%,100% { box-shadow: 0 0 0 0 rgba(151,182,76,0.4), 0 28px 72px rgba(98,132,11,0.22); }
-          50%     { box-shadow: 0 0 0 10px rgba(151,182,76,0), 0 28px 72px rgba(98,132,11,0.22); }
-        }
-        @keyframes pkg-header-wash {
-          from { opacity: 0; transform: translateY(-8px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes pkg-img-enter {
-          from { transform: scale(1.06); }
-          to   { transform: scale(1); }
-        }
-        @keyframes pkg-btn-pop {
-          0%   { transform: scale(0.94); }
-          60%  { transform: scale(1.03); }
-          100% { transform: scale(1); }
-        }
-
         .pkg-card-wrap {
-          transition:
-            opacity 0.4s cubic-bezier(0.16,1,0.3,1),
-            transform 0.4s cubic-bezier(0.16,1,0.3,1);
-          will-change: transform, opacity;
           flex: 1;
           display: flex;
           flex-direction: column;
-        }
-        .pkg-card-wrap.is-selected-wrap {
-          animation: pkg-selected-lift 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
         }
 
         .pkg-card {
@@ -287,13 +253,10 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
           width: 100%;
           position: relative;
           background: #ffffff;
-          transition:
-            border-color 0.3s ease,
-            box-shadow 0.4s ease;
         }
         .pkg-card.is-selected {
-          animation: pkg-glow-ring 2.4s ease-in-out infinite;
           border: 2.5px solid #97b64c !important;
+          box-shadow: 0 28px 72px rgba(98,132,11,0.22);
         }
         .pkg-card:not(.is-selected) {
           border: 1.5px solid rgba(151,182,76,0.18);
@@ -301,39 +264,7 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
         }
 
         .pkg-img-inner {
-          transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
-          will-change: transform;
-        }
-        .pkg-card-wrap:not(.is-selected-wrap) .pkg-card:hover .pkg-img-inner {
-          transform: scale(1.06);
-        }
-
-        .pkg-check-anim {
-          animation: pkg-check-pop 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
-        }
-        .pkg-header-wash {
-          animation: pkg-header-wash 0.38s ease forwards;
-        }
-        .pkg-btn-selected {
-          animation: pkg-btn-pop 0.38s cubic-bezier(0.16,1,0.3,1) forwards;
-        }
-
-        .pkg-select-btn {
-          transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.18s ease;
-        }
-        .pkg-select-btn:hover {
-          transform: translateY(-2px);
-        }
-        .pkg-select-btn:active {
-          transform: scale(0.96);
-        }
-
-        .pkg-view-btn {
-          transition: opacity 0.2s ease, background 0.2s ease;
-        }
-        .pkg-view-btn:hover {
-          opacity: 1 !important;
-          background: rgba(0,0,0,0.62) !important;
+          transform: none !important;
         }
       `}</style>
 
@@ -353,9 +284,7 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
 
           return (
             <Slide key={pkg.id} direction="up" delay={i * 80} className="flex flex-col h-full">
-              <div
-                className={`pkg-card-wrap${isSelected ? " is-selected-wrap" : ""}`}
-              >
+              <div className="pkg-card-wrap">
                 <article
                   className={`pkg-card${isSelected ? " is-selected" : ""}`}
                   role="button"
@@ -374,54 +303,10 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
                   }}
                 >
 
-                  {/* ── SELECTED HEADER WASH ── */}
-                  {isSelected ? (
-                    <div
-                      className="pkg-header-wash"
-                      style={{
-                        background: "linear-gradient(135deg, #62840b 0%, #97b64c 60%, #b7cd7f 100%)",
-                        padding: "14px 20px 12px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <div
-                          className="pkg-check-anim"
-                          style={{
-                            width: 22, height: 22, borderRadius: "50%",
-                            background: "rgba(255,255,255,0.25)",
-                            border: "1.5px solid rgba(255,255,255,0.5)",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                          }}
-                        >
-                          <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                            <path d="M2 5.5l2.5 2.5 4.5-4.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </div>
-                        <span style={{
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontSize: "0.72rem", fontWeight: 800,
-                          letterSpacing: "0.1em", textTransform: "uppercase",
-                          color: "rgba(255,255,255,0.92)",
-                        }}>Selected</span>
-                      </div>
-                      <span style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "0.65rem", fontWeight: 700,
-                        color: "rgba(255,255,255,0.7)",
-                        letterSpacing: "0.05em",
-                      }}>{pkg.term}</span>
-                    </div>
-                  ) : (
-                    /* ── IDLE TOP BAR ── */
-                    <div style={{
-                      height: 4, flexShrink: 0,
-                      background: "rgba(151,182,76,0.12)",
-                    }} />
-                  )}
+                  <div style={{
+                    height: 4, flexShrink: 0,
+                    background: "rgba(151,182,76,0.12)",
+                  }} />
 
                   {/* ── IMAGE BLOCK ── */}
                   <div style={{
@@ -445,7 +330,6 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
                         padding: "5px 11px", borderRadius: 999,
                         fontFamily: "'DM Sans', sans-serif",
                         boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
-                        transition: "all 0.3s ease",
                       }}>
                         {pkg.badge}
                       </div>
@@ -525,7 +409,7 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
                     padding: "clamp(1rem, 2.5vw, 1.3rem) clamp(1.1rem, 2.8vw, 1.45rem) clamp(1.1rem, 2.8vw, 1.45rem)",
                   }}>
 
-                    {/* Type pill + term row (idle only — selected shows term in header) */}
+                    {/* Type pill + term row */}
                     <div style={{
                       display: "flex", alignItems: "center",
                       justifyContent: "space-between", marginBottom: 10,
@@ -540,23 +424,20 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
                           : "rgba(183,205,127,0.5)",
                         border: `1px solid ${isSelected ? "rgba(98,132,11,0.6)" : "rgba(151,182,76,0.4)"}`,
                         borderRadius: 999, padding: "4px 10px",
-                        transition: "all 0.3s ease",
                       }}>
                         {pkg.label.toUpperCase()}
                       </span>
-                      {!isSelected && (
-                        <span style={{
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontSize: "9px", fontWeight: 700,
-                          letterSpacing: "0.06em", padding: "3px 8px",
-                          borderRadius: 999,
-                          background: "rgba(151,182,76,0.12)",
-                          color: "#4a6b08",
-                          border: "1px solid rgba(151,182,76,0.25)",
-                        }}>
-                          {pkg.term}
-                        </span>
-                      )}
+                      <span style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "9px", fontWeight: 700,
+                        letterSpacing: "0.06em", padding: "3px 8px",
+                        borderRadius: 999,
+                        background: "rgba(151,182,76,0.12)",
+                        color: "#4a6b08",
+                        border: "1px solid rgba(151,182,76,0.25)",
+                      }}>
+                        {pkg.term}
+                      </span>
                     </div>
 
                     {/* Title + tagline */}
@@ -568,7 +449,6 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
                         color: isSelected ? "#62840b" : "#1f2a17",
                         margin: "0 0 3px",
                         letterSpacing: "-0.035em", lineHeight: 1.1,
-                        transition: "color 0.3s ease",
                       }}>
                         {pkg.emoji} {pkg.label}
                       </h3>
@@ -577,7 +457,6 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
                         fontSize: "0.76rem", fontWeight: 600,
                         color: isSelected ? "#7a9460" : "#5a6a4a",
                         margin: 0,
-                        transition: "color 0.3s ease",
                       }}>
                         {pkg.tagline}
                       </p>
@@ -590,7 +469,6 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
                         ? "linear-gradient(90deg, rgba(151,182,76,0.5), transparent)"
                         : "rgba(151,182,76,0.13)",
                       marginBottom: 11,
-                      transition: "background 0.3s ease",
                     }} />
 
                     {/* Features */}
@@ -604,7 +482,6 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
                           fontSize: "0.76rem", fontWeight: 600,
                           lineHeight: 1.35, color: isSelected ? "#2e3d1e" : "#3a4a2a",
                           paddingLeft: 16, position: "relative",
-                          transition: "color 0.3s ease",
                         }}>
                           <span style={{
                             position: "absolute", left: 0, top: "0.35em",
@@ -614,7 +491,6 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
                             background: isSelected
                               ? "linear-gradient(135deg, #62840b, #97b64c)"
                               : "#97b64c",
-                            transition: "all 0.3s ease",
                             boxShadow: isSelected ? "0 1px 6px rgba(151,182,76,0.45)" : "none",
                           }} />
                           {f}
@@ -630,14 +506,12 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
                       margin: "0 0 14px",
                       fontStyle: "italic",
                       fontWeight: isSelected ? 600 : 400,
-                      transition: "color 0.3s ease",
                     }}>
                       {pkg.best}
                     </p>
 
                     {/* CTA Button */}
                     <button
-                      className={`pkg-select-btn${isSelected ? " pkg-btn-selected" : ""}`}
                       type="button"
                       style={{
                         width: "100%", marginTop: "auto",
@@ -656,7 +530,6 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
                         border: isSelected
                           ? "1px solid rgba(98,132,11,0.4)"
                           : "1.5px solid rgba(151,182,76,0.28)",
-                        transition: isSelected ? "none" : "all 0.25s ease",
                       }}
                     >
                       {isSelected ? "✓ Package Selected" : "Select Package"}
@@ -778,31 +651,6 @@ export default function Franchise() {
   const processLockRef = useRef(false);
   const processWheelDeltaRef = useRef(0);
   const processTouchYRef = useRef(null);
-  const [heroStatDisplay, setHeroStatDisplay] = useState({ branches: 0, roiMonths: 0, formats: 0 });
-
-  useEffect(() => {
-    let raf = 0;
-    const start = performance.now();
-    const dur = 1500;
-    const ease = (t) => 1 - (1 - t) ** 3;
-    let lastKey = "";
-    const tick = (now) => {
-      const p = Math.min(1, (now - start) / dur);
-      const e = ease(p);
-      const branches = Math.round(50 * e);
-      const roiMonths = Math.round(12 * e);
-      const formats = Math.round(3 * e);
-      const key = `${branches}|${roiMonths}|${formats}`;
-      if (key !== lastKey) {
-        lastKey = key;
-        setHeroStatDisplay({ branches, roiMonths, formats });
-      }
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
   useEffect(() => {
     if (window.location.hash !== `#${FRANCHISE_FORM_ID}`) return;
     const el = document.getElementById(FRANCHISE_FORM_ID);
@@ -1093,412 +941,463 @@ export default function Franchise() {
       SLIDE 1 — HERO (PREMIUM UPGRADE)
 ══════════════════════════════════════ */}
 {/* ══════════════════════════════════════
-   FRANCHISE HERO — REDESIGN
+   PREMIUM FRANCHISE HERO — ENHANCED
 ══════════════════════════════════════ */}
 <section
   data-track-section="Franchise Hero"
   className="relative overflow-hidden"
   style={{
+    background: "linear-gradient(168deg, #f8fbf2 0%, #eef6e4 48%, #e6f0d8 100%)",
     minHeight: "100svh",
-    background: "#f5f9ee",
     display: "flex",
     alignItems: "center",
+    position: "relative",
     fontFamily: "'DM Sans', sans-serif",
   }}
 >
-  <style>{`
-    @keyframes fhFadeUp {
-      from { opacity: 0; transform: translateY(32px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fhFloat {
-      0%,100% { transform: translateY(0px); }
-      50%      { transform: translateY(-10px); }
-    }
-    @keyframes fhFloatSlow {
-      0%,100% { transform: translateY(0px); }
-      50%      { transform: translateY(-6px); }
-    }
-    @keyframes fhPkgBob {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-9px); }
-    }
-
-    .fh-reveal {
-      opacity: 0;
-      animation: fhFadeUp .85s cubic-bezier(.16,1,.3,1) forwards;
-    }
-
-    .fh-btn-main {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 15px 32px;
-      border-radius: 999px;
-      background: #62840b;
-      color: #fff;
-      text-decoration: none;
-      font-size: .9rem;
-      font-weight: 800;
-      transition: background .2s ease, transform .2s ease;
-    }
-    .fh-btn-main:hover {
-      background: #4e6a09;
-      transform: translateY(-2px);
-    }
-
-    .fh-btn-secondary {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 15px 28px;
-      border-radius: 999px;
-      background: transparent;
-      border: 1.5px solid rgba(98,132,11,0.35);
-      color: #62840b;
-      text-decoration: none;
-      font-size: .9rem;
-      font-weight: 700;
-      transition: border-color .2s ease, background .2s ease, transform .2s ease;
-    }
-    .fh-btn-secondary:hover {
-      border-color: #62840b;
-      background: rgba(98,132,11,0.05);
-      transform: translateY(-2px);
-    }
-
-    .fh-pkg-card {
-      position: absolute;
-      background: rgba(255,255,255,0.82);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255,255,255,0.6);
-      border-radius: 18px;
-      padding: 8px;
-      text-decoration: none;
-      box-shadow: 0 8px 28px rgba(0,0,0,0.10);
-      pointer-events: auto;
-    }
-  `}</style>
-
-  {/* Background image — right side only */}
-  <div aria-hidden style={{
-    position: "absolute",
-    top: 0, right: 0,
-    width: "58%",
-    height: "100%",
-    zIndex: 0,
-    pointerEvents: "none",
-  }}>
-    <img
-      src="/public/8.png"
-      alt=""
+  {/* ── BACKGROUND LAYER ── */}
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      overflow: "hidden",
+      pointerEvents: "none",
+      zIndex: 0,
+    }}
+  >
+    {/* Dot grid */}
+    <div
       style={{
-        width: "100%",
+        position: "absolute",
+        inset: 0,
+        backgroundImage:
+          "radial-gradient(circle, rgba(98,132,11,0.18) 1.2px, transparent 1.2px)",
+        backgroundSize: "26px 26px",
+        maskImage: "linear-gradient(90deg, transparent 0%, black 42%, black 100%)",
+        WebkitMaskImage: "linear-gradient(90deg, transparent 0%, black 42%, black 100%)",
+      }}
+    />
+
+    {/* Top-right outer ring */}
+    <div
+      style={{
+        position: "absolute",
+        top: -60,
+        right: -60,
+        width: 480,
+        height: 480,
+        borderRadius: "50%",
+        border: "48px solid rgba(98,132,11,0.07)",
+      }}
+    />
+
+    {/* Top-right inner ring */}
+    <div
+      style={{
+        position: "absolute",
+        top: 40,
+        right: 40,
+        width: 320,
+        height: 320,
+        borderRadius: "50%",
+        border: "1.5px solid rgba(98,132,11,0.13)",
+      }}
+    />
+
+    {/* Bottom-left ring */}
+    <div
+      style={{
+        position: "absolute",
+        bottom: -100,
+        left: -80,
+        width: 380,
+        height: 380,
+        borderRadius: "50%",
+        border: "40px solid rgba(98,132,11,0.06)",
+      }}
+    />
+
+    <div
+      className="hero-bg-orb-a"
+      style={{
+        position: "absolute",
+        top: "-8%",
+        right: "-6%",
+        width: "min(50vw, 480px)",
+        height: "min(50vw, 480px)",
+        borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(151,182,76,0.32) 0%, transparent 68%)",
+      }}
+    />
+    <div
+      className="hero-bg-orb-b"
+      style={{
+        position: "absolute",
+        bottom: "-14%",
+        left: "-10%",
+        width: "min(44vw, 400px)",
+        height: "min(44vw, 400px)",
+        borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(183,205,127,0.38) 0%, transparent 70%)",
+      }}
+    />
+    <div
+      className="hero-bg-ring"
+      style={{
+        position: "absolute",
+        top: "10%",
+        right: "6%",
+        width: "min(36vw, 320px)",
+        height: "min(36vw, 320px)",
+        borderRadius: "50%",
+        border: "1.5px dashed rgba(98,132,11,0.2)",
+      }}
+    />
+
+    {/* Diagonal ruled lines — right half */}
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        right: 0,
+        width: "55%",
         height: "100%",
-        objectFit: "cover",
-        objectPosition: "center",
-        display: "block",
-        opacity: 0.13,
-        maskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.9) 100%)",
-        WebkitMaskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.9) 100%)",
+        backgroundImage:
+          "repeating-linear-gradient(-55deg, transparent, transparent 38px, rgba(98,132,11,0.055) 38px, rgba(98,132,11,0.055) 39px)",
       }}
     />
   </div>
 
-  {/* Content */}
-  <div style={{
-    width: "100%",
-    maxWidth: 1380,
-    margin: "0 auto",
-    padding: "120px 48px 90px",
-    position: "relative",
-    zIndex: 5,
-  }}>
+  {/* ── WATERMARK LOGO — replace src with your actual logo path ── */}
+  <img
+    src="/milkshop-logo-removebg-preview.png"
+    alt=""
+    aria-hidden="true"
+    style={{
+      position: "absolute",
+      bottom: "6%",
+      left: "50%",
+      transform: "translateX(-50%)",
+      opacity: 0.045,
+      width: 340,
+      pointerEvents: "none",
+      zIndex: 1,
+      userSelect: "none",
+    }}
+  />
+
+  <style>{`
+    @keyframes heroFadeUp {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes heroBadgePulse {
+      0%,100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.55; }
+    }
+    @keyframes heroOrbDrift {
+      0%,100% { transform: translate(0, 0); }
+      50% { transform: translate(14px, -12px); }
+    }
+    @keyframes heroOrbDriftB {
+      0%,100% { transform: translate(0, 0); }
+      50% { transform: translate(-12px, 16px); }
+    }
+    @keyframes heroRingSpin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes heroPkgFloatA {
+      0%,100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-16px) rotate(-3deg); }
+    }
+    @keyframes heroPkgFloatB {
+      0%,100% { transform: translateY(0) rotate(3deg); }
+      50% { transform: translateY(-22px) rotate(5deg); }
+    }
+    @keyframes heroPkgFloatC {
+      0%,100% { transform: translateY(0) rotate(6deg); }
+      50% { transform: translateY(-14px) rotate(4deg); }
+    }
+
+    .hero-reveal { animation: heroFadeUp .85s cubic-bezier(.16,1,.3,1) forwards; }
+    .hero-reveal-delayed { animation: heroFadeUp .85s .18s cubic-bezier(.16,1,.3,1) both; }
+    .hero-badge-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #62840b;
+      animation: heroBadgePulse 2s ease-in-out infinite; flex-shrink: 0;
+    }
+    .hero-bg-orb-a { animation: heroOrbDrift 16s ease-in-out infinite; }
+    .hero-bg-orb-b { animation: heroOrbDriftB 18s ease-in-out infinite; }
+    .hero-bg-ring { animation: heroRingSpin 52s linear infinite; }
+
+    .hero-btn-main, .hero-btn-secondary {
+      display: inline-flex; align-items: center; justify-content: center;
+      text-decoration: none; box-sizing: border-box;
+    }
+    .hero-btn-main {
+      height: 54px; padding: 0 32px; border-radius: 999px;
+      background: #62840b; color: #fff; font-weight: 800; font-size: .92rem;
+      box-shadow: 0 8px 24px rgba(98,132,11,0.22);
+      transition: transform .22s ease, background .22s ease;
+    }
+    .hero-btn-main:hover { transform: translateY(-3px); background: #536f09; }
+    .hero-btn-secondary {
+      height: 54px; padding: 0 28px; border-radius: 999px;
+      background: rgba(255,255,255,0.55); border: 1.5px solid rgba(98,132,11,0.28);
+      color: #62840b; font-weight: 700; font-size: .9rem;
+      transition: transform .22s ease, background .22s ease;
+    }
+    .hero-btn-secondary:hover { transform: translateY(-3px); background: #fff; }
+
+    .hero-pkg-card {
+      position: absolute; border-radius: 24px; overflow: hidden;
+      background: rgba(255,255,255,0.95); border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: 0 24px 56px rgba(98,132,11,0.18), 0 8px 20px rgba(0,0,0,0.07);
+      text-decoration: none; transition: box-shadow .25s ease, transform .25s ease;
+    }
+    .hero-pkg-card:hover {
+      box-shadow: 0 32px 72px rgba(98,132,11,0.24), 0 12px 28px rgba(0,0,0,0.1);
+      transform: translateY(-4px);
+    }
+    .hero-pkg-card--featured {
+      border: 2px solid rgba(151,182,76,0.45);
+      box-shadow: 0 28px 64px rgba(98,132,11,0.22), 0 10px 24px rgba(0,0,0,0.08);
+    }
+    @media (max-width: 1024px) {
+      .hero-pkg-stage { min-height: clamp(560px, 85vw, 720px) !important; }
+    }
+    .hero-pkg-float-a { animation: heroPkgFloatA 5.8s ease-in-out infinite; }
+    .hero-pkg-float-b { animation: heroPkgFloatB 6.4s ease-in-out infinite; }
+    .hero-pkg-float-c { animation: heroPkgFloatC 7s ease-in-out infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-reveal, .hero-reveal-delayed, .hero-badge-dot,
+      .hero-bg-orb-a, .hero-bg-orb-b, .hero-bg-ring,
+      .hero-pkg-float-a, .hero-pkg-float-b, .hero-pkg-float-c {
+        animation: none !important;
+      }
+    }
+  `}</style>
+
+  <div
+    style={{
+      width: "100%",
+      maxWidth: 1380,
+      margin: "0 auto",
+      padding: "130px 48px 90px",
+      position: "relative",
+      zIndex: 5,
+    }}
+  >
     <div
       className="max-lg:grid-cols-1"
       style={{
         display: "grid",
-        gridTemplateColumns: "1fr 1.1fr",
+        gridTemplateColumns: "minmax(0, 0.92fr) minmax(0, 1.08fr)",
         alignItems: "center",
-        gap: 48,
+        gap: "clamp(24px, 4vw, 48px)",
       }}
     >
-
-      {/* ── LEFT ── */}
+      {/* LEFT */}
       <div
-        className="fh-reveal"
+        className="hero-reveal"
         style={{
+          maxWidth: 580,
           display: "flex",
           flexDirection: "column",
           gap: 28,
-          maxWidth: 520,
         }}
       >
         {/* Badge */}
-        <div style={{
-          width: "fit-content",
-          padding: "7px 16px",
-          borderRadius: 6,
-          border: "1.5px solid rgba(98,132,11,0.3)",
-          fontSize: ".7rem",
-          fontWeight: 800,
-          letterSpacing: ".14em",
-          textTransform: "uppercase",
-          color: "#62840b",
-        }}>
-          Milkshop Franchise Opportunity
+        <div
+          style={{
+            width: "fit-content",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "8px 16px",
+            borderRadius: 999,
+            border: "1.5px solid rgba(98,132,11,0.22)",
+            background: "rgba(255,255,255,0.55)",
+            color: "#62840b",
+            fontSize: ".7rem",
+            fontWeight: 800,
+            letterSpacing: ".15em",
+            textTransform: "uppercase",
+          }}
+        >
+          <span className="hero-badge-dot" />
+          Taiwan's Fast Growing Milk Tea Brand
         </div>
 
         {/* Headline */}
-        <h1 style={{
-          margin: 0,
-          fontSize: "clamp(3.2rem, 6.5vw, 5.8rem)",
-          lineHeight: .92,
-          letterSpacing: "-.05em",
-          fontWeight: 900,
-          color: "#1a1e14",
-        }}>
-          Build Your<br />
-          <span style={{
-            color: "#62840b",
-          }}>
-            Milkshop Empire.
-          </span>
-        </h1>
-
-        {/* Description */}
-        <p style={{
-          margin: 0,
-          maxWidth: 440,
-          fontSize: ".95rem",
-          lineHeight: 1.8,
-          color: "#526142",
-        }}>
-          Start with a trusted milk tea brand built for modern Filipino entrepreneurs. Fast setup, premium branding, and full operational support.
-        </p>
-
-        {/* Buttons */}
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <a href="#inquiry" className="fh-btn-main">
-            Apply for Franchise →
-          </a>
-          <a href="#packages" className="fh-btn-secondary">
-            Explore Packages
-          </a>
-        </div>
-
-        {/* Stats */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 1,
-          marginTop: 8,
-          background: "rgba(98,132,11,0.12)",
-          borderRadius: 14,
-          overflow: "hidden",
-          border: "1px solid rgba(98,132,11,0.12)",
-        }}>
-          {[
-            ["150+", "Branches"],
-            ["12–18", "ROI Months"],
-            ["3", "Store Formats"],
-          ].map((item, i) => (
-            <div
-              key={item[1]}
-              style={{
-                background: "#ffffff",
-                padding: "18px 20px",
-                borderRadius: i === 0 ? "13px 0 0 13px" : i === 2 ? "0 13px 13px 0" : 0,
-              }}
-            >
-              <div style={{
-                fontSize: "1.7rem",
-                fontWeight: 900,
-                color: "#1a2e0a",
-                letterSpacing: "-.04em",
-              }}>
-                {item[0]}
-              </div>
-              <div style={{
-                marginTop: 3,
-                fontSize: ".72rem",
-                color: "#62840b",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: ".08em",
-              }}>
-                {item[1]}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── RIGHT VISUAL ── */}
-      <div
-        className="fh-reveal"
-        style={{
-          position: "relative",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: 680,
-          animationDelay: ".12s",
-        }}
-      >
-        {/* ROI card — top left */}
-        <div style={{
-          position: "absolute",
-          top: 72,
-          left: 0,
-          zIndex: 6,
-          background: "rgba(255,255,255,0.88)",
-          backdropFilter: "blur(14px)",
-          border: "1px solid rgba(255,255,255,0.55)",
-          borderRadius: 16,
-          padding: "14px 18px",
-          boxShadow: "0 6px 24px rgba(0,0,0,0.09)",
-          animation: "fhFloat 5.5s ease-in-out infinite",
-        }}>
-          <div style={{
-            fontSize: ".68rem",
-            fontWeight: 800,
-            color: "#62840b",
-            letterSpacing: ".1em",
-            textTransform: "uppercase",
-          }}>
-            ROI Target
-          </div>
-          <div style={{
-            marginTop: 5,
-            fontSize: "1.5rem",
-            fontWeight: 900,
-            color: "#1a2e0a",
-            letterSpacing: "-.03em",
-          }}>
-            12–18 mo
-          </div>
-        </div>
-
-        {/* Main image */}
-        <div style={{
-          position: "relative",
-          width: "100%",
-          maxWidth: 500,
-          borderRadius: 28,
-          overflow: "hidden",
-          boxShadow: "0 24px 64px rgba(0,0,0,0.16)",
-          animation: "fhFloatSlow 7s ease-in-out infinite",
-          zIndex: 2,
-        }}>
-          <img
-            src={packages[1].image}
-            alt="Milkshop Franchise"
-            style={{
-              width: "100%",
-              height: "640px",
-              objectFit: "cover",
-              display: "block",
-            }}
-          />
-          {/* Subtle bottom fade */}
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            background: "linear-gradient(180deg, transparent 55%, rgba(0,0,0,0.28) 100%)",
-            pointerEvents: "none",
-          }} />
-        </div>
-
-        {/* Floating package cards — scattered organically */}
-        <div
-          className="max-lg:hidden"
+        <h1
           style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-            zIndex: 4,
+            margin: 0,
+            fontSize: "clamp(3.6rem,6.5vw,6.8rem)",
+            lineHeight: .88,
+            letterSpacing: "-.06em",
+            fontWeight: 900,
+            color: "#18210f",
           }}
         >
-          {[
-            {
-              pkg: packages[0],
-              top: "4%", right: "-2%",
-              width: "clamp(108px, 11vw, 140px)",
-              rot: 6,
-              dur: "5.8s", delay: "0s",
-            },
-            {
-              pkg: packages[2],
-              top: "38%", left: "-4%",
-              width: "clamp(112px, 11.5vw, 148px)",
-              rot: -5,
-              dur: "6.6s", delay: "0.4s",
-            },
-            {
-              pkg: packages[1],
-              bottom: "8%", right: "-3%",
-              width: "clamp(100px, 10vw, 130px)",
-              rot: 4,
-              dur: "6.2s", delay: "0.2s",
-            },
-          ].map(({ pkg, top, right, bottom, left, width, rot, dur, delay }) => (
-            <a
-              key={`hero-float-${pkg.id}`}
-              href="#packages"
-              aria-label={`View ${pkg.label} franchise package`}
-              className="fh-pkg-card"
+          Own the
+          <br />
+          Future of
+          <br />
+          <span style={{ color: "#62840b" }}>Milk Tea.</span>
+        </h1>
+
+        {/* Divider accent */}
+        <div
+          style={{
+            width: 52,
+            height: 3,
+            background: "#62840b",
+            borderRadius: 2,
+          }}
+        />
+
+        {/* Desc */}
+        <p
+          style={{
+            margin: 0,
+            maxWidth: 480,
+            fontSize: "1rem",
+            lineHeight: 1.85,
+            color: "#4a5840",
+            fontWeight: 500,
+          }}
+        >
+          Launch a premium milk tea franchise with proven operations,
+          strong branding, and modern customer experience built for the
+          Filipino market.
+        </p>
+
+        {/* CTA */}
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <a href={`#${FRANCHISE_FORM_ID}`} className="hero-btn-main">Apply for Franchise →</a>
+          <a href="#packages" className="hero-btn-secondary">Explore Packages</a>
+        </div>
+
+   
+        
+      </div>
+
+      {/* RIGHT — 3 franchise packages (animated) */}
+      <div
+        className="hero-reveal-delayed hero-pkg-stage"
+        style={{
+          position: "relative",
+          minHeight: "clamp(520px, 62vw, 780px)",
+          width: "100%",
+        }}
+      >
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "min(100%, 620px)",
+            height: "min(100%, 620px)",
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(151,182,76,0.28) 0%, transparent 65%)",
+          }}
+        />
+
+        {[
+          {
+            pkg: packages[0],
+            floatClass: "hero-pkg-float-a",
+            top: "2%",
+            left: "0%",
+            width: "clamp(175px, 30vw, 235px)",
+            zIndex: 2,
+            featured: false,
+          },
+          {
+            pkg: packages[1],
+            floatClass: "hero-pkg-float-b",
+            top: "6%",
+            right: "-2%",
+            width: "clamp(260px, 46vw, 330px)",
+            zIndex: 4,
+            featured: true,
+          },
+          {
+            pkg: packages[2],
+            floatClass: "hero-pkg-float-c",
+            bottom: "0%",
+            left: "8%",
+            width: "clamp(200px, 34vw, 265px)",
+            zIndex: 3,
+            featured: false,
+          },
+        ].map(({ pkg, floatClass, featured, top, right, bottom, left, width, zIndex }) => (
+          <a
+            key={pkg.id}
+            href="#packages"
+            aria-label={`View ${pkg.label} franchise package`}
+            className={`hero-pkg-card ${floatClass}${featured ? " hero-pkg-card--featured" : ""}`}
+            style={{ top, right, bottom, left, width, zIndex }}
+          >
+            <img
+              src={pkg.image}
+              alt={`Milkshop ${pkg.label}`}
+              loading="eager"
+              decoding="async"
+              draggable={false}
               style={{
-                position: "absolute",
-                ...(top != null    ? { top }    : {}),
-                ...(bottom != null ? { bottom } : {}),
-                ...(left != null   ? { left }   : {}),
-                ...(right != null  ? { right }  : {}),
-                width,
-                pointerEvents: "auto",
-                textDecoration: "none",
-                animation: `fhPkgBob ${dur} ease-in-out infinite`,
-                animationDelay: delay,
+                width: "100%",
+                aspectRatio: "4 / 3",
+                objectFit: "cover",
+                display: "block",
               }}
-            >
+              onError={(e) => { e.currentTarget.src = PACKAGE_IMG_FALLBACK }}
+            />
+            <div style={{
+              padding: "14px 16px 16px",
+              borderTop: "1px solid rgba(151,182,76,0.14)",
+              background: "rgba(255,255,255,0.98)",
+            }}>
+              {pkg.badge && (
+                <span style={{
+                  display: "inline-block",
+                  marginBottom: 8,
+                  fontSize: ".6rem",
+                  fontWeight: 900,
+                  letterSpacing: ".1em",
+                  textTransform: "uppercase",
+                  color: "#fff",
+                  background: "#62840b",
+                  padding: "4px 10px",
+                  borderRadius: 999,
+                }}>
+                  {pkg.badge}
+                </span>
+              )}
               <div style={{
-                borderRadius: 12,
-                overflow: "hidden",
-                transform: `rotate(${rot}deg)`,
-                lineHeight: 0,
-              }}>
-                <img
-                  src={pkg.image}
-                  alt=""
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    aspectRatio: "4/3",
-                    objectFit: "cover",
-                    display: "block",
-                  }}
-                  onError={e => { e.currentTarget.src = PACKAGE_IMG_FALLBACK }}
-                />
-              </div>
-              <div style={{
-                marginTop: 6,
-                fontSize: ".6rem",
+                fontSize: "clamp(.8rem, 1.4vw, .92rem)",
                 fontWeight: 800,
-                color: "#62840b",
-                textAlign: "center",
-                fontFamily: "'DM Sans', sans-serif",
-                letterSpacing: "0.07em",
-                textTransform: "uppercase",
+                color: "#1a2e0a",
+                letterSpacing: "-.02em",
               }}>
                 {pkg.emoji} {pkg.label}
               </div>
-            </a>
-          ))}
-        </div>
+              <div style={{
+                marginTop: 4,
+                fontSize: "clamp(.68rem, 1.1vw, .76rem)",
+                fontWeight: 600,
+                color: "#62840b",
+              }}>
+                {pkg.term}
+              </div>
+            </div>
+          </a>
+        ))}
       </div>
-
     </div>
   </div>
 </section>
@@ -1642,10 +1541,6 @@ export default function Franchise() {
       0%   { background-position: -200% center; }
       100% { background-position: 200% center; }
     }
-    @keyframes pkgGlow {
-      0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.35); }
-      50%      { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
-    }
     @keyframes pkgBadgePop {
       0%   { transform: scale(0.7) translateY(-4px); opacity: 0; }
       70%  { transform: scale(1.08) translateY(0); }
@@ -1654,18 +1549,6 @@ export default function Franchise() {
     @keyframes pkgDotPulse {
       0%,100% { opacity: 1; transform: scale(1); }
       50%      { opacity: 0.45; transform: scale(0.6); }
-    }
-    .pkg-card {
-      transition: transform 0.35s cubic-bezier(0.16,1,0.3,1),
-                  box-shadow 0.35s ease,
-                  border-color 0.25s ease;
-      cursor: pointer;
-    }
-    .pkg-card:hover {
-      transform: translateY(-6px);
-    }
-    .pkg-card.selected {
-      animation: pkgGlow 2s ease-in-out infinite;
     }
     .pkg-badge {
       animation: pkgBadgePop 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
