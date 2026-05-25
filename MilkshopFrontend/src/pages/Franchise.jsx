@@ -128,73 +128,43 @@ const franchisePageStyles = `
 
 
 
-// ─── PACKAGE CARDS COMPONENT ────────────────────────────────────────────────
-// Drop-in replacement. Requires: useState, useEffect from "react", createPortal from "react-dom"
-// Requires: Slide component from parent scope (already defined in Franchise.jsx)
-
+// ─── PACKAGE CARDS — PEEK CAROUSEL ──────────────────────────────────────────
+ 
 const packages = [
   {
     id: "cart",
-    emoji: "",
     label: "Cart",
     tagline: "Start Small, Dream Big",
-    price: "Entry-level investment",
     term: "2-year term",
     badge: "Best Starter",
-    color: "#62840b",
-    accentBg: "rgba(151,182,76,0.07)",
-    borderSelected: "#97b64c",
     image: "/franchise/packages/2.png",
-    features: [
-      "Compact footprint, any location",
-      "Low startup cost",
-      "Full Milkshop menu",
-      "Training & supply included",
-    ],
+    features: ["Compact footprint, any location","Low startup cost","Full Milkshop menu","Training & supply included"],
     best: "Perfect for first-timers or tight spaces.",
   },
   {
     id: "kiosk",
-    emoji: "",
     label: "Kiosk",
     tagline: "The Sweet Spot",
-    price: "Mid-range investment",
     term: "3-year term",
     badge: "Most Popular",
-    color: "#4a6b08",
-    accentBg: "rgba(151,182,76,0.11)",
-    borderSelected: "#97b64c",
     image: "/franchise/packages/4.png",
-    features: [
-      "Higher daily capacity",
-      "Exclusive territory radius",
-      "Brand signage & fixtures",
-    ],
+    features: ["Higher daily capacity","Exclusive territory radius","Brand signage & fixtures"],
     best: "Ideal for malls, food parks & commercial areas.",
   },
   {
     id: "inline",
-    emoji: "🏬",
     label: "In-Line Store",
     tagline: "Go Full-Scale",
-    price: "Premium investment",
     term: "5-year term",
     badge: "Best ROI",
-    color: "#3a5c06",
-    accentBg: "rgba(183,205,127,0.1)",
-    borderSelected: "#97b64c",
     image: "/franchise/packages/8.png",
-    features: [
-      "Highest revenue potential",
-      "Premium exclusivity zone",
-      "Priority franchise support",
-    ],
+    features: ["Highest revenue potential","Premium exclusivity zone","Priority franchise support"],
     best: "For serious operators ready to scale.",
   },
 ];
-
+ 
 const PACKAGE_IMG_FALLBACK = "/hero-bg-3.png";
-
+ 
 function PackageCards({ formData, setFormData, setFieldErrors }) {
   const selected = formData.preferredPackage;
   const [pkgImgTier, setPkgImgTier] = useState({});
@@ -235,394 +205,294 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
   return (
     <>
       <style>{`
-        .pkg-card-wrap {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
+        .pkg-3d-stage {
+          perspective: 1400px;
+          perspective-origin: 50% 40%;
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: clamp(12px, 3vw, 32px);
+          width: 100%;
+          max-width: min(100%, 1380px);
+          margin: 0 auto;
+          padding: clamp(16px, 3vw, 40px) clamp(8px, 2vw, 20px) clamp(8px, 2vw, 16px);
+          align-items: end;
         }
-
-        .pkg-card {
+        .pkg-3d-item {
           display: flex;
           flex-direction: column;
-          flex: 1;
-          border-radius: 26px;
-          overflow: hidden;
+          align-items: center;
+          text-align: center;
           cursor: pointer;
-          user-select: none;
+          transform-style: preserve-3d;
+          transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
           -webkit-tap-highlight-color: transparent;
+          background: none;
+          border: none;
+          padding: 0;
+          font: inherit;
+        }
+        .pkg-3d-item.pos-0 {
+          transform: rotateY(16deg) translateZ(-12px) scale(0.94);
+          transform-origin: right center;
+        }
+        .pkg-3d-item.pos-1 {
+          transform: rotateY(0deg) translateZ(48px) scale(1.06);
+          transform-origin: center center;
+          z-index: 2;
+        }
+        .pkg-3d-item.pos-2 {
+          transform: rotateY(-16deg) translateZ(-12px) scale(0.94);
+          transform-origin: left center;
+        }
+        .pkg-3d-item:hover {
+          filter: brightness(1.03);
+        }
+        .pkg-3d-item.pos-0:hover {
+          transform: rotateY(12deg) translateZ(8px) scale(0.98);
+        }
+        .pkg-3d-item.pos-1:hover {
+          transform: rotateY(0deg) translateZ(64px) scale(1.08);
+        }
+        .pkg-3d-item.pos-2:hover {
+          transform: rotateY(-12deg) translateZ(8px) scale(0.98);
+        }
+        .pkg-3d-item.is-selected .pkg-3d-img {
+          filter: drop-shadow(0 28px 48px rgba(98, 132, 11, 0.38)) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.12));
+        }
+        .pkg-3d-img-wrap {
           width: 100%;
           position: relative;
-          background: #ffffff;
+          margin-bottom: clamp(12px, 2vw, 18px);
         }
-        .pkg-card.is-selected {
-          border: 2.5px solid #97b64c !important;
-          box-shadow: 0 28px 72px rgba(98,132,11,0.22);
+        .pkg-3d-img {
+          width: 100%;
+          height: auto;
+          max-height: clamp(260px, 38vw, 480px);
+          object-fit: contain;
+          object-position: center bottom;
+          display: block;
+          filter: drop-shadow(0 22px 36px rgba(98, 132, 11, 0.22)) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.08));
+          transition: filter 0.35s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+          pointer-events: none;
         }
-        .pkg-card:not(.is-selected) {
-          border: 1.5px solid rgba(151,182,76,0.18);
-          box-shadow: 0 6px 24px rgba(98,132,11,0.07);
+        .pkg-3d-badge {
+          position: absolute;
+          top: 4%;
+          right: 6%;
+          z-index: 2;
+          background: #62840b;
+          color: #fff;
+          font-size: 0.52rem;
+          font-weight: 900;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          padding: 5px 11px;
+          border-radius: 999px;
+          font-family: 'DM Sans', sans-serif;
+          box-shadow: 0 4px 14px rgba(98, 132, 11, 0.28);
+          pointer-events: none;
+        }
+        .pkg-3d-label {
+          font-family: 'DM Sans', sans-serif;
+          font-size: clamp(1.05rem, 2vw, 1.35rem);
+          font-weight: 900;
+          letter-spacing: -0.03em;
+          color: #18210f;
+          margin: 0 0 4px;
+          line-height: 1.15;
+          transition: color 0.25s ease;
+        }
+        .pkg-3d-item.is-selected .pkg-3d-label {
+          color: #62840b;
+        }
+        .pkg-3d-meta {
+          font-family: 'DM Sans', sans-serif;
+          font-size: 0.72rem;
+          font-weight: 600;
+          color: #7a9460;
+          margin: 0;
+          line-height: 1.4;
+        }
+        .pkg-3d-selected {
+          display: inline-block;
+          margin-top: 6px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 0.65rem;
+          font-weight: 800;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #62840b;
+        }
+        .pkg-3d-view {
+          margin-top: 8px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 0.68rem;
+          font-weight: 700;
+          color: #97b64c;
+          background: none;
+          border: none;
+          cursor: pointer;
+          text-decoration: underline;
+          text-underline-offset: 3px;
+          padding: 0;
+        }
+        .pkg-3d-view:hover { color: #62840b; }
+
+        @media (max-width: 767px) {
+          .pkg-3d-stage {
+            grid-template-columns: 1fr;
+            perspective: none;
+            gap: 28px;
+            max-width: 420px;
+          }
+          .pkg-3d-item,
+          .pkg-3d-item.pos-0,
+          .pkg-3d-item.pos-1,
+          .pkg-3d-item.pos-2,
+          .pkg-3d-item.pos-0:hover,
+          .pkg-3d-item.pos-1:hover,
+          .pkg-3d-item.pos-2:hover {
+            transform: none !important;
+          }
+          .pkg-3d-img { max-height: 300px; }
         }
 
-        .pkg-img-inner {
-          transform: none !important;
+        @media (prefers-reduced-motion: reduce) {
+          .pkg-3d-item,
+          .pkg-3d-item.pos-0,
+          .pkg-3d-item.pos-1,
+          .pkg-3d-item.pos-2 {
+            transform: none !important;
+            transition: none !important;
+          }
         }
       `}</style>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "clamp(1rem, 2.5vw, 1.75rem)",
-          width: "100%",
-          alignItems: "stretch",
-        }}
-        className="max-md:grid-cols-1"
-      >
+      <div className="pkg-3d-stage">
         {packages.map((pkg, i) => {
           const isSelected = selected === pkg.id;
           const imgSrc = srcFor(pkg);
 
           return (
-            <Slide key={pkg.id} direction="up" delay={i * 80} className="flex flex-col h-full">
-              <div className="pkg-card-wrap">
-                <article
-                  className={`pkg-card${isSelected ? " is-selected" : ""}`}
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={isSelected}
-                  aria-label={`Select ${pkg.label} package`}
-                  onClick={() => handleSelect(pkg.id)}
-                  onKeyDown={(ev) => {
-                    if (ev.key === "Enter" || ev.key === " ") {
-                      ev.preventDefault();
-                      handleSelect(pkg.id);
-                    }
-                  }}
-                  style={{
-                    minHeight: "clamp(24rem, 54vw, 34rem)",
+            <div
+              key={pkg.id}
+              role="button"
+              tabIndex={0}
+              className={`pkg-3d-item pos-${i}${isSelected ? " is-selected" : ""}`}
+              aria-pressed={isSelected}
+              aria-label={`Select ${pkg.label} package`}
+              onClick={() => handleSelect(pkg.id)}
+              onKeyDown={(ev) => {
+                if (ev.key === "Enter" || ev.key === " ") {
+                  ev.preventDefault();
+                  handleSelect(pkg.id);
+                }
+              }}
+            >
+              <div className="pkg-3d-img-wrap">
+                {pkg.badge && (
+                  <span className="pkg-3d-badge">{pkg.badge}</span>
+                )}
+                {imgSrc ? (
+                  <img
+                    key={`${pkg.id}-${imgSrc}`}
+                    className="pkg-3d-img"
+                    src={imgSrc}
+                    alt={`Milkshop ${pkg.label} franchise package`}
+                    loading="lazy"
+                    decoding="async"
+                    draggable={false}
+                    onError={() => bumpImgTier(pkg.id)}
+                  />
+                ) : (
+                  <div
+                    className="pkg-3d-img"
+                    style={{
+                      minHeight: 180,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#62840b",
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 12,
+                      fontWeight: 700,
+                    }}
+                  >
+                    Add photo
+                  </div>
+                )}
+              </div>
+
+              <h3 className="pkg-3d-label">{pkg.label}</h3>
+              <p className="pkg-3d-meta">{pkg.tagline}</p>
+              {isSelected && <span className="pkg-3d-selected">Selected</span>}
+              {imgSrc && (
+                <button
+                  type="button"
+                  className="pkg-3d-view"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLightbox(pkg);
                   }}
                 >
-
-                  <div style={{
-                    height: 4, flexShrink: 0,
-                    background: "rgba(151,182,76,0.12)",
-                  }} />
-
-                  {/* ── IMAGE BLOCK ── */}
-                  <div style={{
-                    position: "relative",
-                    width: "100%",
-                    flexShrink: 0,
-                    aspectRatio: "4 / 3",
-                    overflow: "hidden",
-                    background: "#eef3e4",
-                  }}>
-                    {/* Badge */}
-                    {pkg.badge && (
-                      <div style={{
-                        position: "absolute", top: 12, right: 12, zIndex: 10,
-                        background: isSelected
-                          ? "rgba(255,255,255,0.92)"
-                          : "#62840b",
-                        color: isSelected ? "#62840b" : "#fff",
-                        fontSize: "0.55rem", fontWeight: 900,
-                        letterSpacing: "0.12em", textTransform: "uppercase",
-                        padding: "5px 11px", borderRadius: 999,
-                        fontFamily: "'DM Sans', sans-serif",
-                        boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
-                      }}>
-                        {pkg.badge}
-                      </div>
-                    )}
-
-                    {/* Image */}
-                    {imgSrc ? (
-                      <img
-                        key={`${pkg.id}-${imgSrc}`}
-                        src={imgSrc}
-                        alt={`Milkshop ${pkg.label} package`}
-                        loading="lazy"
-                        decoding="async"
-                        draggable={false}
-                        className="pkg-img-inner"
-                        style={{
-                          position: "absolute", inset: 0,
-                          width: "100%", height: "100%",
-                          objectFit: "cover", objectPosition: "center",
-                          display: "block",
-                        }}
-                        onError={() => bumpImgTier(pkg.id)}
-                      />
-                    ) : (
-                      <div style={{
-                        position: "absolute", inset: 0,
-                        display: "flex", flexDirection: "column",
-                        alignItems: "center", justifyContent: "center",
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 12, fontWeight: 700, color: "#62840b",
-                      }}>
-                        <span style={{ fontSize: 28, marginBottom: 8 }}>{pkg.emoji}</span>
-                        Add photo
-                        <span style={{ fontSize: 10, color: "#7b9461", marginTop: 4 }}>
-                          packages/{pkg.id}.jpg
-                        </span>
-                      </div>
-                    )}
-
-                    {/* View button */}
-                    {imgSrc && (
-                      <button
-                        type="button"
-                        className="pkg-view-btn"
-                        onClick={(e) => { e.stopPropagation(); setLightbox(pkg); }}
-                        style={{
-                          position: "absolute", bottom: 12, right: 12, zIndex: 20,
-                          background: "rgba(0,0,0,0.42)",
-                          backdropFilter: "blur(6px)",
-                          WebkitBackdropFilter: "blur(6px)",
-                          color: "#fff",
-                          border: "1px solid rgba(255,255,255,0.22)",
-                          borderRadius: 999,
-                          padding: "5px 13px",
-                          fontSize: "0.65rem", fontWeight: 700,
-                          fontFamily: "'DM Sans', sans-serif",
-                          cursor: "pointer",
-                          letterSpacing: "0.04em",
-                          opacity: 0.85,
-                        }}
-                      >
-                        ⤢ View
-                      </button>
-                    )}
-
-                    {/* Bottom gradient fade */}
-                    <div aria-hidden style={{
-                      position: "absolute", bottom: 0, left: 0, right: 0, height: "50%",
-                      background: "linear-gradient(to top, rgba(255,255,255,1) 0%, transparent 100%)",
-                      pointerEvents: "none",
-                    }} />
-                  </div>
-
-                  {/* ── CONTENT BLOCK ── */}
-                  <div style={{
-                    flex: 1, display: "flex", flexDirection: "column", minHeight: 0,
-                    padding: "clamp(1rem, 2.5vw, 1.3rem) clamp(1.1rem, 2.8vw, 1.45rem) clamp(1.1rem, 2.8vw, 1.45rem)",
-                  }}>
-
-                    {/* Type pill + term row */}
-                    <div style={{
-                      display: "flex", alignItems: "center",
-                      justifyContent: "space-between", marginBottom: 10,
-                    }}>
-                      <span style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "0.55rem", fontWeight: 900,
-                        letterSpacing: "0.16em", textTransform: "uppercase",
-                        color: isSelected ? "#fff" : "#1a2e0a",
-                        background: isSelected
-                          ? "rgba(98,132,11,0.85)"
-                          : "rgba(183,205,127,0.5)",
-                        border: `1px solid ${isSelected ? "rgba(98,132,11,0.6)" : "rgba(151,182,76,0.4)"}`,
-                        borderRadius: 999, padding: "4px 10px",
-                      }}>
-                        {pkg.label.toUpperCase()}
-                      </span>
-                      <span style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "9px", fontWeight: 700,
-                        letterSpacing: "0.06em", padding: "3px 8px",
-                        borderRadius: 999,
-                        background: "rgba(151,182,76,0.12)",
-                        color: "#4a6b08",
-                        border: "1px solid rgba(151,182,76,0.25)",
-                      }}>
-                        {pkg.term}
-                      </span>
-                    </div>
-
-                    {/* Title + tagline */}
-                    <div style={{ marginBottom: 11 }}>
-                      <h3 style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "clamp(1.15rem, 2.5vw, 1.4rem)",
-                        fontWeight: 900,
-                        color: isSelected ? "#62840b" : "#1f2a17",
-                        margin: "0 0 3px",
-                        letterSpacing: "-0.035em", lineHeight: 1.1,
-                      }}>
-                        {pkg.emoji} {pkg.label}
-                      </h3>
-                      <p style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "0.76rem", fontWeight: 600,
-                        color: isSelected ? "#7a9460" : "#5a6a4a",
-                        margin: 0,
-                      }}>
-                        {pkg.tagline}
-                      </p>
-                    </div>
-
-                    {/* Divider */}
-                    <div style={{
-                      height: 1,
-                      background: isSelected
-                        ? "linear-gradient(90deg, rgba(151,182,76,0.5), transparent)"
-                        : "rgba(151,182,76,0.13)",
-                      marginBottom: 11,
-                    }} />
-
-                    {/* Features */}
-                    <ul style={{
-                      listStyle: "none", margin: "0 0 10px", padding: 0,
-                      display: "flex", flexDirection: "column", gap: 7,
-                    }}>
-                      {pkg.features.map((f, fi) => (
-                        <li key={fi} style={{
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontSize: "0.76rem", fontWeight: 600,
-                          lineHeight: 1.35, color: isSelected ? "#2e3d1e" : "#3a4a2a",
-                          paddingLeft: 16, position: "relative",
-                        }}>
-                          <span style={{
-                            position: "absolute", left: 0, top: "0.35em",
-                            width: isSelected ? 7 : 5,
-                            height: isSelected ? 7 : 5,
-                            borderRadius: "50%",
-                            background: isSelected
-                              ? "linear-gradient(135deg, #62840b, #97b64c)"
-                              : "#97b64c",
-                            boxShadow: isSelected ? "0 1px 6px rgba(151,182,76,0.45)" : "none",
-                          }} />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* Best for */}
-                    <p style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: "0.68rem", lineHeight: 1.5,
-                      color: isSelected ? "#62840b" : "#8aa06a",
-                      margin: "0 0 14px",
-                      fontStyle: "italic",
-                      fontWeight: isSelected ? 600 : 400,
-                    }}>
-                      {pkg.best}
-                    </p>
-
-                    {/* CTA Button */}
-                    <button
-                      type="button"
-                      style={{
-                        width: "100%", marginTop: "auto",
-                        padding: isSelected ? "13px 0" : "11px 0",
-                        borderRadius: 999,
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "0.82rem", fontWeight: 800,
-                        letterSpacing: "0.04em", cursor: "pointer",
-                        background: isSelected
-                          ? "linear-gradient(135deg, #62840b, #97b64c)"
-                          : "rgba(151,182,76,0.1)",
-                        color: isSelected ? "#fff" : "#62840b",
-                        boxShadow: isSelected
-                          ? "0 8px 28px rgba(98,132,11,0.38)"
-                          : "none",
-                        border: isSelected
-                          ? "1px solid rgba(98,132,11,0.4)"
-                          : "1.5px solid rgba(151,182,76,0.28)",
-                      }}
-                    >
-                      {isSelected ? "✓ Package Selected" : "Select Package"}
-                    </button>
-                  </div>
-                </article>
-              </div>
-            </Slide>
+                  View larger
+                </button>
+              )}
+            </div>
           );
         })}
       </div>
 
-      {/* ── LIGHTBOX ── */}
-      {lightbox &&
-        typeof document !== "undefined" &&
-        createPortal(
+      {/* Lightbox */}
+      {lightbox && createPortal(
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${lightbox.label} package image`}
+          onClick={() => setLightbox(null)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 9999,
+            background: "rgba(0,0,0,0.82)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: "24px",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+          }}
+        >
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Enlarged package photo"
-            onClick={() => setLightbox(null)}
+            onClick={(e) => e.stopPropagation()}
             style={{
-              position: "fixed", inset: 0,
-              zIndex: 2147483646,
-              background: "rgba(0,0,0,0.92)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              padding: "min(4vw, 24px)",
-              isolation: "isolate",
-              backdropFilter: "blur(4px)",
-              WebkitBackdropFilter: "blur(4px)",
+              position: "relative",
+              maxWidth: "min(90vw, 900px)",
+              maxHeight: "85vh",
+              borderRadius: 20,
+              overflow: "hidden",
+              boxShadow: "0 32px 80px rgba(0,0,0,0.5)",
             }}
           >
-            {/* Label strip */}
-            <div style={{
-              position: "fixed", top: "max(20px, env(safe-area-inset-top))", left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 2147483647,
-              background: "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: 999, padding: "7px 18px",
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "0.72rem", fontWeight: 700,
-              color: "rgba(255,255,255,0.8)",
-              letterSpacing: "0.08em", textTransform: "uppercase",
-              backdropFilter: "blur(8px)",
-              WebkitBackdropFilter: "blur(8px)",
-              whiteSpace: "nowrap",
-            }}>
-              {lightbox.emoji} {lightbox.label}
-            </div>
-
-            {/* Close button */}
+            <img
+              src={srcFor(lightbox) ?? PACKAGE_IMG_FALLBACK}
+              alt={`Milkshop ${lightbox.label} package`}
+              style={{ display: "block", width: "100%", height: "auto", maxHeight: "85vh", objectFit: "contain" }}
+            />
             <button
               type="button"
+              onClick={() => setLightbox(null)}
+              style={{
+                position: "absolute", top: 14, right: 14,
+                background: "rgba(0,0,0,0.5)", color: "#fff",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: 999, width: 34, height: 34,
+                fontSize: "1rem", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "'DM Sans', sans-serif",
+              }}
               aria-label="Close"
-              onClick={(e) => { e.stopPropagation(); setLightbox(null); }}
-              style={{
-                position: "fixed",
-                top: "max(16px, env(safe-area-inset-top))",
-                right: "max(16px, env(safe-area-inset-right))",
-                zIndex: 2147483647,
-                background: "rgba(255,255,255,0.12)",
-                border: "1px solid rgba(255,255,255,0.28)",
-                color: "#fff", borderRadius: "50%",
-                width: 44, height: 44,
-                fontSize: "1.1rem", lineHeight: 1, cursor: "pointer",
-                fontWeight: 700, display: "flex",
-                alignItems: "center", justifyContent: "center",
-                transition: "background 0.2s ease",
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.22)"}
-              onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
-            >
-              ✕
-            </button>
-
-            <img
-              src={srcFor(lightbox)}
-              alt=""
-              draggable={false}
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                maxWidth: "min(96vw, 1600px)",
-                maxHeight: "min(88vh, 1200px)",
-                width: "auto", height: "auto",
-                objectFit: "contain",
-                borderRadius: 14,
-                boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
-              }}
-            />
-          </div>,
-          document.body
-        )}
+            >✕</button>
+          </div>
+        </div>,
+        document.body
+      )}
     </>
   );
 }
@@ -642,6 +512,7 @@ export default function Franchise() {
   const activeStepRef = useRef(0);
   activeStepRef.current = activeStep;
   const [heroProcessImgFailed, setHeroProcessImgFailed] = useState(false);
+  const [heroInlineAnimReady, setHeroInlineAnimReady] = useState(false);
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth < 768;
@@ -670,6 +541,20 @@ export default function Franchise() {
     return () => {
       window.removeEventListener("resize", onResize);
       if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  useEffect(() => {
+    const startAnim = () => setHeroInlineAnimReady(true);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      startAnim();
+      return undefined;
+    }
+    window.addEventListener("milkshop:route-loader-hidden", startAnim, { once: true });
+    const fallback = window.setTimeout(startAnim, 2200);
+    return () => {
+      window.removeEventListener("milkshop:route-loader-hidden", startAnim);
+      window.clearTimeout(fallback);
     };
   }, []);
 
@@ -941,14 +826,18 @@ export default function Franchise() {
       SLIDE 1 — HERO (PREMIUM UPGRADE)
 ══════════════════════════════════════ */}
 {/* ══════════════════════════════════════
-   PREMIUM FRANCHISE HERO — ENHANCED
+   PREMIUM FRANCHISE HERO — UPGRADED
+   Direction: Natural Editorial
+   Left: cream/paper light with brand texture
+   Right: store image, full bleed
+   Divider: soft organic SVG curve
 ══════════════════════════════════════ */}
 <section
   data-track-section="Franchise Hero"
   className="relative overflow-hidden"
   style={{
-    background: "linear-gradient(168deg, #f8fbf2 0%, #eef6e4 48%, #e6f0d8 100%)",
-    minHeight: "100svh",
+    background: "#f7faef",
+    minHeight: isMobile ? "110svh" : "clamp(920px, 110svh, 1180px)",
     display: "flex",
     alignItems: "center",
     position: "relative",
@@ -965,110 +854,192 @@ export default function Franchise() {
       zIndex: 0,
     }}
   >
-    {/* Dot grid */}
+    {/* === LEFT PANEL — paper cream base === */}
     <div
       style={{
         position: "absolute",
         inset: 0,
-        backgroundImage:
-          "radial-gradient(circle, rgba(98,132,11,0.18) 1.2px, transparent 1.2px)",
-        backgroundSize: "26px 26px",
-        maskImage: "linear-gradient(90deg, transparent 0%, black 42%, black 100%)",
-        WebkitMaskImage: "linear-gradient(90deg, transparent 0%, black 42%, black 100%)",
+        background: "linear-gradient(135deg, #f7faef 0%, #eef6dc 55%, #e8f2d0 100%)",
+        zIndex: 0,
       }}
     />
 
-    {/* Top-right outer ring */}
+    {/* === Subtle noise/grain texture over left panel only === */}
+    <svg
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        opacity: 0.028,
+        zIndex: 1,
+        mixBlendMode: "multiply",
+      }}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <filter id="grain-hero">
+        <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch" />
+        <feColorMatrix type="saturate" values="0" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#grain-hero)" />
+    </svg>
+
+    {/* === Fine dot grid — left half only, very subtle === */}
     <div
       style={{
         position: "absolute",
-        top: -60,
-        right: -60,
-        width: 480,
-        height: 480,
-        borderRadius: "50%",
-        border: "48px solid rgba(98,132,11,0.07)",
+        inset: 0,
+        backgroundImage: "radial-gradient(circle, rgba(98,132,11,0.13) 1px, transparent 1px)",
+        backgroundSize: "22px 22px",
+        maskImage: "linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.6) 18%, rgba(0,0,0,0.9) 36%, transparent 52%)",
+        WebkitMaskImage: "linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.6) 18%, rgba(0,0,0,0.9) 36%, transparent 52%)",
+        zIndex: 2,
       }}
     />
 
-    {/* Top-right inner ring */}
+    {/* === Thin brand rule — left accent line === */}
     <div
       style={{
         position: "absolute",
-        top: 40,
-        right: 40,
+        left: isMobile ? 28 : 48,
+        top: "18%",
+        width: 1,
+        height: isMobile ? "0%" : "64%",
+        background: "linear-gradient(180deg, transparent 0%, rgba(98,132,11,0.18) 20%, rgba(98,132,11,0.22) 70%, transparent 100%)",
+        zIndex: 3,
+      }}
+    />
+
+    {/* === Small brand circle accent — bottom left, very restrained === */}
+    <div
+      style={{
+        position: "absolute",
+        bottom: isMobile ? "auto" : -80,
+        top: isMobile ? "auto" : "auto",
+        left: -80,
         width: 320,
         height: 320,
         borderRadius: "50%",
-        border: "1.5px solid rgba(98,132,11,0.13)",
+        border: "1.5px solid rgba(98,132,11,0.1)",
+        zIndex: 2,
+      }}
+    />
+    <div
+      style={{
+        position: "absolute",
+        bottom: isMobile ? "auto" : -120,
+        left: -120,
+        width: 480,
+        height: 480,
+        borderRadius: "50%",
+        border: "1px solid rgba(151,182,76,0.07)",
+        zIndex: 2,
       }}
     />
 
-    {/* Bottom-left ring */}
+    {/* === STORE IMAGE — right side, entrance from right === */}
     <div
+      aria-hidden
       style={{
         position: "absolute",
-        bottom: -100,
-        left: -80,
-        width: 380,
-        height: 380,
-        borderRadius: "50%",
-        border: "40px solid rgba(98,132,11,0.06)",
-      }}
-    />
-
-    <div
-      className="hero-bg-orb-a"
-      style={{
-        position: "absolute",
-        top: "-8%",
-        right: "-6%",
-        width: "min(50vw, 480px)",
-        height: "min(50vw, 480px)",
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(151,182,76,0.32) 0%, transparent 68%)",
-      }}
-    />
-    <div
-      className="hero-bg-orb-b"
-      style={{
-        position: "absolute",
-        bottom: "-14%",
-        left: "-10%",
-        width: "min(44vw, 400px)",
-        height: "min(44vw, 400px)",
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(183,205,127,0.38) 0%, transparent 70%)",
-      }}
-    />
-    <div
-      className="hero-bg-ring"
-      style={{
-        position: "absolute",
-        top: "10%",
-        right: "6%",
-        width: "min(36vw, 320px)",
-        height: "min(36vw, 320px)",
-        borderRadius: "50%",
-        border: "1.5px dashed rgba(98,132,11,0.2)",
-      }}
-    />
-
-    {/* Diagonal ruled lines — right half */}
-    <div
-      style={{
-        position: "absolute",
-        top: 0,
+        top: isMobile ? "auto" : 0,
         right: 0,
-        width: "55%",
-        height: "100%",
-        backgroundImage:
-          "repeating-linear-gradient(-55deg, transparent, transparent 38px, rgba(98,132,11,0.055) 38px, rgba(98,132,11,0.055) 39px)",
+        bottom: isMobile ? 0 : "auto",
+        width: isMobile ? "100%" : "68%",
+        height: isMobile ? "52%" : "100%",
+        zIndex: 3,
       }}
-    />
+    >
+      <div
+        className={`hero-inline-enter${heroInlineAnimReady ? " hero-inline-enter--active" : ""}${isMobile ? " hero-inline-enter--mobile" : ""}`}
+        style={{ position: "relative", width: "100%", height: "100%" }}
+      >
+      <img
+        src={packages.find((p) => p.id === "inline")?.image ?? "/franchise/packages/8.png"}
+        alt=""
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: isMobile ? "center bottom" : "center center",
+          display: "block",
+        }}
+        onError={(e) => { e.currentTarget.src = PACKAGE_IMG_FALLBACK; }}
+      />
+
+      {/* Soft dim over image for contrast */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(247,250,239,0.08)",
+          zIndex: 1,
+        }}
+      />
+      </div>
+    </div>
+
+    {/* === ORGANIC CURVE DIVIDER — sits between text and store image === */}
+    {!isMobile && (
+      <svg
+        viewBox="0 0 900 900"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "58%",
+          height: "100%",
+          zIndex: 4,
+          pointerEvents: "none",
+        }}
+      >
+        {/* Main filled cream shape covering left content zone */}
+        <path
+          d="M0,0 L800,0 C800,0 740,80 720,200 C698,340 750,420 728,560 C706,700 760,820 740,900 L0,900 Z"
+          fill="#f4f9e8"
+        />
+        {/* Subtle second layer for depth */}
+        <path
+          d="M0,0 L780,0 C780,0 728,90 710,210 C690,355 740,435 720,572 C700,710 748,828 728,900 L0,900 Z"
+          fill="#eef6dc"
+          opacity="0.7"
+        />
+        {/* Brand green stroke edge — the organic curve line itself */}
+        <path
+          d="M800,0 C800,0 740,80 720,200 C698,340 750,420 728,560 C706,700 760,820 740,900"
+          fill="none"
+          stroke="rgba(98,132,11,0.14)"
+          strokeWidth="1.5"
+        />
+        {/* Lighter inner stroke for dimension */}
+        <path
+          d="M780,0 C780,0 728,90 710,210 C690,355 740,435 720,572 C700,710 748,828 728,900"
+          fill="none"
+          stroke="rgba(151,182,76,0.09)"
+          strokeWidth="1"
+        />
+      </svg>
+    )}
+
+    {/* === MOBILE: top fade instead of curve === */}
+    {isMobile && (
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "58%",
+          background: "linear-gradient(180deg, #f4f9e8 0%, #eef6dc 55%, transparent 100%)",
+          zIndex: 4,
+        }}
+      />
+    )}
   </div>
 
-  {/* ── WATERMARK LOGO — replace src with your actual logo path ── */}
+  {/* ── WATERMARK LOGO ── */}
   <img
     src="/milkshop-logo-removebg-preview.png"
     alt=""
@@ -1076,59 +1047,45 @@ export default function Franchise() {
     style={{
       position: "absolute",
       bottom: "6%",
-      left: "50%",
+      left: isMobile ? "50%" : "22%",
       transform: "translateX(-50%)",
-      opacity: 0.045,
-      width: 340,
+      opacity: 0.04,
+      width: 300,
       pointerEvents: "none",
-      zIndex: 1,
+      zIndex: 5,
       userSelect: "none",
     }}
   />
 
   <style>{`
     @keyframes heroFadeUp {
-      from { opacity: 0; transform: translateY(32px); }
+      from { opacity: 0; transform: translateY(28px); }
       to   { opacity: 1; transform: translateY(0); }
     }
     @keyframes heroBadgePulse {
       0%,100% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.4); opacity: 0.55; }
     }
-    @keyframes heroOrbDrift {
-      0%,100% { transform: translate(0, 0); }
-      50% { transform: translate(14px, -12px); }
-    }
-    @keyframes heroOrbDriftB {
-      0%,100% { transform: translate(0, 0); }
-      50% { transform: translate(-12px, 16px); }
-    }
-    @keyframes heroRingSpin {
-      from { transform: rotate(0deg); }
-      to   { transform: rotate(360deg); }
-    }
-    @keyframes heroPkgFloatA {
-      0%,100% { transform: translateY(0) rotate(-5deg); }
-      50% { transform: translateY(-16px) rotate(-3deg); }
-    }
-    @keyframes heroPkgFloatB {
-      0%,100% { transform: translateY(0) rotate(3deg); }
-      50% { transform: translateY(-22px) rotate(5deg); }
-    }
-    @keyframes heroPkgFloatC {
-      0%,100% { transform: translateY(0) rotate(6deg); }
-      50% { transform: translateY(-14px) rotate(4deg); }
+    @keyframes heroInlineEnter {
+      from { opacity: 0; transform: translateX(56px) scale(0.8); }
+      to   { opacity: 1; transform: translateX(0) scale(0.8); }
     }
 
-    .hero-reveal { animation: heroFadeUp .85s cubic-bezier(.16,1,.3,1) forwards; }
-    .hero-reveal-delayed { animation: heroFadeUp .85s .18s cubic-bezier(.16,1,.3,1) both; }
+    .hero-reveal { animation: heroFadeUp .9s cubic-bezier(.16,1,.3,1) forwards; }
+    .hero-inline-enter {
+      opacity: 0;
+      transform: translateX(56px) scale(0.8);
+      transform-origin: right center;
+    }
+    .hero-inline-enter--active {
+      animation: heroInlineEnter 1.15s cubic-bezier(.16,1,.3,1) both;
+    }
+    .hero-inline-enter--mobile { transform-origin: center bottom; }
+    .hero-reveal-delayed { animation: heroFadeUp .9s .2s cubic-bezier(.16,1,.3,1) both; }
     .hero-badge-dot {
       width: 7px; height: 7px; border-radius: 50%; background: #62840b;
       animation: heroBadgePulse 2s ease-in-out infinite; flex-shrink: 0;
     }
-    .hero-bg-orb-a { animation: heroOrbDrift 16s ease-in-out infinite; }
-    .hero-bg-orb-b { animation: heroOrbDriftB 18s ease-in-out infinite; }
-    .hero-bg-ring { animation: heroRingSpin 52s linear infinite; }
 
     .hero-btn-main, .hero-btn-secondary {
       display: inline-flex; align-items: center; justify-content: center;
@@ -1149,254 +1106,86 @@ export default function Franchise() {
     }
     .hero-btn-secondary:hover { transform: translateY(-3px); background: #fff; }
 
-    .hero-pkg-card {
-      position: absolute; border-radius: 24px; overflow: hidden;
-      background: rgba(255,255,255,0.95); border: 1px solid rgba(255,255,255,0.9);
-      box-shadow: 0 24px 56px rgba(98,132,11,0.18), 0 8px 20px rgba(0,0,0,0.07);
-      text-decoration: none; transition: box-shadow .25s ease, transform .25s ease;
-    }
-    .hero-pkg-card:hover {
-      box-shadow: 0 32px 72px rgba(98,132,11,0.24), 0 12px 28px rgba(0,0,0,0.1);
-      transform: translateY(-4px);
-    }
-    .hero-pkg-card--featured {
-      border: 2px solid rgba(151,182,76,0.45);
-      box-shadow: 0 28px 64px rgba(98,132,11,0.22), 0 10px 24px rgba(0,0,0,0.08);
-    }
-    @media (max-width: 1024px) {
-      .hero-pkg-stage { min-height: clamp(560px, 85vw, 720px) !important; }
-    }
-    .hero-pkg-float-a { animation: heroPkgFloatA 5.8s ease-in-out infinite; }
-    .hero-pkg-float-b { animation: heroPkgFloatB 6.4s ease-in-out infinite; }
-    .hero-pkg-float-c { animation: heroPkgFloatC 7s ease-in-out infinite; }
-
     @media (prefers-reduced-motion: reduce) {
-      .hero-reveal, .hero-reveal-delayed, .hero-badge-dot,
-      .hero-bg-orb-a, .hero-bg-orb-b, .hero-bg-ring,
-      .hero-pkg-float-a, .hero-pkg-float-b, .hero-pkg-float-c {
+      .hero-reveal, .hero-reveal-delayed, .hero-badge-dot, .hero-inline-enter {
         animation: none !important;
+        opacity: 1;
+        transform: scale(0.8);
       }
+      .hero-inline-enter--active { transform: scale(0.8); }
     }
   `}</style>
 
+  {/* ── CONTENT ── */}
   <div
     style={{
       width: "100%",
       maxWidth: 1380,
       margin: "0 auto",
-      padding: "130px 48px 90px",
+      padding: isMobile ? "130px 28px calc(58vh + 32px)" : "130px 48px 120px",
       position: "relative",
-      zIndex: 5,
+      zIndex: 10,
     }}
   >
     <div
-      className="max-lg:grid-cols-1"
+      className="hero-reveal"
       style={{
-        display: "grid",
-        gridTemplateColumns: "minmax(0, 0.92fr) minmax(0, 1.08fr)",
-        alignItems: "center",
-        gap: "clamp(24px, 4vw, 48px)",
+        maxWidth: 520,
+        display: "flex",
+        flexDirection: "column",
+        gap: 28,
+        position: "relative",
+        zIndex: 11,
       }}
     >
-      {/* LEFT */}
-      <div
-        className="hero-reveal"
+      {/* Headline */}
+      <h1
         style={{
-          maxWidth: 580,
-          display: "flex",
-          flexDirection: "column",
-          gap: 28,
+          margin: 0,
+          fontSize: "clamp(3.6rem,6.5vw,6.8rem)",
+          lineHeight: .88,
+          letterSpacing: "-.06em",
+          fontWeight: 900,
+          color: "#18210f",
         }}
       >
-        {/* Badge */}
-        <div
-          style={{
-            width: "fit-content",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "8px 16px",
-            borderRadius: 999,
-            border: "1.5px solid rgba(98,132,11,0.22)",
-            background: "rgba(255,255,255,0.55)",
-            color: "#62840b",
-            fontSize: ".7rem",
-            fontWeight: 800,
-            letterSpacing: ".15em",
-            textTransform: "uppercase",
-          }}
-        >
-          <span className="hero-badge-dot" />
-          Taiwan's Fast Growing Milk Tea Brand
-        </div>
+        Own the
+        <br />
+        Future of
+        <br />
+        <span style={{ color: "#62840b" }}>Milk Tea.</span>
+      </h1>
 
-        {/* Headline */}
-        <h1
-          style={{
-            margin: 0,
-            fontSize: "clamp(3.6rem,6.5vw,6.8rem)",
-            lineHeight: .88,
-            letterSpacing: "-.06em",
-            fontWeight: 900,
-            color: "#18210f",
-          }}
-        >
-          Own the
-          <br />
-          Future of
-          <br />
-          <span style={{ color: "#62840b" }}>Milk Tea.</span>
-        </h1>
-
-        {/* Divider accent */}
-        <div
-          style={{
-            width: 52,
-            height: 3,
-            background: "#62840b",
-            borderRadius: 2,
-          }}
-        />
-
-        {/* Desc */}
-        <p
-          style={{
-            margin: 0,
-            maxWidth: 480,
-            fontSize: "1rem",
-            lineHeight: 1.85,
-            color: "#4a5840",
-            fontWeight: 500,
-          }}
-        >
-          Launch a premium milk tea franchise with proven operations,
-          strong branding, and modern customer experience built for the
-          Filipino market.
-        </p>
-
-        {/* CTA */}
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <a href={`#${FRANCHISE_FORM_ID}`} className="hero-btn-main">Apply for Franchise →</a>
-          <a href="#packages" className="hero-btn-secondary">Explore Packages</a>
-        </div>
-
-   
-        
-      </div>
-
-      {/* RIGHT — 3 franchise packages (animated) */}
+      {/* Divider accent */}
       <div
-        className="hero-reveal-delayed hero-pkg-stage"
         style={{
-          position: "relative",
-          minHeight: "clamp(520px, 62vw, 780px)",
-          width: "100%",
+          width: 52,
+          height: 3,
+          background: "#62840b",
+          borderRadius: 2,
+        }}
+      />
+
+      {/* Desc */}
+      <p
+        style={{
+          margin: 0,
+          maxWidth: 420,
+          fontSize: "1rem",
+          lineHeight: 1.85,
+          color: "#4a5840",
+          fontWeight: 500,
         }}
       >
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "min(100%, 620px)",
-            height: "min(100%, 620px)",
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(151,182,76,0.28) 0%, transparent 65%)",
-          }}
-        />
+        Launch a premium milk tea franchise with proven operations,
+        strong branding, and modern customer experience built for the
+        Filipino market.
+      </p>
 
-        {[
-          {
-            pkg: packages[0],
-            floatClass: "hero-pkg-float-a",
-            top: "2%",
-            left: "0%",
-            width: "clamp(175px, 30vw, 235px)",
-            zIndex: 2,
-            featured: false,
-          },
-          {
-            pkg: packages[1],
-            floatClass: "hero-pkg-float-b",
-            top: "6%",
-            right: "-2%",
-            width: "clamp(260px, 46vw, 330px)",
-            zIndex: 4,
-            featured: true,
-          },
-          {
-            pkg: packages[2],
-            floatClass: "hero-pkg-float-c",
-            bottom: "0%",
-            left: "8%",
-            width: "clamp(200px, 34vw, 265px)",
-            zIndex: 3,
-            featured: false,
-          },
-        ].map(({ pkg, floatClass, featured, top, right, bottom, left, width, zIndex }) => (
-          <a
-            key={pkg.id}
-            href="#packages"
-            aria-label={`View ${pkg.label} franchise package`}
-            className={`hero-pkg-card ${floatClass}${featured ? " hero-pkg-card--featured" : ""}`}
-            style={{ top, right, bottom, left, width, zIndex }}
-          >
-            <img
-              src={pkg.image}
-              alt={`Milkshop ${pkg.label}`}
-              loading="eager"
-              decoding="async"
-              draggable={false}
-              style={{
-                width: "100%",
-                aspectRatio: "4 / 3",
-                objectFit: "cover",
-                display: "block",
-              }}
-              onError={(e) => { e.currentTarget.src = PACKAGE_IMG_FALLBACK }}
-            />
-            <div style={{
-              padding: "14px 16px 16px",
-              borderTop: "1px solid rgba(151,182,76,0.14)",
-              background: "rgba(255,255,255,0.98)",
-            }}>
-              {pkg.badge && (
-                <span style={{
-                  display: "inline-block",
-                  marginBottom: 8,
-                  fontSize: ".6rem",
-                  fontWeight: 900,
-                  letterSpacing: ".1em",
-                  textTransform: "uppercase",
-                  color: "#fff",
-                  background: "#62840b",
-                  padding: "4px 10px",
-                  borderRadius: 999,
-                }}>
-                  {pkg.badge}
-                </span>
-              )}
-              <div style={{
-                fontSize: "clamp(.8rem, 1.4vw, .92rem)",
-                fontWeight: 800,
-                color: "#1a2e0a",
-                letterSpacing: "-.02em",
-              }}>
-                {pkg.emoji} {pkg.label}
-              </div>
-              <div style={{
-                marginTop: 4,
-                fontSize: "clamp(.68rem, 1.1vw, .76rem)",
-                fontWeight: 600,
-                color: "#62840b",
-              }}>
-                {pkg.term}
-              </div>
-            </div>
-          </a>
-        ))}
+      {/* CTA */}
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <a href={`#${FRANCHISE_FORM_ID}`} className="hero-btn-main">Apply for Franchise →</a>
+        <a href="#packages" className="hero-btn-secondary">Explore Packages</a>
       </div>
     </div>
   </div>
@@ -1524,117 +1313,86 @@ export default function Franchise() {
 
 
 {/* ══════════════════════════════════════
-     PACKAGE SELECTION SECTION
+   PACKAGE SELECTION — PEEK CAROUSEL v1
+   Direction: Editorial peek carousel
+   Center card dominant, side cards peek
+   Brand cream bg, image-forward, clean
 ══════════════════════════════════════ */}
 <section
   id="packages"
   data-track-section="Franchise Packages"
-  className="relative py-16 sm:py-20 lg:py-24 overflow-hidden"
-  style={{ background: "linear-gradient(165deg, #aac86e 0%, #97b64c 45%, #8aab4a 100%)" }}
+  className="relative py-10 sm:py-12 lg:py-16 overflow-hidden"
+  style={{
+    background: "linear-gradient(135deg, #f7faef 0%, #eef6dc 55%, #e8f2d0 100%)",
+  }}
 >
-  <style>{`
-    @keyframes pkgFadeUp {
-      from { opacity: 0; transform: translateY(28px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pkgShimmer {
-      0%   { background-position: -200% center; }
-      100% { background-position: 200% center; }
-    }
-    @keyframes pkgBadgePop {
-      0%   { transform: scale(0.7) translateY(-4px); opacity: 0; }
-      70%  { transform: scale(1.08) translateY(0); }
-      100% { transform: scale(1) translateY(0); opacity: 1; }
-    }
-    @keyframes pkgDotPulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: 0.45; transform: scale(0.6); }
-    }
-    .pkg-badge {
-      animation: pkgBadgePop 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
-    }
-    .pkg-feature-dot {
-      animation: pkgDotPulse 2.4s ease-in-out infinite;
-    }
-    .pkg-shimmer-text {
-      background: linear-gradient(120deg, #ffffff 0%, #f4fce8 35%, #ffffff 55%, #e8f5d4 75%, #ffffff 100%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: pkgShimmer 4s linear infinite;
-    }
-  `}</style>
-
-  {/* Dot grid background */}
+ 
+  {/* Grain texture */}
+  <svg style={{
+    position: "absolute", inset: 0, width: "100%", height: "100%",
+    opacity: 0.022, zIndex: 0, pointerEvents: "none", mixBlendMode: "multiply",
+  }} xmlns="http://www.w3.org/2000/svg">
+    <filter id="grain-pkg2">
+      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="0" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#grain-pkg2)" />
+  </svg>
+ 
+  {/* Dot grid */}
   <div aria-hidden style={{
-    position: "absolute", inset: 0, pointerEvents: "none",
-    backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.22) 1.5px, transparent 1.5px)",
-    backgroundSize: "36px 36px",
-    maskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 68%)",
-    WebkitMaskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 68%)",
+    position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
+    backgroundImage: "radial-gradient(circle, rgba(98,132,11,0.1) 1px, transparent 1px)",
+    backgroundSize: "28px 28px",
+    maskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 72%)",
+    WebkitMaskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 72%)",
   }} />
-  {/* Orb accents */}
-  <div aria-hidden style={{
-    position: "absolute", top: "-8%", right: "-4%",
-    width: 400, height: 400, borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%)",
-    filter: "blur(32px)", pointerEvents: "none",
-  }} />
-  <div aria-hidden style={{
-    position: "absolute", bottom: "-5%", left: "-3%",
-    width: 300, height: 300, borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%)",
-    filter: "blur(24px)", pointerEvents: "none",
-  }} />
-
-  <div className="relative max-w-[min(100%,1600px)] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 z-10">
-
+ 
+  <div className="relative z-10">
+ 
     {/* Header */}
-    <Slide direction="up" className="text-center mb-4">
-      <p style={{
-        fontSize: "11px", fontWeight: 800, letterSpacing: "0.3em",
-        textTransform: "uppercase", color: "rgba(255,255,255,0.82)",
-        fontFamily: "'DM Sans', sans-serif",
-      }}>Choose Your Package</p>
-    </Slide>
-    <Slide direction="up" delay={60} className="text-center mb-3">
-      <h2 style={{
-        fontSize: "clamp(2.4rem, 5vw, 3.8rem)",
-        fontWeight: 900, letterSpacing: "-0.04em",
-        color: "#ffffff", margin: 0,
-        fontFamily: "'DM Sans', sans-serif",
-        lineHeight: 1.05,
-        textShadow: "0 1px 18px rgba(255,255,255,0.15)",
-      }}>
-        Find the Right <span className="pkg-shimmer-text">Fit for You</span>
-      </h2>
-    </Slide>
-    <Slide direction="up" delay={100} className="text-center mb-14">
-      <p style={{
-        fontSize: "0.95rem", color: "rgba(255,255,255,0.9)", lineHeight: 1.75,
-        maxWidth: 420, margin: "12px auto 0",
-        fontFamily: "'DM Sans', sans-serif",
-      }}>
-        Three flexible formats — pick one and we'll build the rest together.
-      </p>
-    </Slide>
-
-    {/* Cards */}
-    <PackageCards formData={formData} setFormData={setFormData} setFieldErrors={setFieldErrors} />
-
+    <div className="text-center mb-2 px-4">
+      <Slide direction="up">
+        <p style={{
+          fontSize: "10px", fontWeight: 800, letterSpacing: "0.3em",
+          textTransform: "uppercase", color: "#97b64c",
+          fontFamily: "'DM Sans', sans-serif", margin: "0 0 10px",
+        }}>Choose Your Package</p>
+      </Slide>
+      <Slide direction="up" delay={60}>
+        <h2 style={{
+          fontSize: "clamp(2rem, 4.5vw, 3.2rem)",
+          fontWeight: 900, letterSpacing: "-0.04em",
+          color: "#18210f", margin: "0 0 10px",
+          fontFamily: "'DM Sans', sans-serif",
+          lineHeight: 1.05,
+        }}>
+          Find the Right{" "}
+          <span style={{ color: "#62840b" }}>Fit for You</span>
+        </h2>
+      </Slide>
+      <Slide direction="up" delay={100}>
+      
+      </Slide>
+    </div>
+ 
+    {/* Carousel */}
+    <div className="mt-10 mb-2">
+      <PackageCards formData={formData} setFormData={setFormData} setFieldErrors={setFieldErrors} />
+    </div>
+ 
     {/* Bottom nudge */}
-    <Slide direction="up" delay={300} className="text-center mt-10">
+    <Slide direction="up" delay={300} className="text-center mt-6 px-4">
       <p style={{
-        fontSize: "0.82rem", color: "rgba(255,255,255,0.88)",
+        fontSize: "0.78rem", color: "#7a9460",
         fontFamily: "'DM Sans', sans-serif",
       }}>
-        Not sure? Select <strong style={{ color: "#ffffff" }}>Not sure yet</strong> in the form below and we'll help you decide.
+        Not sure? Select <strong style={{ color: "#62840b" }}>Not sure yet</strong> in the form below and we'll help you decide.
       </p>
     </Slide>
-
   </div>
 </section>
+ 
 
 
 

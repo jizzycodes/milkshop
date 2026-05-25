@@ -290,92 +290,56 @@ export default function About() {
     }
 
   .about-cta-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 32px;
+    border-radius: 999px;
+    background: #62840b;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(98, 132, 11, 0.28);
+    transition: transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+  }
 
-  padding: 15px 34px;
-  border-radius: 999px;
+  .about-cta-primary:hover {
+    transform: translateY(-3px);
+    background: #536f09;
+    box-shadow: 0 12px 28px rgba(98, 132, 11, 0.34);
+  }
 
-  background: linear-gradient(
-    135deg,
-    #62840b 0%,
-    #97b64c 55%,
-    #b7cd7f 100%
-  );
+  .about-cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 30px;
+    border-radius: 999px;
+    background: #fff;
+    color: #62840b;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    transition: transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+  }
 
-  color: #fff;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.92rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-
-  text-decoration: none;
-  border: 1px solid rgba(255,255,255,0.14);
-
-  cursor: pointer;
-
-  box-shadow:
-    0 10px 35px rgba(166,196,74,0.22),
-    inset 0 1px 0 rgba(255,255,255,0.18);
-
-  transition:
-    transform 0.35s ease,
-    box-shadow 0.35s ease,
-    filter 0.35s ease;
-}
-
-.about-cta-primary:hover {
-  transform: translateY(-4px) scale(1.015);
-
-  box-shadow:
-    0 18px 50px rgba(166,196,74,0.34),
-    inset 0 1px 0 rgba(255,255,255,0.22);
-
-  filter: brightness(1.03);
-}
-
-.about-cta-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  padding: 15px 32px;
-  border-radius: 999px;
-
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(14px);
-
-  color: rgba(246,241,231,0.92);
-
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.92rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-
-  text-decoration: none;
-
-  border: 1px solid rgba(255,255,255,0.12);
-
-  transition:
-    transform 0.35s ease,
-    background 0.35s ease,
-    border-color 0.35s ease,
-    box-shadow 0.35s ease;
-}
-
-.about-cta-secondary:hover {
-  transform: translateY(-3px);
-
-  background: rgba(255,255,255,0.08);
-
-  border-color: rgba(255,255,255,0.22);
-
-  box-shadow:
-    0 10px 35px rgba(0,0,0,0.18);
-}
+  .about-cta-secondary:hover {
+    transform: translateY(-3px);
+    background: #f7faef;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  }
     .about-stat-item {
       transition: transform 0.3s ease;
     }
@@ -785,13 +749,9 @@ export default function About() {
       from { transform: scaleX(0); opacity: 0; }
       to   { transform: scaleX(1); opacity: 1; }
     }
-    @keyframes historyLeafSway {
-      0%, 100% { transform: rotate(-6deg); }
-      50%      { transform: rotate(8deg); }
-    }
     @keyframes historyDotPulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(232,160,32,0.45), 0 0 20px rgba(232,160,32,0.35); }
-      50%      { box-shadow: 0 0 0 10px rgba(232,160,32,0), 0 0 28px rgba(232,160,32,0.5); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(98,132,11,0.4), 0 0 18px rgba(151,182,76,0.35); }
+      50%      { box-shadow: 0 0 0 10px rgba(98,132,11,0), 0 0 26px rgba(151,182,76,0.45); }
     }
     @keyframes historyShine {
       0%   { transform: translateX(-120%) skewX(-12deg); }
@@ -800,41 +760,21 @@ export default function About() {
     .history-header-wrap {
       animation: historyHeaderIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
-    .history-title-about {
-      display: inline-block;
-      animation: historyTitlePop 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
-      color: #62840b;
-      text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.95), 0 3px 18px rgba(98, 132, 11, 0.22);
+    .history-eyebrow {
+      animation: historyTitlePop 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
     }
-    .history-title-milkshop {
-      display: inline-block;
-      animation: historyTitlePop 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
-      color: #E8A020;
-      text-shadow: 2px 2px 0 rgba(72, 48, 0, 0.12), 0 4px 22px rgba(232, 160, 32, 0.38);
+    .history-title-main {
+      animation: historyTitlePop 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
     }
     .history-accent-bar {
-      height: 4px;
-      width: min(200px, 42vw);
-      margin: 22px auto 0;
+      height: 3px;
+      width: 52px;
+      margin: 18px auto 0;
       border-radius: 999px;
-      background: linear-gradient(90deg, #62840b, #97b64c, #E8A020);
+      background: #62840b;
       transform-origin: center;
-      animation: historyAccentGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+      animation: historyAccentGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
     }
-    .history-icon-badge {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: clamp(52px, 8vw, 64px);
-      height: clamp(52px, 8vw, 64px);
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.72);
-      border: 2px solid rgba(151, 182, 76, 0.35);
-      box-shadow: 0 8px 24px rgba(98, 132, 11, 0.12);
-      font-size: clamp(1.5rem, 3vw, 1.85rem);
-      flex-shrink: 0;
-    }
-    .history-icon-leaf { animation: historyLeafSway 4s ease-in-out infinite; }
     .history-orb-a { animation: historyOrbDrift 16s ease-in-out infinite; }
     .history-orb-b { animation: historyOrbDrift 20s ease-in-out infinite reverse; }
     .history-timeline-dot { animation: historyDotPulse 2.8s ease-in-out infinite; }
@@ -868,10 +808,10 @@ export default function About() {
     .history-text-panel { transition: transform 0.4s ease; }
     .history-text-panel:hover { transform: translateY(-4px); }
     @media (prefers-reduced-motion: reduce) {
-      .history-header-wrap, .history-title-about, .history-title-milkshop, .history-accent-bar {
+      .history-header-wrap, .history-eyebrow, .history-title-main, .history-accent-bar {
         animation: none; opacity: 1; transform: none;
       }
-      .history-icon-leaf, .history-orb-a, .history-orb-b, .history-timeline-dot, .history-img-shine::after {
+      .history-orb-a, .history-orb-b, .history-timeline-dot, .history-img-shine::after {
         animation: none;
       }
       .history-img-card:hover { transform: none !important; }
@@ -895,7 +835,7 @@ export default function About() {
         width: 420,
         height: 420,
         borderRadius: "50%",
-        background: "rgba(232,160,32,.10)",
+        background: "rgba(151,182,76,.14)",
         filter: "blur(80px)",
         top: -120,
         left: -120,
@@ -948,62 +888,49 @@ export default function About() {
   <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-10 lg:px-16">
     {/* ── HEADER ── */}
     <div className="history-header-wrap text-center mb-20 sm:mb-24">
-      <div
+      <p
+        className="history-eyebrow"
         style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 20,
+          margin: "0 0 10px",
+          fontSize: "10px",
+          fontWeight: 800,
+          letterSpacing: "0.3em",
+          textTransform: "uppercase",
+          color: "#97b64c",
+          fontFamily: "'DM Sans', sans-serif",
         }}
       >
-        <div style={{ width: 32, height: 1.5, background: "linear-gradient(to right, transparent, #97b64c)" }} />
-    
-        <div style={{ width: 32, height: 1.5, background: "linear-gradient(to left, transparent, #97b64c)" }} />
-      </div>
+        Company History
+      </p>
 
-      <div
+      <h2
+        className="history-title-main"
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "clamp(16px, 4vw, 36px)",
-          flexWrap: "wrap",
+          margin: 0,
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "clamp(2rem, 4.5vw, 3.2rem)",
+          lineHeight: 1.05,
+          fontWeight: 900,
+          letterSpacing: "-0.04em",
+          color: "#18210f",
         }}
       >
-        <span className="history-icon-badge" aria-hidden>
-          🇹🇼
-        </span>
-
-        <h2
-          style={{
-            margin: 0,
-            fontFamily: "'Signia Pro', 'DM Sans', sans-serif",
-            fontSize: "clamp(2.6rem, 7.5vw, 5.6rem)",
-            lineHeight: 0.95,
-            fontWeight: 900,
-            letterSpacing: "-0.05em",
-          }}
-        >
-          <span className="history-title-about">ABOUT </span>
-          <span className="history-title-milkshop">MILKSHOP</span>
-        </h2>
-
-        <span className="history-icon-badge history-icon-leaf" aria-hidden>
-          🍃
-        </span>
-      </div>
+        About{" "}
+        <span style={{ color: "#62840b" }}>Milkshop</span>
+      </h2>
 
       <div className="history-accent-bar" aria-hidden />
 
       <p
         style={{
-          marginTop: 28,
+          marginTop: 22,
           maxWidth: 640,
           marginInline: "auto",
-          fontSize: "clamp(1rem, 2vw, 1.15rem)",
+          fontSize: "0.88rem",
           lineHeight: 1.75,
-          color: "#4d5c3a",
+          color: "#4a5840",
           fontWeight: 500,
+          fontFamily: "'DM Sans', sans-serif",
         }}
       >
         Bringing the authentic taste of Taiwan to the Philippines — crafted with premium

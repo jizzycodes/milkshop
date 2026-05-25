@@ -546,6 +546,43 @@ const franchiseTestimonials = [
   { quote: "The brand pull is strong, and the team responds fast whenever we need help. It feels like a true partnership.", name: "John P.", location: "Davao City", result: "Consistent monthly growth" },
 ]
 
+/** Home testimonials — fixed branches (order = featured list). Match names from MSlocations. */
+const featuredTestimonialBranches = [
+  {
+    branchMatch: ["sm valenzuela", "sm city valenzuela"],
+    quote: franchiseTestimonials[0].quote,
+    name: franchiseTestimonials[0].name,
+    location: "Valenzuela City",
+    result: franchiseTestimonials[0].result,
+    fallbackLabel: "SM Valenzuela",
+  },
+  {
+    branchMatch: ["starmall san jose", "san jose del monte", "starmall sjdm", "sjdm"],
+    quote: franchiseTestimonials[2].quote,
+    name: franchiseTestimonials[2].name,
+    location: "San Jose del Monte, Bulacan",
+    result: franchiseTestimonials[2].result,
+    fallbackLabel: "Starmall San Jose del Monte",
+  },
+  {
+    branchMatch: ["vista mall malolos", "vista mall"],
+    quote: franchiseTestimonials[1].quote,
+    name: franchiseTestimonials[1].name,
+    location: "Malolos City, Bulacan",
+    result: franchiseTestimonials[1].result,
+    fallbackLabel: "Vista Mall Malolos",
+  },
+  {
+    branchMatch: ["north centrum", "milkshop north centrum"],
+    quote:
+      "Strong foot traffic and a location that works — Milkshop support made opening and day-to-day operations smooth from day one.",
+    name: "Milkshop Partner",
+    location: "Guiguinto, Bulacan",
+    result: "Steady branch growth",
+    fallbackLabel: "North Centrum",
+  },
+]
+
 const stats = [
   { value: "12–18", unit: "mo", label: "ROI Payback",    desc: "Avg. across all branches" },
   { value: "15",    unit: "+",  label: "Active Branches", desc: "Nationwide & growing" },
@@ -1308,26 +1345,68 @@ function InvestorProofSection() {
   )
 }
 
-// ─── TESTIMONIALS ─────────────────────────────────────────────────────────────
-// ─── TESTIMONIALS ─────────────────────────────────────────────────────────────
+function shortBranchLabel(name = "") {
+  const trimmed = name.trim()
+  if (!trimmed) return "Milkshop Branch"
+  return trimmed
+    .replace(/^milkshop\s+/i, "")
+    .replace(/\s+branch$/i, "")
+    .trim() || trimmed
+}
+
+function normalizeBranchKey(value = "") {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, "")
+}
+
+function findBranchByMatch(branchCards, patterns) {
+  for (const pattern of patterns) {
+    const key = normalizeBranchKey(pattern)
+    const hit = branchCards.find((branch) =>
+      normalizeBranchKey(branch.name).includes(key)
+    )
+    if (hit) return hit
+  }
+  return null
+}
+
+function buildPartnerStories(branchCards) {
+  return featuredTestimonialBranches.map((entry, index) => {
+    const branch = findBranchByMatch(branchCards, entry.branchMatch)
+    return {
+      id: `story-${index}`,
+      quote: entry.quote,
+      name: entry.name,
+      location: entry.location,
+      result: entry.result,
+      image: branch?.image ?? null,
+      branchName: branch?.name
+        ? shortBranchLabel(branch.name)
+        : entry.fallbackLabel,
+    }
+  })
+}
+
 function FranchiseTestimonialsSection() {
   const [branchCards, setBranchCards] = useState([])
+  const [branchesLoaded, setBranchesLoaded] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isAnimating, setIsAnimating] = useState(false)
   const [inView, setInView] = useState(false)
+
   const sectionRef = useRef(null)
-  const autoRef = useRef(null)
   const { isMobile, isTablet } = useViewport()
 
   useEffect(() => {
     let cancelled = false
+
     async function loadBranchImages() {
       try {
         const { data, error } = await supabase
           .from("MSlocations")
           .select("*")
           .order("id", { ascending: true })
+
         if (error) throw error
+
         if (!cancelled && Array.isArray(data)) {
           const normalizeImage = (value) => {
             if (!value || typeof value !== "string") return null
@@ -1340,7 +1419,11 @@ function FranchiseTestimonialsSection() {
 
           const cardsFromDb = data
             .map((row) => ({
-              name: row.name || row.branch_name || row.location_name || "Milkshop Branch",
+              name:
+                row.name ||
+                row.branch_name ||
+                row.location_name ||
+                "Milkshop Branch",
               image: normalizeImage(
                 row.image_url ||
                 row.photo_url ||
@@ -1350,494 +1433,460 @@ function FranchiseTestimonialsSection() {
               ),
             }))
             .filter((row) => row.image)
+
           setBranchCards(cardsFromDb)
         }
       } catch (e) {
         console.error("Failed to load branch images", e)
+      } finally {
+        if (!cancelled) setBranchesLoaded(true)
       }
     }
+
     loadBranchImages()
     return () => { cancelled = true }
   }, [])
 
-  // Intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setInView(true) },
-      { threshold: 0.15 }
+      { threshold: 0.12 }
     )
     if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
   }, [])
 
-  const cards = (branchCards.length
-    ? branchCards
-    : Array.from({ length: franchiseTestimonials.length }, (_, i) => ({ image: null, name: `Milkshop Branch ${i + 1}` }))
-  ).map((branch, index) => ({
-    id: `testimonial-${index}`,
-    image: branch.image,
-    branchName: branch.name,
-    quote: franchiseTestimonials[index % franchiseTestimonials.length].quote,
-  }))
+  const stories = buildPartnerStories(branchCards)
+  const safeIndex = Math.min(activeIndex, Math.max(0, stories.length - 1))
+  const active = stories[safeIndex] || stories[0]
 
-  const total = cards.length
-
-  // Auto-advance
-  useEffect(() => {
-    autoRef.current = setInterval(() => {
-      goTo((prev) => (prev + 1) % total)
-    }, 4800)
-    return () => clearInterval(autoRef.current)
-  }, [total])
-
-  const goTo = (indexOrFn) => {
-    if (isAnimating) return
-    setIsAnimating(true)
-    setActiveIndex(typeof indexOrFn === "function" ? indexOrFn(activeIndex) : indexOrFn)
-    setTimeout(() => setIsAnimating(false), 600)
-  }
-
-  const prev = () => { clearInterval(autoRef.current); goTo((activeIndex - 1 + total) % total) }
-  const next = () => { clearInterval(autoRef.current); goTo((activeIndex + 1) % total) }
-
-   // ── Card dimensions (wider than tall, closer to 4:3 for clearer photos) ──
-   const rectW = isMobile ? Math.min(window.innerWidth * 0.82, 320) : Math.min(window.innerWidth * 0.52, 620)
-   const rectH = isMobile ? Math.round(rectW * 0.78) : Math.round(rectW * 0.72)
-
-   // ── Fan layout positions (5 visible slots: -2, -1, 0, +1, +2) ──
-   const getRect = (i) => {
-     const total = cards.length
-     let rel = ((i - activeIndex) % total + total) % total
-     if (rel > Math.floor(total / 2)) rel -= total
-
-     const absRel = Math.abs(rel)
-     if (absRel > 2) return { display: "none" }
-
-    const configs = {
-      0:  { x: 0,                          scale: 1,    opacity: 1,    zIndex: 10, rotate: 0,   blur: 0  },
-      1:  { x: rectW * 0.62,               scale: 0.84, opacity: 0.78, zIndex: 7,  rotate: 2,   blur: 0  },
-      "-1":{ x: -(rectW * 0.62),           scale: 0.84, opacity: 0.78, zIndex: 7,  rotate: -2,  blur: 0  },
-      2:  { x: rectW * 1.08,               scale: 0.68, opacity: 0.42, zIndex: 4,  rotate: 4,   blur: 1  },
-      "-2":{ x: -(rectW * 1.08),           scale: 0.68, opacity: 0.42, zIndex: 4,  rotate: -4,  blur: 1  },
-    }
-
-    const cfg = configs[rel] || { display: "none" }
-    const centerX = "50%"
-
-    return {
-      position: "absolute",
-      top: "50%",
-      left: centerX,
-      transform: `translateX(calc(-50% + ${cfg.x}px)) translateY(-50%) scale(${cfg.scale}) rotate(${cfg.rotate}deg)`,
-      opacity: cfg.opacity,
-      zIndex: cfg.zIndex,
-      filter: cfg.blur ? `blur(${cfg.blur}px)` : "none",
-      transition: "all 0.52s cubic-bezier(0.16, 1, 0.3, 1)",
-      cursor: rel !== 0 ? "pointer" : "default",
-      willChange: "transform, opacity",
-    }
-  }
-
-
-  const padX = isMobile ? 16 : isTablet ? 24 : 48
-  const cardW = isMobile ? 280 : isTablet ? 320 : 380
-  const cardH = isMobile ? 340 : isTablet ? 380 : 440
+  const padX = isMobile ? 20 : isTablet ? 32 : 48
 
   return (
     <section
       ref={sectionRef}
+      data-track-section="Franchise Testimonials"
       style={{
-        backgroundColor: T.surface,
-        padding: isMobile ? "80px 0 96px" : "128px 0 120px",
-        position: "relative",
+        background: T.surface,
+        padding: isMobile ? "72px 0 80px" : "100px 0 104px",
         overflow: "hidden",
+        position: "relative",
       }}
     >
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          backgroundImage: "radial-gradient(circle, rgba(98,132,11,0.09) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+          opacity: 0.5,
+        }}
+      />
+
       <style>{`
-        @keyframes tmFadeUp {
-          from { opacity: 0; transform: translateY(28px); }
-          to   { opacity: 1; transform: translateY(0); }
+        .tm-fade {
+          opacity: 0;
+          transform: translateY(24px);
+          transition: opacity 0.65s ease, transform 0.65s ease;
         }
-        @keyframes tmLineGrow {
-          from { transform: scaleX(0); }
-          to   { transform: scaleX(1); }
-        }
-        @keyframes tmOrb {
-          0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
-          50%       { transform: translateY(-20px) scale(1.1); opacity: 0.9; }
-        }
-        @keyframes quoteSlide {
-          from { opacity: 0; transform: translateY(12px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
+        .tm-fade.visible { opacity: 1; transform: translateY(0); }
 
-        .tm-reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
-        .tm-reveal.in { opacity: 1; transform: translateY(0); }
-
-        .tm-nav-btn {
-          width: 48px; height: 48px;
-          border-radius: 50%;
-          border: 1.5px solid rgba(151,182,76,0.4);
-          background: rgba(255,255,255,0.9);
-          color: #62840b;
-          font-size: 18px;
+        .tm-story-btn {
+          width: 100%;
+          text-align: left;
           cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          transition: all 0.25s ease;
-          backdrop-filter: blur(8px);
-          box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-        }
-        .tm-nav-btn:hover {
-          background: #97b64c;
-          color: #fff;
-          border-color: #97b64c;
-          transform: scale(1.08);
-          box-shadow: 0 8px 24px rgba(151,182,76,0.35);
-        }
-
-        .tm-dot {
-          width: 6px; height: 6px;
-          border-radius: 999px;
-          background: #d7e2c7;
-          cursor: pointer;
-          transition: all 0.35s ease;
-          border: none;
+          border: 1px solid ${T.border};
+          background: ${T.white};
+          border-radius: 20px;
+          overflow: hidden;
+          display: grid;
+          grid-template-columns: minmax(128px, 38%) 1fr;
+          min-height: 128px;
           padding: 0;
+          font: inherit;
+          transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
         }
-        .tm-dot.active {
-          width: 28px;
-          background: #97b64c;
-          box-shadow: 0 0 0 4px rgba(151,182,76,0.15);
+        .tm-story-btn:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 28px rgba(98,132,11,0.1);
+        }
+        .tm-story-btn[aria-pressed="true"] {
+          border-color: rgba(98,132,11,0.45);
+          box-shadow: 0 8px 32px rgba(98,132,11,0.14);
+          outline: 3px solid rgba(151,182,76,0.2);
+          outline-offset: 0;
+        }
+        .tm-story-btn img { transition: transform 0.45s ease; }
+        .tm-story-btn:hover img { transform: scale(1.04); }
+
+        .tm-side-list {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+        @media (max-width: 767px) {
+          .tm-side-list {
+            flex-direction: row;
+            overflow-x: auto;
+            gap: 12px;
+            padding-bottom: 6px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+          }
+          .tm-story-btn {
+            flex: 0 0 min(88vw, 300px);
+            scroll-snap-align: start;
+            grid-template-columns: minmax(112px, 42%) 1fr;
+            min-height: 120px;
+          }
         }
 
-        .tm-card-quote {
-          animation: quoteSlide 0.45s ease forwards;
-        }
-
-        .tm-counter {
-          font-family: 'DM Mono', monospace;
-          font-size: 11px;
+        .tm-cta-link {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          text-decoration: none;
+          border-radius: 20px;
+          padding: 20px 22px;
+          background: ${T.greenDark};
+          color: ${T.white};
+          font-family: 'DM Sans', sans-serif;
           font-weight: 700;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          color: #97b64c;
+          font-size: 0.92rem;
+          box-shadow: 0 8px 24px rgba(98,132,11,0.22);
+          transition: transform 0.22s ease, background 0.22s ease;
+        }
+        .tm-cta-link:hover {
+          transform: translateY(-2px);
+          background: #536f09;
+        }
+        @media (max-width: 767px) {
+          .tm-cta-link { flex: 0 0 min(88vw, 300px); scroll-snap-align: start; }
+        }
+
+        .tm-featured-media {
+          position: relative;
+          width: 100%;
+          background: #e8eedd;
+          line-height: 0;
+          overflow: hidden;
+        }
+        .tm-featured-img {
+          width: 100%;
+          height: auto;
+          display: block;
+          object-fit: contain;
+          object-position: center center;
+        }
+        .tm-thumb-media {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 4 / 3;
+          overflow: hidden;
+          background: #e8eedd;
+          flex-shrink: 0;
+        }
+        .tm-thumb-img {
+          width: 100%;
+          height: 100%;
+          display: block;
+          object-fit: cover;
+          object-position: center center;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .tm-fade { transition: none; opacity: 1; transform: none; }
+          .tm-story-btn:hover, .tm-cta-link:hover { transform: none; }
         }
       `}</style>
 
-      {/* Background glows */}
-      <div aria-hidden style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        background: "radial-gradient(ellipse 70% 55% at 50% 110%, rgba(151,182,76,0.08), transparent 60%)",
-      }} />
-      <div aria-hidden style={{
-        position: "absolute", top: -120, left: "50%",
-        transform: "translateX(-50%)",
-        width: 700, height: 700, borderRadius: "50%",
-        border: "1px solid rgba(151,182,76,0.07)",
-        pointerEvents: "none",
-      }} />
-      <div aria-hidden style={{
-        position: "absolute", bottom: "5%", right: "5%",
-        width: 300, height: 300, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(183,205,127,0.12), transparent 70%)",
-        filter: "blur(40px)",
-        pointerEvents: "none",
-        animation: "tmOrb 8s ease-in-out infinite",
-      }} />
-
-      <div style={{
-        maxWidth: 1160,
-        margin: "0 auto",
-        padding: `0 ${padX}px`,
-        position: "relative",
-        zIndex: 1,
-        boxSizing: "border-box",
-        width: "100%",
-      }}>
-
+      <div
+        style={{
+          maxWidth: 1160,
+          margin: "0 auto",
+          padding: `0 ${padX}px`,
+          position: "relative",
+          zIndex: 1,
+          boxSizing: "border-box",
+          width: "100%",
+        }}
+      >
         {/* Header */}
         <div
-          className={`tm-reveal ${inView ? "in" : ""}`}
-          style={{ textAlign: "center", marginBottom: isMobile ? 56 : 80, transitionDelay: "0.1s" }}
+          className={`tm-fade ${inView ? "visible" : ""}`}
+          style={{
+            marginBottom: isMobile ? 40 : 52,
+            maxWidth: 720,
+            marginLeft: "auto",
+            marginRight: "auto",
+            textAlign: "center",
+          }}
         >
-          <div style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            gap: 12, marginBottom: 18,
-          }}>
-            <span style={{
-              display: "block", width: 32, height: 2,
-              background: "linear-gradient(90deg, transparent, #97b64c)",
-              borderRadius: 2, transformOrigin: "right",
-              animation: inView ? "tmLineGrow 0.7s ease forwards" : "none",
-              animationDelay: "0.3s",
-            }} />
+          <div style={{ display: "flex", justifyContent: "center" }}>
             <Eyebrow text="From Our Partners" large />
-            <span style={{
-              display: "block", width: 32, height: 2,
-              background: "linear-gradient(90deg, #97b64c, transparent)",
-              borderRadius: 2, transformOrigin: "left",
-              animation: inView ? "tmLineGrow 0.7s ease forwards" : "none",
-              animationDelay: "0.3s",
-            }} />
           </div>
-
-          <h2 style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "clamp(2.4rem, 4.8vw, 4.2rem)",
-            fontWeight: 900, letterSpacing: "-0.04em",
-            lineHeight: 1.0, color: T.ink, margin: "0 0 18px",
-          }}>
+          <h2
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: isMobile ? "2.1rem" : "clamp(2.2rem, 4.2vw, 3.2rem)",
+              fontWeight: 900,
+              letterSpacing: "-0.04em",
+              lineHeight: 1.05,
+              color: "#18210f",
+              margin: "0 0 12px",
+            }}
+          >
             Real Stories.{" "}
-            <span style={{
-              background: "linear-gradient(135deg, #62840b, #97b64c, #b7cd7f)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}>
-              Real Success.
-            </span>
+            <span style={{ color: T.greenDark }}>Real Success.</span>
           </h2>
-
-        
+          <p
+            style={{
+              margin: "0 auto",
+              maxWidth: 520,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "0.9rem",
+              lineHeight: 1.7,
+              color: "#4a5840",
+              fontWeight: 500,
+            }}
+          >
+            Hear from franchise partners across the Philippines — real branches, real results.
+          </p>
         </div>
 
-        {/* 3D Carousel Stage */}
+        {/* Main grid */}
         <div
-        className={`tm-reveal ${inView ? "in" : ""}`}
-        style={{ transitionDelay: "0.25s" }}
-      >
-        {/* Stage */}
-        <div style={{
-          position: "relative",
-          height: rectH + (isMobile ? 32 : 48),
-          overflow: "visible",
-        }}>
- 
-          {/* ── Nav: Prev ── */}
-          <button
-            type="button"
-            className="tm-nav-btn"
-            onClick={prev}
-            aria-label="Previous testimonials"
-            style={{
-              position: "absolute",
-              left: isMobile ? 0 : "calc(50% - " + (rectW * 0.5 + 52) + "px)",
-              top: "50%",
-              transform: "translateY(-50%)",
-              zIndex: 20,
-            }}
-          >
-            ←
-          </button>
- 
-          {/* ── Nav: Next ── */}
-          <button
-            type="button"
-            className="tm-nav-btn"
-            onClick={next}
-            aria-label="Next testimonials"
-            style={{
-              position: "absolute",
-              right: isMobile ? 0 : "calc(50% - " + (rectW * 0.5 + 52) + "px)",
-              top: "50%",
-              transform: "translateY(-50%)",
-              zIndex: 20,
-            }}
-          >
-            →
-          </button>
- 
-          {/* ── Cards ── */}
-          <div style={{
-            position: "relative",
-            width: "100%",
-            height: "100%",
-          }}>
-            {cards.map((card, i) => {
-              const style = getRect(i)
-              if (style.display === "none") return null
-              const isActive = i === activeIndex
- 
-              return (
-                <article
-                  key={card.id}
-                  onClick={() => !isActive && goTo(i)}
-                  style={{
-                    ...style,
-                    width: rectW,
-                    height: rectH,
-                    borderRadius: isMobile ? 16 : 20,
-                    overflow: "hidden",
-                    border: `1px solid ${isActive ? "rgba(151,182,76,0.45)" : "rgba(151,182,76,0.12)"}`,
-                    boxShadow: isActive
-                      ? "0 28px 72px rgba(98,132,11,0.2), 0 8px 24px rgba(0,0,0,0.1)"
-                      : "0 8px 28px rgba(0,0,0,0.08)",
-                    backgroundColor: "#dfe7cf",
-                  }}
-                >
-                  {/* Image */}
-                  {card.image ? (
-                    <img
-                      src={card.image}
-                      alt="Milkshop franchise branch"
-                      draggable={false}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        display: "block",
-                        transition: "transform 0.6s ease",
-                      }}
-                    />
-                  ) : (
-                    <div style={{
+          className={`tm-fade ${inView ? "visible" : ""}`}
+          style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "1.2fr 0.8fr",
+            gap: isMobile ? 20 : 22,
+            alignItems: "start",
+            transitionDelay: "0.12s",
+          }}
+        >
+          {/* Featured — image + quote below */}
+          {active && (
+            <article
+              className="tm-featured-wrap"
+              style={{
+                borderRadius: 24,
+                overflow: "hidden",
+                border: `1px solid ${T.border}`,
+                background: T.white,
+                boxShadow: "0 12px 40px rgba(98,132,11,0.08)",
+              }}
+            >
+              <div className="tm-featured-media" style={{ position: "relative" }}>
+                {!branchesLoaded ? (
+                  <div
+                    aria-hidden
+                    className="tm-featured-img"
+                    style={{
                       width: "100%",
-                      height: "100%",
-                      background: "linear-gradient(135deg, #d8e5bf 0%, #b7cd7f 45%, #97b64c 100%)",
-                    }} />
-                  )}
- 
-                  {/* Gradient overlay — starts lower on active for better image visibility */}
-                  <div aria-hidden style={{
-                    position: "absolute", inset: 0,
-                    background: isActive
-                      ? "linear-gradient(180deg, rgba(20,20,20,0.08) 0%, rgba(20,20,20,0.18) 45%, rgba(20,20,20,0.78) 100%)"
-                      : "linear-gradient(180deg, rgba(20,20,20,0.22) 0%, rgba(20,20,20,0.72) 100%)",
-                    pointerEvents: "none",
-                    transition: "background 0.55s ease",
-                  }} />
- 
-                  {/* Top accent bar — active only */}
-                  {isActive && (
-                    <div style={{
+                      aspectRatio: "16 / 9",
+                      background: "linear-gradient(110deg, #e8eedd 0%, #f5f8ee 45%, #e8eedd 100%)",
+                      backgroundSize: "200% 100%",
+                      animation: "shimmer 1.4s ease-in-out infinite",
+                    }}
+                  />
+                ) : active.image ? (
+                  <img
+                    src={active.image}
+                    alt={active.branchName}
+                    draggable={false}
+                    className="tm-featured-img"
+                    loading="eager"
+                    decoding="async"
+                  />
+                ) : (
+                  <div
+                    aria-hidden
+                    style={{
+                      width: "100%",
+                      aspectRatio: "16 / 9",
+                      background: "#dfe9d1",
+                    }}
+                  />
+                )}
+
+                {active.result && (
+                  <span
+                    style={{
                       position: "absolute",
-                      top: 0, left: 0, right: 0,
-                      height: 3,
-                      background: "linear-gradient(90deg, #62840b, #97b64c, #b7cd7f)",
-                      borderRadius: `${isMobile ? 16 : 20}px ${isMobile ? 16 : 20}px 0 0`,
-                    }} />
-                  )}
- 
-                  {/* Branch name pill */}
-                  <span style={{
+                      top: 14,
+                      right: 14,
+                      padding: "6px 12px",
+                      borderRadius: 999,
+                      background: T.greenDark,
+                      color: "#fff",
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.62rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {active.result}
+                  </span>
+                )}
+
+                <span
+                  style={{
                     position: "absolute",
                     top: 14,
                     left: 14,
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.6rem",
-                    fontWeight: 900,
-                    letterSpacing: "0.14em",
-                    textTransform: "uppercase",
-                    color: isActive ? "#1a2e0a" : "#ffffff",
-                    background: isActive ? "rgba(183,205,127,0.92)" : "rgba(30,30,30,0.52)",
-                    border: isActive ? "1px solid rgba(151,182,76,0.5)" : "1px solid rgba(255,255,255,0.3)",
+                    maxWidth: "calc(100% - 28px)",
+                    padding: "6px 12px",
                     borderRadius: 999,
-                    padding: "5px 11px",
-                    backdropFilter: "blur(8px)",
-                    transition: "all 0.35s ease",
-                  }}>
-                    {card.branchName}
-                  </span>
- 
-                  {/* Quote block — bottom of card */}
-                  <div style={{
-                    position: "absolute",
-                    left: isActive ? 22 : 16,
-                    right: isActive ? 22 : 16,
-                    bottom: isActive ? 22 : 16,
-                    transition: "all 0.35s ease",
-                  }}>
-                    {isActive && (
-                      <span style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "2.2rem",
-                        lineHeight: 1,
-                        color: "rgba(151,182,76,0.75)",
-                        display: "block",
-                        marginBottom: 2,
-                        fontWeight: 900,
-                      }}>"</span>
-                    )}
-                    <p
-                      key={`quote-${activeIndex}`}
-                      className={isActive ? "tm-card-quote" : ""}
+                    background: "rgba(255,255,255,0.92)",
+                    border: `1px solid ${T.border}`,
+                    color: T.greenDark,
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.62rem",
+                    fontWeight: 800,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {active.branchName}
+                </span>
+              </div>
+
+              <div style={{ padding: isMobile ? "20px 20px 22px" : "28px 32px 30px" }}>
+                <p
+                  style={{
+                    margin: "0 0 16px",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "clamp(1rem, 1.5vw, 1.15rem)",
+                    fontWeight: 600,
+                    lineHeight: 1.65,
+                    color: "#18210f",
+                  }}
+                >
+                  &ldquo;{active.quote}&rdquo;
+                </p>
+                <p
+                  style={{
+                    margin: 0,
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.78rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    color: "#7a9460",
+                  }}
+                >
+                  {active.name} · {active.location}
+                </p>
+              </div>
+            </article>
+          )}
+
+          {/* Side stories */}
+          <div className="tm-side-list">
+            {stories.map((story, index) => (
+              <button
+                key={story.id}
+                type="button"
+                className="tm-story-btn"
+                aria-pressed={index === safeIndex}
+                aria-label={`Show story from ${story.name}, ${story.location}`}
+                onClick={() => setActiveIndex(index)}
+              >
+                <div className="tm-thumb-media">
+                  {story.image ? (
+                    <img
+                      src={story.image}
+                      alt=""
+                      draggable={false}
+                      className="tm-thumb-img"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div
+                      aria-hidden
                       style={{
+                        width: "100%",
+                        height: "100%",
+                        background: "#e8eedd",
+                      }}
+                    />
+                  )}
+                </div>
+                <div style={{ padding: "14px 14px 12px" }}>
+                  {story.result && (
+                    <span
+                      style={{
+                        display: "inline-block",
+                        marginBottom: 8,
+                        padding: "3px 8px",
+                        borderRadius: 999,
+                        background: T.greenFade,
+                        color: T.greenDark,
                         fontFamily: "'DM Sans', sans-serif",
-                        fontSize: isActive
-                          ? "clamp(0.85rem, 1.3vw, 0.98rem)"
-                          : "clamp(0.72rem, 1vw, 0.82rem)",
-                        fontWeight: isActive ? 700 : 600,
-                        lineHeight: 1.5,
-                        color: "#ffffff",
-                        margin: 0,
-                        textShadow: "0 2px 10px rgba(0,0,0,0.55)",
-                        display: "-webkit-box",
-                        WebkitLineClamp: isActive ? 4 : 3,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
+                        fontSize: "0.58rem",
+                        fontWeight: 800,
+                        letterSpacing: "0.05em",
+                        textTransform: "uppercase",
                       }}
                     >
-                      {card.quote}
-                    </p>
-                  </div>
-                </article>
-              )
-            })}
+                      {story.result}
+                    </span>
+                  )}
+                  <span
+                    style={{
+                      display: "block",
+                      color: T.greenDark,
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.62rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      marginBottom: 6,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {story.branchName}
+                  </span>
+                  <p
+                    style={{
+                      margin: 0,
+                      color: "#4a5840",
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.78rem",
+                      lineHeight: 1.5,
+                      fontWeight: 500,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {story.quote}
+                  </p>
+                </div>
+              </button>
+            ))}
+
+            <Link to="/franchise#inquiry" className="tm-cta-link">
+              <span>Start Your Franchise Journey</span>
+              <span aria-hidden>→</span>
+            </Link>
           </div>
         </div>
- 
-        {/* ── Dot indicators ── */}
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginTop: 16,
-          gap: 6,
-        }}>
-          {cards.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              className={`tm-dot ${i === activeIndex ? "active" : ""}`}
-              onClick={() => { clearInterval(autoRef.current); goTo(i) }}
-              aria-label={`Go to testimonial ${i + 1}`}
-            />
-          ))}
-        </div>
-      </div>
-
-        {/* CTA */}
-        <div
-          className={`tm-reveal ${inView ? "in" : ""}`}
-          style={{
-            display: "flex", justifyContent: "center",
-            marginTop: 56,
-            transitionDelay: "0.4s",
-          }}
-        >
-          <Link
-            to="/franchise#inquiry"
-            className="btn-primary"
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 700, fontSize: "0.88rem",
-              padding: "16px 44px", borderRadius: 100,
-              backgroundColor: T.green, color: T.white,
-              textDecoration: "none",
-              boxShadow: `0 8px 28px ${T.green}45`,
-              display: "inline-block",
-              transition: "all 0.3s ease",
-            }}
-          >
-            Start Your Franchise Journey →
-          </Link>
-        </div>
-
       </div>
     </section>
   )
 }
-
 // ─── FINAL CTA ─────────────────────────────────────────────────────────────────
 function FinalCTASection() {
   const { isMobile, isTablet } = useViewport()

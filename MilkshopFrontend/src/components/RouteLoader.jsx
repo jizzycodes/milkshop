@@ -34,6 +34,7 @@ export default function RouteLoader({ minDurationMs = 900, initialDurationMs = 1
       hideTimerRef.current = window.setTimeout(() => {
         setShow(false);
         setLeaving(false);
+        window.dispatchEvent(new CustomEvent("milkshop:route-loader-hidden"));
       }, EXIT_MS);
     }, ms);
   };

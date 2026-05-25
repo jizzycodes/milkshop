@@ -20,16 +20,6 @@ const styles = `
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  /* Same motion as About hero “Taiwan.” shimmer */
-@keyframes navWordmarkShimmer {
-  0% {
-    background-position: 0% center;
-  }
-  100% {
-    background-position: 240% center;
-  }
-}
-
   .nav-root {
     animation: navFade 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
@@ -119,57 +109,17 @@ const styles = `
   }
 
   .nav-brand-wordmark {
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 900;
-  letter-spacing: -0.07em;
-  line-height: 0.92;
-  white-space: nowrap;
-  user-select: none;
-  display: inline-block;
-  position: relative;
-
- background: linear-gradient(
-  135deg,
-  #5E7E1F 0%,
-  #88B04B 50%,
-  #D6A23D 100%
-);
-
-  background-size: 240% auto;
-
-  -webkit-background-clip: text;
-  background-clip: text;
-
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-
-  animation: navWordmarkShimmer 7s cubic-bezier(0.4,0,0.2,1) infinite;
-
-  filter:
-    drop-shadow(0 2px 10px rgba(127,163,58,0.12))
-    drop-shadow(0 1px 2px rgba(0,0,0,0.08));
-
-  transition:
-    font-size 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.25s ease,
-    filter 0.25s ease;
-
-  text-rendering: geometricPrecision;
-  -webkit-font-smoothing: antialiased;
-}
-
-.nav-brand-wordmark:hover {
-  transform: translateY(-1px);
-  filter:
-    drop-shadow(0 4px 16px rgba(127,163,58,0.18))
-    drop-shadow(0 2px 4px rgba(0,0,0,0.10));
-}
-
-  @media (prefers-reduced-motion: reduce) {
-    .nav-brand-wordmark {
-      animation: none;
-      background-position: center;
-    }
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    line-height: 0.92;
+    white-space: nowrap;
+    user-select: none;
+    display: inline-block;
+    color: #62840b;
+    transition: font-size 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
   }
 
   /* ── Mobile menu links ── */
@@ -331,8 +281,8 @@ export default function Navbar() {
               className="nav-brand-wordmark"
               style={{
                 fontSize: isMobile
-                  ? (scrolled ? "1.38rem" : "1.5rem")
-                  : (scrolled ? "1.75rem" : "1.95rem"),
+                  ? (scrolled ? "1.55rem" : "1.7rem")
+                  : (scrolled ? "2rem" : "2.25rem"),
               }}
             >
               Milkshop
