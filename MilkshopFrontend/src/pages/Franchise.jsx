@@ -87,12 +87,6 @@ const inputErr  = "border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 fo
 
 const FRANCHISE_FORM_ID = "inquiry";
 
-/** ~100 ≈ one mouse-wheel detent; sum 3 detents → advance one process step. */
-const PROCESS_WHEEL_NOTCHES_PER_STEP = 3;
-const PROCESS_DELTA_PER_WHEEL_NOTCH = 100;
-const PROCESS_WHEEL_STEP_THRESHOLD =
-  PROCESS_WHEEL_NOTCHES_PER_STEP * PROCESS_DELTA_PER_WHEEL_NOTCH;
-
 /** Scoped to this page route — overflow + stable gutter when process scroll-lock runs */
 const franchisePageStyles = `
   html {
@@ -134,9 +128,7 @@ const packages = [
   {
     id: "cart",
     label: "Cart",
-    tagline: "Start Small, Dream Big",
-    term: "2-year term",
-    badge: "Best Starter",
+   
     image: "/franchise/packages/2.png",
     features: ["Compact footprint, any location","Low startup cost","Full Milkshop menu","Training & supply included"],
     best: "Perfect for first-timers or tight spaces.",
@@ -144,9 +136,7 @@ const packages = [
   {
     id: "kiosk",
     label: "Kiosk",
-    tagline: "The Sweet Spot",
-    term: "3-year term",
-    badge: "Most Popular",
+  
     image: "/franchise/packages/4.png",
     features: ["Higher daily capacity","Exclusive territory radius","Brand signage & fixtures"],
     best: "Ideal for malls, food parks & commercial areas.",
@@ -154,9 +144,7 @@ const packages = [
   {
     id: "inline",
     label: "In-Line Store",
-    tagline: "Go Full-Scale",
-    term: "5-year term",
-    badge: "Best ROI",
+    
     image: "/franchise/packages/8.png",
     features: ["Highest revenue potential","Premium exclusivity zone","Priority franchise support"],
     best: "For serious operators ready to scale.",
@@ -169,6 +157,7 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
   const selected = formData.preferredPackage;
   const [pkgImgTier, setPkgImgTier] = useState({});
   const [lightbox, setLightbox] = useState(null);
+  const [stageRef, stageInView] = useInView(0.12);
 
   const handleSelect = (id) => {
     setFormData((p) => ({ ...p, preferredPackage: id }));
@@ -206,8 +195,6 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
     <>
       <style>{`
         .pkg-3d-stage {
-          perspective: 1400px;
-          perspective-origin: 50% 40%;
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: clamp(12px, 3vw, 32px);
@@ -216,6 +203,7 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
           margin: 0 auto;
           padding: clamp(16px, 3vw, 40px) clamp(8px, 2vw, 20px) clamp(8px, 2vw, 16px);
           align-items: end;
+          touch-action: pan-y;
         }
         .pkg-3d-item {
           display: flex;
@@ -223,8 +211,7 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
           align-items: center;
           text-align: center;
           cursor: pointer;
-          transform-style: preserve-3d;
-          transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
+          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
           -webkit-tap-highlight-color: transparent;
           background: none;
           border: none;
@@ -232,37 +219,35 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
           font: inherit;
         }
         .pkg-3d-item.pos-0 {
-          transform: rotateY(16deg) translateZ(-12px) scale(0.94);
-          transform-origin: right center;
+          transform: scale(0.94);
+          transform-origin: center bottom;
         }
         .pkg-3d-item.pos-1 {
-          transform: rotateY(0deg) translateZ(48px) scale(1.06);
-          transform-origin: center center;
+          transform: scale(1.04);
           z-index: 2;
         }
         .pkg-3d-item.pos-2 {
-          transform: rotateY(-16deg) translateZ(-12px) scale(0.94);
-          transform-origin: left center;
-        }
-        .pkg-3d-item:hover {
-          filter: brightness(1.03);
+          transform: scale(0.94);
+          transform-origin: center bottom;
         }
         .pkg-3d-item.pos-0:hover {
-          transform: rotateY(12deg) translateZ(8px) scale(0.98);
+          transform: scale(0.98);
         }
         .pkg-3d-item.pos-1:hover {
-          transform: rotateY(0deg) translateZ(64px) scale(1.08);
+          transform: scale(1.06);
         }
         .pkg-3d-item.pos-2:hover {
-          transform: rotateY(-12deg) translateZ(8px) scale(0.98);
+          transform: scale(0.98);
         }
-        .pkg-3d-item.is-selected .pkg-3d-img {
-          filter: drop-shadow(0 28px 48px rgba(98, 132, 11, 0.38)) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.12));
+        .pkg-3d-item.is-selected .pkg-3d-img-wrap {
+          box-shadow: 0 20px 40px rgba(98, 132, 11, 0.22);
         }
         .pkg-3d-img-wrap {
           width: 100%;
           position: relative;
           margin-bottom: clamp(12px, 2vw, 18px);
+          border-radius: 16px;
+          transition: box-shadow 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .pkg-3d-img {
           width: 100%;
@@ -271,8 +256,7 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
           object-fit: contain;
           object-position: center bottom;
           display: block;
-          filter: drop-shadow(0 22px 36px rgba(98, 132, 11, 0.22)) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.08));
-          transition: filter 0.35s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
           pointer-events: none;
         }
         .pkg-3d-badge {
@@ -338,10 +322,88 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
         }
         .pkg-3d-view:hover { color: #62840b; }
 
+        /* Scroll-in + stagger */
+        .pkg-3d-stage:not(.pkg-3d-stage--in) .pkg-3d-item {
+          opacity: 0;
+        }
+        .pkg-3d-stage--in .pkg-3d-item.pos-0 {
+          animation: pkgRevealSide 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+        }
+        .pkg-3d-stage--in .pkg-3d-item.pos-1 {
+          animation: pkgRevealCenter 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+        }
+        .pkg-3d-stage--in .pkg-3d-item.pos-2 {
+          animation: pkgRevealSideR 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+        }
+        @keyframes pkgRevealSide {
+          from {
+            opacity: 0;
+            transform: translateY(24px) scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(0.94);
+          }
+        }
+        @keyframes pkgRevealSideR {
+          from {
+            opacity: 0;
+            transform: translateY(24px) scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(0.94);
+          }
+        }
+        @keyframes pkgRevealCenter {
+          from {
+            opacity: 0;
+            transform: translateY(28px) scale(0.92);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1.04);
+          }
+        }
+        .pkg-3d-stage--in .pkg-3d-badge {
+          animation: pkgBadgePop 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .pkg-3d-item.pos-0 .pkg-3d-badge { animation-delay: 0.4s; }
+        .pkg-3d-item.pos-1 .pkg-3d-badge { animation-delay: 0.5s; }
+        .pkg-3d-item.pos-2 .pkg-3d-badge { animation-delay: 0.6s; }
+        @keyframes pkgBadgePop {
+          from { opacity: 0; transform: scale(0.6) translateY(-8px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .pkg-3d-stage--in .pkg-3d-label,
+        .pkg-3d-stage--in .pkg-3d-meta {
+          animation: pkgTextFade 0.6s ease both;
+        }
+        .pkg-3d-item.pos-0 .pkg-3d-label { animation-delay: 0.45s; }
+        .pkg-3d-item.pos-1 .pkg-3d-label { animation-delay: 0.55s; }
+        .pkg-3d-item.pos-2 .pkg-3d-label { animation-delay: 0.65s; }
+        .pkg-3d-item.pos-0 .pkg-3d-meta { animation-delay: 0.52s; }
+        .pkg-3d-item.pos-1 .pkg-3d-meta { animation-delay: 0.62s; }
+        .pkg-3d-item.pos-2 .pkg-3d-meta { animation-delay: 0.72s; }
+        @keyframes pkgTextFade {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .pkg-3d-item:hover .pkg-3d-img {
+          transform: scale(1.05) translateY(-4px);
+        }
+        .pkg-3d-item.is-selected .pkg-3d-img-wrap::after {
+          content: '';
+          position: absolute;
+          inset: -4%;
+          border-radius: 20px;
+          border: 2px solid rgba(98, 132, 11, 0.5);
+          pointer-events: none;
+        }
+
         @media (max-width: 767px) {
           .pkg-3d-stage {
             grid-template-columns: 1fr;
-            perspective: none;
             gap: 28px;
             max-width: 420px;
           }
@@ -355,6 +417,17 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
             transform: none !important;
           }
           .pkg-3d-img { max-height: 300px; }
+          .pkg-3d-stage--in .pkg-3d-item.pos-0,
+          .pkg-3d-stage--in .pkg-3d-item.pos-1,
+          .pkg-3d-stage--in .pkg-3d-item.pos-2 {
+            animation: pkgRevealMobile 0.75s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+          }
+          .pkg-3d-item.pos-1 { animation-delay: 0.12s !important; }
+          .pkg-3d-item.pos-2 { animation-delay: 0.24s !important; }
+        }
+        @keyframes pkgRevealMobile {
+          from { opacity: 0; transform: translateY(28px) scale(0.96); }
+          to { opacity: 1; transform: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -364,11 +437,20 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
           .pkg-3d-item.pos-2 {
             transform: none !important;
             transition: none !important;
+            animation: none !important;
+            opacity: 1 !important;
+          }
+          .pkg-3d-stage:not(.pkg-3d-stage--in) .pkg-3d-item {
+            opacity: 1;
+            pointer-events: auto;
+          }
+          .pkg-3d-item.is-selected .pkg-3d-img-wrap::after {
+            animation: none !important;
           }
         }
       `}</style>
 
-      <div className="pkg-3d-stage">
+      <div ref={stageRef} className={`pkg-3d-stage${stageInView ? " pkg-3d-stage--in" : ""}`}>
         {packages.map((pkg, i) => {
           const isSelected = selected === pkg.id;
           const imgSrc = srcFor(pkg);
@@ -455,8 +537,6 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
             background: "rgba(0,0,0,0.82)",
             display: "flex", alignItems: "center", justifyContent: "center",
             padding: "24px",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
           }}
         >
           <div
@@ -508,20 +588,11 @@ export default function Franchise() {
   const [submitted, setSubmitted]       = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [activeStep, setActiveStep] = useState(0);
-  const activeStepRef = useRef(0);
-  activeStepRef.current = activeStep;
-  const [heroProcessImgFailed, setHeroProcessImgFailed] = useState(false);
   const [heroInlineAnimReady, setHeroInlineAnimReady] = useState(false);
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth < 768;
   });
-  const processSectionRef = useRef(null);
-  const heroProcessPanelRef = useRef(null);
-  const processLockRef = useRef(false);
-  const processWheelDeltaRef = useRef(0);
-  const processTouchYRef = useRef(null);
   useEffect(() => {
     if (window.location.hash !== `#${FRANCHISE_FORM_ID}`) return;
     const el = document.getElementById(FRANCHISE_FORM_ID);
@@ -555,193 +626,6 @@ export default function Franchise() {
     return () => {
       window.removeEventListener("milkshop:route-loader-hidden", startAnim);
       window.clearTimeout(fallback);
-    };
-  }, []);
-
-  useEffect(() => {
-    setHeroProcessImgFailed(false);
-  }, [activeStep]);
-
-  useEffect(() => {
-    const THRESHOLD = PROCESS_WHEEL_STEP_THRESHOLD;
-    const htmlEl = document.documentElement;
-    const bodyEl = document.body;
-    const prevHtmlOverflow = htmlEl.style.overflow;
-    const prevHtmlPaddingRight = htmlEl.style.paddingRight;
-    const prevBodyOverflow = bodyEl.style.overflow;
-    const prevHtmlOverscroll = htmlEl.style.overscrollBehavior;
-    const prevBodyOverscroll = bodyEl.style.overscrollBehavior;
-
-    const setPageScrollLocked = (locked) => {
-      if (locked) {
-        const gap = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
-        htmlEl.style.overflow = "hidden";
-        if (gap > 0) {
-          htmlEl.style.paddingRight = `${gap}px`;
-        }
-        bodyEl.style.overflow = "hidden";
-        htmlEl.style.overscrollBehavior = "none";
-        bodyEl.style.overscrollBehavior = "none";
-        return;
-      }
-      htmlEl.style.overflow = prevHtmlOverflow;
-      htmlEl.style.paddingRight = prevHtmlPaddingRight;
-      bodyEl.style.overflow = prevBodyOverflow;
-      htmlEl.style.overscrollBehavior = prevHtmlOverscroll;
-      bodyEl.style.overscrollBehavior = prevBodyOverscroll;
-    };
-
-    const setLocked = (locked) => {
-      processLockRef.current = locked;
-      setPageScrollLocked(locked);
-    };
-
-    /** Always read current DOM nodes — the image panel remounts on `key={activeStep}` so stale refs break engagement after step 1. */
-    const isHeroEngaged = () => {
-      const heroSection = processSectionRef.current;
-      const panel = heroProcessPanelRef.current;
-      if (!heroSection || !panel) return false;
-      const heroRect = heroSection.getBoundingClientRect();
-      const panelRect = panel.getBoundingClientRect();
-      const viewportH = window.innerHeight;
-
-      const heroVisiblePx =
-        Math.min(heroRect.bottom, viewportH) - Math.max(heroRect.top, 0);
-      const heroVisibleRatio = Math.max(
-        0,
-        heroVisiblePx / Math.min(Math.max(heroRect.height, 1), viewportH)
-      );
-
-      const panelVisiblePx =
-        Math.min(panelRect.bottom, viewportH) - Math.max(panelRect.top, 0);
-
-      return heroVisibleRatio >= 0.55 && panelVisiblePx >= 120;
-    };
-
-    const shouldCaptureFromEvent = (eventTarget) => {
-      if (!isHeroEngaged()) return false;
-      const heroSection = processSectionRef.current;
-      if (!heroSection) return false;
-      if (!(eventTarget instanceof Node)) return processLockRef.current;
-      return heroSection.contains(eventTarget) || processLockRef.current;
-    };
-
-    let syncRaf = 0;
-    const syncLockState = () => {
-      if (syncRaf) return;
-      syncRaf = requestAnimationFrame(() => {
-        syncRaf = 0;
-        if (!isHeroEngaged()) {
-          setLocked(false);
-          processWheelDeltaRef.current = 0;
-          processTouchYRef.current = null;
-        }
-      });
-    };
-
-    const onWheel = (e) => {
-      if (!shouldCaptureFromEvent(e.target)) return;
-
-      const useX = Math.abs(e.deltaX) > Math.abs(e.deltaY);
-      const delta = useX ? e.deltaX : e.deltaY;
-      const step = activeStepRef.current;
-
-      const isTryingToLeaveForward = step === steps.length - 1 && delta > 0;
-      const isTryingToLeaveBackward = step === 0 && delta < 0;
-      if (isTryingToLeaveForward || isTryingToLeaveBackward) {
-        setLocked(false);
-        processWheelDeltaRef.current = 0;
-        return;
-      }
-
-      if (!processLockRef.current) {
-        setLocked(true);
-      }
-
-      e.preventDefault();
-      processWheelDeltaRef.current += delta;
-
-      if (Math.abs(processWheelDeltaRef.current) < THRESHOLD) return;
-
-      const direction = processWheelDeltaRef.current > 0 ? 1 : -1;
-      processWheelDeltaRef.current = 0;
-
-      setActiveStep((prev) => {
-        const next = prev + direction;
-        if (next < 0) {
-          setLocked(false);
-          return 0;
-        }
-        if (next >= steps.length) {
-          setLocked(false);
-          return steps.length - 1;
-        }
-        return next;
-      });
-    };
-
-    const onTouchStart = (e) => {
-      processTouchYRef.current = e.touches[0]?.clientY ?? null;
-    };
-
-    const onTouchMove = (e) => {
-      if (!shouldCaptureFromEvent(e.target)) return;
-
-      const currentY = e.touches[0]?.clientY;
-      const startY = processTouchYRef.current;
-      if (typeof currentY !== "number" || typeof startY !== "number") return;
-
-      const deltaY = startY - currentY;
-      processTouchYRef.current = currentY;
-
-      const step = activeStepRef.current;
-      const isTryingToLeaveForward = step === steps.length - 1 && deltaY > 0;
-      const isTryingToLeaveBackward = step === 0 && deltaY < 0;
-      if (isTryingToLeaveForward || isTryingToLeaveBackward) {
-        setLocked(false);
-        processWheelDeltaRef.current = 0;
-        return;
-      }
-
-      if (!processLockRef.current) {
-        setLocked(true);
-      }
-
-      e.preventDefault();
-      processWheelDeltaRef.current += deltaY;
-
-      if (Math.abs(processWheelDeltaRef.current) < THRESHOLD) return;
-
-      const direction = processWheelDeltaRef.current > 0 ? 1 : -1;
-      processWheelDeltaRef.current = 0;
-      setActiveStep((prev) => {
-        const next = prev + direction;
-        if (next < 0) {
-          setLocked(false);
-          return 0;
-        }
-        if (next >= steps.length) {
-          setLocked(false);
-          return steps.length - 1;
-        }
-        return next;
-      });
-    };
-
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
-    window.addEventListener("scroll", syncLockState, { passive: true });
-    window.addEventListener("resize", syncLockState);
-    syncLockState();
-    return () => {
-      if (syncRaf) cancelAnimationFrame(syncRaf);
-      setLocked(false);
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("scroll", syncLockState);
-      window.removeEventListener("resize", syncLockState);
     };
   }, []);
 
@@ -822,7 +706,7 @@ export default function Franchise() {
         }}
       >
 
- {/* ══════════════════════════════════════
+  {/* ══════════════════════════════════════
       SLIDE 1 — HERO (PREMIUM UPGRADE)
 ══════════════════════════════════════ */}
 {/* ══════════════════════════════════════
@@ -863,26 +747,6 @@ export default function Franchise() {
         zIndex: 0,
       }}
     />
-
-    {/* === Subtle noise/grain texture over left panel only === */}
-    <svg
-      style={{
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        opacity: 0.028,
-        zIndex: 1,
-        mixBlendMode: "multiply",
-      }}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <filter id="grain-hero">
-        <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch" />
-        <feColorMatrix type="saturate" values="0" />
-      </filter>
-      <rect width="100%" height="100%" filter="url(#grain-hero)" />
-    </svg>
 
     {/* === Fine dot grid — left half only, very subtle === */}
     <div
@@ -1192,124 +1056,220 @@ export default function Franchise() {
 </section>
 
 {/* ══════════════════════════════════════
-     FRANCHISING PROCESS SECTION
+   FRANCHISING PROCESS — GRID + SIDE TITLE
 ══════════════════════════════════════ */}
 <section
-  ref={processSectionRef}
   id="process"
   data-track-section="Franchising Process"
-  className="relative overflow-hidden"
-  style={{ background:"linear-gradient(160deg,#f3f9ea 0%,#ffffff 50%,#f0f7e6 100%)", padding:"clamp(60px,8vw,100px) 0" }}
+  className="process-section"
+  style={{
+    background: "#ffffff",
+    padding: "clamp(72px,8vw,104px) 0",
+    borderTop: "1px solid rgba(151,182,76,0.15)",
+    borderBottom: "1px solid rgba(151,182,76,0.15)",
+  }}
 >
-  <div style={{ maxWidth:1380, margin:"0 auto", padding:"0 clamp(20px,4vw,56px)", width:"100%", boxSizing:"border-box" }}>
+  <style>{`
+    .process-split {
+      display: grid;
+      grid-template-columns: minmax(200px, 0.6fr) 1.4fr;
+      gap: clamp(32px, 5vw, 64px);
+      align-items: center;
+    }
 
-    {/* Section header */}
-    <Slide direction="up" className="text-center" style={{ marginBottom:48 }}>
-      <p style={{ fontSize:"11px", fontWeight:800, letterSpacing:"0.3em", textTransform:"uppercase", color:"#97b64c", fontFamily:"'DM Sans',sans-serif", marginBottom:8 }}>How It Works</p>
-      <h2 style={{ fontSize:"clamp(2.2rem,5vw,3.5rem)", fontWeight:900, letterSpacing:"-0.04em", color:"#1a1e14", margin:0, fontFamily:"'DM Sans',sans-serif" }}>
-        Your Path to Ownership
-      </h2>
+    /* ── Centered header ── */
+    .process-split-header {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* ── Grid ── */
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(16px, 2.4vw, 24px);
+      min-width: 0;
+    }
+
+    /* ── Card ── */
+    .process-card {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      min-width: 0;
+      width: 100%;
+      cursor: default;
+    }
+
+    /* ── Media box ── */
+    .process-card-media {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      border: 1px solid #d8e8b8;
+      overflow: hidden;
+      background: #f4f7f0;
+      margin-bottom: 14px;
+      transition: border-color 0.28s ease, box-shadow 0.28s ease, transform 0.28s ease;
+      will-change: transform;
+    }
+
+    .process-card:hover .process-card-media {
+      border-color: #97b64c;
+      box-shadow: 0 8px 28px rgba(151,182,76,0.14);
+      transform: translateY(-3px);
+    }
+
+    .process-card-media img {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.38s ease;
+    }
+
+    .process-card:hover .process-card-media img {
+      transform: scale(1.04);
+    }
+
+    .process-card-fallback {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 2.4rem;
+      background: #f4f7f0;
+    }
+
+    /* ── Copy ── */
+    .process-card-copy {
+      width: 100%;
+      padding: 0 2px;
+    }
+
+    .process-card-title {
+      color: #1e1e1e;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .process-card-desc {
+      color: #5a6a4a;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      line-height: 1.65;
+      margin: 7px 0 0;
+    }
+
+    /* ── Divider under title ── */
+    .process-card-divider {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: #97b64c;
+      border-radius: 2px;
+      margin: 8px 0;
+      transition: width 0.28s ease;
+    }
+
+    .process-card:hover .process-card-divider {
+      width: 36px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 960px) {
+      .process-split {
+        grid-template-columns: 1fr;
+        gap: clamp(24px, 4vw, 40px);
+      }
+      .process-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .process-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  `}</style>
+
+  <div
+    className="process-split relative z-10 mx-auto"
+    style={{
+      maxWidth: 1160,
+      padding: "0 clamp(20px,4vw,56px)",
+    }}
+  >
+    {/* ── Left: centered heading ── */}
+    <Slide direction="left">
+      <div className="process-split-header">
+        <p
+          style={{
+            color: "#97b64c",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "0.68rem",
+            fontWeight: 700,
+            letterSpacing: "0.28em",
+            textTransform: "uppercase",
+            margin: "0 0 16px",
+          }}
+        >
+          How It Works
+        </p>
+        <h2
+          style={{
+            fontSize: "clamp(2.2rem, 4.5vw, 3.6rem)",
+            fontWeight: 900,
+            letterSpacing: "-0.04em",
+            color: "#18210f",
+            margin: 0,
+            fontFamily: "'DM Sans', sans-serif",
+            lineHeight: 1.05,
+          }}
+        >
+          Franchise<br />Process
+        </h2>
+      </div>
     </Slide>
 
-    {/* Main content: image left, details right */}
-    <div style={{ display:"grid", gridTemplateColumns:"1.1fr 0.9fr", gap:"clamp(24px,4vw,56px)", alignItems:"center" }} className="max-lg:grid-cols-1">
-
-      {/* LEFT — Image */}
-      <div
-        ref={heroProcessPanelRef}
-        key={activeStep}
-        className="fh-step-card"
-        style={{ borderRadius:24, overflow:"hidden", position:"relative", height:"clamp(340px,52vh,560px)", border:"1px solid rgba(151,182,76,0.2)", background:"#1a2214", boxShadow:"0 24px 64px rgba(98,132,11,0.14)" }}
-      >
-        {!heroProcessImgFailed ? (
-          <img
-            key={steps[activeStep].image}
-            src={steps[activeStep].image}
-            alt={`Milkshop franchise — ${steps[activeStep].title}`}
-            loading={activeStep === 0 ? "eager" : "lazy"}
-            decoding="async"
-            style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", display:"block" }}
-            onError={() => setHeroProcessImgFailed(true)}
-          />
-        ) : (
-          <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", background:"#eef3e4", fontFamily:"'DM Sans',sans-serif", fontSize:12, fontWeight:600, color:"#62840b" }}>
-            Add photo
-            <span style={{ fontWeight:500, color:"#7b9461", fontSize:11, marginTop:6 }}>public/franchise/process/step-{steps[activeStep].step}.jpg</span>
-          </div>
-        )}
-        {!heroProcessImgFailed && <div aria-hidden style={{ position:"absolute", inset:0, background:"rgba(26,34,20,0.18)", pointerEvents:"none" }} />}
-
-        {/* Step number badge on image */}
-        <div style={{ position:"absolute", top:20, left:20, zIndex:2, background:"rgba(26,34,20,0.75)", backdropFilter:"blur(8px)", border:"1px solid rgba(255,255,255,0.12)", borderRadius:999, padding:"6px 14px", display:"flex", alignItems:"center", gap:8 }}>
-          <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"10px", fontWeight:800, letterSpacing:"0.15em", color:"#c5d9a3" }}>STEP {steps[activeStep].step}</span>
-          <span style={{ fontSize:"0.9rem" }}>{steps[activeStep].icon}</span>
-        </div>
-      </div>
-
-      {/* RIGHT — Step details + nav */}
-      <div style={{ display:"flex", flexDirection:"column", gap:28 }}>
-
-        {/* Step counter */}
-        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-          <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"clamp(2.5rem,5vw,4rem)", fontWeight:900, color:"rgba(151,182,76,0.2)", lineHeight:1 }}>
-            {String(activeStep + 1).padStart(2,"0")}
-          </span>
-          <div style={{ width:1, height:48, background:"rgba(151,182,76,0.25)" }} />
-          <div>
-            <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"10px", fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:"#97b64c", margin:"0 0 2px" }}>Current Step</p>
-            <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"0.75rem", color:"#7b9461", margin:0 }}>of {steps.length} total steps</p>
-          </div>
-        </div>
-
-        {/* Title + desc */}
-        <div>
-          <h3 style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"clamp(1.5rem,3vw,2.1rem)", fontWeight:900, color:"#1a2e0a", margin:"0 0 12px", letterSpacing:"-0.03em", lineHeight:1.1 }}>
-            {steps[activeStep].title}
-          </h3>
-          <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"clamp(0.88rem,1.5vw,1rem)", lineHeight:1.75, color:"#4d5c3a", margin:0 }}>
-            {steps[activeStep].desc}
-          </p>
-        </div>
-
-        {/* Progress bar */}
-        <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-          <div style={{ display:"flex", justifyContent:"space-between" }}>
-            <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"10px", fontWeight:700, color:"#97b64c" }}>Progress</span>
-            <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"10px", color:"#7b9461" }}>{Math.round(((activeStep + 1) / steps.length) * 100)}%</span>
-          </div>
-          <div style={{ height:5, background:"rgba(151,182,76,0.14)", borderRadius:999, overflow:"hidden" }}>
-            <div style={{ height:"100%", width:`${((activeStep + 1) / steps.length) * 100}%`, background:"linear-gradient(90deg,#62840b,#97b64c)", borderRadius:999, transition:"width 0.5s cubic-bezier(0.16,1,0.3,1)" }} />
-          </div>
-        </div>
-
-        {/* Step dots */}
-        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-          {steps.map((s, i) => (
-            <button key={s.step} onClick={() => setActiveStep(i)} aria-label={s.title}
-              style={{ width: activeStep === i ? 28 : 8, height:8, borderRadius:999, border:"none", cursor:"pointer", background: i < activeStep ? "#97b64c" : activeStep === i ? "#62840b" : "rgba(151,182,76,0.25)", transition:"all 0.35s cubic-bezier(0.16,1,0.3,1)", padding:0 }} />
-          ))}
-        </div>
-
-        {/* Prev / Next buttons */}
-        <div style={{ display:"flex", gap:12 }}>
-          <button onClick={() => setActiveStep((p) => Math.max(0, p - 1))} disabled={activeStep === 0}
-            style={{ flex:1, padding:"12px 0", borderRadius:999, border:"1.5px solid rgba(151,182,76,0.35)", background: activeStep === 0 ? "rgba(151,182,76,0.05)" : "rgba(151,182,76,0.1)", color: activeStep === 0 ? "#bdd49a" : "#62840b", fontFamily:"'DM Sans',sans-serif", fontSize:"0.85rem", fontWeight:700, cursor: activeStep === 0 ? "not-allowed" : "pointer", transition:"all 0.2s ease" }}>
-            ‹ Previous
-          </button>
-          <button onClick={() => setActiveStep((p) => Math.min(steps.length - 1, p + 1))} disabled={activeStep === steps.length - 1}
-            style={{ flex:1, padding:"12px 0", borderRadius:999, border:"none", background: activeStep === steps.length - 1 ? "#b7cd7f" : "linear-gradient(135deg,#62840b,#97b64c)", color:"#fff", fontFamily:"'DM Sans',sans-serif", fontSize:"0.85rem", fontWeight:700, cursor: activeStep === steps.length - 1 ? "not-allowed" : "pointer", boxShadow: activeStep === steps.length - 1 ? "none" : "0 8px 24px rgba(98,132,11,0.28)", transition:"all 0.2s ease" }}>
-            Next ›
-          </button>
-        </div>
-
-      </div>
+    {/* ── Right: cards grid ── */}
+    <div className="process-grid">
+      {steps.map((s, i) => (
+        <Slide key={s.step} direction="up" delay={i * 60}>
+          <article className="process-card">
+            <div className="process-card-media">
+              <img
+                src={s.image}
+                alt={`Milkshop franchise — ${s.title}`}
+                loading={i < 3 ? "eager" : "lazy"}
+                decoding="async"
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
+              />
+              <div className="process-card-fallback" aria-hidden>
+                <span>{s.icon}</span>
+              </div>
+            </div>
+            <div className="process-card-copy">
+              <h3 className="process-card-title">{s.title}</h3>
+              <span className="process-card-divider" aria-hidden="true" />
+              <p className="process-card-desc">{s.desc}</p>
+            </div>
+          </article>
+        </Slide>
+      ))}
     </div>
   </div>
 </section>
-
-
-
-
 
 
 {/* ══════════════════════════════════════
@@ -1321,23 +1281,12 @@ export default function Franchise() {
 <section
   id="packages"
   data-track-section="Franchise Packages"
-  className="relative py-10 sm:py-12 lg:py-16 overflow-hidden"
+  className="relative py-10 sm:py-12 lg:py-16 overflow-x-clip"
   style={{
     background: "linear-gradient(135deg, #f7faef 0%, #eef6dc 55%, #e8f2d0 100%)",
+    overflowY: "visible",
   }}
 >
- 
-  {/* Grain texture */}
-  <svg style={{
-    position: "absolute", inset: 0, width: "100%", height: "100%",
-    opacity: 0.022, zIndex: 0, pointerEvents: "none", mixBlendMode: "multiply",
-  }} xmlns="http://www.w3.org/2000/svg">
-    <filter id="grain-pkg2">
-      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch" />
-      <feColorMatrix type="saturate" values="0" />
-    </filter>
-    <rect width="100%" height="100%" filter="url(#grain-pkg2)" />
-  </svg>
  
   {/* Dot grid */}
   <div aria-hidden style={{
@@ -1555,10 +1504,7 @@ export default function Franchise() {
           Franchise Application
         </h2>
 
-        <p className="text-sm mt-3 max-w-md mx-auto"
-          style={{ color: "#5a6a4a" }}>
-          Modern, simple, and fast. Takes less than 2 minutes.
-        </p>
+      
       </div>
 
       {/* GLASS CARD */}
@@ -1718,17 +1664,55 @@ export default function Franchise() {
           WebkitMaskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 65%)",
         }} />
 
-        <div className="relative max-w-3xl mx-auto px-8 lg:px-16 z-10">
-          <Slide direction="up" className="text-center mb-3">
-            <p className="text-[11px] font-bold tracking-[0.28em] uppercase" style={{ color: "#97b64c" }}>Common Questions</p>
-          </Slide>
-          <Slide direction="up" delay={60} className="text-center mb-8">
-            <h2 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 900, letterSpacing: "-0.03em", color: "#fafafa" }}>FAQs</h2>
+        <style>{`
+          .faq-split {
+            display: grid;
+            grid-template-columns: minmax(240px, 0.9fr) 1.1fr;
+            gap: clamp(28px, 5vw, 64px);
+            align-items: start;
+          }
+          @media (max-width: 900px) {
+            .faq-split { grid-template-columns: 1fr; }
+            .faq-split-header { position: static !important; }
+          }
+        `}</style>
+
+        <div
+          className="faq-split relative z-10 mx-auto"
+          style={{
+            maxWidth: 1160,
+            padding: "0 clamp(20px,4vw,56px)",
+          }}
+        >
+          {/* Left — header */}
+          <Slide direction="left">
+            <div className="faq-split-header" style={{ position: "sticky", top: 24 }}>
+              <p
+                className="text-[11px] font-bold tracking-[0.28em] uppercase"
+                style={{ color: "#97b64c", fontFamily: "'DM Sans', sans-serif", margin: "0 0 14px" }}
+              >
+                Common Questions
+              </p>
+              <h2
+                style={{
+                  fontSize: "clamp(2.2rem, 4.5vw, 3.6rem)",
+                  fontWeight: 900,
+                  letterSpacing: "-0.04em",
+                  color: "#fafafa",
+                  margin: "0 0 14px",
+                  fontFamily: "'DM Sans', sans-serif",
+                  lineHeight: 1.05,
+                }}
+              >
+                FAQs
+              </h2>
+            </div>
           </Slide>
 
+          {/* Right — questions */}
           <div className="flex flex-col gap-3">
             {faqs.map((faq, i) => (
-              <Slide key={i} direction="up" delay={i * 50}>
+              <Slide key={i} direction="right" delay={i * 40}>
                 <div
                   className="rounded-2xl overflow-hidden transition-all duration-200"
                   style={{ border: openFaq === i ? "1.5px solid #97b64c" : "1px solid rgba(255,255,255,0.12)", boxShadow: openFaq === i ? "0 4px 20px rgba(151,182,76,0.12)" : "none" }}

@@ -541,9 +541,9 @@ const whyProps = [
 ]
 
 const franchiseTestimonials = [
-  { quote: "I had zero F&B background, but the Milkshop team gave me a clear system and stayed with me from setup to opening.", name: "Carlo M.", location: "Quezon City", result: "ROI in 14 months" },
-  { quote: "Daily operations became easy because training and supply support were already structured. We are now preparing our second branch.", name: "Alyssa R.", location: "Cebu City", result: "Opening 2nd branch" },
-  { quote: "The brand pull is strong, and the team responds fast whenever we need help. It feels like a true partnership.", name: "John P.", location: "Davao City", result: "Consistent monthly growth" },
+  { quote: "I had zero F&B background, but the Milkshop team gave me a clear system and stayed with me from setup to opening."},
+  { quote: "Daily operations became easy because training and supply support were already structured. We are now preparing our second branch." },
+  { quote: "The brand pull is strong, and the team responds fast whenever we need help. It feels like a true partnership."},
 ]
 
 /** Home testimonials — fixed branches (order = featured list). Match names from MSlocations. */
@@ -578,7 +578,7 @@ const featuredTestimonialBranches = [
       "Strong foot traffic and a location that works — Milkshop support made opening and day-to-day operations smooth from day one.",
     name: "Milkshop Partner",
     location: "Guiguinto, Bulacan",
-    result: "Steady branch growth",
+
     fallbackLabel: "North Centrum",
   },
 ]
@@ -626,9 +626,6 @@ function WhySection() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [branchGallery, setBranchGallery] = useState([])
   const sectionRef = useRef(null)
-  const whyLockRef = useRef(false)
-  const whyWheelDeltaRef = useRef(0)
-  const whyTouchYRef = useRef(null)
   const [inView, setInView] = useState(false)
   const { isMobile, isTablet } = useViewport()
 
@@ -684,101 +681,6 @@ function WhySection() {
     return () => observer.disconnect()
   }, [])
 
-  useEffect(() => {
-    const section = sectionRef.current
-    if (!section) return
-
-    const THRESHOLD = 95
-
-    const setLocked = (locked) => { whyLockRef.current = locked }
-
-    const isSectionCentered = () => {
-      const rect = section.getBoundingClientRect()
-      return rect.top <= window.innerHeight * 0.25 && rect.bottom >= window.innerHeight * 0.75
-    }
-
-    const syncLockState = () => {
-      if (!isSectionCentered()) {
-        setLocked(false)
-        whyWheelDeltaRef.current = 0
-        whyTouchYRef.current = null
-      }
-    }
-
-    const onWheel = (e) => {
-      const isTryingToLeaveForward = activeIndex === whyProps.length - 1 && e.deltaY > 0
-      const isTryingToLeaveBackward = activeIndex === 0 && e.deltaY < 0
-      if (isTryingToLeaveForward || isTryingToLeaveBackward) {
-        setLocked(false)
-        whyWheelDeltaRef.current = 0
-        return
-      }
-      if (!whyLockRef.current) {
-        if (!isSectionCentered()) return
-        setLocked(true)
-      }
-      e.preventDefault()
-      whyWheelDeltaRef.current += e.deltaY
-      if (Math.abs(whyWheelDeltaRef.current) < THRESHOLD) return
-      const direction = whyWheelDeltaRef.current > 0 ? 1 : -1
-      whyWheelDeltaRef.current = 0
-      setActiveIndex((prev) => {
-        const next = prev + direction
-        if (next < 0) { setLocked(false); return 0 }
-        if (next >= whyProps.length) { setLocked(false); return whyProps.length - 1 }
-        return next
-      })
-    }
-
-    const onTouchStart = (e) => {
-      whyTouchYRef.current = e.touches[0]?.clientY ?? null
-    }
-
-    const onTouchMove = (e) => {
-      const currentY = e.touches[0]?.clientY
-      const startY = whyTouchYRef.current
-      if (typeof currentY !== "number" || typeof startY !== "number") return
-      const deltaY = startY - currentY
-      whyTouchYRef.current = currentY
-      const isTryingToLeaveForward = activeIndex === whyProps.length - 1 && deltaY > 0
-      const isTryingToLeaveBackward = activeIndex === 0 && deltaY < 0
-      if (isTryingToLeaveForward || isTryingToLeaveBackward) {
-        setLocked(false)
-        whyWheelDeltaRef.current = 0
-        return
-      }
-      if (!whyLockRef.current) {
-        if (!isSectionCentered()) return
-        setLocked(true)
-      }
-      e.preventDefault()
-      whyWheelDeltaRef.current += deltaY
-      if (Math.abs(whyWheelDeltaRef.current) < THRESHOLD) return
-      const direction = whyWheelDeltaRef.current > 0 ? 1 : -1
-      whyWheelDeltaRef.current = 0
-      setActiveIndex((prev) => {
-        const next = prev + direction
-        if (next < 0) { setLocked(false); return 0 }
-        if (next >= whyProps.length) { setLocked(false); return whyProps.length - 1 }
-        return next
-      })
-    }
-
-    window.addEventListener("wheel", onWheel, { passive: false })
-    window.addEventListener("touchstart", onTouchStart, { passive: true })
-    window.addEventListener("touchmove", onTouchMove, { passive: false })
-    window.addEventListener("scroll", syncLockState, { passive: true })
-    window.addEventListener("resize", syncLockState)
-    return () => {
-      setLocked(false)
-      window.removeEventListener("wheel", onWheel)
-      window.removeEventListener("touchstart", onTouchStart)
-      window.removeEventListener("touchmove", onTouchMove)
-      window.removeEventListener("scroll", syncLockState)
-      window.removeEventListener("resize", syncLockState)
-    }
-  }, [activeIndex])
-
   const handleRowClick = (i) => setActiveIndex(i)
 
   const pad = isMobile ? "0 18px" : isTablet ? "0 30px" : "0 56px"
@@ -826,51 +728,21 @@ function WhySection() {
           boxSizing: "border-box",
         }}>
 
-          {/* ── Section header ── */}
-          <div
-            className={`ws-reveal ${inView ? "in" : ""}`}
-            style={{ marginBottom: isMobile ? 48 : 72, transitionDelay: "0.1s" }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-              <div style={{
-                height: 2, width: 48, background: "linear-gradient(90deg, #62840b, #97b64c)",
-                borderRadius: 2,
-                animation: inView ? "wsLineGrow 0.7s ease forwards" : "none",
-                animationDelay: "0.3s",
-              }} />
-              <span style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "1rem", fontWeight: 700,
-                letterSpacing: "0.22em", textTransform: "uppercase",
-                color: "#62840b",
-              }}>
-                Why Franchise With Us?
-              </span>
-            </div>
-            <h2 style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "clamp(2.4rem, 4.8vw, 4.2rem)",
-            fontWeight: 900, letterSpacing: "-0.04em",
-            lineHeight: 1.0, color: T.ink, margin: "0 0 18px",
+          {/* ── Split: left content, right header ── */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "1.15fr 0.85fr",
+            gap: isMobile ? 40 : "clamp(32px, 5vw, 72px)",
+            alignItems: isMobile ? "stretch" : "start",
           }}>
-            Built for{" "}
-            <span style={{
-              background: "linear-gradient(135deg, #62840b, #97b64c, #b7cd7f)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}>
-              Franchisee Success
-            </span>
-          </h2>
-          </div>
 
-          {/* ── Main layout: Image left (large) + Steps right ── */}
+          {/* LEFT — image + steps */}
           <div style={{
             display: "grid",
             gridTemplateColumns: isMobile ? "1fr" : "1fr 420px",
             gap: isMobile ? 40 : 64,
             alignItems: "center",
+            order: isMobile ? 2 : 1,
           }}>
 
             {/* LEFT: Full spotlight image */}
@@ -1157,6 +1029,59 @@ function WhySection() {
             </div>
 
           </div>
+
+          {/* RIGHT — header */}
+          <div
+            className={`ws-reveal ${inView ? "in" : ""}`}
+            style={{
+              order: isMobile ? 1 : 2,
+              position: isMobile ? "relative" : "sticky",
+              top: isMobile ? undefined : 24,
+              alignSelf: "start",
+              marginLeft: isMobile ? 0 : "auto",
+              paddingLeft: isMobile ? 0 : "clamp(28px, 4vw, 72px)",
+              maxWidth: 440,
+            }}
+          >
+            <div style={{
+              display: "flex", alignItems: "center", gap: 12, marginBottom: 16,
+              justifyContent: isMobile ? "flex-start" : "flex-start",
+            }}>
+              <div style={{
+                height: 2, width: 48, background: "linear-gradient(90deg, #62840b, #97b64c)",
+                borderRadius: 2,
+                animation: inView ? "wsLineGrow 0.7s ease forwards" : "none",
+                animationDelay: "0.3s",
+              }} />
+              <span style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.72rem", fontWeight: 800,
+                letterSpacing: "0.22em", textTransform: "uppercase",
+                color: "#62840b",
+              }}>
+                Why Franchise With Us?
+              </span>
+            </div>
+            <h2 style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "clamp(2.2rem, 4.2vw, 3.6rem)",
+              fontWeight: 900, letterSpacing: "-0.04em",
+              lineHeight: 1.05, color: T.ink, margin: 0,
+              maxWidth: 420,
+            }}>
+              Built for{" "}
+              <span style={{
+                background: "linear-gradient(135deg, #62840b, #97b64c, #b7cd7f)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}>
+                Franchisee Success
+              </span>
+            </h2>
+          </div>
+
+          </div>
         </div>
         
       </section>
@@ -1386,13 +1311,20 @@ function buildPartnerStories(branchCards) {
   })
 }
 
+const TESTIMONIAL_AUTO_MS = 5000
+const TESTIMONIAL_FADE_MS = 450
+
 function FranchiseTestimonialsSection() {
   const [branchCards, setBranchCards] = useState([])
   const [branchesLoaded, setBranchesLoaded] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
+  const [featuredFade, setFeaturedFade] = useState(true)
   const [inView, setInView] = useState(false)
+  const [autoEpoch, setAutoEpoch] = useState(0)
 
   const sectionRef = useRef(null)
+  const activeIndexRef = useRef(0)
+  const fadeTimerRef = useRef(null)
   const { isMobile, isTablet } = useViewport()
 
   useEffect(() => {
@@ -1459,6 +1391,42 @@ function FranchiseTestimonialsSection() {
   const stories = buildPartnerStories(branchCards)
   const safeIndex = Math.min(activeIndex, Math.max(0, stories.length - 1))
   const active = stories[safeIndex] || stories[0]
+
+  useEffect(() => {
+    activeIndexRef.current = safeIndex
+  }, [safeIndex])
+
+  const transitionToStory = (nextIndex, resetAutoTimer = false) => {
+    const len = stories.length
+    if (len === 0) return
+    const idx = ((nextIndex % len) + len) % len
+    if (idx === activeIndexRef.current && featuredFade) return
+
+    setFeaturedFade(false)
+    if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current)
+    fadeTimerRef.current = setTimeout(() => {
+      setActiveIndex(idx)
+      requestAnimationFrame(() => setFeaturedFade(true))
+    }, TESTIMONIAL_FADE_MS)
+
+    if (resetAutoTimer) setAutoEpoch((e) => e + 1)
+  }
+
+  useEffect(() => {
+    if (!inView || stories.length <= 1) return
+
+    const id = setInterval(() => {
+      transitionToStory(activeIndexRef.current + 1)
+    }, TESTIMONIAL_AUTO_MS)
+
+    return () => clearInterval(id)
+  }, [inView, stories.length, autoEpoch])
+
+  useEffect(() => {
+    return () => {
+      if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current)
+    }
+  }, [])
 
   const padX = isMobile ? 20 : isTablet ? 32 : 48
 
@@ -1596,9 +1564,16 @@ function FranchiseTestimonialsSection() {
           object-position: center center;
         }
 
+        .tm-featured-fade {
+          transition: opacity 0.45s ease;
+        }
+        .tm-featured-fade.is-visible { opacity: 1; }
+        .tm-featured-fade.is-hidden { opacity: 0; }
+
         @media (prefers-reduced-motion: reduce) {
           .tm-fade { transition: none; opacity: 1; transform: none; }
           .tm-story-btn:hover, .tm-cta-link:hover { transform: none; }
+          .tm-featured-fade { transition: none; }
         }
       `}</style>
 
@@ -1641,19 +1616,7 @@ function FranchiseTestimonialsSection() {
             Real Stories.{" "}
             <span style={{ color: T.greenDark }}>Real Success.</span>
           </h2>
-          <p
-            style={{
-              margin: "0 auto",
-              maxWidth: 520,
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "0.9rem",
-              lineHeight: 1.7,
-              color: "#4a5840",
-              fontWeight: 500,
-            }}
-          >
-            Hear from franchise partners across the Philippines — real branches, real results.
-          </p>
+         
         </div>
 
         {/* Main grid */}
@@ -1670,7 +1633,7 @@ function FranchiseTestimonialsSection() {
           {/* Featured — image + quote below */}
           {active && (
             <article
-              className="tm-featured-wrap"
+              className={`tm-featured-wrap tm-featured-fade ${featuredFade ? "is-visible" : "is-hidden"}`}
               style={{
                 borderRadius: 24,
                 overflow: "hidden",
@@ -1797,7 +1760,7 @@ function FranchiseTestimonialsSection() {
                 className="tm-story-btn"
                 aria-pressed={index === safeIndex}
                 aria-label={`Show story from ${story.name}, ${story.location}`}
-                onClick={() => setActiveIndex(index)}
+                onClick={() => transitionToStory(index, true)}
               >
                 <div className="tm-thumb-media">
                   {story.image ? (
@@ -1887,103 +1850,8 @@ function FranchiseTestimonialsSection() {
     </section>
   )
 }
-// ─── FINAL CTA ─────────────────────────────────────────────────────────────────
-function FinalCTASection() {
-  const { isMobile, isTablet } = useViewport()
-  return (
-    <section style={{
-      background: "#1e1e1e",
-      padding: isMobile ? "30px 0 26px" : "40px 0 36px",
-      position: "relative", overflow: "hidden",
-    }}>
-      <div aria-hidden style={{
-        position: "absolute",
-        inset: 0,
-        backgroundImage: "linear-gradient(rgba(151,182,76,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.08) 1px, transparent 1px)",
-        backgroundSize: "44px 44px",
-        opacity: 0.18,
-        pointerEvents: "none",
-      }} />
 
-      <div style={{
-        maxWidth: 1160,
-        margin: "0 auto",
-        padding: isMobile ? "14px 14px" : isTablet ? "20px 20px" : "22px 28px",
-        position: "relative",
-        zIndex: 1,
-        borderTop: "1px solid rgba(183,205,127,0.26)",
-        borderBottom: "1px solid rgba(183,205,127,0.26)",
-      }}>
-        <div style={{
-          display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr auto",
-          gap: isMobile ? "18px 0" : "0 52px", alignItems: "center",
-        }}>
 
-          <Reveal>
-            <span style={{
-              fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 800,
-              letterSpacing: "0.3em", textTransform: "uppercase",
-              color: "#b7cd7f", display: "block", marginBottom: 12,
-            }}>Next Step</span>
-            <h2 style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "clamp(1.65rem, 2.7vw, 2.4rem)",
-              fontWeight: 900, color: T.white,
-              letterSpacing: "-0.035em", margin: 0, lineHeight: 0.95,
-            }}>
-              Ready to Review<br />the Franchise Deck?
-            </h2>
-            <p style={{
-              margin: "12px 0 0",
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "0.84rem",
-              lineHeight: 1.45,
-              color: "rgba(255,255,255,0.86)",
-              maxWidth: 460,
-            }}>
-              See the full business model, numbers, and rollout support in one investor-ready deck.
-            </p>
-          </Reveal>
-
-          <Reveal delay={100}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: isMobile ? 0 : 198 }}>
-              <Link
-                to="/franchise#inquiry"
-                className="btn-primary"
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 700, fontSize: "0.88rem",
-                  padding: "13px 30px", borderRadius: 100,
-                  backgroundColor: T.green, color: T.white,
-                  textDecoration: "none", textAlign: "center",
-                  boxShadow: `0 6px 18px ${T.green}45`,
-                  display: "block",
-                }}
-              >
-                Book Investor Call
-              </Link>
-              <Link
-                to="/franchise"
-                className="btn-outline-light"
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 700, fontSize: "0.88rem",
-                  padding: "13px 30px", borderRadius: 100,
-                  backgroundColor: "transparent", color: "rgba(255,255,255,0.85)",
-                  textDecoration: "none", textAlign: "center",
-                  border: "1.5px solid rgba(255,255,255,0.22)",
-                  display: "block",
-                }}
-              >
-                Get Franchise Deck
-              </Link>
-            </div>
-          </Reveal>
-        </div>
-      </div>
-    </section>
-  )
-}
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function Home() {
@@ -2001,7 +1869,7 @@ export default function Home() {
         <Hero />
         <WhySection />
         <FranchiseTestimonialsSection />
-        <FinalCTASection />
+    
       </main>
     </>
   )

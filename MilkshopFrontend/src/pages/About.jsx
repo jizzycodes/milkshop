@@ -777,7 +777,21 @@ export default function About() {
     }
     .history-orb-a { animation: historyOrbDrift 16s ease-in-out infinite; }
     .history-orb-b { animation: historyOrbDrift 20s ease-in-out infinite reverse; }
-    .history-timeline-dot { animation: historyDotPulse 2.8s ease-in-out infinite; }
+    .history-timeline-dot {
+      animation: historyDotPulse 2.8s ease-in-out infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 5px;
+      box-sizing: border-box;
+    }
+    .history-timeline-dot img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
     .history-img-card {
       transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.55s ease;
     }
@@ -973,14 +987,17 @@ export default function About() {
                     left: "50%",
                     top: "50%",
                     transform: "translate(-50%, -50%)",
-                    width: 24,
-                    height: 24,
+                    width: 40,
+                    height: 40,
                     borderRadius: "50%",
-                    background: "#E8A020",
-                    border: "5px solid white",
+                    background: "#ffffff",
+                    border: "3px solid rgba(98,132,11,0.28)",
                     zIndex: 20,
                   }}
-                />
+                  aria-hidden
+                >
+                  <img src={logo} alt="" />
+                </div>
               )}
 
               {/* ── IMAGE ── */}
@@ -1153,8 +1170,7 @@ export default function About() {
       gap: 8px;
       padding: 16px 40px;
       border-radius: 999px;
-      background: linear-gradient(90deg, #62840b 0%, #97b64c 40%, #c8dc8a 55%, #97b64c 70%, #62840b 100%);
-      background-size: 200% auto;
+      background: #62840b;
       color: #fff;
       font-family: 'DM Sans', sans-serif;
       font-size: 15px;
@@ -1162,10 +1178,10 @@ export default function About() {
       text-decoration: none;
       letter-spacing: 0.02em;
       box-shadow: 0 14px 40px rgba(98,132,11,0.32);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.25s ease;
     }
     .bmc-cta:hover {
-      animation: bmc-shimmer 1.2s linear infinite;
+      background: #536f09;
       transform: translateY(-3px);
       box-shadow: 0 20px 50px rgba(98,132,11,0.42);
     }

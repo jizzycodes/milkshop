@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { supabase } from "../lib/supabaseClient"
 
@@ -93,6 +93,22 @@ const regionAccent = {
 
 const REGION_ORDER = ["All", "Metro Manila", "Luzon", "Visayas", "Mindanao"]
 
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+}
+
+function pinDisplayName(name) {
+  if (!name) return "Milkshop"
+  return String(name)
+    .replace(/^Milkshop PH [-–] /i, "")
+    .replace(/^Milkshop /i, "")
+    .trim() || String(name)
+}
+
 function BranchPanel({ loc, onClose }) {
   const accent = regionAccent[loc.region] || "#97b64c"
   return (
@@ -168,6 +184,42 @@ export default function Locations() {
   const mapContainerRef                 = useRef(null)
   const leafletInstanceRef              = useRef(null)
   const markersRef                      = useRef([])
+  const focusBranchRef                  = useRef(null)
+
+  const [searchQuery, setSearchQuery] = useState("")
+
+  useEffect(() => {
+    const id = window.setTimeout(() => setSearchQuery(search.trim()), 220)
+    return () => clearTimeout(id)
+  }, [search])
+
+  const filtered = useMemo(() => {
+    const q = searchQuery.toLowerCase()
+    return allLocations.filter((loc) => {
+      const matchesSearch =
+        !q ||
+        loc.name.toLowerCase().includes(q) ||
+        (loc.address && loc.address.toLowerCase().includes(q))
+      const matchesRegion = activeRegion === "All" || loc.region === activeRegion
+      return matchesSearch && matchesRegion
+    })
+  }, [allLocations, searchQuery, activeRegion])
+
+  const focusBranch = useCallback((loc) => {
+    setSelectedLoc(loc)
+    const map = leafletInstanceRef.current
+    if (!map || loc?.lat == null) return
+    const lat = parseFloat(loc.lat)
+    const lng = parseFloat(loc.lng)
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      map.setView([lat, lng], 16)
+    } else {
+      map.flyTo([lat, lng], 16, { duration: 0.65, easeLinearity: 0.3 })
+    }
+  }, [])
+
+  focusBranchRef.current = focusBranch
 
   useEffect(() => {
     let cancelled = false
@@ -274,26 +326,23 @@ export default function Locations() {
     function initMap() {
       const L = window.L
       if (!L || !mapContainerRef.current || leafletInstanceRef.current) return
-      const map = L.map(mapContainerRef.current, { center: [12.5, 122.5], zoom: 5, zoomControl: false, attributionControl: true, scrollWheelZoom: false })
-       // Apple-like clean map style (Carto Voyager)
-       L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+      const map = L.map(mapContainerRef.current, {
+        center: [14.86, 120.86],
+        zoom: 13,
+        zoomControl: false,
+        attributionControl: true,
+        scrollWheelZoom: false,
+      })
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
         attribution: '© <a href="https://www.openstreetmap.org/">OSM</a> © <a href="https://carto.com/">CARTO</a>',
         subdomains: "abcd",
         maxZoom: 19,
+        updateWhenZooming: false,
+        updateWhenIdle: true,
       }).addTo(map)
- 
+
       leafletInstanceRef.current = map
       setMapReady(true)
- 
-      // Step 1: start zoomed out on Philippines
-      // Step 2: fly into Bulacan (center of 14.59–15.37°N, 120.61–121.42°E)
-      setTimeout(() => {
-        // Nudge slightly west (keep same zoom)
-        map.flyTo([14.86, 120.86], 13, {
-          duration: 2.8,
-          easeLinearity: 0.18,
-        })
-      }, 700)
     }
 
     loadCSS()
@@ -314,69 +363,53 @@ export default function Locations() {
     markersRef.current.forEach(m => map.removeLayer(m))
     markersRef.current = []
 
-    allLocations.forEach(loc => {
-      const lat = parseFloat(loc.lat), lng = parseFloat(loc.lng)
+    filtered.forEach((loc) => {
+      const lat = parseFloat(loc.lat)
+      const lng = parseFloat(loc.lng)
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
       const accent = regionAccent[loc.region] || "#97b64c"
+      const label = escapeHtml(pinDisplayName(loc.name))
       const icon = L.divIcon({
         className: "",
         html: `
-        <div class="ms-pin-wrap" style="position:relative;width:54px;height:66px;cursor:pointer;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.26));">
-          <div class="ms-pin-body" style="
-            width:50px;height:50px;
-            border-radius:50% 50% 50% 0;
-            transform:rotate(-45deg);
-            background:linear-gradient(145deg,#ffffff 0%,#f4f5f4 100%);
-            border:3px solid rgba(98,132,11,0.38);
-            display:flex;align-items:center;justify-content:center;
-            transition:all 0.25s ease;
-          ">
-            <img src="/milkshop-logo-removebg-preview.png" alt="Milkshop" style="transform:rotate(45deg);width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.25));" />
+        <div class="ms-pin-wrap" style="display:flex;flex-direction:column;align-items:center;width:120px;cursor:pointer;">
+          <span class="ms-pin-label" title="${label}">${label}</span>
+          <div style="position:relative;width:44px;height:54px;margin-top:2px;">
+            <div class="ms-pin-body" style="
+              width:40px;height:40px;
+              border-radius:50% 50% 50% 0;
+              transform:rotate(-45deg);
+              background:#ffffff;
+              border:2px solid rgba(98,132,11,0.38);
+              display:flex;align-items:center;justify-content:center;
+              box-shadow:0 4px 10px rgba(0,0,0,0.18);
+            ">
+              <img src="${milkshopLogo}" alt="" style="transform:rotate(45deg);width:26px;height:26px;object-fit:contain;" />
+            </div>
+            ${loc.tag ? `<span style="
+              position:absolute;top:-8px;right:-4px;
+              background:${loc.tagColor?.bg || accent};
+              color:${loc.tagColor?.text || '#fff'};
+              font-size:7px;font-weight:800;
+              padding:2px 5px;border-radius:999px;
+              font-family:'DM Sans',sans-serif;
+              white-space:nowrap;
+            ">${loc.tag}</span>` : ""}
           </div>
-          ${loc.tag ? `<span style="
-            position:absolute;top:-10px;right:-10px;
-            background:${loc.tagColor?.bg || accent};
-            color:${loc.tagColor?.text || '#fff'};
-            font-size:7px;font-weight:800;letter-spacing:0.05em;
-            padding:2px 5px;border-radius:999px;
-            font-family:'DM Sans',sans-serif;
-            box-shadow:0 2px 6px rgba(0,0,0,0.2);
-            white-space:nowrap;
-          ">${loc.tag}</span>` : ""}
-          ${loc.tag === "Flagship" ? `<div style="
-            position:absolute;top:-8px;left:-8px;
-            width:58px;height:58px;border-radius:50%;
-            border:1.5px solid ${accent};
-            animation:pinRipple 2s ease-out infinite;
-            pointer-events:none;
-          "></div>` : ""}
         </div>
       `,
-      iconSize: [54, 66],
-      iconAnchor: [27, 66],
+        iconSize: [120, 78],
+        iconAnchor: [60, 78],
       })
-      const marker = L.marker([lat, lng], { icon }).addTo(map)
-      .bindTooltip(loc.name, {
-        permanent: true,
-        direction: "top",
-        offset: [0, -58],
-        className: "ms-label",
-      })
-      .on("click", () => { setSelectedLoc(loc); map.flyTo([lat, lng], 17, { duration: 1.3, easeLinearity: 0.28 }) })
+      const marker = L.marker([lat, lng], { icon })
+        .addTo(map)
+        .on("click", () => focusBranchRef.current?.(loc))
+      markersRef.current.push(marker)
     })
-  }, [mapReady, allLocations])
+  }, [mapReady, filtered])
 
-  const flyTo = useCallback((loc) => {
-    const map = leafletInstanceRef.current
-    if (!map || !loc.lat) return
-    map.flyTo([parseFloat(loc.lat), parseFloat(loc.lng)], 17, { duration: 1.2, easeLinearity: 0.28 })
-  }, [])
   const zoomIn = useCallback(() => leafletInstanceRef.current?.zoomIn(), [])
   const zoomOut = useCallback(() => leafletInstanceRef.current?.zoomOut(), [])
-  const filtered = allLocations.filter(loc => {
-    const q = search.toLowerCase()
-    return (loc.name.toLowerCase().includes(q) || loc.address.toLowerCase().includes(q)) && (activeRegion === "All" || loc.region === activeRegion)
-  })
 
   return (
     <main style={{ backgroundColor: "#fafaf8", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif" }}>
@@ -449,12 +482,30 @@ export default function Locations() {
         <style>{`
           @keyframes mapFadeUp   { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
           @keyframes pinDrop     { 0%{opacity:0;transform:translateY(-20px) scale(0.6)} 60%{transform:translateY(4px) scale(1.1)} 100%{opacity:1;transform:translateY(0) scale(1)} }
-          @keyframes pinRipple   { 0%{transform:scale(0.8);opacity:0.8} 100%{transform:scale(2.6);opacity:0} }
           @keyframes sidebarIn   { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
           @keyframes locBounce   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
           @keyframes shimmerBar  { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
 
-          .ms-pin-wrap:hover .ms-pin-body { transform: scale(1.18) translateY(-4px); filter: brightness(1.08) saturate(1.1); }
+          .ms-pin-wrap:hover .ms-pin-body { transform: rotate(-45deg) scale(1.08); }
+          .ms-pin-label {
+            display: block;
+            max-width: 118px;
+            padding: 3px 8px;
+            background: #ffffff;
+            border: 1px solid rgba(151,182,76,0.3);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: #1e1e1e;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            pointer-events: none;
+            line-height: 1.2;
+          }
           .ms-branch-row { transition: all 0.22s ease; }
           .ms-branch-row:hover { background: rgba(255,255,255,0.8) !important; transform: translateX(4px); border-color: rgba(151,182,76,0.35) !important; }
           .ms-branch-row.selected { background: linear-gradient(145deg, #ffffff 0%, #f9fdf4 100%) !important; }
@@ -475,7 +526,6 @@ export default function Locations() {
 }
 .ms-label::before { display: none; }
 
-          .leaflet-tile-pane { filter: saturate(0.9) brightness(1.02); }
           .leaflet-control-zoom { border: 1px solid rgba(151,182,76,0.3) !important; border-radius: 12px !important; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important; }
           .leaflet-control-zoom a { color: #62840b !important; font-weight: 800 !important; background: rgba(255,255,255,0.95) !important; height: 34px !important; line-height: 34px !important; width: 34px !important; font-size: 16px !important; }
           .leaflet-control-zoom a:hover { background: rgba(151,182,76,0.12) !important; }
@@ -524,16 +574,7 @@ export default function Locations() {
                   closer than you think
                 </span>
               </h1>
-              <p className="loc-a3" style={{
-                margin: 0,
-                maxWidth: 520,
-                fontSize: "clamp(0.9rem, 1.6vw, 1.02rem)",
-                lineHeight: 1.65,
-                color: "#4d5c3a",
-                fontWeight: 500,
-              }}>
-                Search, filter by region, or tap a pin — find the Milkshop that fits your craving, from Metro Manila to wherever we’re brewing next.
-              </p>
+          
             </div>
          
           </div>
@@ -821,27 +862,7 @@ export default function Locations() {
   )
 })()}
 
-              {/* Top center label */}
-              {mapReady && (
-                <div style={{
-                  position: "absolute", top: 16, left: "50%",
-                  transform: "translateX(-50%)",
-                  zIndex: 500,
-                  background: "linear-gradient(145deg, rgba(255,255,255,0.97), rgba(240,248,226,0.94))",
-                  backdropFilter: "blur(12px)",
-                  borderRadius: 999, padding: "8px 18px",
-                  border: "1px solid rgba(151,182,76,0.45)",
-                  boxShadow: "0 8px 22px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.7)",
-                  display: "flex", alignItems: "center", gap: 8,
-                  animation: "mapFadeUp 0.5s ease forwards",
-                  animationDelay: "0.6s", opacity: 0,
-                }}>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#97b64c", boxShadow: "0 0 0 3px rgba(151,182,76,0.2)" }} />
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", fontWeight: 900, color: "#587608", letterSpacing: "0.26em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
-                    OUR BRANCHES
-                  </span>
-                </div>
-              )}
+            
 
               {/* Bottom center hint */}
               {mapReady && !selectedLoc && (
@@ -849,8 +870,7 @@ export default function Locations() {
                   position: "absolute", bottom: 16, left: "50%",
                   transform: "translateX(-50%)",
                   zIndex: 500,
-                  background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(245,251,236,0.9))",
-                  backdropFilter: "blur(12px)",
+                  background: "rgba(255,255,255,0.96)",
                   borderRadius: 999, padding: "7px 16px",
                   border: "1px solid rgba(151,182,76,0.3)",
                   boxShadow: "0 6px 18px rgba(0,0,0,0.1)",
@@ -1005,7 +1025,7 @@ export default function Locations() {
             <button
               key={loc.id}
               type="button"
-              onClick={() => { setSelectedLoc(loc); flyTo(loc) }}
+              onClick={() => focusBranch(loc)}
               style={{
                 all: "unset",
                 cursor: "pointer",
@@ -1108,8 +1128,8 @@ export default function Locations() {
       {/* CTA */}
       <section data-track-section="Locations CTA" style={{ backgroundColor: "#ffffff", borderTop: "1px solid #e8f0dc", padding: "96px 48px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", backgroundImage: "linear-gradient(rgba(151,182,76,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.045) 1px, transparent 1px)", backgroundSize: "52px 52px" }} />
-        <div style={{ position: "absolute", left: "-5%", top: "50%", transform: "translateY(-50%)", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(151,182,76,0.07), transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", right: "5%", bottom: "-20%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(183,205,127,0.09), transparent 70%)", filter: "blur(30px)", pointerEvents: "none" }} />
+        <div className="perf-heavy-blur" style={{ position: "absolute", left: "-5%", top: "50%", transform: "translateY(-50%)", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(151,182,76,0.07), transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
+        <div className="perf-heavy-blur" style={{ position: "absolute", right: "5%", bottom: "-20%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(183,205,127,0.09), transparent 70%)", filter: "blur(30px)", pointerEvents: "none" }} />
 
         <div style={{ maxWidth: "1200px", margin: "0 auto", position: "relative", zIndex: 1, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 48 }}>
           <div style={{ maxWidth: 500 }}>

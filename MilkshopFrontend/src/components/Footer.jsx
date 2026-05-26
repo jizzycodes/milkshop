@@ -2,6 +2,13 @@ import { Link } from "react-router-dom";
 
 const logo = "/milkshop-logo-removebg-preview.png";
 
+const FOOTER_BG = "#97b64c";
+const FOOTER_TEXT = "#ffffff";
+const FOOTER_TEXT_SOFT = "rgba(255,255,255,0.9)";
+const FOOTER_TEXT_MUTED = "rgba(255,255,255,0.78)";
+const FOOTER_GREEN_DARK = "#62840b";
+const FOOTER_GREEN_LIGHT = "#b7cd7f";
+
 const navLinks = [
   { label: "Home", path: "/" },
   { label: "Menu", path: "/products" },
@@ -46,86 +53,223 @@ export default function Footer() {
   return (
     <footer
       style={{
-        background: "linear-gradient(180deg, #f7faef 0%, #eef6dc 100%)",
-        borderTop: "1px solid rgba(98, 132, 11, 0.15)",
-        color: "#18210f",
+        background: FOOTER_BG,
+        color: FOOTER_TEXT,
         fontFamily: "'DM Sans', sans-serif",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
       <style>{`
-        @media (max-width: 700px) {
-          .footer-row {
-            flex-direction: column !important;
-            gap: 32px !important;
-          }
-          .footer-cols {
-            gap: 36px !important;
+        /* CTA section */
+        .footer-cta-section {
+          border-bottom: 1px solid rgba(255,255,255,0.22);
+          padding: 52px 0 44px;
+        }
+
+        /* Main grid */
+        .footer-main {
+          padding: 44px 0 36px;
+          display: grid;
+          grid-template-columns: 1.4fr 1fr 1fr 1fr;
+          gap: 40px;
+          align-items: start;
+          border-bottom: 1px solid rgba(255,255,255,0.22);
+        }
+        @media (max-width: 860px) {
+          .footer-main {
+            grid-template-columns: 1fr 1fr;
+            gap: 36px;
           }
         }
-        .footer-link:hover { color: #62840b !important; }
-        .footer-social:hover {
-          background: #62840b !important;
-          color: #fff !important;
-          border-color: #62840b !important;
+        @media (max-width: 520px) {
+          .footer-main {
+            grid-template-columns: 1fr;
+            gap: 32px;
+          }
+          .footer-cta-section {
+            padding: 40px 0 36px;
+          }
+        }
+
+        .footer-col-label {
+          font-size: 0.58rem;
+          font-weight: 900;
+          letter-spacing: 0.24em;
+          text-transform: uppercase;
+          color: ${FOOTER_TEXT};
+          margin: 0 0 14px;
+        }
+
+        .footer-nav-link {
+          display: block;
+          text-decoration: none;
+          color: ${FOOTER_TEXT_SOFT};
+          font-size: 0.88rem;
+          font-weight: 600;
+          transition: color 0.18s ease, transform 0.18s ease;
+          margin-bottom: 9px;
+        }
+        .footer-nav-link:hover {
+          color: ${FOOTER_TEXT};
+          transform: translateX(3px);
+        }
+
+        .footer-contact-link {
+          display: block;
+          text-decoration: none;
+          color: ${FOOTER_TEXT_SOFT};
+          font-size: 0.85rem;
+          font-weight: 600;
+          transition: color 0.18s ease;
+          margin-bottom: 9px;
+          word-break: break-all;
+        }
+        .footer-contact-link:hover { color: ${FOOTER_TEXT}; }
+
+        .footer-follow-link {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          text-decoration: none;
+          color: ${FOOTER_TEXT_SOFT};
+          font-size: 0.85rem;
+          font-weight: 600;
+          transition: color 0.18s ease;
+        }
+        .footer-follow-link:hover { color: ${FOOTER_TEXT}; }
+
+        .footer-social-btn {
+          width: 36px; height: 36px;
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          color: ${FOOTER_TEXT};
+          background: rgba(255,255,255,0.18);
+          border: 1px solid rgba(255,255,255,0.28);
+          text-decoration: none;
+          transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+          flex-shrink: 0;
+        }
+        .footer-social-btn:hover {
+          background: rgba(255,255,255,0.3);
+          border-color: rgba(255,255,255,0.45);
+          transform: translateY(-2px);
+        }
+
+        .footer-cta-btn {
+          display: inline-flex; align-items: center; gap: 8px;
+          text-decoration: none;
+          background: ${FOOTER_GREEN_DARK};
+          color: ${FOOTER_TEXT};
+          font-family: 'DM Sans', sans-serif;
+          font-size: 0.88rem;
+          font-weight: 800;
+          padding: 14px 28px;
+          border-radius: 999px;
+          transition: transform 0.22s ease, box-shadow 0.22s ease;
+          box-shadow: 0 6px 20px rgba(98,132,11,0.25);
+          white-space: nowrap;
+        }
+        .footer-cta-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 28px rgba(98,132,11,0.35);
+        }
+
+        /* Bottom bar */
+        .footer-bottom {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 8px;
+          padding: 16px 0;
+        }
+        @media (max-width: 520px) {
+          .footer-bottom {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+          }
         }
       `}</style>
 
-      <div style={{ maxWidth: 1160, margin: "0 auto", padding: "40px 24px 0" }}>
-        <div
-          className="footer-row"
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            gap: 40,
-            flexWrap: "wrap",
-            paddingBottom: 28,
-          }}
-        >
-          {/* Brand */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      {/* Watermark logo */}
+      <img
+        src={logo}
+        alt=""
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          right: -40, bottom: -20,
+          width: 260, opacity: 0.12,
+          filter: "brightness(0) invert(1)",
+          pointerEvents: "none", userSelect: "none",
+          zIndex: 0,
+        }}
+      />
+
+      <div style={{
+        maxWidth: 1160, margin: "0 auto",
+        padding: "0 clamp(20px,4vw,40px)",
+        position: "relative", zIndex: 1,
+        boxSizing: "border-box", width: "100%",
+      }}>
+
+     
+
+        {/* ── Main columns ── */}
+        <div className="footer-main">
+
+          {/* Brand col */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             <Link
               to="/"
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                textDecoration: "none",
-                color: "inherit",
+                display: "flex", alignItems: "center",
+                gap: 12, textDecoration: "none", color: "inherit",
               }}
             >
-              <img
-                src={logo}
-                alt="Milkshop"
-                style={{ width: 44, height: 44, objectFit: "contain" }}
-              />
+              <div style={{
+                width: 48, height: 48,
+                borderRadius: 14,
+                background: "rgba(255,255,255,0.22)",
+                border: "1px solid rgba(255,255,255,0.32)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0,
+                boxShadow: "0 4px 14px rgba(98,132,11,0.15)",
+              }}>
+                <img
+                  src={logo}
+                  alt="Milkshop"
+                  style={{ width: 36, height: 36, objectFit: "contain" }}
+                />
+              </div>
               <div>
-                <div
-                  style={{
-                    fontSize: "1.15rem",
-                    fontWeight: 900,
-                    letterSpacing: "-0.03em",
-                    color: "#18210f",
-                    lineHeight: 1,
-                  }}
-                >
+                <div style={{
+                  fontSize: "1.2rem", fontWeight: 900,
+                  letterSpacing: "-0.03em", color: FOOTER_TEXT, lineHeight: 1,
+                }}>
                   Milkshop
                 </div>
-                <div
-                  style={{
-                    marginTop: 4,
-                    fontSize: "0.6rem",
-                    fontWeight: 800,
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
-                    color: "#62840b",
-                  }}
-                >
+                <div style={{
+                  marginTop: 4, fontSize: "0.58rem", fontWeight: 800,
+                  letterSpacing: "0.18em", textTransform: "uppercase",
+                  color: FOOTER_GREEN_LIGHT,
+                }}>
                   秘客侠 · Milk Tea
                 </div>
               </div>
             </Link>
 
+            <p style={{
+              fontSize: "0.8rem", lineHeight: 1.7,
+              color: FOOTER_TEXT_MUTED,
+              margin: 0, maxWidth: 220,
+            }}>
+              Premium Taiwanese milk tea, freshly brewed for the Filipino market.
+            </p>
+
+            {/* Socials */}
             <div style={{ display: "flex", gap: 8 }}>
               {socials.map((s) => (
                 <a
@@ -134,20 +278,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="footer-social"
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 10,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#62840b",
-                    background: "#fff",
-                    border: "1px solid rgba(98, 132, 11, 0.2)",
-                    textDecoration: "none",
-                    transition: "background 0.2s ease, color 0.2s ease, border-color 0.2s ease",
-                  }}
+                  className="footer-social-btn"
                 >
                   {s.icon}
                 </a>
@@ -155,107 +286,66 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Nav + Contact */}
-          <div
-            className="footer-cols"
-            style={{ display: "flex", gap: 56, flexWrap: "wrap" }}
-          >
-            <div>
-              <p
-                style={{
-                  margin: "0 0 12px",
-                  fontSize: "0.6rem",
-                  fontWeight: 800,
-                  letterSpacing: "0.22em",
-                  textTransform: "uppercase",
-                  color: "#97b64c",
-                }}
+          {/* Navigation col */}
+          <div>
+            <p className="footer-col-label">Navigation</p>
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className="footer-nav-link"
               >
-                Navigation
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    className="footer-link"
-                    style={{
-                      textDecoration: "none",
-                      color: "#4a5840",
-                      fontSize: "0.88rem",
-                      fontWeight: 600,
-                      transition: "color 0.18s ease",
-                    }}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
+                {link.label}
+              </Link>
+            ))}
+          </div>
 
-            <div>
-              <p
-                style={{
-                  margin: "0 0 12px",
-                  fontSize: "0.6rem",
-                  fontWeight: 800,
-                  letterSpacing: "0.22em",
-                  textTransform: "uppercase",
-                  color: "#97b64c",
-                }}
-              >
-                Contact
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {/* Contact col */}
+          <div>
+            <p className="footer-col-label">Contact</p>
+            <a href="tel:09952908161" className="footer-contact-link">
+              0995 290 8161
+            </a>
+            <a href="mailto:franchise@milkshop.ph" className="footer-contact-link">
+              franchise@milkshop.ph
+            </a>
+
+          
+          
+          </div>
+
+          {/* Hours / tagline col */}
+          <div>
+            <p className="footer-col-label">Follow Us</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {socials.map((s) => (
                 <a
-                  href="tel:09952908161"
-                  className="footer-link"
-                  style={{
-                    textDecoration: "none",
-                    color: "#4a5840",
-                    fontSize: "0.88rem",
-                    fontWeight: 600,
-                    transition: "color 0.18s ease",
-                  }}
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="footer-follow-link"
                 >
-                  0995 290 8161
+                  <span style={{
+                    width: 28, height: 28, borderRadius: 8,
+                    background: "rgba(255,255,255,0.18)",
+                    border: "1px solid rgba(255,255,255,0.28)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0,
+                    color: FOOTER_TEXT,
+                  }}>
+                    {s.icon}
+                  </span>
+                  @milkshopph
                 </a>
-                <a
-                  href="mailto:franchise@milkshop.ph"
-                  className="footer-link"
-                  style={{
-                    textDecoration: "none",
-                    color: "#4a5840",
-                    fontSize: "0.88rem",
-                    fontWeight: 600,
-                    transition: "color 0.18s ease",
-                  }}
-                >
-                  franchise@milkshop.ph
-                </a>
-              </div>
+              ))}
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Bottom bar */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 8,
-          padding: "14px 24px",
-          background: "#62840b",
-          color: "rgba(255,255,255,0.9)",
-          fontSize: "0.72rem",
-          fontWeight: 600,
-        }}
-      >
-        <span>© {new Date().getFullYear()} Milkshop Philippines. All rights reserved.</span>
-        <span style={{ fontStyle: "italic", opacity: 0.85 }}>Freshly brewed from Taiwan</span>
+        </div>
+
+     
+
       </div>
     </footer>
   );

@@ -8,6 +8,7 @@ import { AdminAuthProvider } from './admin/context/AdminAuthContext'
 import TrackingBootstrap from './tracking/TrackingBootstrap'
 import RouteLoader from './components/RouteLoader'
 import FranchiseCTAFloating from './components/FranchiseCTAFloating'
+import ScrollPerformance from './components/ScrollPerformance'
 import './App.css'
 
 const Home = lazy(() => import('./pages/Home'))
@@ -137,6 +138,7 @@ function AppRoutes() {
         element={
           <>
             <ScrollToTop />
+            <ScrollPerformance />
             <TrackingBootstrap />
             <Navbar />
             <div className="animate-page-in mt-0 pt-0">

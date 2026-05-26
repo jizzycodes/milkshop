@@ -9,6 +9,10 @@ const navLinks = [
   { label: "Our Menu",  path: "/products" },
 ];
 
+// Navbar spacing — change these values to nudge logo / links
+const NAV_BRAND_MARGIN_LEFT  = "100px";
+const NAV_LINKS_MARGIN_RIGHT = "100px";
+
 const styles = `
   @keyframes navFade {
     from { opacity: 0; transform: translateY(-16px) scale(0.98); }
@@ -30,12 +34,12 @@ const styles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 46px;
-    padding: 0 20px;
-    border-radius: 999px;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 8px;
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: 1.02rem;
+    font-size: 1.15rem;
     font-weight: 700;
     letter-spacing: -0.01em;
     color: rgba(17, 24, 39, 0.72);
@@ -51,23 +55,10 @@ const styles = `
   }
 
   .nav-link.active {
-    color: #111827;
-    background: rgba(151, 182, 76, 0.16);
-    border-color: rgba(151, 182, 76, 0.30);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 6px 18px rgba(10, 20, 5, 0.08);
-  }
-
-  /* Active underline dot */
-  .nav-link.active::after {
-    content: '';
-    position: absolute;
-    bottom: 5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 14px;
-    height: 2px;
-    border-radius: 999px;
-    background: #b7cd7f;
+    color: #62840b;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
   }
 
   /* Franchise CTA — flat pill (like Apply for Franchise ref), solid orange */
@@ -131,7 +122,7 @@ const styles = `
     border-radius: 12px;
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: rgba(17, 24, 39, 0.78);
     border: 1px solid transparent;
@@ -145,20 +136,10 @@ const styles = `
   }
 
   .mobile-link.active {
-    background: rgba(151, 182, 76, 0.16);
-    border-color: rgba(151, 182, 76, 0.30);
-    color: #111827;
+    background: transparent;
+    border-color: transparent;
+    color: #62840b;
   }
-
-  .mobile-dot {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: #97b64c;
-    opacity: 0;
-    flex-shrink: 0;
-  }
-
-  .mobile-link.active .mobile-dot { opacity: 1; }
 
   /* ── Hamburger ── */
   .hb-line {
@@ -182,11 +163,22 @@ export default function Navbar() {
   const location = useLocation();
   const menuRef  = useRef(null);
 
-  /* scroll listener */
+  /* scroll listener — rAF-throttled to avoid extra re-renders per tick */
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 16);
-    window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      setScrolled(window.scrollY > 16);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   /* close on route change */
@@ -209,53 +201,46 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", fn);
   }, []);
 
-  /* Minimal light glass navbar */
-  const navBg = scrolled
-    ? "rgba(255, 255, 255, 0.92)"
-    : "rgba(255, 255, 255, 0.72)";
-
-  const navBorder = scrolled
-    ? "1px solid rgba(17, 24, 39, 0.10)"
-    : "1px solid rgba(17, 24, 39, 0.08)";
-
-  const navShadow = scrolled
-    ? "0 14px 50px rgba(10, 20, 5, 0.14), inset 0 1px 0 rgba(255,255,255,0.85)"
-    : "0 10px 34px rgba(10, 20, 5, 0.10), inset 0 1px 0 rgba(255,255,255,0.70)";
+  const navHeight = isMobile ? 72 : 80;
 
   return (
     <>
       <style>{styles}</style>
 
-      <header style={{
-        position:             "fixed",
-        top:                  isMobile ? "10px" : "16px",
-        left:                 "50%",
-        transform:            "translateX(-50%)",
-        zIndex:               1000,
-        width:                isMobile ? "calc(100% - 20px)" : "calc(100% - 48px)",
-        maxWidth:             "1360px",
-        borderRadius:         isMobile ? "18px" : "22px",
-        border:               navBorder,
-        background:           navBg,
-        backdropFilter:       "blur(10px) saturate(130%)",
-        WebkitBackdropFilter: "blur(10px) saturate(130%)",
-        boxShadow:            navShadow,
-        transition:           "background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease",
-      }}>
+      <header
+        className="ms-site-nav"
+        style={{
+          position:        "fixed",
+          top:             0,
+          left:            0,
+          right:           0,
+          zIndex:          1000,
+          background:      "#ffffff",
+          borderBottom:    scrolled
+            ? "1px solid rgba(17, 24, 39, 0.10)"
+            : "1px solid rgba(151, 182, 76, 0.18)",
+          boxShadow:       scrolled ? "0 4px 18px rgba(10, 20, 5, 0.08)" : "none",
+          transition:      "box-shadow 0.25s ease, border-color 0.25s ease",
+        }}
+      >
         <nav
           ref={menuRef}
           className="nav-root"
           style={{
             position:       "relative",
-            height:         isMobile
-              ? (scrolled ? "66px" : "72px")
-              : (scrolled ? "80px" : "88px"),
-            padding:        isMobile ? "0 14px" : "0 28px",
+            height:         navHeight,
+            width:          "100%",
+            maxWidth:       "100%",
+            margin:         0,
+            paddingTop:     0,
+            paddingBottom:  0,
+            paddingLeft:    isMobile ? "20px" : "1in",
+            paddingRight:   isMobile ? "20px" : "1in",
             display:        "flex",
             alignItems:     "center",
             justifyContent: "space-between",
-            gap:            "12px",
-            transition:     "height 0.35s cubic-bezier(0.16,1,0.3,1)",
+            gap:            "20px",
+            boxSizing:      "border-box",
           }}
         >
 
@@ -263,68 +248,78 @@ export default function Navbar() {
           <Link
             to="/"
             aria-label="Milkshop home"
-            style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }}
+            style={{
+              display:      "flex",
+              alignItems:   "center",
+              gap:          10,
+              textDecoration: "none",
+              flexShrink:   0,
+              marginLeft:   NAV_BRAND_MARGIN_LEFT,
+            }}
           >
             <img
               src="/milkshop-logo-removebg-preview.png"
               alt=""
               aria-hidden
               style={{
-                height:     isMobile ? (scrolled ? "36px" : "40px") : (scrolled ? "48px" : "54px"),
+                height:     isMobile ? 44 : 52,
                 width:      "auto",
                 objectFit:  "contain",
-                transition: "height 0.35s cubic-bezier(0.16,1,0.3,1)",
-                filter:     "drop-shadow(0 1px 6px rgba(0,0,0,0.12))",
               }}
             />
             <span
               className="nav-brand-wordmark"
               style={{
-                fontSize: isMobile
-                  ? (scrolled ? "1.55rem" : "1.7rem")
-                  : (scrolled ? "2rem" : "2.25rem"),
+                fontSize: isMobile ? "1.75rem" : "2.2rem",
               }}
             >
               Milkshop
             </span>
           </Link>
 
-          {/* ── DESKTOP LINKS (centered) ── */}
-          {!isMobile && (
-            <ul style={{
-              display:   "flex",
-              alignItems:"center",
-              gap:       "4px",
-              position:  "absolute",
-              left:      "50%",
-              transform: "translateX(-50%)",
-              margin: 0, padding: 0, listStyle: "none",
-            }}>
-              {navLinks.map((link) => (
-                <li key={link.path}>
-                  <Link
-                    to={link.path}
-                    className={`nav-link${location.pathname === link.path ? " active" : ""}`}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {/* ── RIGHT ── */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-
-            {/* Desktop CTA */}
+          {/* ── RIGHT: links + CTA (desktop) / CTA + menu (mobile) ── */}
+          <div
+            style={{
+              display:    "flex",
+              alignItems: "center",
+              gap:        isMobile ? 8 : 10,
+              flexShrink: 0,
+            }}
+          >
             {!isMobile && (
-              <Link to="/franchise#inquiry" className="franchise-cta">
-                Franchise Now
-                <span className="franchise-cta-arrow" aria-hidden>→</span>
-              </Link>
+              <ul
+                style={{
+                  display:    "flex",
+                  alignItems: "center",
+                  gap:        12,
+                  margin:     0,
+                  marginRight: NAV_LINKS_MARGIN_RIGHT,
+                  padding:    0,
+                  listStyle:  "none",
+                }}
+              >
+                {navLinks.map((link) => {
+                  const isActive =
+                    link.path === "/"
+                      ? location.pathname === "/"
+                      : location.pathname === link.path ||
+                        location.pathname.startsWith(`${link.path}/`);
+                  return (
+                    <li key={link.path}>
+                      <Link
+                        to={link.path}
+                        className={`nav-link${isActive ? " active" : ""}`}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
 
-            {/* Mobile: CTA pill (small) + hamburger */}
+       
+
             {isMobile && (
               <>
                 <Link
@@ -377,17 +372,15 @@ export default function Navbar() {
           {/* ── MOBILE DROPDOWN ── */}
           {isMobile && menuOpen && (
             <div style={{
-              position:       "absolute",
-              top:            "calc(100% + 8px)",
-              left:           0,
-              right:          0,
-              padding:        "8px",
-              borderRadius:   "20px",
-              border:         "1px solid rgba(17,24,39,0.10)",
-              background:     "rgba(255, 255, 255, 0.94)",
-              backdropFilter: "blur(28px) saturate(160%)",
-              boxShadow:      "0 24px 60px rgba(10,20,5,0.16), inset 0 1px 0 rgba(255,255,255,0.75)",
-              animation:      "menuIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards",
+              position:    "absolute",
+              top:           "100%",
+              left:          0,
+              right:         0,
+              padding:       "8px",
+              borderTop:     "1px solid rgba(17,24,39,0.08)",
+              background:    "#ffffff",
+              boxShadow:     "0 12px 32px rgba(10,20,5,0.12)",
+              animation:     "menuIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards",
             }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                 {navLinks.map((link) => {
@@ -399,7 +392,6 @@ export default function Navbar() {
                       className={`mobile-link${isActive ? " active" : ""}`}
                     >
                       <span>{link.label}</span>
-                      <span className="mobile-dot" />
                     </Link>
                   );
                 })}

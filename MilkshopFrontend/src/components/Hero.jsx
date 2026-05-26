@@ -187,22 +187,16 @@ const CSS = `
   box-shadow: 0 10px 28px rgba(0,0,0,0.16);
 }
 
-  .ms-copy-shade {
-    position: absolute;
-    inset: -12px -28px -16px -36px;
-    border-radius: 28px;
-    background: radial-gradient(ellipse 88% 78% at 18% 42%, rgba(20,32,8,0.2) 0%, transparent 72%);
-    pointer-events: none;
-    z-index: -1;
-  }
   .ms-trust-pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
     border-radius: 999px;
-    background: rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.2);
     border: 1px solid rgba(255,255,255,0.22);
+  }
+  .ms-trust-pill.ms-backdrop-blur {
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
   }
@@ -335,12 +329,6 @@ export default function Hero() {
           background:"radial-gradient(ellipse at 56% 26%, rgba(200,228,148,0.58) 0%, transparent 60%)",
         }}/>
 
-        {/* Subtle vignette edges */}
-        <div style={{
-          position:"absolute", inset:0, pointerEvents:"none",
-          background:"radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(0,0,0,0.12) 100%)",
-        }}/>
-
         {/* Dot texture */}
         <svg style={{ position:"absolute", inset:0, width:"100%", height:"100%", opacity:.07, pointerEvents:"none" }}>
           <defs>
@@ -445,8 +433,6 @@ export default function Hero() {
             zIndex: 2,
             position: "relative",
           }}>
-            {!isMobile && <div aria-hidden className="ms-copy-shade" />}
-
             {/* Eyebrow */}
             <div className="ms-eyebrow" style={{
               display:"flex", alignItems:"center", gap:9,
@@ -473,25 +459,12 @@ export default function Hero() {
               color:"white",
               lineHeight:1,
               textShadow:"0 2px 6px rgba(0,0,0,0.35), 0 8px 28px rgba(0,0,0,0.22)",
-              marginBottom: -6,
+              marginBottom: 1,
             }}>
-              Fresh Taste
+              Fresh Taste of
             </div>
 
-            {/* of */}
-            <div className="ms-of" style={{
-              fontFamily:"'Caveat',cursive",
-              fontSize: isMobile
-                ? "clamp(1.3rem,6vw,1.9rem)"
-                : "clamp(1.7rem,2.9vw,2.6rem)",
-              fontWeight:700,
-              color:"rgba(255,255,255,.96)",
-              lineHeight:1,
-              marginBottom: -4,
-              textShadow:"0 2px 8px rgba(0,0,0,0.28)",
-            }}>
-              of
-            </div>
+      
 
             {/* TAIWAN — 3D multicolor */}
             <div style={{
@@ -540,12 +513,12 @@ export default function Hero() {
                 color: "#fff",
                 fontWeight: 800,
                 fontSize: isMobile ? "clamp(1.05rem, 4.8vw, 1.35rem)" : "clamp(1.2rem, 2.2vw, 1.55rem)",
-                letterSpacing: "0.04em",
+                letterSpacing: "0.1em",
                 fontFamily: "'Fredoka One', cursive",
                 textShadow: "0 2px 12px rgba(0,0,0,0.32), 0 0 24px rgba(255,255,255,0.15)",
                 lineHeight: 1.25,
               }}>
-                {["Milky", "Healthy", "Chewy!"].map((word, wi) => (
+                {["Milky", "Healthy", "Chewy"].map((word, wi) => (
                   <span key={word} style={{ display: "inline-flex", alignItems: "center", gap: "0.35em" }}>
                     {wi > 0 && <span aria-hidden style={{ opacity: 0.55, fontWeight: 400 }}>·</span>}
                     {word}
@@ -564,27 +537,7 @@ export default function Hero() {
               <Link to="/products" className="ms-cta-out">View Menu</Link>
             </div>
 
-            {/* Trust badges */}
-            <div className="ms-trust" style={{
-              display:"flex", gap:10, flexWrap:"wrap",
-              justifyContent: isMobile ? "center" : "flex-start",
-              marginTop: isMobile ? 14 : 18,
-            }}>
-              {["Real Ingredients","No Powders","Taiwan Recipe"].map(t => (
-                <span key={t} className="ms-trust-pill" style={{
-                  fontSize:10, fontWeight:700,
-                  color:"rgba(255,255,255,.95)",
-                  letterSpacing:"0.08em",
-                  textTransform:"uppercase",
-                }}>
-                  <span style={{
-                    width:5, height:5, borderRadius:"50%",
-                    background:"#E8A020", flexShrink:0,
-                  }}/>
-                  {t}
-                </span>
-              ))}
-            </div>
+      
           </div>
 
     {/* ── RIGHT — 3 CUPS ── */}
@@ -667,39 +620,7 @@ export default function Hero() {
   </svg>
 </div>
 
-        {/* ── MARQUEE ── */}
-        <div style={{
-          background:"white", zIndex:6, overflow:"hidden",
-          padding:"10px 0", borderTop:"1px solid #dde8cc",
-        }}>
-          <div style={{
-            display:"flex", width:"max-content",
-            animation:"marq 26s linear infinite",
-          }}>
-            {[...Array(2)].map((_, r) =>
-              [
-                { t:"🧋 Black Sugar Boba",   c:"#62840b" },
-                { t:"🥛 Milku Strawberry",   c:"#97b64c" },
-                { t:"🍰 Cheesecake Series",  c:"#62840b" },
-                { t:"🍓 Fruit Tea",           c:"#97b64c" },
-                { t:"🍞 Fresh Bread",         c:"#62840b" },
-                { t:"⭐ Taiwan Recipe",       c:"#97b64c" },
-                { t:"🌿 Real Ingredients",    c:"#62840b" },
-              ].map((item, j) => (
-                <span key={`${r}-${j}`} style={{
-                  padding:"0 30px",
-                  fontSize:11, fontWeight:800,
-                  letterSpacing:"0.2em",
-                  color:item.c,
-                  whiteSpace:"nowrap",
-                  fontFamily:"'DM Sans',sans-serif",
-                }}>
-                  {item.t.toUpperCase()}
-                </span>
-              ))
-            )}
-          </div>
-        </div>
+       
 
       </section>
     </>

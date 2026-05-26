@@ -31,7 +31,22 @@
 @tailwind utilities;
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
+}
+
+/* Pause decorative motion while scrolling (see ScrollPerformance.jsx) */
+html.is-scrolling * {
+  animation-play-state: paused !important;
+}
+
+html.is-scrolling .ms-backdrop-blur {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.is-scrolling .perf-heavy-blur {
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
 
 /* Reduce lag on low-end devices + improve Lighthouse */
@@ -42,6 +57,11 @@ html {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+    animation-play-state: paused !important;
+  }
+  .ms-backdrop-blur {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 }
 
