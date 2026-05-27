@@ -17,6 +17,7 @@ const T = {
   muted:      "#6b7280",
   white:      "#ffffff",
   bg: "#f9fbf4",
+  heading:    "#18210f",
 }
 
 
@@ -1433,7 +1434,6 @@ function FranchiseTestimonialsSection() {
   return (
     <section
       ref={sectionRef}
-      data-track-section="Franchise Testimonials"
       style={{
         background: T.surface,
         padding: isMobile ? "72px 0 80px" : "100px 0 104px",
@@ -1609,7 +1609,7 @@ function FranchiseTestimonialsSection() {
               fontWeight: 900,
               letterSpacing: "-0.04em",
               lineHeight: 1.05,
-              color: "#18210f",
+              color: T.heading,
               margin: "0 0 12px",
             }}
           >

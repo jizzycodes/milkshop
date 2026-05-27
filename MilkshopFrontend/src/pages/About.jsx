@@ -2,6 +2,20 @@ import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 const logo = "/milkshop-logo-removebg-preview.png";
 
+// ─── DESIGN TOKENS (match Home / Franchise) ───────────────────────────────────
+const T = {
+  green: "#97b64c",
+  greenDark: "#62840b",
+  greenLight: "#b7cd7f",
+  greenFade: "#eef5e2",
+  offWhite: "#f9fbf4",
+  white: "#ffffff",
+  ink: "#18210f",
+  body: "#4a5640",
+  muted: "#6b7280",
+  border: "rgba(151,182,76,0.18)",
+};
+
 // ─── DATA (unchanged) ────────────────────────────────────────────────────────
 
 
@@ -157,7 +171,7 @@ export default function About() {
   }, [])
 
   return (
-    <main className="bg-white overflow-x-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+    <main className="overflow-x-hidden" style={{ fontFamily: "'DM Sans', sans-serif", background: T.offWhite }}>
 
       {/* ══════════════════════════════════════════════
           SLIDE 1 — HERO: Born in Taiwan
@@ -166,7 +180,6 @@ export default function About() {
     ABOUT HERO — Premium Light, Animated
 ══════════════════════════════════════════════ */}
 <section
-  data-track-section="About Hero"
   style={{
     position: "relative",
     overflow: "hidden",
@@ -537,11 +550,12 @@ export default function About() {
 
       {/* ── From Farm to Cup ── */}
       <section
-        data-track-section="From Farm to Cup"
         className="relative overflow-hidden"
         style={{
-          background: "#fafaf8",
+          background: T.offWhite,
           padding: isMobile ? "72px 18px 80px" : "100px 48px 112px",
+          borderTop: `1px solid ${T.border}`,
+          borderBottom: `1px solid ${T.border}`,
         }}
       >
         <style>{`
@@ -550,8 +564,8 @@ export default function About() {
             100% { background-position:  200% center; }
           }
           .ftc-card {
-            background: #ffffff;
-            border: 1px solid rgba(151,182,76,0.18);
+            background: ${T.white};
+            border: 1px solid ${T.border};
             border-radius: 24px;
             overflow: hidden;
             display: flex;
@@ -590,7 +604,7 @@ export default function About() {
             font-weight: 700;
             letter-spacing: 0.18em;
             text-transform: uppercase;
-            color: #62840b;
+            color: ${T.greenDark};
           }
           .ftc-img-wrap {
             overflow: hidden;
@@ -633,7 +647,7 @@ export default function About() {
             <p style={{
               fontFamily: "'DM Mono', monospace",
               fontSize: 10, letterSpacing: "0.28em",
-              textTransform: "uppercase", color: "#97b64c",
+              textTransform: "uppercase", color: T.green,
               margin: "0 0 12px",
             }}>
               From Farm to Cup
@@ -641,7 +655,7 @@ export default function About() {
             <h2 style={{
               fontWeight: 900,
               letterSpacing: "-0.03em",
-              color: "#1a1e14",
+              color: T.ink,
               fontSize: isMobile ? "clamp(1.9rem,6vw,2.4rem)" : "clamp(2.4rem,4vw,3.2rem)",
               lineHeight: 1.08,
               margin: "0 0 14px",
@@ -650,7 +664,7 @@ export default function About() {
             </h2>
             <p style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: "0.95rem", color: "#6a7a5a",
+              fontSize: "0.95rem", color: T.body,
               maxWidth: 440, margin: "0 auto", lineHeight: 1.7,
             }}>
               Every cup starts with ingredients sourced and crafted for one purpose — authentic taste.
@@ -694,7 +708,7 @@ export default function About() {
                       fontWeight: 900,
                       fontSize: isMobile ? "1.25rem" : "1.35rem",
                       letterSpacing: "-0.03em",
-                      color: "#1a1e14",
+                      color: T.ink,
                       margin: 0,
                       lineHeight: 1.15,
                     }}>
@@ -704,7 +718,7 @@ export default function About() {
                     <p style={{
                       fontFamily: "'DM Sans', sans-serif",
                       fontSize: "0.875rem",
-                      color: "#6a7a5a",
+                      color: T.body,
                       lineHeight: 1.7,
                       margin: 0,
                     }}>
@@ -725,11 +739,11 @@ export default function About() {
     COMPANY HISTORY — PREMIUM TIMELINE
 ══════════════════════════════════════════════ */}
 <section
-  data-track-section="Company History"
   className="relative overflow-hidden py-24 sm:py-32"
   style={{
-    background:
-      "linear-gradient(180deg, #eef6d6 0%, #e4f0c8 45%, #edf5dc 100%)",
+    background: T.white,
+    borderTop: `1px solid ${T.border}`,
+    borderBottom: `1px solid ${T.border}`,
   }}
 >
   <style>{`
@@ -771,7 +785,7 @@ export default function About() {
       width: 52px;
       margin: 18px auto 0;
       border-radius: 999px;
-      background: #62840b;
+      background: ${T.greenDark};
       transform-origin: center;
       animation: historyAccentGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
     }
@@ -910,7 +924,7 @@ export default function About() {
           fontWeight: 800,
           letterSpacing: "0.3em",
           textTransform: "uppercase",
-          color: "#97b64c",
+          color: T.green,
           fontFamily: "'DM Sans', sans-serif",
         }}
       >
@@ -926,11 +940,11 @@ export default function About() {
           lineHeight: 1.05,
           fontWeight: 900,
           letterSpacing: "-0.04em",
-          color: "#18210f",
+          color: T.ink,
         }}
       >
         About{" "}
-        <span style={{ color: "#62840b" }}>Milkshop</span>
+        <span style={{ color: T.greenDark }}>Milkshop</span>
       </h2>
 
       <div className="history-accent-bar" aria-hidden />
@@ -942,7 +956,7 @@ export default function About() {
           marginInline: "auto",
           fontSize: "0.88rem",
           lineHeight: 1.75,
-          color: "#4a5840",
+          color: T.body,
           fontWeight: 500,
           fontFamily: "'DM Sans', sans-serif",
         }}
@@ -1080,7 +1094,7 @@ export default function About() {
                     fontWeight: 800,
                     letterSpacing: ".18em",
                     textTransform: "uppercase",
-                    color: "#62840b",
+                    color: T.greenDark,
                   }}
                 >
                   {i === 0
@@ -1096,7 +1110,7 @@ export default function About() {
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: "clamp(1.1rem, 2.1vw, 1.38rem)",
                     lineHeight: 1.8,
-                    color: "#1a1e14",
+                    color: T.ink,
                     fontWeight: 500,
                   }}
                 >
@@ -1125,7 +1139,7 @@ export default function About() {
             fontWeight: 900,
             lineHeight: 1.2,
             letterSpacing: "-0.04em",
-            color: "#62840b",
+            color: T.greenDark,
           }}
         >
           From Taiwan to the Philippines —
@@ -1144,10 +1158,9 @@ export default function About() {
     (replaces the compact promo section entirely)
 ══════════════════════════════════════════════ */}
 <section
-  data-track-section="Bring Milkshop Closer"
   className="relative overflow-hidden"
   style={{
-    background: "linear-gradient(155deg, #f4f9ec 0%, #ffffff 50%, #f0f7e6 100%)",
+    background: T.offWhite,
     padding: isMobile ? "80px 20px" : "120px 40px",
   }}
 >
@@ -1257,12 +1270,12 @@ export default function About() {
 
           {/* Eyebrow */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ width: 28, height: 2, background: "#97b64c", borderRadius: 2, display: "block" }} />
+            <span style={{ width: 28, height: 2, background: T.green, borderRadius: 2, display: "block" }} />
             <span style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "10px", fontWeight: 900,
               letterSpacing: "0.26em", textTransform: "uppercase",
-              color: "#62840b",
+              color: T.greenDark,
             }}>
               Franchise Opportunity
             </span>
@@ -1275,7 +1288,7 @@ export default function About() {
             fontWeight: 900,
             lineHeight: 0.95,
             letterSpacing: "-0.03em",
-            color: "#1a1e14",
+            color: T.ink,
             margin: 0,
           }}>
             Bring Milkshop<br />

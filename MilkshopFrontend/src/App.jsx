@@ -5,7 +5,6 @@ import Footer from './components/Footer'
 import AdminLayout from './admin/components/AdminLayout'
 import ProtectedRoute from './admin/components/ProtectedRoute'
 import { AdminAuthProvider } from './admin/context/AdminAuthContext'
-import TrackingBootstrap from './tracking/TrackingBootstrap'
 import RouteLoader from './components/RouteLoader'
 import FranchiseCTAFloating from './components/FranchiseCTAFloating'
 import ScrollPerformance from './components/ScrollPerformance'
@@ -22,7 +21,6 @@ const AdminDashboard = lazy(() => import('./admin/pages/AdminDashboard'))
 const LeadsPage = lazy(() => import('./admin/pages/LeadsPage'))
 const QrAndEmail = lazy(() => import('./admin/pages/QrAndEmail'))
 const AccountSettings = lazy(() => import('./admin/pages/AccountSettings'))
-const Monitor = lazy(() => import('./admin/pages/Monitor'))
 const LeadDetails = lazy(() => import('./admin/pages/LeadDetails'))
 
 // Preload loader assets so they're cached before RouteLoader mounts
@@ -112,17 +110,6 @@ function AppRoutes() {
       />
 
       <Route
-        path="/admin/monitor"
-        element={
-          <ProtectedRoute>
-            <AdminLayout>
-              <Monitor />
-            </AdminLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
         path="/admin/leads/:id"
         element={
           <ProtectedRoute>
@@ -139,7 +126,6 @@ function AppRoutes() {
           <>
             <ScrollToTop />
             <ScrollPerformance />
-            <TrackingBootstrap />
             <Navbar />
             <div className="animate-page-in mt-0 pt-0">
               <Suspense fallback={null}>

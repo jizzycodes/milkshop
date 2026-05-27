@@ -316,10 +316,8 @@ function CategorySection({ category, products }) {
   if (!products.length) return null;
   const seriesName = category.replace(" Series", "");
   const isBreak    = category === "Bread";
-  const sectionLabel = isBreak ? "Products Series: Bread" : `Products Series: ${seriesName}`;
-
   return (
-    <section data-track-section={sectionLabel} style={{ marginBottom: "20px" }}>
+    <section style={{ marginBottom: "20px" }}>
 
       {/* Section Header */}
       <div style={{ textAlign: "center", marginBottom: "16px", padding: "0 24px" }}>
@@ -388,10 +386,7 @@ function CategorySection({ category, products }) {
 function ReviewTicker({ reviews, direction = "left", speed = 38 }) {
   const doubled = [...reviews, ...reviews];
   return (
-    <div
-      data-track-section={`Review Ticker: ${direction === "left" ? "Top Row" : "Bottom Row"}`}
-      style={{ overflow: "hidden", padding: "8px 0" }}
-    >
+    <div style={{ overflow: "hidden", padding: "8px 0" }}>
       <div style={{
         display: "flex", gap: "20px", width: "max-content",
         animation: `${direction === "left" ? "marquee-left" : "marquee-right"} ${speed}s linear infinite`,
@@ -476,7 +471,6 @@ export default function Products() {
     }}>
 {/* ══ PRODUCTS HERO — Premium Redesign ══ */}
 <section
-  data-track-section="Products Hero"
   style={{
     position: "relative",
     overflow: "hidden",
@@ -933,7 +927,7 @@ export default function Products() {
   </div>
 </section>
 
-      <Reveal as="section" data-track-section="Fan Favorites" className="bg-white py-20 overflow-hidden">
+      <Reveal as="section" className="bg-white py-20 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
@@ -957,7 +951,7 @@ export default function Products() {
       </Reveal>
 
       {/* ══ ALL SERIES ══════════════════════════════════════════════ */}
-      <section data-track-section="All Series" style={{ paddingTop: "80px", paddingBottom: "40px" }}>
+      <section style={{ paddingTop: "80px", paddingBottom: "40px" }}>
         {loading ? (
           <div style={{
             display: "flex", alignItems: "center",
@@ -982,7 +976,7 @@ export default function Products() {
       </section>
 
       {/* ══ REVIEWS ══════════════════════════════════════════════ */}
-      <section data-track-section="Reviews" style={{
+      <section style={{
         overflow: "hidden", padding: "72px 0",
         backgroundColor: "#ffffff", borderTop: "1px solid #dde8cc",
       }}>
@@ -1019,7 +1013,6 @@ export default function Products() {
             <Reveal
               as="div"
               delay={80}
-              data-track-section="Featured Review Comment"
               style={{ flex: "1 1 auto", minWidth: "0" }}
             >
               <div style={{

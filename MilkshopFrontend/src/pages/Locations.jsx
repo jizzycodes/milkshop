@@ -465,7 +465,7 @@ export default function Locations() {
      
 
     {/* ══ MAP SECTION — PREMIUM REDESIGN ══ */}
-    <section className="loc-map-section" data-track-section="Branch Map" style={{
+    <section className="loc-map-section" style={{
         background: "radial-gradient(120% 120% at 50% 0%, #f8fcf1 0%, #eef5e2 40%, #e8f0da 100%)",
         /* leave room for fixed navbar */
         padding: "104px 48px 28px",
@@ -1126,7 +1126,7 @@ export default function Locations() {
       </section>
 
       {/* CTA */}
-      <section data-track-section="Locations CTA" style={{ backgroundColor: "#ffffff", borderTop: "1px solid #e8f0dc", padding: "96px 48px", position: "relative", overflow: "hidden" }}>
+      <section style={{ backgroundColor: "#ffffff", borderTop: "1px solid #e8f0dc", padding: "96px 48px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", backgroundImage: "linear-gradient(rgba(151,182,76,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.045) 1px, transparent 1px)", backgroundSize: "52px 52px" }} />
         <div className="perf-heavy-blur" style={{ position: "absolute", left: "-5%", top: "50%", transform: "translateY(-50%)", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(151,182,76,0.07), transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
         <div className="perf-heavy-blur" style={{ position: "absolute", right: "5%", bottom: "-20%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(183,205,127,0.09), transparent 70%)", filter: "blur(30px)", pointerEvents: "none" }} />

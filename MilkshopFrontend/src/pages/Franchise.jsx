@@ -7,14 +7,13 @@ import { localDatetimeLocalFloor } from "../utils/dateInputConstraints"
 
 // ─── DATA (unchanged) ────────────────────────────────────────────────────────
 
-/** Drop files here: `public/franchise/process/step-01.jpg` … `step-06.jpg` (or change paths below). */
+/** Drop files here: `public/franchise/process/step-01.png` … `step-06.png` (or change paths below). */
 const steps = [
-  { step: "01", icon: "📋", title: "APPLICATION",    desc: "Contact us or fill out our franchise application form and provide us with some basic information about your background and what you envision for your store.",    image: "/franchise/process/step-01.jpg" },
-  { step: "02", icon: "🤝", title: "INTERVIEW & QUALIFICATIONS", desc: "Contact us or fill out our franchise application form and provide us with some basic information about your background and what you envision for your store.", image: "/franchise/process/step-02.jpg" },
-  { step: "03", icon: "📍", title: "LOCATION ASSESSMENT & SUPPORT",   desc: "We will work with you to find the perfect location and negotiate a lease for your new store.", image: "/franchise/process/step-03.jpg" },
-  { step: "04", icon: "✍️", title: "CONTRACT SIGNING",    desc: "Together we will sign our commitment to bring the Fresh Taste of Taiwan here in the Philippines.", image: "/franchise/process/step-04.jpg" },
-  { step: "05", icon: "🏗️", title: "SETUP & TRAINING",  desc: "We will help you set up your store and provide you with the training you need to run a successful Milkshop Franchise.", image: "/franchise/process/step-05.jpg" },
-  { step: "06", icon: "🎉", title: "GRAND OPENING",     desc: "Finally, following the successful completion of your training, your store will open and you will become a Milkshop Franchisee!", image: "/franchise/process/step-06.jpg" },
+  { step: "01", icon: "📋", title: "APPLICATION",    desc: "Contact us or fill out our franchise application form and provide us with some basic information about your background and what you envision for your store.",    image: "/franchise/process/step-01.png" },
+  { step: "02", icon: "🤝", title: "INTERVIEW & QUALIFICATIONS", desc: "Contact us or fill out our franchise application form and provide us with some basic information about your background and what you envision for your store.", image: "/franchise/process/step-02.png" },
+  { step: "03", icon: "📍", title: "LOCATION ASSESSMENT & SUPPORT",   desc: "We will work with you to find the perfect location and negotiate a lease for your new store.", image: "/franchise/process/step-03.png" },
+  { step: "04", icon: "✍️", title: "CONTRACT SIGNING",    desc: "Together we will sign our commitment to bring the Fresh Taste of Taiwan here in the Philippines.", image: "/franchise/process/step-04.png" },
+  { step: "05", icon: "🏗️", title: "SETUP & TRAINING",  desc: "We will help you set up your store and provide you with the training you need to run a successful Milkshop Franchise.", image: "/franchise/process/step-05.png" },
 ];
 
 const faqs = [
@@ -32,6 +31,24 @@ const whyUs = [
   { icon: "📦",  title: "Turnkey System",           desc: "Equipment, training, supply chain, marketing — all provided. You run the business, we back you up completely." },
   { icon: "📈",  title: "Proven ROI",               desc: "Current franchisees recover investment in 12–18 months. Our model is built for profitability, not just presence." },
 ];
+
+// ─── DESIGN TOKENS (match Home.jsx) ─────────────────────────────────────────
+const T = {
+  green: "#97b64c",
+  greenDark: "#62840b",
+  greenLight: "#b7cd7f",
+  greenFade: "#eef5e2",
+  heroGradient: "linear-gradient(135deg, #f7faef 0%, #eef6dc 55%, #e8f2d0 100%)",
+  offWhite: "#f9fbf4",
+  white: "#ffffff",
+  ink: "#18210f",
+  body: "#4a5640",
+  muted: "#6b7280",
+  border: "rgba(151,182,76,0.15)",
+  dark: "#1e1e1e",
+  onDark: "#f5f8ef",
+  onDarkMuted: "#c8dba0",
+};
 
 // ─── ANIMATION HOOK ───────────────────────────────────────────────────────────
 
@@ -67,12 +84,46 @@ function Slide({ children, className = "", style = {}, delay = 0, direction = "u
   );
 }
 
+/** Staggered slide-up when process grid enters view (CSS transitions — not paused while scrolling). */
+function ProcessStepsGrid({ children }) {
+  const ref = useRef(null);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let revealTimer;
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        obs.disconnect();
+        // Brief delay so reveal runs after scroll settles (avoids global animation pause)
+        revealTimer = window.setTimeout(() => setRevealed(true), 150);
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
+    );
+
+    obs.observe(el);
+    return () => {
+      obs.disconnect();
+      if (revealTimer) window.clearTimeout(revealTimer);
+    };
+  }, []);
+
+  return (
+    <div ref={ref} className={`process-grid${revealed ? " is-revealed" : ""}`}>
+      {children}
+    </div>
+  );
+}
+
 // ─── FORM HELPERS ─────────────────────────────────────────────────────────────
 
 function Field({ label, required, error, children }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-bold uppercase tracking-widest flex items-center gap-1" style={{ color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}>
+      <label className="text-xs font-bold uppercase tracking-widest flex items-center gap-1" style={{ color: T.ink, fontFamily: "'DM Sans', sans-serif" }}>
         {label}{required && <span style={{ color: "#97b64c" }}>*</span>}
       </label>
       {children}
@@ -197,13 +248,14 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
         .pkg-3d-stage {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: clamp(12px, 3vw, 32px);
+          gap: clamp(28px, 4.5vw, 56px);
           width: 100%;
-          max-width: min(100%, 1380px);
+          max-width: min(100%, 1520px);
           margin: 0 auto;
-          padding: clamp(16px, 3vw, 40px) clamp(8px, 2vw, 20px) clamp(8px, 2vw, 16px);
+          padding: clamp(12px, 1.5vw, 24px) clamp(10px, 1.2vw, 20px) clamp(8px, 2vw, 16px);
           align-items: end;
           touch-action: pan-y;
+          box-sizing: border-box;
         }
         .pkg-3d-item {
           display: flex;
@@ -252,7 +304,7 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
         .pkg-3d-img {
           width: 100%;
           height: auto;
-          max-height: clamp(260px, 38vw, 480px);
+          max-height: clamp(340px, 52vw, 640px);
           object-fit: contain;
           object-position: center bottom;
           display: block;
@@ -281,19 +333,19 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
           font-size: clamp(1.05rem, 2vw, 1.35rem);
           font-weight: 900;
           letter-spacing: -0.03em;
-          color: #18210f;
+          color: ${T.ink};
           margin: 0 0 4px;
           line-height: 1.15;
           transition: color 0.25s ease;
         }
         .pkg-3d-item.is-selected .pkg-3d-label {
-          color: #62840b;
+          color: ${T.greenDark};
         }
         .pkg-3d-meta {
           font-family: 'DM Sans', sans-serif;
           font-size: 0.72rem;
           font-weight: 600;
-          color: #7a9460;
+          color: ${T.body};
           margin: 0;
           line-height: 1.4;
         }
@@ -416,7 +468,11 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
           .pkg-3d-item.pos-2:hover {
             transform: none !important;
           }
-          .pkg-3d-img { max-height: 300px; }
+          .pkg-3d-img { max-height: 420px; }
+          .pkg-3d-stage {
+            max-width: 100%;
+            gap: 32px;
+          }
           .pkg-3d-stage--in .pkg-3d-item.pos-0,
           .pkg-3d-stage--in .pkg-3d-item.pos-1,
           .pkg-3d-stage--in .pkg-3d-item.pos-2 {
@@ -717,10 +773,9 @@ export default function Franchise() {
    Divider: soft organic SVG curve
 ══════════════════════════════════════ */}
 <section
-  data-track-section="Franchise Hero"
   className="relative overflow-hidden"
   style={{
-    background: "#f7faef",
+    background: T.offWhite,
     minHeight: isMobile ? "110svh" : "clamp(920px, 110svh, 1180px)",
     display: "flex",
     alignItems: "center",
@@ -743,7 +798,7 @@ export default function Franchise() {
       style={{
         position: "absolute",
         inset: 0,
-        background: "linear-gradient(135deg, #f7faef 0%, #eef6dc 55%, #e8f2d0 100%)",
+        background: T.heroGradient,
         zIndex: 0,
       }}
     />
@@ -1010,14 +1065,14 @@ export default function Franchise() {
           lineHeight: .88,
           letterSpacing: "-.06em",
           fontWeight: 900,
-          color: "#18210f",
+          color: T.ink,
         }}
       >
         Own the
         <br />
         Future of
         <br />
-        <span style={{ color: "#62840b" }}>Milk Tea.</span>
+        <span style={{ color: T.greenDark }}>Milk Tea.</span>
       </h1>
 
       {/* Divider accent */}
@@ -1025,7 +1080,7 @@ export default function Franchise() {
         style={{
           width: 52,
           height: 3,
-          background: "#62840b",
+          background: T.greenDark,
           borderRadius: 2,
         }}
       />
@@ -1037,7 +1092,7 @@ export default function Franchise() {
           maxWidth: 420,
           fontSize: "1rem",
           lineHeight: 1.85,
-          color: "#4a5840",
+          color: T.body,
           fontWeight: 500,
         }}
       >
@@ -1056,70 +1111,109 @@ export default function Franchise() {
 </section>
 
 {/* ══════════════════════════════════════
-   FRANCHISING PROCESS — GRID + SIDE TITLE
+   FRANCHISING PROCESS — TOP HEADER + 2×3 GRID
 ══════════════════════════════════════ */}
 <section
   id="process"
-  data-track-section="Franchising Process"
   className="process-section"
   style={{
-    background: "#ffffff",
-    padding: "clamp(72px,8vw,104px) 0",
-    borderTop: "1px solid rgba(151,182,76,0.15)",
-    borderBottom: "1px solid rgba(151,182,76,0.15)",
+    background: T.white,
+    padding: "clamp(64px, 7vw, 96px) 0 clamp(72px, 8vw, 104px)",
+    borderTop: `1px solid ${T.border}`,
+    borderBottom: `1px solid ${T.border}`,
   }}
 >
   <style>{`
-    .process-split {
-      display: grid;
-      grid-template-columns: minmax(200px, 0.6fr) 1.4fr;
-      gap: clamp(32px, 5vw, 64px);
-      align-items: center;
-    }
-
-    /* ── Centered header ── */
-    .process-split-header {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    /* ── Grid ── */
-    .process-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: clamp(16px, 2.4vw, 24px);
-      min-width: 0;
-    }
-
-    /* ── Card ── */
-    .process-card {
+    .process-wrap {
       display: flex;
       flex-direction: column;
       align-items: stretch;
+      gap: clamp(44px, 5.5vw, 64px);
+      width: 100%;
+      max-width: min(1520px, 100%);
+      margin: 0 auto;
+      padding: 0 clamp(12px, 1.25vw, 24px);
+      box-sizing: border-box;
+    }
+
+    .process-top-header {
+      width: 100%;
+      margin: 0 auto;
+      text-align: center;
+      padding: 0 clamp(8px, 2vw, 24px);
+    }
+
+    .process-top-header .process-eyebrow {
+      color: ${T.green};
+      font-family: 'DM Sans', sans-serif;
+      font-size: clamp(0.65rem, 0.9vw, 0.72rem);
+      font-weight: 700;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      margin: 0 0 clamp(14px, 2vw, 20px);
+    }
+
+    .process-top-header .process-heading {
+      font-size: clamp(2.25rem, 4.8vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: ${T.ink};
+      margin: 0;
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.06;
+    }
+
+    /* ── 2 rows × 3 columns, full width ── */
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(22px, 2.8vw, 36px) clamp(18px, 2.2vw, 28px);
+      width: 100%;
+      min-width: 0;
+    }
+
+    .process-grid .process-card {
+      opacity: 0;
+      transform: translate3d(0, 56px, 0);
+      transition:
+        opacity 0.7s ease,
+        transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+      transition-delay: calc(var(--step-i, 0) * 220ms);
+    }
+
+    .process-grid.is-revealed .process-card {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .process-grid .process-card {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+
+    .process-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       min-width: 0;
       width: 100%;
-      cursor: default;
     }
 
-    /* ── Media box ── */
     .process-card-media {
       position: relative;
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      border-radius: 14px;
-      border: 1px solid #d8e8b8;
-      overflow: hidden;
-      background: #f4f7f0;
-      margin-bottom: 14px;
-      transition: border-color 0.28s ease, box-shadow 0.28s ease, transform 0.28s ease;
-      will-change: transform;
-    }
-
-    .process-card:hover .process-card-media {
-      border-color: #97b64c;
-      box-shadow: 0 8px 28px rgba(151,182,76,0.14);
-      transform: translateY(-3px);
+      width: 92%;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      aspect-ratio: 10 / 9;
+      margin-bottom: clamp(14px, 1.8vw, 20px);
+      overflow: visible;
+      background: transparent;
+      border: none;
+      box-shadow: none;
     }
 
     .process-card-media img {
@@ -1127,13 +1221,9 @@ export default function Franchise() {
       z-index: 1;
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
+      object-position: center;
       display: block;
-      transition: transform 0.38s ease;
-    }
-
-    .process-card:hover .process-card-media img {
-      transform: scale(1.04);
     }
 
     .process-card-fallback {
@@ -1141,133 +1231,77 @@ export default function Franchise() {
       inset: 0;
       display: grid;
       place-items: center;
-      font-size: 2.4rem;
-      background: #f4f7f0;
+      font-size: 2.6rem;
     }
 
-    /* ── Copy ── */
     .process-card-copy {
       width: 100%;
-      padding: 0 2px;
-    }
-
-    .process-card-title {
-      color: #1e1e1e;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin: 0;
-      line-height: 1.4;
+      max-width: 36ch;
+      margin: 0 auto;
+      text-align: center;
     }
 
     .process-card-desc {
-      color: #5a6a4a;
+      color: ${T.body};
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.82rem;
-      line-height: 1.65;
-      margin: 7px 0 0;
+      font-size: clamp(0.84rem, 1.05vw, 0.95rem);
+      font-weight: 500;
+      line-height: 1.72;
+      margin: 0 auto;
+      text-align: center;
     }
 
-    /* ── Divider under title ── */
-    .process-card-divider {
-      display: block;
-      width: 20px;
-      height: 2px;
-      background: #97b64c;
-      border-radius: 2px;
-      margin: 8px 0;
-      transition: width 0.28s ease;
-    }
-
-    .process-card:hover .process-card-divider {
-      width: 36px;
-    }
-
-    /* ── Responsive ── */
     @media (max-width: 960px) {
-      .process-split {
-        grid-template-columns: 1fr;
-        gap: clamp(24px, 4vw, 40px);
+      .process-wrap {
+        padding: 0 clamp(16px, 4vw, 24px);
       }
       .process-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: clamp(20px, 4vw, 28px);
       }
     }
 
     @media (max-width: 520px) {
       .process-grid {
         grid-template-columns: 1fr;
+        gap: 28px;
       }
     }
   `}</style>
 
-  <div
-    className="process-split relative z-10 mx-auto"
-    style={{
-      maxWidth: 1160,
-      padding: "0 clamp(20px,4vw,56px)",
-    }}
-  >
-    {/* ── Left: centered heading ── */}
-    <Slide direction="left">
-      <div className="process-split-header">
-        <p
-          style={{
-            color: "#97b64c",
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "0.68rem",
-            fontWeight: 700,
-            letterSpacing: "0.28em",
-            textTransform: "uppercase",
-            margin: "0 0 16px",
-          }}
-        >
-          How It Works
-        </p>
-        <h2
-          style={{
-            fontSize: "clamp(2.2rem, 4.5vw, 3.6rem)",
-            fontWeight: 900,
-            letterSpacing: "-0.04em",
-            color: "#18210f",
-            margin: 0,
-            fontFamily: "'DM Sans', sans-serif",
-            lineHeight: 1.05,
-          }}
-        >
-          Franchise<br />Process
-        </h2>
-      </div>
+  <div className="process-wrap relative z-10">
+    <Slide direction="up">
+      <header className="process-top-header">
+        <p className="process-eyebrow">How It Works</p>
+        <h2 className="process-heading">Franchise Process</h2>
+      </header>
     </Slide>
 
-    {/* ── Right: cards grid ── */}
-    <div className="process-grid">
+    <ProcessStepsGrid>
       {steps.map((s, i) => (
-        <Slide key={s.step} direction="up" delay={i * 60}>
-          <article className="process-card">
-            <div className="process-card-media">
-              <img
-                src={s.image}
-                alt={`Milkshop franchise — ${s.title}`}
-                loading={i < 3 ? "eager" : "lazy"}
-                decoding="async"
-                onError={(e) => { e.currentTarget.style.display = "none"; }}
-              />
-              <div className="process-card-fallback" aria-hidden>
-                <span>{s.icon}</span>
-              </div>
+        <article
+          key={s.step}
+          className="process-card"
+          style={{ "--step-i": i }}
+        >
+          <div className="process-card-media">
+            <img
+              src={s.image}
+              alt={`Milkshop franchise — ${s.title}`}
+              loading={i < 3 ? "eager" : "lazy"}
+              decoding="async"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
+            />
+            <div className="process-card-fallback" aria-hidden>
+              <span>{s.icon}</span>
             </div>
-            <div className="process-card-copy">
-              <h3 className="process-card-title">{s.title}</h3>
-              <span className="process-card-divider" aria-hidden="true" />
-              <p className="process-card-desc">{s.desc}</p>
-            </div>
-          </article>
-        </Slide>
+          </div>
+          <div className="process-card-copy">
+            <p className="process-card-desc">{s.desc}</p>
+          </div>
+        </article>
       ))}
-    </div>
+    </ProcessStepsGrid>
   </div>
 </section>
 
@@ -1280,22 +1314,14 @@ export default function Franchise() {
 ══════════════════════════════════════ */}
 <section
   id="packages"
-  data-track-section="Franchise Packages"
   className="relative py-10 sm:py-12 lg:py-16 overflow-x-clip"
   style={{
-    background: "linear-gradient(135deg, #f7faef 0%, #eef6dc 55%, #e8f2d0 100%)",
+    background: T.offWhite,
     overflowY: "visible",
+    borderTop: `1px solid ${T.border}`,
+    borderBottom: `1px solid ${T.border}`,
   }}
 >
- 
-  {/* Dot grid */}
-  <div aria-hidden style={{
-    position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
-    backgroundImage: "radial-gradient(circle, rgba(98,132,11,0.1) 1px, transparent 1px)",
-    backgroundSize: "28px 28px",
-    maskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 72%)",
-    WebkitMaskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 72%)",
-  }} />
  
   <div className="relative z-10">
  
@@ -1304,7 +1330,7 @@ export default function Franchise() {
       <Slide direction="up">
         <p style={{
           fontSize: "10px", fontWeight: 800, letterSpacing: "0.3em",
-          textTransform: "uppercase", color: "#97b64c",
+          textTransform: "uppercase", color: T.green,
           fontFamily: "'DM Sans', sans-serif", margin: "0 0 10px",
         }}>Choose Your Package</p>
       </Slide>
@@ -1312,12 +1338,12 @@ export default function Franchise() {
         <h2 style={{
           fontSize: "clamp(2rem, 4.5vw, 3.2rem)",
           fontWeight: 900, letterSpacing: "-0.04em",
-          color: "#18210f", margin: "0 0 10px",
+          color: T.ink, margin: "0 0 10px",
           fontFamily: "'DM Sans', sans-serif",
           lineHeight: 1.05,
         }}>
           Find the Right{" "}
-          <span style={{ color: "#62840b" }}>Fit for You</span>
+          <span style={{ color: T.greenDark }}>Fit for You</span>
         </h2>
       </Slide>
       <Slide direction="up" delay={100}>
@@ -1325,18 +1351,18 @@ export default function Franchise() {
       </Slide>
     </div>
  
-    {/* Carousel */}
-    <div className="mt-10 mb-2">
+    {/* Packages grid — full section width */}
+    <div className="mt-10 mb-2 w-full max-w-[min(100%,1520px)] mx-auto px-[clamp(10px,1.2vw,20px)]">
       <PackageCards formData={formData} setFormData={setFormData} setFieldErrors={setFieldErrors} />
     </div>
  
     {/* Bottom nudge */}
     <Slide direction="up" delay={300} className="text-center mt-6 px-4">
       <p style={{
-        fontSize: "0.78rem", color: "#7a9460",
+        fontSize: "0.78rem", color: T.body,
         fontFamily: "'DM Sans', sans-serif",
       }}>
-        Not sure? Select <strong style={{ color: "#62840b" }}>Not sure yet</strong> in the form below and we'll help you decide.
+        Not sure? Select <strong style={{ color: T.greenDark }}>Not sure yet</strong> in the form below and we'll help you decide.
       </p>
     </Slide>
   </div>
@@ -1348,25 +1374,15 @@ export default function Franchise() {
 {/* ══════════════════════════════════════
        SLIDE 4 — FRANCHISE INQUIRY
    ══════════════════════════════════════ */}
-<section id="inquiry" className="relative py-12 sm:py-14 lg:py-16 bg-[#f7f9f4] overflow-hidden">
-
-{/* Soft background */}
-<div className="absolute inset-0 pointer-events-none"
-  style={{
-    background: "radial-gradient(circle at 10% 20%, rgba(151,182,76,0.08), transparent 60%)"
-  }}
-/>
+<section id="inquiry" className="relative py-12 sm:py-14 lg:py-16 overflow-hidden" style={{ background: T.white }}>
 
 <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-16 z-10">
 
   {/* ── THANK YOU SCREEN (shown after submit, hidden on reload) ── */}
   {submitted ? (
     <div
-      className="rounded-[28px] p-10 lg:p-16 flex flex-col items-center text-center backdrop-blur-xl"
+      className="flex flex-col items-center text-center py-6 lg:py-10"
       style={{
-        background: "rgba(255,255,255,0.85)",
-        border: "1px solid #dce8c8",
-        boxShadow: "0 20px 60px rgba(0,0,0,0.06)",
         animation: "tyFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both",
       }}
     >
@@ -1434,7 +1450,7 @@ export default function Franchise() {
           fontSize: "clamp(1.8rem,4vw,2.6rem)",
           fontWeight: 900,
           letterSpacing: "-0.03em",
-          color: "#1e1e1e",
+          color: T.ink,
           marginBottom: 8,
           animation: "tySlideUp 0.5s ease 0.35s both",
         }}
@@ -1445,7 +1461,7 @@ export default function Franchise() {
       {/* SUBTEXT */}
       <p
         style={{
-          color: "#5a6a4a",
+          color: T.body,
           fontSize: "0.95rem",
           maxWidth: 380,
           lineHeight: 1.65,
@@ -1454,7 +1470,7 @@ export default function Franchise() {
         }}
       >
         We've received your franchise application. Our team will reach out to you
-        within <strong style={{ color: "#62840b" }}>1–2 business days</strong> to
+        within <strong style={{ color: T.greenDark }}>1–2 business days</strong> to
         discuss the next steps.
       </p>
 
@@ -1491,7 +1507,7 @@ export default function Franchise() {
       {/* HEADER */}
       <div className="text-center mb-12">
         <p className="text-[11px] tracking-[0.3em] font-bold uppercase mb-3"
-          style={{ color: "#97b64c" }}>
+          style={{ color: T.green }}>
           Start Your Journey
         </p>
 
@@ -1499,7 +1515,7 @@ export default function Franchise() {
           fontSize: "clamp(2.5rem,5vw,3.5rem)",
           fontWeight: 900,
           letterSpacing: "-0.03em",
-          color: "#1e1e1e"
+          color: T.ink,
         }}>
           Franchise Application
         </h2>
@@ -1507,18 +1523,12 @@ export default function Franchise() {
       
       </div>
 
-      {/* GLASS CARD */}
-      <div className="rounded-[28px] p-6 lg:p-10 backdrop-blur-xl"
-        style={{
-          background: "rgba(255,255,255,0.75)",
-          border: "1px solid #dce8c8",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.06)"
-        }}>
+      <div className="w-full">
 
         {/* PROGRESS BAR */}
         <div className="mb-8">
           <div className="flex justify-between text-[11px] mb-2"
-            style={{ color: "#62840b" }}>
+            style={{ color: T.greenDark }}>
             <span>
               {filledCount === 0
                 ? "Start filling the form"
@@ -1625,7 +1635,7 @@ export default function Franchise() {
 
           {/* TRUST */}
           <div className="flex gap-3 text-xs"
-            style={{ color: "#62840b" }}>
+            style={{ color: T.greenDark }}>
             <span>🔒 Secure</span>
             <span>⚡ Fast</span>
             <span>📞 We call you</span>
@@ -1656,9 +1666,9 @@ export default function Franchise() {
       {/* ══════════════════════════════════════
           SLIDE 5 — FAQ
       ══════════════════════════════════════ */}
-      <section data-track-section="Franchise FAQs" className="relative py-14 sm:py-16 lg:py-20 overflow-hidden" style={{ backgroundColor: "#1e1e1e" }}>
+      <section className="relative py-14 sm:py-16 lg:py-20 overflow-hidden" style={{ backgroundColor: T.dark }}>
         <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: "radial-gradient(circle, rgba(250, 8, 8, 0.06) 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.08) 1px, transparent 1px)",
           backgroundSize: "40px 40px",
           maskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 65%)",
           WebkitMaskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 65%)",
@@ -1689,7 +1699,7 @@ export default function Franchise() {
             <div className="faq-split-header" style={{ position: "sticky", top: 24 }}>
               <p
                 className="text-[11px] font-bold tracking-[0.28em] uppercase"
-                style={{ color: "#97b64c", fontFamily: "'DM Sans', sans-serif", margin: "0 0 14px" }}
+                style={{ color: T.green, fontFamily: "'DM Sans', sans-serif", margin: "0 0 14px" }}
               >
                 Common Questions
               </p>
@@ -1698,7 +1708,7 @@ export default function Franchise() {
                   fontSize: "clamp(2.2rem, 4.5vw, 3.6rem)",
                   fontWeight: 900,
                   letterSpacing: "-0.04em",
-                  color: "#fafafa",
+                  color: T.onDark,
                   margin: "0 0 14px",
                   fontFamily: "'DM Sans', sans-serif",
                   lineHeight: 1.05,
@@ -1720,14 +1730,14 @@ export default function Franchise() {
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                     className="w-full flex items-center justify-between px-6 py-4 text-left gap-4 transition-colors duration-200"
-                    style={{ backgroundColor: openFaq === i ? "#eef4e3" : "white" }}
+                    style={{ backgroundColor: openFaq === i ? T.greenFade : "rgba(255,255,255,0.96)" }}
                   >
-                    <span className="font-semibold text-sm" style={{ color: "#1e1e1e" }}>{faq.q}</span>
-                    <span className="text-xl font-bold shrink-0 transition-transform duration-300" style={{ color: "#97b64c", transform: openFaq === i ? "rotate(45deg)" : "none" }}>+</span>
+                    <span className="font-semibold text-sm" style={{ color: T.ink }}>{faq.q}</span>
+                    <span className="text-xl font-bold shrink-0 transition-transform duration-300" style={{ color: T.green, transform: openFaq === i ? "rotate(45deg)" : "none" }}>+</span>
                   </button>
                   {openFaq === i && (
-                    <div className="px-6 py-4 bg-white" style={{ borderTop: "1px solid #e0ebd0" }}>
-                      <p className="text-sm leading-relaxed" style={{ color: "#5a6a4a" }}>{faq.a}</p>
+                    <div className="px-6 py-4" style={{ background: T.white, borderTop: `1px solid ${T.border}` }}>
+                      <p className="text-sm leading-relaxed" style={{ color: T.body }}>{faq.a}</p>
                     </div>
                   )}
                 </div>
