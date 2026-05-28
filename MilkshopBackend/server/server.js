@@ -57,23 +57,11 @@ const globalLimiter = rateLimit({
   legacyHeaders: false,
 })
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    error: 'Too many login attempts. Please try again later.',
-  },
-})
-
 app.use(globalLimiter)
 
 app.use(express.json({ limit: '1mb' }))
 app.use(requestLogger)
 
-app.use('/api/admin/login', authLimiter)
 app.use('/api', apiRouter)
 
 // Root: backend is API-only; admin UI is on the frontend
@@ -83,8 +71,7 @@ app.get('/', (req, res) => {
     message: 'Milkshop API',
     docs: {
       health: '/api/health',
-      adminLogin: '/api/admin/login',
-      admin: 'Use the frontend at http://localhost:5173/admin for the admin UI',
+      admin: 'Use the frontend at http://localhost:5173/admin/login for the admin UI',
     },
   })
 })
@@ -94,7 +81,22 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT || 4000
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Milkshop backend listening on port ${PORT}`)
+  console.log(`Keep this terminal open while developing.`)
+  console.log(`Health check: http://localhost:${PORT}/api/health`)
+})
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\nPort ${PORT} is already in use — another backend is already running.`)
+    console.error('Stop it first:')
+    console.error(`  netstat -ano | findstr :${PORT}`)
+    console.error('  taskkill /PID <pid> /F')
+    console.error('Then run: npm start\n')
+  } else {
+    console.error('Server failed to start:', err.message)
+  }
+  process.exit(1)
 })
 

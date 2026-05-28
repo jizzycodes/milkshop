@@ -16,7 +16,6 @@ const {
   getContactLogs,
 } = require('../controllers/leadController')
 const { getQrEmail, putQrEmail } = require('../controllers/adminSettingsController')
-const { getMonitorSummary, deleteMonitorMetrics } = require('../controllers/trackingController')
 const {
   getMyAccount,
   updateMyAccount,
@@ -112,8 +111,6 @@ router.put('/settings/account/me', updateMyAccount)
 router.get('/settings/account/accounts', getAccounts)
 router.post('/settings/account/accounts', postAccount)
 router.put('/settings/account/accounts/:id', putAccount)
-router.get('/monitor/summary', getMonitorSummary)
-router.delete('/monitor/metrics', deleteMonitorMetrics)
 
 module.exports = router
 

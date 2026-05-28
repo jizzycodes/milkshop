@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { adminLoginRequest } from "../services/api";
 import { useAdminAuth } from "../context/AdminAuthContext";
+import { isFirebaseConfigured } from "../firebase/config";
+import {
+  mapFirebaseAuthError,
+  sendAdminPasswordReset,
+  signInAdmin,
+} from "../firebase/adminAuth";
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
@@ -255,6 +260,44 @@ const STYLES = `
   .al-error-ico { color: #ef4444; flex-shrink: 0; margin-top: 1px; }
   .al-error-msg { font-size: 12.5px; color: #c0392b; line-height: 1.45; }
 
+  .al-success {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 11px 14px;
+    background: rgba(238,245,223,0.95);
+    border: 1px solid var(--bd);
+    border-radius: 12px;
+    margin-bottom: 18px;
+    animation: al-rise 0.2s ease both;
+  }
+
+  .al-success-ico { color: var(--gd); flex-shrink: 0; margin-top: 1px; }
+  .al-success-msg { font-size: 12.5px; color: var(--gd); line-height: 1.45; }
+
+  .al-forgot-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -6px;
+    margin-bottom: 2px;
+  }
+
+  .al-forgot-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gd);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .al-forgot-btn:hover { color: var(--gp); }
+  .al-forgot-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
   /* ── Fields ── */
   .al-fields { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
 
@@ -451,10 +494,12 @@ function WavePath({ d, fill, opacity }) {
 export default function AdminLogin() {
   const [form, setForm]                 = useState({ email: "", password: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isAuthenticated }      = useAdminAuth();
+  const { login, isAuthenticated, firebaseConfigured } = useAdminAuth();
 
   useEffect(() => {
     if (isAuthenticated) navigate("/admin/dashboard", { replace: true });
@@ -464,18 +509,53 @@ export default function AdminLogin() {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     if (errorMessage) setErrorMessage("");
+    if (successMessage) setSuccessMessage("");
+  };
+
+  const handleForgotPassword = async () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+    if (!firebaseConfigured) {
+      setErrorMessage(
+        "Firebase is not configured. Copy MilkshopFrontend/.env.example to .env and add your VITE_FIREBASE_* keys, then restart npm run dev.",
+      );
+      return;
+    }
+    const email = form.email.trim();
+    if (!email) {
+      setErrorMessage("Enter your email address first, then click Forgot password.");
+      return;
+    }
+    setIsResetting(true);
+    try {
+      await sendAdminPasswordReset(email);
+      setSuccessMessage(
+        "If an account exists for this email, Firebase sent a password reset link. Check your inbox and spam folder.",
+      );
+    } catch (err) {
+      setErrorMessage(mapFirebaseAuthError(err));
+    } finally {
+      setIsResetting(false);
+    }
   };
 
   const handleSubmit = async () => {
     setErrorMessage("");
+    setSuccessMessage("");
+    if (!firebaseConfigured) {
+      setErrorMessage(
+        "Firebase is not configured. Copy MilkshopFrontend/.env.example to .env and add your VITE_FIREBASE_* keys, then restart npm run dev.",
+      );
+      return;
+    }
     setIsSubmitting(true);
     try {
-      const result = await adminLoginRequest(form);
-      login(result.token, result.data);
+      const result = await signInAdmin(form.email, form.password);
+      login(result.token, result.profile);
       const redirectTo = location.state?.from?.pathname || "/admin/dashboard";
       navigate(redirectTo, { replace: true });
     } catch (err) {
-      setErrorMessage(err?.message || "Unable to login. Check your credentials.");
+      setErrorMessage(mapFirebaseAuthError(err));
     } finally {
       setIsSubmitting(false);
     }
@@ -610,6 +690,18 @@ export default function AdminLogin() {
             </div>
           )}
 
+          {successMessage && !errorMessage && (
+            <div className="al-success">
+              <span className="al-success-ico">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </span>
+              <p className="al-success-msg">{successMessage}</p>
+            </div>
+          )}
+
           {/* Fields */}
           <div className="al-fields">
             <div>
@@ -654,13 +746,23 @@ export default function AdminLogin() {
                   className={`al-input${errorMessage ? " err" : ""}`}
                 />
               </div>
+              <div className="al-forgot-row">
+                <button
+                  type="button"
+                  className="al-forgot-btn"
+                  disabled={isSubmitting || isResetting}
+                  onClick={handleForgotPassword}
+                >
+                  {isResetting ? "Sending reset link…" : "Forgot password?"}
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Submit */}
           <button
             type="button"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isResetting}
             onClick={handleSubmit}
             className="al-btn"
           >

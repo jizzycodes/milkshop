@@ -477,9 +477,16 @@ export default function AdminDashboard() {
         setRecent(recentRes.data || []);
       } catch (err) {
         if (!isMounted) return;
-        if (err?.status === 401) {
-          logout();
-          setErrorMessage("Your session has expired. Please sign in again.");
+        if (err?.status === 403) {
+          setErrorMessage(
+            err?.message ||
+              "Your Firebase account is not linked to an admin user in the database.",
+          );
+        } else if (err?.status === 401) {
+          setErrorMessage(
+            err?.message ||
+              "Backend rejected your login token. Add Firebase Admin settings to MilkshopBackend/.env and restart the API.",
+          );
         } else {
           setErrorMessage(err?.message || "Unable to load dashboard.");
         }

@@ -12,6 +12,10 @@ build/
 **/.env
 **/.env.local
 
+# Firebase service account (never commit)
+firebase-service-account.json
+**/firebase-service-account*.json
+
 # ngrok config (contains authtoken)
 ngrok.yml
 

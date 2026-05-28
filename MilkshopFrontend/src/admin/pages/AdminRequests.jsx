@@ -408,9 +408,8 @@ export default function AdminRequests() {
         setTotalPages(res.pagination?.totalPages || 1);
       } catch (err) {
         if (!isMounted) return;
-        if (err?.status === 401) {
-          logout();
-          setErrorMessage("Your session has expired. Please sign in again.");
+        if (err?.status === 403 || err?.status === 401) {
+          setErrorMessage(err?.message || "Unable to load requests.");
         } else {
           setErrorMessage(err?.message || "Unable to load requests.");
         }

@@ -10,8 +10,8 @@ This folder contains the Express backend for the Milkshop brand site.
 - `routes/` – Express routers that map URLs to controllers.
 - `models/` – database access helpers (franchise_requests, franchise_leads, lead_contact_logs, admin).
 - `middleware/` – reusable Express middleware (logging, errors, auth).
-- `utils/` – small utility helpers (environment loading, JWT).
-- `db/` – migrations and migration runner (includes `franchise_requests`, CRM tables, settings, accounts, tracking).
+- `utils/` – small utility helpers (environment loading, Firebase Admin).
+- `db/` – migrations and migration runner (includes `franchise_requests`, CRM tables, settings, accounts).
 - `server.js` – application entrypoint.
 
 ### Phase 2 – Lead CRM (admin only)
@@ -61,7 +61,7 @@ Global key/value table `app_settings` (migration **006**):
 - `franchise_qr_url` – URL encoded in QR materials (default seeded in migration).
 - `franchise_confirmation_email_template` – plain-text body for `sendFranchiseConfirmation`; use the literal text `(name)` where the recipient’s name goes. If empty, the server uses a built-in default.
 
-Admin API (requires `Authorization: Bearer <admin JWT>`):
+Admin API (requires `Authorization: Bearer <Firebase ID token>`):
 
 - `GET /api/admin/settings/qr-email` → `{ success, data: { qrUrl, emailTemplate } }`
 - `PUT /api/admin/settings/qr-email` → body `{ qrUrl?, emailTemplate? }` → same shape.
@@ -71,21 +71,11 @@ Admin API (requires `Authorization: Bearer <admin JWT>`):
 Migration **007** adds `user_accounts` and role-based login.
 
 - Roles: `admin`, `user`.
-- Login stays on `POST /api/admin/login` for both roles.
-- Admin endpoints (JWT required):
+- Sign-in is on the frontend (`/admin/login`) via Firebase Authentication.
+- Admin endpoints (Firebase ID token required):
   - `GET /api/admin/settings/account/me`
   - `PUT /api/admin/settings/account/me`
   - `GET /api/admin/settings/account/accounts` (admin only)
   - `POST /api/admin/settings/account/accounts` (admin only)
   - `PUT /api/admin/settings/account/accounts/:id` (admin only)
-
-### Website tracking + monitor
-
-Migration **008** adds `website_tracking_events`.
-
-- Public tracking endpoint:
-  - `POST /api/track/events` (batched website events).
-- Admin monitor endpoints (admin role only):
-  - `GET /api/admin/monitor/summary?days=14` (totals, top sections, daily trend, top menu clicks).
-  - `DELETE /api/admin/monitor/metrics` — clears all rows in `website_tracking_events` (Monitor resets to zero).
 

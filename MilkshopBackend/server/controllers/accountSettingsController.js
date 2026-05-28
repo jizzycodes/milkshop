@@ -7,6 +7,12 @@ const {
   createAccount,
   updateAccount,
 } = require('../models/userAccountModel')
+const {
+  isFirebaseAdminConfigured,
+  createOrUpdateFirebaseUser,
+  updateFirebaseUserPassword,
+  deleteFirebaseUserByUid,
+} = require('../utils/firebaseAdmin')
 
 function ensureAdmin(req) {
   if (req.user?.role !== 'admin') {
@@ -48,6 +54,13 @@ async function updateMyAccount(req, res, next) {
     }
     if (password !== undefined) {
       requireNonEmpty(password, 'Password is required')
+      const row = await findAccountById(req.user.sub)
+      if (!row) {
+        const err = new Error('Account not found')
+        err.status = 404
+        throw err
+      }
+      await updateFirebaseUserPassword({ email: row.email, password: String(password) })
       patch.passwordHash = await bcrypt.hash(String(password), 10)
     }
     const updated = await updateAccount(req.user.sub, patch)
@@ -86,19 +99,51 @@ async function postAccount(req, res, next) {
       throw err
     }
     const normalizedEmail = String(email).trim().toLowerCase()
+    const plainPassword = String(password)
+
+    if (plainPassword.length < 6) {
+      const err = new Error('Password must be at least 6 characters.')
+      err.status = 400
+      throw err
+    }
+
     const existing = await findAccountByEmail(normalizedEmail)
     if (existing) {
       const err = new Error('Email already exists')
       err.status = 409
       throw err
     }
-    const passwordHash = await bcrypt.hash(String(password), 10)
-    const created = await createAccount({
+
+    if (!isFirebaseAdminConfigured()) {
+      const err = new Error(
+        'Firebase Admin is not configured. Add firebase-service-account.json and restart the API.',
+      )
+      err.status = 503
+      throw err
+    }
+
+    const { user: firebaseUser, created: firebaseCreated } = await createOrUpdateFirebaseUser({
       email: normalizedEmail,
-      username: String(username).trim(),
-      passwordHash,
-      role: safeRole,
+      password: plainPassword,
     })
+
+    let created
+    try {
+      const passwordHash = await bcrypt.hash(plainPassword, 10)
+      created = await createAccount({
+        email: normalizedEmail,
+        username: String(username).trim(),
+        passwordHash,
+        role: safeRole,
+      })
+    } catch (dbErr) {
+      if (firebaseCreated) {
+        await deleteFirebaseUserByUid(firebaseUser.uid)
+      }
+      throw dbErr
+    }
+
+    console.log('[auth] Created admin user (DB + Firebase):', normalizedEmail)
     res.status(201).json({ success: true, data: created })
   } catch (err) {
     next(err)
@@ -116,6 +161,13 @@ async function putAccount(req, res, next) {
       patch.username = String(username).trim()
     }
     if (password !== undefined && String(password).trim() !== '') {
+      const target = await findAccountById(accountId)
+      if (!target) {
+        const err = new Error('Account not found')
+        err.status = 404
+        throw err
+      }
+      await updateFirebaseUserPassword({ email: target.email, password: String(password) })
       patch.passwordHash = await bcrypt.hash(String(password), 10)
     }
     if (role !== undefined) {

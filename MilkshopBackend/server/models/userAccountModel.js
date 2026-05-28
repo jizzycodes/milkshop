@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+const bcrypt = require('bcrypt')
 const { query } = require('../config/db')
 
 function mapPublic(row) {
@@ -38,6 +40,30 @@ async function listAccounts() {
      ORDER BY role ASC, created_at DESC`,
   )
   return result.rows.map(mapPublic)
+}
+
+/**
+ * Firebase Auth holds email/password. Postgres user_accounts holds CRM access (role, leads, etc.).
+ * On first Firebase sign-in, create a linked row (password is a random hash — login uses Firebase only).
+ */
+async function findOrCreateAccountFromFirebase(email) {
+  const normalizedEmail = String(email).trim()
+  const existing = await findAccountByEmail(normalizedEmail)
+  if (existing) return existing
+
+  const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10)
+  const username = normalizedEmail.split('@')[0] || 'admin'
+  const role = process.env.FIREBASE_DEFAULT_ROLE === 'user' ? 'user' : 'admin'
+
+  await createAccount({
+    email: normalizedEmail,
+    username,
+    passwordHash,
+    role,
+  })
+
+  console.log('[auth] Linked Firebase user to user_accounts:', normalizedEmail, `(${role})`)
+  return findAccountByEmail(normalizedEmail)
 }
 
 async function createAccount({ email, username, passwordHash, role }) {
@@ -96,6 +122,7 @@ module.exports = {
   mapPublic,
   findAccountByEmail,
   findAccountById,
+  findOrCreateAccountFromFirebase,
   listAccounts,
   createAccount,
   updateAccount,

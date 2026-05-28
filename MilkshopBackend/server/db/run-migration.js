@@ -13,6 +13,7 @@ const pool = new Pool({
   user: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD != null ? String(process.env.DB_PASSWORD) : undefined,
   database: process.env.DB_NAME || 'milkshop_backend',
+  ssl: (process.env.DB_HOST || '').includes('neon.tech') ? { rejectUnauthorized: false } : undefined,
 })
 
 const statements = [
@@ -163,23 +164,7 @@ $$ LANGUAGE plpgsql`,
        ON CONFLICT (email) DO NOTHING;
      END IF;
    END $$`,
-  // 008: website tracking events (monitor dashboard)
-  `CREATE TABLE IF NOT EXISTS website_tracking_events (
-    id bigserial PRIMARY KEY,
-    event_type varchar(60) NOT NULL,
-    section_key varchar(150),
-    path varchar(255),
-    duration_ms int NOT NULL DEFAULT 0,
-    session_id varchar(120),
-    user_agent text,
-    ip_address varchar(120),
-    occurred_at timestamptz NOT NULL DEFAULT now(),
-    created_at timestamptz NOT NULL DEFAULT now()
-  )`,
-  'CREATE INDEX IF NOT EXISTS idx_wte_occurred_at ON website_tracking_events(occurred_at)',
-  'CREATE INDEX IF NOT EXISTS idx_wte_section_key ON website_tracking_events(section_key)',
-  'CREATE INDEX IF NOT EXISTS idx_wte_event_type ON website_tracking_events(event_type)',
-  // 009: optional schedule datetime on contact logs (e.g. onboarding Confirmed Schedule)
+  // 008: optional schedule datetime on contact logs (e.g. onboarding Confirmed Schedule)
   'ALTER TABLE lead_contact_logs ADD COLUMN IF NOT EXISTS schedule_date_time timestamptz',
 ]
 
@@ -187,7 +172,7 @@ async function run() {
   for (let i = 0; i < statements.length; i++) {
     await pool.query(statements[i])
   }
-  console.log('Migrations completed (franchise_requests, CRM tables, settings, accounts, tracking).')
+  console.log('Migrations completed (franchise_requests, CRM tables, settings, accounts).')
 }
 
 run()

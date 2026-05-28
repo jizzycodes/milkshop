@@ -421,16 +421,32 @@ export default function AccountSettings() {
       const meData = meRes?.data || null;
       setMe(meData);
       setMyUsername(meData?.username || "");
-      if (meData) setAdminProfile({ id: meData.id, email: meData.email, username: meData.username, role: meData.role });
-      if (isAdmin) {
+      if (meData) {
+        setAdminProfile({
+          id: meData.id,
+          email: meData.email,
+          username: meData.username,
+          role: meData.role,
+        });
+      }
+      if (meData?.role === "admin") {
         const listRes = await fetchAllAccounts(token);
         const list    = listRes?.data || [];
         setAccounts(list);
         const m = {};
         list.forEach((a) => { m[a.id] = { username: a.username || "", role: a.role || "user", password: "" }; });
         setEditMap(m);
-      } else { setAccounts([]); setEditMap({}); }
-    } catch (e) { setErr(e?.message || "Failed to load account settings"); }
+      } else {
+        setAccounts([]);
+        setEditMap({});
+      }
+    } catch (e) {
+      if (e?.status === 403) {
+        setErr("");
+      } else {
+        setErr(e?.message || "Failed to load account settings");
+      }
+    }
     finally { setLoading(false); }
   }
 
@@ -457,7 +473,7 @@ export default function AccountSettings() {
     try {
       await createAccountByAdmin(token, createForm);
       setCreateForm({ email: "", username: "", password: "", role: "user" });
-      setMsg("Account created successfully.");
+      setMsg("Account created. They can sign in at /admin/login with this email and password.");
       await loadAll();
     } catch (e2) { setErr(e2?.message || "Failed to create account"); }
   }
@@ -538,7 +554,7 @@ export default function AccountSettings() {
                     </div>
                     <div style={{ gridColumn: "1 / -1" }}>
                       <label className="as-label">New Password <span style={{ opacity: 0.45, fontStyle: "italic", textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
-                      <input type="password" value={myPassword} onChange={(e) => setMyPassword(e.target.value)} placeholder="Leave blank to keep current" className="as-input" />
+                      <input type="password" value={myPassword} onChange={(e) => setMyPassword(e.target.value)} placeholder="Min. 6 chars — updates Firebase sign-in" className="as-input" />
                     </div>
                   </div>
                 </div>
@@ -566,7 +582,7 @@ export default function AccountSettings() {
                       </div>
                       <div>
                         <p className="as-section-title">Create Account</p>
-                        <p className="as-section-sub">Add a new admin or user account.</p>
+                        <p className="as-section-sub">Adds database access and a Firebase login (same email and password at admin sign-in).</p>
                       </div>
                     </div>
 
@@ -644,7 +660,7 @@ export default function AccountSettings() {
                                 </select>
                               </td>
                               <td className="as-td">
-                                <input type="password" placeholder="Leave blank" value={editMap[a.id]?.password || ""} onChange={(e) => setEditMap((p) => ({ ...p, [a.id]: { ...p[a.id], password: e.target.value } }))} className="as-ti" />
+                                <input type="password" placeholder="Min. 6 chars" value={editMap[a.id]?.password || ""} onChange={(e) => setEditMap((p) => ({ ...p, [a.id]: { ...p[a.id], password: e.target.value } }))} className="as-ti" />
                               </td>
                               <td className="as-td">
                                 <button type="button" onClick={() => handleSaveRow(a.id)} className="as-btn-row">Save</button>

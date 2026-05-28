@@ -1,6 +1,7 @@
 const { createFranchiseRequest } = require('../models/franchiseRequestModel')
 const { createLeadFromFranchisePayload } = require('../models/franchiseLeadModel')
 const { sendFranchiseConfirmation } = require('../utils/mail')
+const { sendFranchiseConfirmationSms } = require('../utils/sms')
 
 function validateFranchisePayload(body) {
   const requiredFields = [
@@ -70,6 +71,21 @@ async function createFranchise(req, res, next) {
     } catch (mailErr) {
       // eslint-disable-next-line no-console
       console.warn('[Franchise] Email error:', mailErr.message)
+    }
+
+    // Send confirmation SMS to submitter (non-blocking).
+    try {
+      const smsResult = await sendFranchiseConfirmationSms(payload.contactNumber, payload.name)
+      if (smsResult.sent) {
+        // eslint-disable-next-line no-console
+        console.log('[Franchise] Confirmation SMS sent to', payload.contactNumber)
+      } else {
+        // eslint-disable-next-line no-console
+        console.warn('[Franchise] SMS NOT sent:', smsResult.error || 'unknown')
+      }
+    } catch (smsErr) {
+      // eslint-disable-next-line no-console
+      console.warn('[Franchise] SMS error:', smsErr.message)
     }
 
     res.status(201).json({

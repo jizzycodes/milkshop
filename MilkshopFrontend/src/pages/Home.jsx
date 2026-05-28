@@ -516,28 +516,58 @@ function AnimatedStat({ value, suffix, label, active }) {
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const whyProps = [
   {
-    icon: "📈",
-    title: "Quick ROI",
+    icon: "💸",
+    title: "Low-Cost Franchising Fee",
     stat: "24",
     statSuffix: "mo",
     statLabel: "Average Payback Period",
-    body: "Based on actual franchisee data — not projections. Most partners recover full capital within their second year of operations.",
+    body: "Our franchise fee is affordable and allows you to start your own business without breaking the bank.",
+    image: "/franchise/why/why-01.jpg",
   },
   {
-    icon: "⚙️",
-    title: "Easy to Manage",
+    icon: "📣",
+    title: "Marketing Support",
     stat: "98",
     statSuffix: "%",
     statLabel: "Franchisee Satisfaction Rate",
-    body: "Streamlined operations, centralized supply chain, and a proven playbook mean you spend less time managing and more time growing.",
+    body: "We offer marketing materials, such as brochures and banners, to help promote your store in your local area.",
+    image: "/franchise/why/why-02.jpg",
   },
   {
-    icon: "🤝",
-    title: "End-to-End Support",
+    icon: "🎓",
+    title: "Training & Guidance",
     stat: "50",
     statSuffix: "+",
     statLabel: "Active Franchise Branches",
-    body: "From site selection to grand opening and beyond — our team is with you at every stage of your franchise journey.",
+    body: "We provide training to help you get started, as well as ongoing support to help your business succeed.",
+    image: "/franchise/why/why-03.jpg",
+  },
+  {
+    icon: "🏪",
+    title: "Flexible Store Type & Design",
+    stat: "360",
+    statSuffix: "°",
+    statLabel: "Launch-to-Growth Support",
+    body: "We offer a range of store designs to choose from, giving you the flexibility to create a concept that fit your vision.",
+    image: "/franchise/why/why-04.jpg",
+  },
+  {
+    icon: "🇹🇼",
+    title: "Authentic TW Products",
+    stat: "14",
+    statSuffix: "d",
+    statLabel: "Onboarding & Ops Training",
+    body: "We provide training to help you get started, as well as ongoing support to help your business succeed.",
+    image: "/franchise/why/why-05.jpg",
+  },
+  {
+    icon: "📈",
+    title: "Wide Market and ROI",
+    stat: "3",
+    statSuffix: "",
+    statLabel: "Cart · Kiosk · In-line",
+    body: "Guaranteed earning due big percentage of new and returning customers. Return of investments would be 10 to 12 months.",
+    image: "/franchise/why/why-06.jpg",
   },
 ]
 
@@ -623,473 +653,387 @@ function SectionDivider({ flip = false }) {
   )
 }
 
+{/* ══════════════════════════════════════
+   WHY FRANCHISE — STICKY SCROLL REVEAL
+   Production-grade, SEO-safe
+   All content in DOM at load time
+   Left: sticky header + dots + CTA
+   Right: 6 reasons, alternating image/text
+   Scroll spy drives active state + fade-up
+══════════════════════════════════════ */}
+
+{/* ══════════════════════════════════════
+   WHY FRANCHISE — STICKY SCROLL REVEAL
+   Production-grade, SEO-safe
+   All content in DOM at load time
+   Left: sticky header + dots + CTA
+   Right: 6 reasons, alternating image/text
+   Scroll spy drives active state + fade-up
+══════════════════════════════════════ */}
+
 function WhySection() {
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [branchGallery, setBranchGallery] = useState([])
   const sectionRef = useRef(null)
-  const [inView, setInView] = useState(false)
+  const gridRef = useRef(null)
+  const [revealed, setRevealed] = useState(false)
   const { isMobile, isTablet } = useViewport()
 
-  const active = whyProps[activeIndex]
-
   useEffect(() => {
-    let cancelled = false
-    async function loadBranchGallery() {
-      try {
-        const { data, error } = await supabase
-          .from("MSlocations")
-          .select("*")
-          .order("id", { ascending: true })
-        if (error) throw error
-        if (!cancelled && Array.isArray(data)) {
-          const normalizeImage = (value) => {
-            if (!value || typeof value !== "string") return null
-            const trimmed = value.trim()
-            if (!trimmed) return null
-            if (/^https?:\/\//i.test(trimmed)) return trimmed
-            if (trimmed.startsWith("/")) return trimmed
-            return `https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/${trimmed.replace(/^\/+/, "")}`
-          }
-          const rows = data
-            .map((row) => ({
-              url: normalizeImage(
-                row.image_url ||
-                row.photo_url ||
-                row.photo ||
-                row.branch_image ||
-                row.image
-              ),
-              name: row.name || row.branch_name || "Milkshop",
-            }))
-            .filter((row) => row.url)
-            .slice(0, 3)
-          setBranchGallery(rows)
-        }
-      } catch (e) {
-        console.error("WhySection branch gallery", e)
-      }
-    }
-    loadBranchGallery()
-    return () => { cancelled = true }
-  }, [])
+    const el = gridRef.current
+    if (!el) return
+    let revealTimer
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setInView(true) },
-      { threshold: 0.15 }
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        obs.disconnect()
+        revealTimer = window.setTimeout(() => setRevealed(true), 120)
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
     )
-    if (sectionRef.current) observer.observe(sectionRef.current)
-    return () => observer.disconnect()
+
+    obs.observe(el)
+    return () => {
+      obs.disconnect()
+      if (revealTimer) window.clearTimeout(revealTimer)
+    }
   }, [])
 
-  const handleRowClick = (i) => setActiveIndex(i)
-
-  const pad = isMobile ? "0 18px" : isTablet ? "0 30px" : "0 56px"
-
-  // Get image for active index, fallback to gradient
-  const activeImage = branchGallery[activeIndex] || null
-  const allImages = whyProps.map((_, i) => branchGallery[i] || null)
+  const pad = isMobile ? "0 20px" : isTablet ? "0 32px" : "0 56px"
 
   return (
     <>
-      <style>{whySectionStyles}</style>
+      <style>{`
+        /* Why Franchise — use Franchise Process 3×2 grid setup */
+        .why-wrap {
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          gap: clamp(34px, 4.6vw, 54px);
+          width: 100%;
+          max-width: min(1320px, 100%);
+          margin: 0 auto;
+          padding: 0 clamp(12px, 1.25vw, 24px);
+          box-sizing: border-box;
+        }
+
+        .why-top-header {
+          width: 100%;
+          margin: 0 auto;
+          text-align: center;
+          padding: 0 clamp(8px, 2vw, 24px);
+        }
+
+        .why-top-header .why-eyebrow {
+          color: ${T.greenDark};
+          font-family: 'DM Sans', sans-serif;
+          font-size: clamp(0.65rem, 0.9vw, 0.72rem);
+          font-weight: 800;
+          letter-spacing: 0.32em;
+          text-transform: uppercase;
+          margin: 0 0 clamp(14px, 2vw, 20px);
+        }
+
+        .why-top-header .why-heading {
+          font-size: clamp(2.05rem, 4.2vw, 3.15rem);
+          font-weight: 900;
+          letter-spacing: -0.04em;
+          color: ${T.heading};
+          margin: 0;
+          font-family: 'DM Sans', sans-serif;
+          line-height: 1.06;
+        }
+
+        .why-top-header .why-sub {
+          margin: 14px auto 0;
+          max-width: 62ch;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 0.95rem;
+          line-height: 1.8;
+          color: ${T.body};
+        }
+
+        .why-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: clamp(18px, 2.2vw, 26px);
+          width: 100%;
+          min-width: 0;
+        }
+
+        .why-card {
+          opacity: 0;
+          transform: translate3d(0, 46px, 0);
+          transition:
+            opacity 0.7s ease,
+            transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+          transition-delay: calc(var(--why-i, 0) * 120ms);
+        }
+
+        .why-grid.is-revealed .why-card {
+          opacity: 1;
+          transform: translate3d(0, 0, 0);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .why-card { opacity: 1; transform: none; transition: none; }
+        }
+
+        .why-card-inner {
+          height: 100%;
+          border-radius: 0;
+          background: transparent;
+          border: none;
+          box-shadow: none;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          align-items: center;
+          text-align: center;
+        }
+
+        .why-card-media {
+          position: relative;
+          width: 92%;
+          max-width: 420px;
+          aspect-ratio: 10 / 9;
+          border-radius: 20px;
+          overflow: hidden;
+          background: transparent;
+          border: none;
+          box-shadow: 0 10px 32px rgba(98,132,11,0.10);
+        }
+
+        .why-card-media img {
+          width: 100%;
+          height: 100%;
+          display: block;
+          object-fit: cover;
+          object-position: center;
+        }
+
+        .why-card-media .why-media-fallback {
+          position: absolute;
+          inset: 0;
+          display: grid;
+          place-items: center;
+          font-size: 2.2rem;
+          color: ${T.greenDark};
+          background: linear-gradient(135deg, rgba(183,205,127,0.32), rgba(151,182,76,0.16));
+        }
+
+        .why-card-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          width: 100%;
+          max-width: 44ch;
+        }
+
+        .why-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 0;
+          border-radius: 0;
+          background: transparent;
+          border: none;
+          width: fit-content;
+          max-width: 100%;
+        }
+
+        .why-chip .why-ic {
+          font-size: 1.05rem;
+          line-height: 1;
+        }
+
+        .why-chip .why-title {
+          font-family: 'DM Sans', sans-serif;
+          font-size: 1.05rem;
+          font-weight: 900;
+          letter-spacing: -0.02em;
+          color: ${T.heading};
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .why-num {
+          font-family: 'DM Mono', monospace;
+          font-size: 0.68rem;
+          font-weight: 700;
+          letter-spacing: 0.22em;
+          color: rgba(98,132,11,0.65);
+          flex-shrink: 0;
+        }
+
+        .why-body {
+          font-family: 'DM Sans', sans-serif;
+          font-size: 0.95rem;
+          line-height: 1.85;
+          color: ${T.body};
+          margin: 0;
+          max-width: 44ch;
+        }
+
+        @media (max-width: 960px) {
+          .why-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 520px) {
+          .why-grid { grid-template-columns: 1fr; }
+        }
+      `}</style>
 
       <section
         ref={sectionRef}
         style={{
-          backgroundColor: T.white,
-          padding: isMobile ? "80px 0 72px" : "128px 0 120px",
+          background: "linear-gradient(160deg, #f7faef 0%, #eef6dc 60%, #e8f2d0 100%)",
+          padding: isMobile ? "72px 0 64px" : "100px 0 96px",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        {/* Ambient background */}
+        {/* Grain */}
+        <svg style={{
+          position: "absolute", inset: 0, width: "100%", height: "100%",
+          opacity: 0.022, zIndex: 0, pointerEvents: "none", mixBlendMode: "multiply",
+        }} xmlns="http://www.w3.org/2000/svg">
+          <filter id="grain-why">
+            <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+          </filter>
+          <rect width="100%" height="100%" filter="url(#grain-why)"/>
+        </svg>
+
+        {/* Dot grid */}
         <div aria-hidden style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: `
-            radial-gradient(ellipse 65% 55% at 85% 40%, rgba(183,205,127,0.12) 0%, transparent 60%),
-            radial-gradient(ellipse 50% 45% at 12% 75%, rgba(151,182,76,0.07) 0%, transparent 55%)
-          `,
+          position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
+          backgroundImage: "radial-gradient(circle, rgba(98,132,11,0.08) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+          maskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 70%)",
+          WebkitMaskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 70%)",
         }} />
 
-        {/* Subtle grid texture */}
+        {/* Soft brand glows (background design) */}
         <div aria-hidden style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          backgroundImage: `linear-gradient(rgba(151,182,76,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.035) 1px, transparent 1px)`,
-          backgroundSize: "64px 64px",
-          maskImage: "radial-gradient(ellipse at 50% 50%, black 40%, transparent 80%)",
+          position: "absolute",
+          top: "-18%",
+          left: "-12%",
+          width: 520,
+          height: 520,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(151,182,76,0.22), transparent 70%)",
+          filter: "blur(42px)",
+          zIndex: 0,
+          pointerEvents: "none",
+        }} />
+        <div aria-hidden style={{
+          position: "absolute",
+          bottom: "-22%",
+          right: "-14%",
+          width: 560,
+          height: 560,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(98,132,11,0.18), transparent 72%)",
+          filter: "blur(48px)",
+          zIndex: 0,
+          pointerEvents: "none",
         }} />
 
         <div style={{
-          maxWidth: 1200,
           margin: "0 auto",
           padding: pad,
           position: "relative",
           zIndex: 1,
+          width: "100%",
           boxSizing: "border-box",
         }}>
-
-          {/* ── Split: left content, right header ── */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1.15fr 0.85fr",
-            gap: isMobile ? 40 : "clamp(32px, 5vw, 72px)",
-            alignItems: isMobile ? "stretch" : "start",
-          }}>
-
-          {/* LEFT — image + steps */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1fr 420px",
-            gap: isMobile ? 40 : 64,
-            alignItems: "center",
-            order: isMobile ? 2 : 1,
-          }}>
-
-            {/* LEFT: Full spotlight image */}
-            <div
-              className={`ws-reveal ${inView ? "in" : ""}`}
-              style={{ transitionDelay: "0.2s", position: "relative" }}
-            >
-              {/* Image stack — 3 layered images, active one on top */}
-              <div style={{ position: "relative", width: "100%", aspectRatio: "4 / 3" }}>
-
-                {/* Background ghost images for depth */}
-                {allImages.map((img, i) => {
-                  if (i === activeIndex) return null
-                  const offset = i < activeIndex ? -1 : 1
-                  return (
-                    <div
-                      key={`ghost-${i}`}
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        borderRadius: 28,
-                        overflow: "hidden",
-                        opacity: 0.18,
-                        transform: `translateX(${offset * 18}px) translateY(${Math.abs(offset) * 8}px) scale(0.95)`,
-                        filter: "blur(2px)",
-                        zIndex: 1,
-                        transition: "all 0.6s ease",
-                        border: "1px solid rgba(151,182,76,0.15)",
-                      }}
-                    >
-                      {img?.url ? (
-                        <img src={img.url} alt="" draggable={false} loading="lazy" decoding="async"
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      ) : (
-                        <div style={{
-                          width: "100%", height: "100%",
-                          background: "linear-gradient(135deg, #e8f2d0, #b7cd7f)",
-                        }} />
-                      )}
-                    </div>
-                  )
-                })}
-
-                {/* Active image */}
-                <div
-                  key={`active-img-${activeIndex}`}
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    borderRadius: 28,
-                    overflow: "hidden",
-                    zIndex: 2,
-                    boxShadow: "0 40px 100px rgba(98,132,11,0.18), 0 12px 32px rgba(0,0,0,0.08)",
-                    border: "1px solid rgba(151,182,76,0.25)",
-                    animation: "wsImageIn 0.65s cubic-bezier(0.16,1,0.3,1) forwards",
-                  }}
-                >
-                  {activeImage?.url ? (
-                    <img
-                      src={activeImage.url}
-                      alt={activeImage.name || "Milkshop branch"}
-                      draggable={false}
-                      loading="lazy"
-                      decoding="async"
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                    />
-                  ) : (
-                    <div style={{
-                      width: "100%", height: "100%",
-                      background: "linear-gradient(135deg, #e8f2d0 0%, #b7cd7f 50%, #97b64c 100%)",
-                    }} />
-                  )}
-
-                  {/* Subtle vignette */}
-                  <div aria-hidden style={{
-                    position: "absolute", inset: 0,
-                    background: "linear-gradient(180deg, transparent 55%, rgba(20,30,10,0.45) 100%)",
-                    pointerEvents: "none",
-                  }} />
-
-                  {/* Green top accent bar */}
-                  <div style={{
-                    position: "absolute", top: 0, left: 0, right: 0, height: 4,
-                    background: "linear-gradient(90deg, #62840b, #97b64c, #b7cd7f)",
-                    borderRadius: "28px 28px 0 0",
-                  }} />
-
-                  {/* Branch name tag */}
-                  {activeImage?.name && (
-                    <div
-                      key={`caption-${activeIndex}`}
-                      className="ws-image-caption"
-                      style={{
-                        position: "absolute", left: 20, bottom: 20,
-                        display: "flex", alignItems: "center", gap: 8,
-                      }}
-                    >
-                      <div style={{
-                        width: 6, height: 6, borderRadius: "50%",
-                        background: "#97b64c",
-                        animation: "wsPulse 2s ease-in-out infinite",
-                        flexShrink: 0,
-                      }} />
-                      <span style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "0.7rem", fontWeight: 800,
-                        letterSpacing: "0.14em", textTransform: "uppercase",
-                        color: "rgba(255,255,255,0.95)",
-                        textShadow: "0 2px 8px rgba(0,0,0,0.5)",
-                      }}>
-                        {activeImage.name}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Step counter badge — floating top right */}
-                <div
-                  className="ws-float-tag"
-                  style={{
-                    position: "absolute",
-                    top: -16, right: -16,
-                    zIndex: 3,
-                  }}
-                >
-                  <div style={{
-                    width: 56, height: 56,
-                    borderRadius: "50%",
-                    background: "#ffffff",
-                    border: "2px solid rgba(151,182,76,0.3)",
-                    boxShadow: "0 8px 28px rgba(151,182,76,0.2)",
-                    display: "flex", flexDirection: "column",
-                    alignItems: "center", justifyContent: "center",
-                  }}>
-                    <span style={{
-                      fontFamily: "'DM Mono', monospace",
-                      fontSize: "0.6rem", fontWeight: 700,
-                      letterSpacing: "0.05em", color: "#97b64c",
-                      lineHeight: 1,
-                    }}>
-                      0{activeIndex + 1}
-                    </span>
-                    <span style={{
-                      fontFamily: "'DM Mono', monospace",
-                      fontSize: "0.5rem", fontWeight: 600,
-                      color: "#b7cd7f", letterSpacing: "0.05em",
-                      lineHeight: 1, marginTop: 2,
-                    }}>
-                      / 0{whyProps.length}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Thumbnail strip — bottom left */}
-                <div style={{
-                  position: "absolute",
-                  left: 16, bottom: -20,
-                  zIndex: 3,
-                  display: "flex", gap: 8,
-                }}>
-                  {allImages.map((img, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => handleRowClick(i)}
-                      style={{
-                        all: "unset",
-                        cursor: "pointer",
-                        width: i === activeIndex ? 52 : 40,
-                        height: i === activeIndex ? 52 : 40,
-                        borderRadius: 10,
-                        overflow: "hidden",
-                        border: i === activeIndex
-                          ? "2.5px solid #97b64c"
-                          : "2px solid rgba(255,255,255,0.6)",
-                        boxShadow: i === activeIndex
-                          ? "0 4px 16px rgba(151,182,76,0.4)"
-                          : "0 2px 8px rgba(0,0,0,0.12)",
-                        transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)",
-                        flexShrink: 0,
-                        opacity: i === activeIndex ? 1 : 0.7,
-                      }}
-                      aria-label={`View step ${i + 1}`}
-                    >
-                      {img?.url ? (
-                        <img src={img.url} alt="" draggable={false} loading="lazy" decoding="async"
-                          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                      ) : (
-                        <div style={{
-                          width: "100%", height: "100%",
-                          background: `linear-gradient(135deg, #e8f2d0, #97b64c)`,
-                        }} />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* RIGHT: Steps panel */}
-            <div
-              className={`ws-reveal ${inView ? "in" : ""}`}
-              style={{ transitionDelay: "0.35s" }}
-            >
-              {/* Description */}
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "1rem", lineHeight: 1.8,
-                color: T.muted, marginBottom: 36,
-                maxWidth: 360,
-              }}>
-                A simple, structured system that removes complexity and lets you focus on growth.
+          <div className="why-wrap">
+            <header className="why-top-header">
+              <p className="why-eyebrow">Why Franchise With Us</p>
+              <h2 className="why-heading">
+                Join the{" "}
+                <span style={{ color: T.greenDark }}>Milkshop</span>{" "}
+                Family
+              </h2>
+              <p className="why-sub">
+                A proven system backed by real support, real brand strength, and real results.
               </p>
+            </header>
 
-              {/* Step list */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                {whyProps.map((item, i) => {
-                  const isActive = i === activeIndex
-                  return (
-                    <div key={item.title}>
-                      <button
-                        className={`ws-step-btn ${isActive ? "active" : ""}`}
-                        onClick={() => handleRowClick(i)}
-                      >
-                        <span className="ws-step-num">0{i + 1}</span>
-                        <div style={{ flex: 1, textAlign: "left" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{ fontSize: "1rem" }}>{item.icon}</span>
-                            <span className="ws-step-title">{item.title}</span>
-                          </div>
-                          {isActive && (
-                            <p
-                              key={`body-${activeIndex}`}
-                              className="ws-content-block"
-                              style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: "0.82rem",
-                                lineHeight: 1.7,
-                                color: T.muted,
-                                margin: "8px 0 0",
-                              }}
-                            >
-                              {item.body}
-                            </p>
-                          )}
-                        </div>
-                        <div style={{
-                          width: 28, height: 28, borderRadius: "50%",
-                          background: isActive ? "rgba(151,182,76,0.12)" : "transparent",
-                          border: `1.5px solid ${isActive ? "rgba(151,182,76,0.4)" : "rgba(151,182,76,0.15)"}`,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          transition: "all 0.3s ease",
-                          flexShrink: 0,
-                        }}>
-                          <div style={{
-                            width: 7, height: 7, borderRadius: "50%",
-                            background: isActive ? "#97b64c" : "#d7e2c7",
-                            transition: "background 0.3s ease",
-                            boxShadow: isActive ? "0 0 0 3px rgba(151,182,76,0.2)" : "none",
-                          }} />
-                        </div>
-                      </button>
-
-                      {/* Progress bar under active */}
-                      {isActive && (
-                        <div className="ws-progress-track" key={`progress-${activeIndex}`}>
-                          <div className="ws-progress-fill" />
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* CTA */}
-              <div style={{ marginTop: 44 }}>
-                <Link
-                  to="/franchise#inquiry"
-                  className="ws-cta-btn"
+            <div
+              ref={gridRef}
+              className={`why-grid${revealed ? " is-revealed" : ""}`}
+            >
+              {whyProps.map((item, i) => (
+                <article
+                  key={item.title}
+                  className="why-card"
+                  style={{ "--why-i": i }}
                 >
-                  Become a Partner →
-                </Link>
-              </div>
+                  <div className="why-card-inner">
+                    <div className="why-card-media">
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={`Milkshop franchise — ${item.title}`}
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => { e.currentTarget.style.display = "none" }}
+                        />
+                      ) : null}
+                      <div className="why-media-fallback" aria-hidden>
+                        <span>{item.icon}</span>
+                      </div>
+                    </div>
+                    <div className="why-card-top">
+                      <div className="why-chip" title={item.title}>
+                        <span className="why-ic" aria-hidden>{item.icon}</span>
+                        <span className="why-title">{item.title}</span>
+                      </div>
+                      <span className="why-num">{String(i + 1).padStart(2, "0")}</span>
+                    </div>
+                    <p className="why-body">{item.body}</p>
+                  </div>
+                </article>
+              ))}
             </div>
 
-          </div>
-
-          {/* RIGHT — header */}
-          <div
-            className={`ws-reveal ${inView ? "in" : ""}`}
-            style={{
-              order: isMobile ? 1 : 2,
-              position: isMobile ? "relative" : "sticky",
-              top: isMobile ? undefined : 24,
-              alignSelf: "start",
-              marginLeft: isMobile ? 0 : "auto",
-              paddingLeft: isMobile ? 0 : "clamp(28px, 4vw, 72px)",
-              maxWidth: 440,
-            }}
-          >
-            <div style={{
-              display: "flex", alignItems: "center", gap: 12, marginBottom: 16,
-              justifyContent: isMobile ? "flex-start" : "flex-start",
-            }}>
-              <div style={{
-                height: 2, width: 48, background: "linear-gradient(90deg, #62840b, #97b64c)",
-                borderRadius: 2,
-                animation: inView ? "wsLineGrow 0.7s ease forwards" : "none",
-                animationDelay: "0.3s",
-              }} />
-              <span style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.72rem", fontWeight: 800,
-                letterSpacing: "0.22em", textTransform: "uppercase",
-                color: "#62840b",
-              }}>
-                Why Franchise With Us?
-              </span>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Link
+                to="/franchise#inquiry"
+                style={{
+                  display: "inline-flex", alignItems: "center",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "0.86rem", fontWeight: 800,
+                  color: "#fff", background: "#E8A020",
+                  padding: "14px 26px", borderRadius: 999,
+                  textDecoration: "none",
+                  boxShadow: "0 12px 30px rgba(232,160,32,0.28)",
+                  transition: "transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)"
+                  e.currentTarget.style.background = "#CF8E18"
+                  e.currentTarget.style.boxShadow = "0 16px 36px rgba(232,160,32,0.34)"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)"
+                  e.currentTarget.style.background = "#E8A020"
+                  e.currentTarget.style.boxShadow = "0 12px 30px rgba(232,160,32,0.28)"
+                }}
+              >
+                Become a Partner →
+              </Link>
             </div>
-            <h2 style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "clamp(2.2rem, 4.2vw, 3.6rem)",
-              fontWeight: 900, letterSpacing: "-0.04em",
-              lineHeight: 1.05, color: T.ink, margin: 0,
-              maxWidth: 420,
-            }}>
-              Built for{" "}
-              <span style={{
-                background: "linear-gradient(135deg, #62840b, #97b64c, #b7cd7f)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}>
-                Franchisee Success
-              </span>
-            </h2>
-          </div>
-
           </div>
         </div>
-        
       </section>
     </>
   )
 }
-
 function InvestorProofSection() {
   const { isMobile, isTablet } = useViewport()
   return (
@@ -1537,15 +1481,16 @@ function FranchiseTestimonialsSection() {
         .tm-featured-media {
           position: relative;
           width: 100%;
+          aspect-ratio: 40 / 31;
           background: #e8eedd;
           line-height: 0;
           overflow: hidden;
         }
         .tm-featured-img {
           width: 100%;
-          height: auto;
+          height: 100%;
           display: block;
-          object-fit: contain;
+          object-fit: cover;
           object-position: center center;
         }
         .tm-thumb-media {
@@ -1649,7 +1594,6 @@ function FranchiseTestimonialsSection() {
                     className="tm-featured-img"
                     style={{
                       width: "100%",
-                      aspectRatio: "16 / 9",
                       background: "linear-gradient(110deg, #e8eedd 0%, #f5f8ee 45%, #e8eedd 100%)",
                       backgroundSize: "200% 100%",
                       animation: "shimmer 1.4s ease-in-out infinite",
@@ -1669,7 +1613,6 @@ function FranchiseTestimonialsSection() {
                     aria-hidden
                     style={{
                       width: "100%",
-                      aspectRatio: "16 / 9",
                       background: "#dfe9d1",
                     }}
                   />

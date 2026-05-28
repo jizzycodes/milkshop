@@ -41,13 +41,33 @@ function PreloadAssets() {
 }
 
 function ScrollToTop() {
-  const { pathname } = useLocation()
+  const { pathname, hash } = useLocation()
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.scrollTo(0, 0)
+      // If there is a hash, scroll to that section after the route paints.
+      if (hash) {
+        const id = hash.replace('#', '')
+        const tryScroll = () => {
+          const el = document.getElementById(id)
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            return true
+          }
+          return false
+        }
+
+        // Attempt immediately + after a couple frames (handles lazy/Suspense renders).
+        if (tryScroll()) return
+        requestAnimationFrame(() => {
+          if (tryScroll()) return
+          setTimeout(() => { tryScroll() }, 250)
+        })
+      } else {
+        window.scrollTo(0, 0)
+      }
     }
-  }, [pathname])
+  }, [pathname, hash])
 
   return null
 }
@@ -90,7 +110,7 @@ function AppRoutes() {
       <Route
         path="/admin/qr-email"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute adminOnly>
             <AdminLayout>
               <QrAndEmail />
             </AdminLayout>
