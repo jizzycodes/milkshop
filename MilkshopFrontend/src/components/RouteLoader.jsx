@@ -173,7 +173,7 @@ export default function RouteLoader({ minDurationMs = 900, initialDurationMs = 1
           <div className="ms-loader-track" aria-hidden>
             <span key={`${pathname}-${activeMs}-${show}`} className="ms-loader-fill" />
           </div>
-          <p className="ms-loader-label">Brewing</p>
+          <p className="ms-loader-label">Shaking</p>
         </div>
       </div>
     </>

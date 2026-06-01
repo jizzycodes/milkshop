@@ -3,6 +3,12 @@ import { Link, useLocation } from "react-router-dom"
 
 const PROMO_DISMISS_KEY = "ms_franchise_promo_dismissed"
 
+const T = {
+  greenLight: "#b7cd7f",
+  greenDark: "#62840b",
+  green: "#97b64c",
+}
+
 /**
  * Floating "Franchise Now" + small dismissible promo card (below the button).
  * Hidden on /franchise and /admin/*.
@@ -47,12 +53,26 @@ export default function FranchiseCTAFloating() {
     >
       <Link
         to="/franchise#inquiry"
-        className="group flex items-center gap-2.5 bg-[#E8A020] hover:bg-[#CF8E18] text-white font-bold text-sm pl-4 pr-5 py-3.5 rounded-full shadow-lg hover:shadow-2xl active:scale-95 transition-all duration-300 order-1"
-        style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
+        className="group flex items-center gap-2.5 font-bold text-sm pl-2 pr-5 py-2.5 rounded-full shadow-lg hover:shadow-2xl active:scale-95 transition-all duration-300 order-1 hover:brightness-110"
+        style={{
+          fontFamily: "'Signia Pro', 'DM Sans', sans-serif",
+          backgroundColor: T.greenDark,
+          color: "#ffffff",
+        }}
       >
-        <span className="relative flex items-center justify-center shrink-0">
-          <span className="absolute w-7 h-7 rounded-full bg-white/30 animate-ping" />
-          <span className="relative text-lg">🧋</span>
+        <span className="relative flex h-9 w-9 shrink-0 items-center justify-center">
+          <span
+            className="absolute h-9 w-9 rounded-full animate-ping opacity-40"
+            style={{ backgroundColor: T.greenLight }}
+          />
+          <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white/90 ring-1 ring-black/5">
+            <img
+              src="/milkshop-logo-removebg-preview.png"
+              alt=""
+              className="h-7 w-7 object-contain"
+              draggable={false}
+            />
+          </span>
         </span>
 
         <span className="hidden sm:inline whitespace-nowrap overflow-hidden max-w-0 group-hover:max-w-xs transition-all duration-300 ease-in-out">
@@ -100,7 +120,7 @@ export default function FranchiseCTAFloating() {
           >
             <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/90 ring-1 ring-black/5">
               <img
-                src="/milkshop-mark.png"
+                src="/milkshop-logo-removebg-preview.png"
                 alt=""
                 className="h-7 w-7 object-contain"
                 draggable={false}

@@ -13,7 +13,8 @@ const steps = [
   { step: "02", icon: "🤝", title: "INTERVIEW & QUALIFICATIONS", desc: "Contact us or fill out our franchise application form and provide us with some basic information about your background and what you envision for your store.", image: "/franchise/process/step-02.png" },
   { step: "03", icon: "📍", title: "LOCATION ASSESSMENT & SUPPORT",   desc: "We will work with you to find the perfect location and negotiate a lease for your new store.", image: "/franchise/process/step-03.png" },
   { step: "04", icon: "✍️", title: "CONTRACT SIGNING",    desc: "Together we will sign our commitment to bring the Fresh Taste of Taiwan here in the Philippines.", image: "/franchise/process/step-04.png" },
-  { step: "05", icon: "🏗️", title: "SETUP & TRAINING",  desc: "We will help you set up your store and provide you with the training you need to run a successful Milkshop Franchise.", image: "/franchise/process/step-05.png" },
+  { step: "05", icon: "🏗️", title: "SETUP & TRAINING",  desc: "You will receive training to prepare you for running a successful Milkshop Franchise", image: "/franchise/process/step-05.png" },
+  { step: "06", icon: "🎉", title: "GRAND OPENING", desc: "Finally,following the successful completion of your training, your store will open and you will become a Milkshop Franchisee.", image: "/franchise/process/step-06.png" },
 ];
 
 const faqs = [
@@ -84,8 +85,62 @@ function Slide({ children, className = "", style = {}, delay = 0, direction = "u
   );
 }
 
-/** Staggered slide-up when process grid enters view (CSS transitions — not paused while scrolling). */
-function ProcessStepsGrid({ children }) {
+function ProcessCard({ s, i }) {
+  return (
+    <article className="process-card" style={{ "--step-i": i }}>
+      <div className="process-card-media">
+        <img
+          src={s.image}
+          alt={`Milkshop franchise — ${s.title}`}
+          loading={i < 3 ? "eager" : "lazy"}
+          decoding="async"
+          onError={(e) => { e.currentTarget.style.display = "none"; }}
+        />
+        <div className="process-card-fallback" aria-hidden>
+          <span>{s.icon}</span>
+        </div>
+      </div>
+      <div className="process-card-copy">
+        <p className="process-card-desc">{s.desc}</p>
+      </div>
+    </article>
+  );
+}
+
+function ProcessFlowArrow({ direction = "right", delay = 0 }) {
+  const stroke = T.greenDark;
+  const isDown = direction === "down";
+  return (
+    <div
+      className={`process-flow-arrow process-flow-arrow--${direction}`}
+      style={{ "--arrow-delay": `${delay * 120}ms` }}
+      aria-hidden
+    >
+      <svg
+        viewBox={isDown ? "0 0 24 36" : "0 0 40 24"}
+        width={isDown ? 28 : 44}
+        height={isDown ? 44 : 28}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {isDown ? (
+          <>
+            <line x1="12" y1="4" x2="12" y2="28" stroke={stroke} strokeWidth="2.75" strokeLinecap="round" />
+            <path d="M6 22 L12 32 L18 22" stroke={stroke} strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" />
+          </>
+        ) : (
+          <>
+            <line x1="4" y1="12" x2="30" y2="12" stroke={stroke} strokeWidth="2.75" strokeLinecap="round" />
+            <path d="M22 6 L34 12 L22 18" stroke={stroke} strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" />
+          </>
+        )}
+      </svg>
+    </div>
+  );
+}
+
+/** Staggered slide-up when process flow enters view (CSS transitions — not paused while scrolling). */
+function ProcessStepsGrid() {
   const ref = useRef(null);
   const [revealed, setRevealed] = useState(false);
 
@@ -98,7 +153,6 @@ function ProcessStepsGrid({ children }) {
       ([entry]) => {
         if (!entry.isIntersecting) return;
         obs.disconnect();
-        // Brief delay so reveal runs after scroll settles (avoids global animation pause)
         revealTimer = window.setTimeout(() => setRevealed(true), 150);
       },
       { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
@@ -111,9 +165,35 @@ function ProcessStepsGrid({ children }) {
     };
   }, []);
 
+  const revealedClass = revealed ? " is-revealed" : "";
+
   return (
-    <div ref={ref} className={`process-grid${revealed ? " is-revealed" : ""}`}>
-      {children}
+    <div ref={ref} className={`process-flow-root${revealedClass}`}>
+      <div className={`process-flow process-flow--wide${revealedClass}`}>
+        <div className="process-flow-row">
+          <ProcessCard s={steps[0]} i={0} />
+          <ProcessFlowArrow direction="right" delay={0} />
+          <ProcessCard s={steps[1]} i={1} />
+          <ProcessFlowArrow direction="right" delay={1} />
+          <ProcessCard s={steps[2]} i={2} />
+        </div>
+        <div className="process-flow-row">
+          <ProcessCard s={steps[3]} i={3} />
+          <ProcessFlowArrow direction="right" delay={3} />
+          <ProcessCard s={steps[4]} i={4} />
+          <ProcessFlowArrow direction="right" delay={4} />
+          <ProcessCard s={steps[5]} i={5} />
+        </div>
+      </div>
+
+      <div className={`process-flow process-flow--narrow${revealedClass}`}>
+        {steps.map((s, i) => (
+          <div key={s.step} className="process-flow-narrow-step">
+            <ProcessCard s={s} i={i} />
+            {i < steps.length - 1 && <ProcessFlowArrow direction="down" delay={i} />}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -160,6 +240,19 @@ const franchisePageStyles = `
   @keyframes descReveal {
     from { opacity: 0; transform: translateY(8px); max-height: 0; }
     to   { opacity: 1; transform: translateY(0); max-height: 120px; }
+  }
+
+  .ms-section-heading {
+    margin: 0;
+    font-family: 'Signia Pro', 'DM Sans', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+    color: ${T.greenDark};
+  }
+  .ms-section-heading--light {
+    color: ${T.onDark};
   }
 
   .hero-step-active .step-dot {
@@ -1153,26 +1246,89 @@ export default function Franchise() {
       margin: 0 0 clamp(14px, 2vw, 20px);
     }
 
-    .process-top-header .process-heading {
-      font-size: clamp(2.25rem, 4.8vw, 3.5rem);
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      color: ${T.ink};
-      margin: 0;
-      font-family: 'DM Sans', sans-serif;
-      line-height: 1.06;
-    }
-
-    /* ── 2 rows × 3 columns, full width ── */
-    .process-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: clamp(22px, 2.8vw, 36px) clamp(18px, 2.2vw, 28px);
+    .process-flow-root {
       width: 100%;
       min-width: 0;
     }
 
-    .process-grid .process-card {
+    .process-flow--narrow {
+      display: none;
+    }
+
+    .process-flow--wide {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(40px, 6vw, 72px);
+      width: 100%;
+    }
+
+    .process-flow-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) clamp(48px, 6vw, 88px) minmax(0, 1fr) clamp(48px, 6vw, 88px) minmax(0, 1fr);
+      align-items: center;
+      column-gap: clamp(12px, 2vw, 28px);
+      width: 100%;
+    }
+
+    .process-flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: clamp(10px, 1.5vw, 20px);
+      min-width: clamp(48px, 6vw, 88px);
+      opacity: 0;
+      transform: scale(0.85);
+      transition:
+        opacity 0.55s ease var(--arrow-delay, 0ms),
+        transform 0.55s cubic-bezier(0.16, 1, 0.3, 1) var(--arrow-delay, 0ms);
+    }
+
+    .process-flow-root.is-revealed .process-flow-arrow {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .process-flow-root.is-revealed .process-flow-arrow svg {
+      animation: processArrowPulse 1.35s ease-in-out infinite;
+      animation-delay: var(--arrow-delay, 0ms);
+    }
+
+    .process-flow-arrow--right svg {
+      transform-origin: center center;
+    }
+
+    .process-flow-arrow--down svg {
+      transform-origin: center top;
+    }
+
+    @keyframes processArrowPulse {
+      0%, 100% {
+        opacity: 0.55;
+        transform: translate(0, 0);
+      }
+      50% {
+        opacity: 1;
+        transform: translate(5px, 0);
+      }
+    }
+
+    .process-flow-root.is-revealed .process-flow-arrow--down svg {
+      animation-name: processArrowPulseDown;
+    }
+
+    @keyframes processArrowPulseDown {
+      0%, 100% {
+        opacity: 0.55;
+        transform: translateY(0);
+      }
+      50% {
+        opacity: 1;
+        transform: translateY(6px);
+      }
+    }
+
+    .process-flow-root .process-card {
       opacity: 0;
       transform: translate3d(0, 56px, 0);
       transition:
@@ -1181,16 +1337,20 @@ export default function Franchise() {
       transition-delay: calc(var(--step-i, 0) * 220ms);
     }
 
-    .process-grid.is-revealed .process-card {
+    .process-flow-root.is-revealed .process-card {
       opacity: 1;
       transform: translate3d(0, 0, 0);
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .process-grid .process-card {
+      .process-flow-root .process-card,
+      .process-flow-arrow {
         opacity: 1;
         transform: none;
         transition: none;
+      }
+      .process-flow-root.is-revealed .process-flow-arrow svg {
+        animation: none;
       }
     }
 
@@ -1204,12 +1364,12 @@ export default function Franchise() {
 
     .process-card-media {
       position: relative;
-      width: 92%;
-      max-width: 400px;
+      width: 88%;
+      max-width: 380px;
       margin-left: auto;
       margin-right: auto;
       aspect-ratio: 10 / 9;
-      margin-bottom: clamp(14px, 1.8vw, 20px);
+      margin-bottom: clamp(16px, 2vw, 24px);
       overflow: visible;
       background: transparent;
       border: none;
@@ -1255,16 +1415,42 @@ export default function Franchise() {
       .process-wrap {
         padding: 0 clamp(16px, 4vw, 24px);
       }
-      .process-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: clamp(20px, 4vw, 28px);
+      .process-flow--wide {
+        gap: clamp(32px, 5vw, 56px);
+      }
+      .process-flow-row {
+        grid-template-columns: minmax(0, 1fr) clamp(36px, 5vw, 56px) minmax(0, 1fr) clamp(36px, 5vw, 56px) minmax(0, 1fr);
+        column-gap: clamp(10px, 1.8vw, 20px);
+      }
+      .process-flow-arrow {
+        min-width: clamp(36px, 5vw, 56px);
+        padding: clamp(8px, 1.2vw, 14px);
       }
     }
 
     @media (max-width: 520px) {
-      .process-grid {
-        grid-template-columns: 1fr;
-        gap: 28px;
+      .process-flow--wide {
+        display: none;
+      }
+      .process-flow--narrow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: clamp(4px, 1.2vw, 10px);
+        width: 100%;
+      }
+      .process-flow-narrow-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: clamp(12px, 2.5vw, 20px);
+      }
+      .process-flow--narrow {
+        gap: clamp(16px, 3vw, 28px);
+      }
+      .process-flow--narrow .process-flow-arrow {
+        min-height: clamp(36px, 6vw, 52px);
       }
     }
   `}</style>
@@ -1272,36 +1458,12 @@ export default function Franchise() {
   <div className="process-wrap relative z-10">
     <Slide direction="up">
       <header className="process-top-header">
-        <p className="process-eyebrow">How It Works</p>
-        <h2 className="process-heading">Franchise Process</h2>
+        
+        <h2 className="ms-section-heading">Franchise Process</h2>
       </header>
     </Slide>
 
-    <ProcessStepsGrid>
-      {steps.map((s, i) => (
-        <article
-          key={s.step}
-          className="process-card"
-          style={{ "--step-i": i }}
-        >
-          <div className="process-card-media">
-            <img
-              src={s.image}
-              alt={`Milkshop franchise — ${s.title}`}
-              loading={i < 3 ? "eager" : "lazy"}
-              decoding="async"
-              onError={(e) => { e.currentTarget.style.display = "none"; }}
-            />
-            <div className="process-card-fallback" aria-hidden>
-              <span>{s.icon}</span>
-            </div>
-          </div>
-          <div className="process-card-copy">
-            <p className="process-card-desc">{s.desc}</p>
-          </div>
-        </article>
-      ))}
-    </ProcessStepsGrid>
+    <ProcessStepsGrid />
   </div>
 </section>
 
@@ -1327,23 +1489,10 @@ export default function Franchise() {
  
     {/* Header */}
     <div className="text-center mb-2 px-4">
-      <Slide direction="up">
-        <p style={{
-          fontSize: "10px", fontWeight: 800, letterSpacing: "0.3em",
-          textTransform: "uppercase", color: T.green,
-          fontFamily: "'DM Sans', sans-serif", margin: "0 0 10px",
-        }}>Choose Your Package</p>
-      </Slide>
+    
       <Slide direction="up" delay={60}>
-        <h2 style={{
-          fontSize: "clamp(2rem, 4.5vw, 3.2rem)",
-          fontWeight: 900, letterSpacing: "-0.04em",
-          color: T.ink, margin: "0 0 10px",
-          fontFamily: "'DM Sans', sans-serif",
-          lineHeight: 1.05,
-        }}>
-          Find the Right{" "}
-          <span style={{ color: T.greenDark }}>Fit for You</span>
+        <h2 className="ms-section-heading" style={{ margin: "0 0 10px" }}>
+          Find the Right Fit for You
         </h2>
       </Slide>
       <Slide direction="up" delay={100}>
@@ -1446,11 +1595,8 @@ export default function Franchise() {
 
       {/* HEADLINE */}
       <h2
+        className="ms-section-heading"
         style={{
-          fontSize: "clamp(1.8rem,4vw,2.6rem)",
-          fontWeight: 900,
-          letterSpacing: "-0.03em",
-          color: T.ink,
           marginBottom: 8,
           animation: "tySlideUp 0.5s ease 0.35s both",
         }}
@@ -1506,17 +1652,9 @@ export default function Franchise() {
     <>
       {/* HEADER */}
       <div className="text-center mb-12">
-        <p className="text-[11px] tracking-[0.3em] font-bold uppercase mb-3"
-          style={{ color: T.green }}>
-          Start Your Journey
-        </p>
+       
 
-        <h2 style={{
-          fontSize: "clamp(2.5rem,5vw,3.5rem)",
-          fontWeight: 900,
-          letterSpacing: "-0.03em",
-          color: T.ink,
-        }}>
+        <h2 className="ms-section-heading">
           Franchise Application
         </h2>
 
@@ -1560,7 +1698,7 @@ export default function Franchise() {
 
             <Field label="Full Name" required error={fieldErrors.name}>
               <input name="name" value={formData.name} onChange={handleChange}
-                placeholder="Juan dela Cruz"
+                
                 className={`${inputBase} ${inputIdle}`} />
             </Field>
 
@@ -1593,7 +1731,7 @@ export default function Franchise() {
               <input name="estimatedAnnualIncome"
                 value={formData.estimatedAnnualIncome}
                 onChange={handleChange}
-                placeholder="₱800k – ₱1.2M"
+                
                 className={`${inputBase} ${inputIdle}`} />
             </Field>
 
@@ -1601,7 +1739,7 @@ export default function Franchise() {
               <input name="proposedLocation"
                 value={formData.proposedLocation}
                 onChange={handleChange}
-                placeholder="City / Mall"
+                
                 className={`${inputBase} ${inputIdle}`} />
             </Field>
 
@@ -1636,9 +1774,7 @@ export default function Franchise() {
           {/* TRUST */}
           <div className="flex gap-3 text-xs"
             style={{ color: T.greenDark }}>
-            <span>🔒 Secure</span>
-            <span>⚡ Fast</span>
-            <span>📞 We call you</span>
+           
           </div>
 
           <button
@@ -1704,15 +1840,8 @@ export default function Franchise() {
                 Common Questions
               </p>
               <h2
-                style={{
-                  fontSize: "clamp(2.2rem, 4.5vw, 3.6rem)",
-                  fontWeight: 900,
-                  letterSpacing: "-0.04em",
-                  color: T.onDark,
-                  margin: "0 0 14px",
-                  fontFamily: "'DM Sans', sans-serif",
-                  lineHeight: 1.05,
-                }}
+                className="ms-section-heading ms-section-heading--light"
+                style={{ margin: "0 0 14px" }}
               >
                 FAQs
               </h2>

@@ -4,6 +4,17 @@ import { supabase } from "../lib/supabaseClient"
 
 const milkshopLogo = "/milkshop-logo-removebg-preview.png"
 
+const T = {
+  greenDark: "#62840b",
+}
+
+/** Map block height (+10% vs base 680 / 100svh-160 / 980) */
+const MAP_LAYOUT_HEIGHT = "clamp(748px, calc((100svh - 160px) * 1.1), 1078px)"
+
+/** Same image as About Milkshop — 2022 arrival storefront */
+const LOCATIONS_HERO_IMAGE = "/about/history/storefront.png"
+const LOCATIONS_HERO_FALLBACK = "/HEROFRESH.jpg"
+
 const STATIC_LOCATIONS = [
   {
     id: 1,
@@ -103,10 +114,12 @@ function escapeHtml(value) {
 
 function pinDisplayName(name) {
   if (!name) return "Milkshop"
-  return String(name)
-    .replace(/^Milkshop PH [-–] /i, "")
-    .replace(/^Milkshop /i, "")
-    .trim() || String(name)
+  let short = String(name)
+    .replace(/^Milkshop PH [-–]\s*/i, "")
+    .replace(/^Milkshop\s+/i, "")
+    .trim()
+  if (!short) return "Milkshop"
+  return `Milkshop ${short}`
 }
 
 function BranchPanel({ loc, onClose }) {
@@ -187,11 +200,21 @@ export default function Locations() {
   const focusBranchRef                  = useRef(null)
 
   const [searchQuery, setSearchQuery] = useState("")
+  const [heroImg, setHeroImg] = useState(LOCATIONS_HERO_IMAGE)
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 900,
+  )
 
   useEffect(() => {
     const id = window.setTimeout(() => setSearchQuery(search.trim()), 220)
     return () => clearTimeout(id)
   }, [search])
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 900)
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [])
 
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase()
@@ -416,6 +439,17 @@ export default function Locations() {
       <style>{`
         @keyframes locBounce  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
         @keyframes heroFadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes locHeroFadeLeft {
+          from { opacity: 0; transform: translateX(-28px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes locHeroScrollLine {
+          0%   { transform: translateY(-100%); }
+          100% { transform: translateY(300%); }
+        }
+        .loc-hero-h1 { opacity: 0; animation: locHeroFadeLeft 0.75s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay: 0.25s; }
+        .loc-hero-p  { opacity: 0; animation: heroFadeUp 0.7s ease forwards; animation-delay: 0.45s; }
+        .loc-hero-tag { opacity: 0; animation: heroFadeUp 0.6s ease forwards; animation-delay: 0.12s; }
         @keyframes panelIn    { from{opacity:0;transform:translateX(-14px)} to{opacity:1;transform:translateX(0)} }
         @keyframes orbFloat   { 0%,100%{transform:translateY(0) scale(1);opacity:0.5} 50%{transform:translateY(-16px) scale(1.06);opacity:0.9} }
         .loc-a1{opacity:0;animation:heroFadeUp 0.6s ease forwards;animation-delay:0.1s}
@@ -423,6 +457,15 @@ export default function Locations() {
         .loc-a3{opacity:0;animation:heroFadeUp 0.7s ease forwards;animation-delay:0.4s}
         .loc-a4{opacity:0;animation:heroFadeUp 0.7s ease forwards;animation-delay:0.55s}
         .loc-a5{opacity:0;animation:heroFadeUp 0.7s ease forwards;animation-delay:0.65s}
+        .ms-section-heading {
+          margin: 0;
+          font-family: 'Signia Pro', 'DM Sans', sans-serif;
+          font-size: clamp(2rem, 4vw, 3.4rem);
+          font-weight: 900;
+          line-height: 1.2;
+          letter-spacing: -0.04em;
+          color: #62840b;
+        }
         input::placeholder{color:#a0b080}
         .leaflet-control-attribution{font-size:9px!important;opacity:0.45!important}
         .leaflet-attribution-flag{display:none!important}
@@ -431,19 +474,15 @@ export default function Locations() {
         .leaflet-control-zoom a:hover{background:rgba(151,182,76,0.1)!important}
 
         @media (max-width: 900px){
-          .loc-hero{padding: 92px 16px 56px !important}
-          .loc-hero-content{gap: 22px !important}
-          .loc-hero-right{min-width: 100% !important}
-          /* leave room for fixed navbar */
-          .loc-map-section{padding: 92px 12px 56px !important}
-          .loc-map-header{gap: 14px !important; margin-bottom: 16px !important}
+          .loc-map-section{padding: 53px 16px 35px !important}
+          .loc-map-header{gap: 14px !important; margin-bottom: 28px !important}
           .loc-map-layout{
             grid-template-columns: 1fr !important;
             min-height: auto !important;
             border-radius: 18px !important;
           }
           .loc-map-pane{
-            min-height: 62vh !important;
+            min-height: 68.2vh !important;
           }
           .loc-sidebar{
             border-left: none !important;
@@ -462,22 +501,205 @@ export default function Locations() {
         }
       `}</style>
 
-     
+      {/* ══ HERO — blurred storefront (About hero style) ══ */}
+      <section
+        className="loc-hero"
+        style={{
+          position: "relative",
+          overflow: "hidden",
+          minHeight: isMobile ? "83vh" : "90vh",
+          display: "flex",
+          alignItems: "center",
+          fontFamily: "'DM Sans', sans-serif",
+        }}
+      >
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0,
+            overflow: "hidden",
+            background: "#141c0a",
+          }}
+        >
+          <img
+            src={heroImg}
+            alt=""
+            onError={() => {
+              if (heroImg !== LOCATIONS_HERO_FALLBACK) setHeroImg(LOCATIONS_HERO_FALLBACK)
+            }}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              objectPosition: "center",
+              filter: "blur(4px) brightness(0.72) saturate(0.88)",
+              pointerEvents: "none",
+            }}
+          />
+        </div>
+
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            background:
+              "linear-gradient(158deg, rgba(18,26,8,0.62) 0%, rgba(24,34,12,0.50) 40%, rgba(20,30,10,0.58) 100%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            background:
+              "radial-gradient(ellipse at center, transparent 40%, rgba(10,18,4,0.35) 100%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          style={{
+            position: "relative",
+            zIndex: 2,
+            width: "100%",
+            maxWidth: 900,
+            margin: "0 auto",
+            padding: isMobile ? "100px 20px 64px" : "120px 48px 72px",
+            boxSizing: "border-box",
+            textAlign: "center",
+          }}
+        >
+          <div className="loc-hero-tag" style={{ marginBottom: 16 }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 10,
+                fontWeight: 800,
+                letterSpacing: "0.28em",
+                textTransform: "uppercase",
+                color: "#b7cd7f",
+              }}
+            >
+              Store Locations
+            </p>
+          </div>
+
+          <div className="loc-hero-h1">
+            <h1
+              style={{
+                margin: 0,
+                fontSize: isMobile
+                  ? "clamp(2.4rem, 10vw, 3.4rem)"
+                  : "clamp(3.2rem, 5.5vw, 5.2rem)",
+                fontWeight: 900,
+                lineHeight: 0.95,
+                letterSpacing: "-0.05em",
+                color: "#F6F1E7",
+                textShadow: "0 6px 30px rgba(0,0,0,0.38)",
+              }}
+            >
+              Find a{" "}
+              <span
+                style={{
+                  background:
+                    "linear-gradient(135deg, #A6C44A 0%, #C8D97B 45%, #E2C078 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  display: "inline-block",
+                }}
+              >
+                Milkshop
+              </span>
+              <br />
+              <span style={{ color: "rgba(246,241,231,0.92)" }}>Near You.</span>
+            </h1>
+          </div>
+
+          <div className="loc-hero-p" style={{ marginTop: 20 }}>
+            <p
+              style={{
+                margin: "0 auto",
+                maxWidth: 520,
+                fontSize: "clamp(0.92rem, 1.35vw, 1.05rem)",
+                lineHeight: 1.85,
+                color: "rgba(246,241,231,0.72)",
+                fontWeight: 400,
+                textShadow: "0 2px 18px rgba(0,0,0,0.22)",
+              }}
+            >
+              Visit any of our branches across the Philippines — tap a pin on the map below to see
+              directions and store details.
+            </p>
+          </div>
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            bottom: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 2,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 6,
+            opacity: 0.65,
+          }}
+        >
+          <div
+            style={{
+              width: 1,
+              height: 40,
+              overflow: "hidden",
+              background: "rgba(98,132,11,0.25)",
+              borderRadius: 1,
+              position: "relative",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                width: "100%",
+                height: "40%",
+                background: "#97b64c",
+                borderRadius: 1,
+                animation: "locHeroScrollLine 1.8s ease-in-out infinite",
+              }}
+            />
+          </div>
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: 8,
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              color: "#b7cd7f",
+            }}
+          >
+            Scroll
+          </span>
+        </div>
+      </section>
 
     {/* ══ MAP SECTION — PREMIUM REDESIGN ══ */}
     <section className="loc-map-section" style={{
-        background: "radial-gradient(120% 120% at 50% 0%, #f8fcf1 0%, #eef5e2 40%, #e8f0da 100%)",
-        /* leave room for fixed navbar */
-        padding: "104px 48px 28px",
+        background: "#ffffff",
+        padding: isMobile ? "62px 20px 40px" : "79px 48px 53px",
         position: "relative",
         overflow: "hidden",
       }}>
-
-        {/* Ambient background */}
-        <div aria-hidden style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(ellipse 70% 50% at 50% 100%, rgba(151,182,76,0.07), transparent 65%)",
-        }} />
 
         <style>{`
           @keyframes mapFadeUp   { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
@@ -489,7 +711,7 @@ export default function Locations() {
           .ms-pin-wrap:hover .ms-pin-body { transform: rotate(-45deg) scale(1.08); }
           .ms-pin-label {
             display: block;
-            max-width: 118px;
+            max-width: 148px;
             padding: 3px 8px;
             background: #ffffff;
             border: 1px solid rgba(151,182,76,0.3);
@@ -543,40 +765,13 @@ export default function Locations() {
             alignItems: "flex-start",
             justifyContent: "space-between",
             gap: 20,
-            marginBottom: 22,
+            marginBottom: isMobile ? 32 : 40,
           }}>
             <div style={{ flex: "1 1 320px", minWidth: 0 }}>
-              <p className="loc-a1" style={{
-                margin: "0 0 8px",
-                fontSize: 11,
-                fontWeight: 800,
-                letterSpacing: "0.28em",
-                textTransform: "uppercase",
-                color: "#62840b",
-              }}>
-                Store locator
-              </p>
-              <h1 className="loc-a2" style={{
-                margin: "0 0 12px",
-                fontSize: "clamp(2rem, 4.8vw, 3.25rem)",
-                fontWeight: 900,
-                letterSpacing: "-0.045em",
-                lineHeight: 1.05,
-                color: "#1a1e14",
-              }}>
-                Your next cup is{" "}
-                <span style={{
-                  background: "linear-gradient(135deg, #3a5c06, #62840b 40%, #97b64c)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}>
-                  closer than you think
-                </span>
+              <h1 className="loc-a2 ms-section-heading">
+                Store Locator
               </h1>
-          
             </div>
-         
           </div>
 
           {/* ── Main content: map + sidebar ── */}
@@ -589,8 +784,8 @@ export default function Locations() {
             overflow: "visible",
             boxShadow: "none",
             border: "none",
-            height: "clamp(680px, calc(100svh - 160px), 980px)",
-            minHeight: "clamp(680px, calc(100svh - 160px), 980px)",
+            height: MAP_LAYOUT_HEIGHT,
+            minHeight: MAP_LAYOUT_HEIGHT,
           }}>
 
             {/* MAP */}
@@ -1125,30 +1320,143 @@ export default function Locations() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section style={{ backgroundColor: "#ffffff", borderTop: "1px solid #e8f0dc", padding: "96px 48px", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", backgroundImage: "linear-gradient(rgba(151,182,76,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(151,182,76,0.045) 1px, transparent 1px)", backgroundSize: "52px 52px" }} />
-        <div className="perf-heavy-blur" style={{ position: "absolute", left: "-5%", top: "50%", transform: "translateY(-50%)", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(151,182,76,0.07), transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
-        <div className="perf-heavy-blur" style={{ position: "absolute", right: "5%", bottom: "-20%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(183,205,127,0.09), transparent 70%)", filter: "blur(30px)", pointerEvents: "none" }} />
+      {/* CTA — expanding nationwide */}
+      <section
+        className="loc-expand-cta"
+        style={{
+          backgroundColor: "#ffffff",
+          borderTop: "1px solid #e8f0dc",
+          padding: "clamp(28px, 4vw, 40px) clamp(20px, 5vw, 48px)",
+        }}
+      >
+        <style>{`
+          .loc-expand-inner {
+            max-width: 1120px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px 32px;
+          }
+          .loc-expand-copy {
+            flex: 1 1 280px;
+            min-width: 0;
+          }
+          .loc-expand-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+          }
+          .loc-expand-eyebrow span {
+            width: 28px;
+            height: 2px;
+            background: #62840b;
+            border-radius: 2px;
+            flex-shrink: 0;
+          }
+          .loc-expand-eyebrow p {
+            margin: 0;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.26em;
+            text-transform: uppercase;
+            color: #62840b;
+            font-family: 'DM Sans', sans-serif;
+          }
+          .loc-expand-title {
+            margin: 0 0 6px;
+          }
+          .loc-expand-title em {
+            font-style: normal;
+            color: #62840b;
+          }
+          .loc-expand-body {
+            margin: 0;
+            max-width: 48ch;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.84rem;
+            line-height: 1.6;
+            color: #4a5640;
+          }
+          .loc-expand-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+          }
+          .loc-expand-btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 22px;
+            border-radius: 999px;
+            background: #62840b;
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-decoration: none;
+            border: none;
+            box-shadow: 0 6px 18px rgba(98, 132, 11, 0.28);
+            transition: transform 0.2s ease, background 0.2s ease;
+            white-space: nowrap;
+          }
+          .loc-expand-btn-primary:hover {
+            background: #536f09;
+            transform: translateY(-1px);
+          }
+          .loc-expand-btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 20px;
+            border-radius: 999px;
+            background: #fff;
+            color: #62840b;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            border: 1.5px solid #d0e0b0;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+            white-space: nowrap;
+          }
+          .loc-expand-btn-secondary:hover {
+            border-color: #97b64c;
+            background: #f7faef;
+            transform: translateY(-1px);
+          }
+          @media (max-width: 640px) {
+            .loc-expand-inner {
+              flex-direction: column;
+              align-items: flex-start;
+            }
+            .loc-expand-actions { width: 100%; }
+          }
+        `}</style>
 
-        <div style={{ maxWidth: "1200px", margin: "0 auto", position: "relative", zIndex: 1, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 48 }}>
-          <div style={{ maxWidth: 500 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-              <div style={{ height: 2, width: 36, background: "linear-gradient(90deg, #62840b, #97b64c)", borderRadius: 2 }} />
-              <p style={{ fontSize: "10px", fontWeight: 800, letterSpacing: "0.28em", textTransform: "uppercase", color: "#97b64c", fontFamily: "'DM Sans', sans-serif", margin: 0 }}>Expanding Nationwide</p>
+        <div className="loc-expand-inner">
+          <div className="loc-expand-copy">
+            <div className="loc-expand-eyebrow">
+              <span aria-hidden />
+              <p>Expanding Nationwide</p>
             </div>
-            <h2 style={{ fontSize: "clamp(2rem,4vw,3.2rem)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.0, color: "#1e1e1e", margin: "0 0 16px", fontFamily: "'DM Sans', sans-serif" }}>
-              Don't see your city?<br />
-              <span style={{ background: "linear-gradient(135deg, #62840b, #97b64c)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>We're coming there.</span>
+            <h2 className="loc-expand-title ms-section-heading">
+              Don&apos;t see your city? <em>We&apos;re coming there.</em>
             </h2>
-            <p style={{ fontSize: "0.9rem", color: "#5a6a4a", maxWidth: "380px", lineHeight: 1.75, margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
-              New branches open every quarter. Check back soon — or bring Milkshop to your city yourself.
-            </p>
+          
           </div>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-            <Link to="/franchise#inquiry" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: "0.875rem", padding: "15px 30px", borderRadius: 999, background: "linear-gradient(135deg, #E8A020, #cf8e18)", color: "#fff", textDecoration: "none", boxShadow: "0 6px 24px rgba(232,160,32,0.32)", transition: "all 0.25s ease", display: "inline-block" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(232,160,32,0.42)" }} onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 6px 24px rgba(232,160,32,0.32)" }}>Open a Branch →</Link>
-            <Link to="/franchise" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: "0.875rem", padding: "15px 30px", borderRadius: 999, border: "1.5px solid #d0e0b0", color: "#62840b", textDecoration: "none", background: "transparent", transition: "all 0.25s ease", display: "inline-block" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "#97b64c"; e.currentTarget.style.background = "#f5f8ef"; e.currentTarget.style.transform = "translateY(-2px)" }} onMouseLeave={e => { e.currentTarget.style.borderColor = "#d0e0b0"; e.currentTarget.style.background = "transparent"; e.currentTarget.style.transform = "translateY(0)" }}>Learn About Franchising</Link>
+          <div className="loc-expand-actions">
+            <Link to="/franchise#inquiry" className="loc-expand-btn-primary">
+              Open a Branch →
+            </Link>
+            <Link to="/franchise" className="loc-expand-btn-secondary">
+              Learn About Franchising
+            </Link>
           </div>
         </div>
       </section>

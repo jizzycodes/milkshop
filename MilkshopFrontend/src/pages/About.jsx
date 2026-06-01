@@ -88,28 +88,28 @@ function HistoryImage({ src, fallback, alt }) {
 
 const rawMaterials = [
   {
+    icon: "🍃",
     title: "Premium Tea Leaves",
     origin: "Taiwan Highlands",
     desc: "Slow-grown tea leaves with deep aroma and smooth finish.",
-    image: "/images/tea-leaves.jpg",
   },
   {
+    icon: "🥛",
     title: "Fresh Milk",
     origin: "Daily Sourced",
     desc: "Creamy texture that balances every brewed flavor.",
-    image: "/images/fresh-milk.jpg",
   },
   {
+    icon: "🧋",
     title: "Brown Sugar Pearls",
     origin: "Handcrafted Daily",
     desc: "Soft, chewy pearls cooked for the perfect bite.",
-    image: "/images/boba.jpg",
   },
   {
+    icon: "🌿",
     title: "Natural Ingredients",
     origin: "Carefully Selected",
     desc: "Made with quality ingredients chosen for authentic taste.",
-    image: "/images/ingredients.jpg",
   },
 ]
 
@@ -172,6 +172,17 @@ export default function About() {
 
   return (
     <main className="overflow-x-hidden" style={{ fontFamily: "'DM Sans', sans-serif", background: T.offWhite }}>
+      <style>{`
+        .ms-section-heading {
+          margin: 0;
+          font-family: 'Signia Pro', 'DM Sans', sans-serif;
+          font-size: clamp(2rem, 4vw, 3.4rem);
+          font-weight: 900;
+          line-height: 1.2;
+          letter-spacing: -0.04em;
+          color: ${T.greenDark};
+        }
+      `}</style>
 
       {/* ══════════════════════════════════════════════
           SLIDE 1 — HERO: Born in Taiwan
@@ -548,189 +559,106 @@ export default function About() {
 
 
 
-      {/* ── From Farm to Cup ── */}
+      {/* ── Ingredients ── */}
       <section
-        className="relative overflow-hidden"
         style={{
-          background: T.offWhite,
-          padding: isMobile ? "72px 18px 80px" : "100px 48px 112px",
+          background: T.white,
+          padding: isMobile ? "56px 20px 64px" : "72px 48px 80px",
           borderTop: `1px solid ${T.border}`,
           borderBottom: `1px solid ${T.border}`,
         }}
       >
         <style>{`
-          @keyframes ftc-shimmer {
-            0%   { background-position: -200% center; }
-            100% { background-position:  200% center; }
+          .ftc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: clamp(16px, 2.5vw, 24px);
           }
-          .ftc-card {
-            background: ${T.white};
+          .ftc-item {
+            padding: clamp(18px, 2.5vw, 22px);
+            background: ${T.offWhite};
             border: 1px solid ${T.border};
-            border-radius: 24px;
-            overflow: hidden;
+            border-radius: 16px;
             display: flex;
             flex-direction: column;
-            transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease, border-color 0.3s ease;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.04);
-          }
-          .ftc-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 48px rgba(151,182,76,0.14), 0 4px 16px rgba(0,0,0,0.06);
-            border-color: rgba(151,182,76,0.42);
-          }
-          .ftc-card:hover .ftc-accent-bar {
-            width: 100%;
-          }
-          .ftc-card:hover .ftc-img-wrap img {
-            transform: scale(1.04);
-          }
-          .ftc-accent-bar {
-            height: 3px;
-            width: 36px;
-            background: linear-gradient(90deg, #62840b, #97b64c);
-            border-radius: 99px;
-            transition: width 0.45s cubic-bezier(0.16,1,0.3,1);
-          }
-          .ftc-origin-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            border-radius: 999px;
-            background: rgba(151,182,76,0.1);
-            border: 1px solid rgba(151,182,76,0.22);
-            font-family: 'DM Mono', monospace;
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: ${T.greenDark};
-          }
-          .ftc-img-wrap {
-            overflow: hidden;
-            width: 100%;
-            aspect-ratio: 4 / 3;
-            background: #f0f4ea;
-            position: relative;
-          }
-          .ftc-img-wrap img {
-            width: 100%;
+            gap: 10px;
             height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.55s cubic-bezier(0.16,1,0.3,1);
           }
-          .ftc-img-placeholder {
-            width: 100%;
-            height: 100%;
+          .ftc-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: ${T.white};
+            border: 1px solid ${T.border};
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(145deg, #f0f5e8 0%, #e8f0dc 100%);
-            font-size: 3rem;
+            font-size: 1.35rem;
+            flex-shrink: 0;
+          }
+          .ftc-origin {
+            margin: 0;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: ${T.greenDark};
+          }
+          .ftc-title {
+            margin: 0;
+            font-family: 'DM Sans', sans-serif;
+            font-size: clamp(1rem, 1.4vw, 1.12rem);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: ${T.ink};
+            line-height: 1.2;
+          }
+          .ftc-desc {
+            margin: 0;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.84rem;
+            line-height: 1.65;
+            color: ${T.body};
+          }
+          @media (max-width: 900px) {
+            .ftc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          }
+          @media (max-width: 520px) {
+            .ftc-grid { grid-template-columns: 1fr; }
           }
         `}</style>
 
-        {/* Subtle dot grid */}
-        <div aria-hidden style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          backgroundImage: "radial-gradient(circle, rgba(151,182,76,0.14) 1.5px, transparent 1.5px)",
-          backgroundSize: "36px 36px",
-          maskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 68%)",
-          WebkitMaskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 68%)",
-        }} />
-
-        <div style={{ maxWidth: 1240, margin: "0 auto", position: "relative", zIndex: 1 }}>
-
-          {/* Header */}
-          <Slide direction="up" className="text-center" style={{ marginBottom: isMobile ? 40 : 56 }}>
-            <p style={{
-              fontFamily: "'DM Mono', monospace",
-              fontSize: 10, letterSpacing: "0.28em",
-              textTransform: "uppercase", color: T.green,
-              margin: "0 0 12px",
-            }}>
-              From Farm to Cup
-            </p>
-            <h2 style={{
-              fontWeight: 900,
-              letterSpacing: "-0.03em",
-              color: T.ink,
-              fontSize: isMobile ? "clamp(1.9rem,6vw,2.4rem)" : "clamp(2.4rem,4vw,3.2rem)",
-              lineHeight: 1.08,
-              margin: "0 0 14px",
-            }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <Slide direction="up" className="text-center" style={{ marginBottom: isMobile ? 32 : 40 }}>
+          
+            <h2 className="ms-section-heading" style={{ margin: "0 0 12px" }}>
               Ingredients that Make the Difference
             </h2>
             <p style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: "0.95rem", color: T.body,
-              maxWidth: 440, margin: "0 auto", lineHeight: 1.7,
+              fontSize: "0.92rem",
+              color: T.ink,
+              maxWidth: 480,
+              margin: "0 auto",
+              lineHeight: 1.7,
             }}>
               Every cup starts with ingredients sourced and crafted for one purpose — authentic taste.
             </p>
           </Slide>
 
-          {/* Cards grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="ftc-grid">
             {rawMaterials.map((r, i) => (
-              <Slide key={r.title} direction="up" delay={i * 70}>
-                <div className="ftc-card">
-
-                  {/* Image area */}
-                  <div className="ftc-img-wrap">
-                    {r.image ? (
-                      <img src={r.image} alt={r.title} loading="lazy" decoding="async" />
-                    ) : (
-                      <div className="ftc-img-placeholder">
-                        {["🍃", "🥛", "🧋", "🌿"][i]}
-                      </div>
-                    )}
-                    {/* Soft green overlay at bottom of image */}
-                    <div aria-hidden style={{
-                      position: "absolute", bottom: 0, left: 0, right: 0, height: "40%",
-                      background: "linear-gradient(to top, rgba(240,245,232,0.55), transparent)",
-                      pointerEvents: "none",
-                    }} />
-                  </div>
-
-                  {/* Body */}
-                  <div style={{
-                    padding: isMobile ? "20px 20px 24px" : "22px 24px 28px",
-                    display: "flex", flexDirection: "column", gap: 10, flex: 1,
-                  }}>
-                    <span className="ftc-origin-badge">● {r.origin}</span>
-
-                    <div className="ftc-accent-bar" />
-
-                    <h3 style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontWeight: 900,
-                      fontSize: isMobile ? "1.25rem" : "1.35rem",
-                      letterSpacing: "-0.03em",
-                      color: T.ink,
-                      margin: 0,
-                      lineHeight: 1.15,
-                    }}>
-                      {r.title}
-                    </h3>
-
-                    <p style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: "0.875rem",
-                      color: T.body,
-                      lineHeight: 1.7,
-                      margin: 0,
-                    }}>
-                      {r.desc}
-                    </p>
-                  </div>
-
-                </div>
+              <Slide key={r.title} direction="up" delay={i * 60}>
+                <article className="ftc-item">
+                  <div className="ftc-icon" aria-hidden>{r.icon}</div>
+                  <p className="ftc-origin">{r.origin}</p>
+                  <h3 className="ftc-title">{r.title}</h3>
+                  <p className="ftc-desc">{r.desc}</p>
+                </article>
               </Slide>
             ))}
           </div>
-
         </div>
       </section>
 
@@ -767,9 +695,17 @@ export default function About() {
       0%, 100% { box-shadow: 0 0 0 0 rgba(98,132,11,0.4), 0 0 18px rgba(151,182,76,0.35); }
       50%      { box-shadow: 0 0 0 10px rgba(98,132,11,0), 0 0 26px rgba(151,182,76,0.45); }
     }
-    @keyframes historyShine {
-      0%   { transform: translateX(-120%) skewX(-12deg); }
-      100% { transform: translateX(220%) skewX(-12deg); }
+    @keyframes historyFloat {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    .history-img-float {
+      animation: historyFloat 7s ease-in-out infinite;
+      animation-delay: calc(var(--history-i, 0) * 0.45s);
+      will-change: transform;
+    }
+    .history-img-float:hover {
+      animation-play-state: paused;
     }
     .history-header-wrap {
       animation: historyHeaderIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -814,32 +750,14 @@ export default function About() {
       box-shadow: 0 36px 90px rgba(98, 132, 11, 0.24) !important;
     }
     .history-img-card img { transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1); }
-    .history-img-card:hover img { transform: scale(1.05); }
-    .history-img-shine {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-      border-radius: inherit;
-    }
-    .history-img-shine::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 45%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-      animation: historyShine 5s ease-in-out infinite;
-      animation-delay: 1.2s;
-    }
+    .history-img-card:hover img { transform: scale(1.06); }
     .history-text-panel { transition: transform 0.4s ease; }
     .history-text-panel:hover { transform: translateY(-4px); }
     @media (prefers-reduced-motion: reduce) {
       .history-header-wrap, .history-eyebrow, .history-title-main, .history-accent-bar {
         animation: none; opacity: 1; transform: none;
       }
-      .history-orb-a, .history-orb-b, .history-timeline-dot, .history-img-shine::after {
+      .history-orb-a, .history-orb-b, .history-timeline-dot, .history-img-float {
         animation: none;
       }
       .history-img-card:hover { transform: none !important; }
@@ -916,54 +834,15 @@ export default function About() {
   <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-10 lg:px-16">
     {/* ── HEADER ── */}
     <div className="history-header-wrap text-center mb-20 sm:mb-24">
-      <p
-        className="history-eyebrow"
-        style={{
-          margin: "0 0 10px",
-          fontSize: "10px",
-          fontWeight: 800,
-          letterSpacing: "0.3em",
-          textTransform: "uppercase",
-          color: T.green,
-          fontFamily: "'DM Sans', sans-serif",
-        }}
-      >
-        Company History
-      </p>
+  
 
-      <h2
-        className="history-title-main"
-        style={{
-          margin: 0,
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: "clamp(2rem, 4.5vw, 3.2rem)",
-          lineHeight: 1.05,
-          fontWeight: 900,
-          letterSpacing: "-0.04em",
-          color: T.ink,
-        }}
-      >
-        About{" "}
-        <span style={{ color: T.greenDark }}>Milkshop</span>
+      <h2 className="history-title-main ms-section-heading">
+        ABOUT MILKSHOP
       </h2>
 
       <div className="history-accent-bar" aria-hidden />
 
-      <p
-        style={{
-          marginTop: 22,
-          maxWidth: 640,
-          marginInline: "auto",
-          fontSize: "0.88rem",
-          lineHeight: 1.75,
-          color: T.body,
-          fontWeight: 500,
-          fontFamily: "'DM Sans', sans-serif",
-        }}
-      >
-        Bringing the authentic taste of Taiwan to the Philippines — crafted with premium
-        ingredients, evolving with every Filipino taste bud.
-      </p>
+    
     </div>
 
     {/* ── TIMELINE BLOCKS ── */}
@@ -1033,44 +912,47 @@ export default function About() {
                 />
 
                 <div
-                  className="history-img-card"
-                  style={{
-                    position: "relative",
-                    overflow: "hidden",
-                    borderRadius: 28,
-                    background: "rgba(255,255,255,.55)",
-                    backdropFilter: "blur(14px)",
-                    border: "1px solid rgba(255,255,255,.7)",
-                    boxShadow: "0 30px 80px rgba(98,132,11,0.18)",
-                    transform: imageLeft
-                      ? "perspective(1200px) rotateY(-5deg)"
-                      : "perspective(1200px) rotateY(5deg)",
-                  }}
+                  className="history-img-float"
+                  style={{ "--history-i": i }}
                 >
                   <div
+                    className="history-img-card"
                     style={{
-                      aspectRatio: "4 / 3",
+                      position: "relative",
                       overflow: "hidden",
+                      borderRadius: 28,
+                      background: "rgba(255,255,255,.55)",
+                      backdropFilter: "blur(14px)",
+                      border: "1px solid rgba(255,255,255,.7)",
+                      boxShadow: "0 30px 80px rgba(98,132,11,0.18)",
+                      transform: imageLeft
+                        ? "perspective(1200px) rotateY(-5deg)"
+                        : "perspective(1200px) rotateY(5deg)",
                     }}
                   >
-                    <HistoryImage
-                      src={block.image}
-                      fallback={block.fallback}
-                      alt={block.alt}
+                    <div
+                      style={{
+                        aspectRatio: "4 / 3",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <HistoryImage
+                        src={block.image}
+                        fallback={block.fallback}
+                        alt={block.alt}
+                      />
+                    </div>
+
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(to top, rgba(0,0,0,.18), transparent 40%)",
+                        pointerEvents: "none",
+                      }}
                     />
                   </div>
-
-                  <div className="history-img-shine" aria-hidden />
-
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      background:
-                        "linear-gradient(to top, rgba(0,0,0,.18), transparent 40%)",
-                      pointerEvents: "none",
-                    }}
-                  />
                 </div>
               </div>
 
@@ -1131,17 +1013,7 @@ export default function About() {
           marginTop: "clamp(80px, 10vw, 140px)",
         }}
       >
-        <p
-          style={{
-            margin: 0,
-            fontFamily: "'Signia Pro', 'DM Sans', sans-serif",
-            fontSize: "clamp(2rem, 4vw, 3.4rem)",
-            fontWeight: 900,
-            lineHeight: 1.2,
-            letterSpacing: "-0.04em",
-            color: T.greenDark,
-          }}
-        >
+        <p className="ms-section-heading">
           From Taiwan to the Philippines —
           <br />
           one cup at a time.
@@ -1222,6 +1094,12 @@ export default function About() {
       transition: transform 0.25s ease;
     }
     .bmc-stat:hover { transform: translateY(-4px); }
+    .bmc-split {
+      display: grid;
+      grid-template-columns: 1fr;
+      align-items: stretch;
+      min-height: 0;
+    }
   `}</style>
 
   {/* ── Ambient orbs ── */}
@@ -1256,96 +1134,42 @@ export default function About() {
     margin: "0 auto",
   }}>
 
-    {/* ── Two column layout ── */}
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-      gap: isMobile ? 52 : 80,
-      alignItems: "center",
-    }}>
-
-      {/* ── LEFT: Text ── */}
+    {/* ── Two column: image 50% | text 50% ── */}
+    <div
+      className="bmc-split"
+      style={{
+        gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+        gap: isMobile ? 40 : 0,
+        minHeight: isMobile ? "auto" : "clamp(420px, 48vw, 560px)",
+      }}
+    >
+      {/* ── LEFT: Photo (fills half) ── */}
       <Slide direction="left">
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-
-          {/* Eyebrow */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ width: 28, height: 2, background: T.green, borderRadius: 2, display: "block" }} />
-            <span style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "10px", fontWeight: 900,
-              letterSpacing: "0.26em", textTransform: "uppercase",
-              color: T.greenDark,
-            }}>
-              Franchise Opportunity
-            </span>
-          </div>
-
-          {/* Heading */}
-          <h2 style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "clamp(2.4rem, 5vw, 4rem)",
-            fontWeight: 900,
-            lineHeight: 0.95,
-            letterSpacing: "-0.03em",
-            color: T.ink,
-            margin: 0,
-          }}>
-            Bring Milkshop<br />
-            <span style={{
-              background: "linear-gradient(135deg, #3a5c06 0%, #62840b 35%, #97b64c 70%, #b7cd7f 100%)",
-              backgroundSize: "200% auto",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              animation: "bmc-shimmer 6s linear infinite",
-              display: "inline-block",
-            }}>
-              Closer to Your
-            </span>
-            <br />Community.
-          </h2>
-
-          {/* Body */}
-         
-
-          {/* CTAs */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 4 }}>
-            <Link to="/franchise#inquiry" className="bmc-cta">
-              Start Your Journey →
-            </Link>
-            <Link to="/franchise" className="bmc-ghost">
-              Learn More
-            </Link>
-          </div>
-
-        </div>
-      </Slide>
-
-      {/* ── RIGHT: Branch photo ── */}
-      <Slide direction="right" delay={120}>
         <div
           style={{
             position: "relative",
-            borderRadius: 24,
+            width: "100%",
+            height: isMobile ? "clamp(280px, 50vw, 380px)" : "100%",
+            minHeight: isMobile ? "clamp(280px, 50vw, 380px)" : "100%",
             overflow: "hidden",
-            border: "1px solid rgba(151,182,76,0.28)",
-            boxShadow: "0 28px 64px rgba(98,132,11,0.18), 0 10px 28px rgba(0,0,0,0.06)",
-            background: "linear-gradient(145deg, #eef5df 0%, #ffffff 100%)",
+            borderRadius: isMobile ? 20 : "20px 0 0 20px",
+            border: "1px solid rgba(151,182,76,0.22)",
+            borderRight: isMobile ? undefined : "none",
+            boxShadow: isMobile ? "0 16px 40px rgba(98,132,11,0.12)" : "none",
           }}
         >
           <img
             src="/closer.jpg"
-            alt="Milkshop branch"
+            alt="Milkshop drinks"
             loading="lazy"
             decoding="async"
             draggable={false}
             style={{
               width: "100%",
+              height: "100%",
               display: "block",
               objectFit: "cover",
-              aspectRatio: "4 / 5",
-              maxHeight: isMobile ? 380 : 520,
+              objectPosition: "center",
             }}
           />
           <div
@@ -1354,12 +1178,42 @@ export default function About() {
               position: "absolute",
               inset: 0,
               pointerEvents: "none",
-              background: "linear-gradient(180deg, transparent 55%, rgba(26,30,20,0.12) 100%)",
+              background: "linear-gradient(90deg, transparent 60%, rgba(249,251,244,0.15) 100%)",
             }}
           />
         </div>
       </Slide>
 
+      {/* ── RIGHT: Text ── */}
+      <Slide direction="right" delay={120}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            gap: 20,
+            height: "100%",
+            padding: isMobile ? "0 4px" : "0 clamp(32px, 5vw, 64px)",
+            boxSizing: "border-box",
+          }}
+        >
+          <h2 className="ms-section-heading">
+            Bring Milkshop<br />
+            <span style={{ color: T.ink }}>Closer to Your</span>
+            <br />
+            <span style={{ color: T.ink }}>Community.</span>
+          </h2>
+
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 4 }}>
+            <Link to="/franchise#inquiry" className="bmc-cta">
+              Start Your Journey →
+            </Link>
+            <Link to="/franchise" className="bmc-ghost">
+              Learn More
+            </Link>
+          </div>
+        </div>
+      </Slide>
     </div>
   </div>
 </section>

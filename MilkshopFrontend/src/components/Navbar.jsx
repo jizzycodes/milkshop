@@ -31,34 +31,37 @@ const styles = `
   /* ── Desktop nav links ── */
   .nav-link {
     position: relative;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 44px;
-    padding: 0 16px;
+    height: 48px;
+    padding: 0 14px;
     border-radius: 8px;
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: 1.15rem;
+    font-size: 1.28rem;
     font-weight: 700;
     letter-spacing: -0.01em;
     color: rgba(17, 24, 39, 0.72);
     border: 1px solid transparent;
-    transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
     white-space: nowrap;
+    transition:
+      transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.28s ease,
+      text-shadow 0.28s ease;
   }
 
   .nav-link:hover {
-    color: #111827;
-    background: rgba(151, 182, 76, 0.12);
-    border-color: rgba(151, 182, 76, 0.22);
+    color: #536f09;
+    transform: scale(1.06);
+    text-shadow:
+      0 0 16px rgba(151, 182, 76, 0.4),
+      0 0 4px rgba(98, 132, 11, 0.18);
   }
 
   .nav-link.active {
     color: #62840b;
-    background: transparent;
-    border-color: transparent;
-    box-shadow: none;
+    text-shadow: 0 0 10px rgba(151, 182, 76, 0.25);
   }
 
   /* Franchise CTA — flat pill (like Apply for Franchise ref), solid orange */
@@ -99,18 +102,64 @@ const styles = `
     line-height: 1;
   }
 
+  .nav-brand-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    flex-shrink: 0;
+    color: inherit;
+  }
+
+  .nav-brand-logo {
+    display: block;
+    object-fit: contain;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), filter 0.28s ease;
+  }
+
   .nav-brand-wordmark {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Signia Pro', 'DM Sans', sans-serif;
     font-weight: 900;
-    letter-spacing: -0.05em;
-    line-height: 0.92;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
     white-space: nowrap;
     user-select: none;
     display: inline-block;
     color: #62840b;
-    transition: font-size 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transition:
+      transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+      text-shadow 0.28s ease,
+      color 0.28s ease,
+      font-size 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     text-rendering: geometricPrecision;
     -webkit-font-smoothing: antialiased;
+  }
+
+  .nav-brand-link:hover .nav-brand-logo {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 12px rgba(151, 182, 76, 0.5));
+  }
+
+  .nav-brand-link:hover .nav-brand-wordmark {
+    transform: scale(1.05);
+    color: #536f09;
+    text-shadow:
+      0 0 18px rgba(151, 182, 76, 0.45),
+      0 0 4px rgba(98, 132, 11, 0.2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-brand-link:hover .nav-brand-logo,
+    .nav-brand-link:hover .nav-brand-wordmark,
+    .nav-link:hover,
+    .mobile-link:hover {
+      transform: none;
+      filter: none;
+      text-shadow: none;
+    }
+    .nav-link.active {
+      text-shadow: none;
+    }
   }
 
   /* ── Mobile menu links ── */
@@ -122,23 +171,27 @@ const styles = `
     border-radius: 12px;
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: 1.15rem;
+    font-size: 1.28rem;
     font-weight: 700;
     color: rgba(17, 24, 39, 0.78);
     border: 1px solid transparent;
-    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+    transition:
+      transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.28s ease,
+      text-shadow 0.28s ease;
   }
 
   .mobile-link:hover {
-    background: rgba(151, 182, 76, 0.12);
-    border-color: rgba(151, 182, 76, 0.22);
-    color: #111827;
+    color: #536f09;
+    transform: scale(1.03);
+    text-shadow:
+      0 0 14px rgba(151, 182, 76, 0.38),
+      0 0 4px rgba(98, 132, 11, 0.16);
   }
 
   .mobile-link.active {
-    background: transparent;
-    border-color: transparent;
     color: #62840b;
+    text-shadow: 0 0 8px rgba(151, 182, 76, 0.22);
   }
 
   /* ── Hamburger ── */
@@ -248,23 +301,17 @@ export default function Navbar() {
           <Link
             to="/"
             aria-label="Milkshop home"
-            style={{
-              display:      "flex",
-              alignItems:   "center",
-              gap:          10,
-              textDecoration: "none",
-              flexShrink:   0,
-              marginLeft:   NAV_BRAND_MARGIN_LEFT,
-            }}
+            className="nav-brand-link"
+            style={{ marginLeft: NAV_BRAND_MARGIN_LEFT }}
           >
             <img
               src="/milkshop-logo-removebg-preview.png"
               alt=""
               aria-hidden
+              className="nav-brand-logo"
               style={{
-                height:     isMobile ? 44 : 52,
-                width:      "auto",
-                objectFit:  "contain",
+                height: isMobile ? 44 : 52,
+                width: "auto",
               }}
             />
             <span

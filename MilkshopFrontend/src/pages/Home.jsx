@@ -22,7 +22,6 @@ const T = {
 
 
 
-
 // ─── GLOBAL STYLES ────────────────────────────────────────────────────────────
 const globalStyles = `
   html {
@@ -133,6 +132,18 @@ const globalStyles = `
   .ambient-float {
     animation: floatDrift 9s ease-in-out infinite;
     will-change: transform;
+  }
+  .home-section-heading {
+    margin: 0;
+    font-family: 'Signia Pro', 'DM Sans', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+    color: ${T.greenDark};
+  }
+  .home-section-heading--on-green {
+    color: #ffffff;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -516,7 +527,7 @@ function AnimatedStat({ value, suffix, label, active }) {
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const whyProps = [
   {
-    icon: "💸",
+    
     title: "Low-Cost Franchising Fee",
     stat: "24",
     statSuffix: "mo",
@@ -525,7 +536,7 @@ const whyProps = [
     image: "/franchise/why/why-01.jpg",
   },
   {
-    icon: "📣",
+   
     title: "Marketing Support",
     stat: "98",
     statSuffix: "%",
@@ -534,7 +545,7 @@ const whyProps = [
     image: "/franchise/why/why-02.jpg",
   },
   {
-    icon: "🎓",
+   
     title: "Training & Guidance",
     stat: "50",
     statSuffix: "+",
@@ -543,7 +554,7 @@ const whyProps = [
     image: "/franchise/why/why-03.jpg",
   },
   {
-    icon: "🏪",
+    
     title: "Flexible Store Type & Design",
     stat: "360",
     statSuffix: "°",
@@ -552,7 +563,7 @@ const whyProps = [
     image: "/franchise/why/why-04.jpg",
   },
   {
-    icon: "🇹🇼",
+   
     title: "Authentic TW Products",
     stat: "14",
     statSuffix: "d",
@@ -561,7 +572,7 @@ const whyProps = [
     image: "/franchise/why/why-05.jpg",
   },
   {
-    icon: "📈",
+    
     title: "Wide Market and ROI",
     stat: "3",
     statSuffix: "",
@@ -653,22 +664,10 @@ function SectionDivider({ flip = false }) {
   )
 }
 
-{/* ══════════════════════════════════════
-   WHY FRANCHISE — STICKY SCROLL REVEAL
-   Production-grade, SEO-safe
-   All content in DOM at load time
-   Left: sticky header + dots + CTA
-   Right: 6 reasons, alternating image/text
-   Scroll spy drives active state + fade-up
-══════════════════════════════════════ */}
+
 
 {/* ══════════════════════════════════════
-   WHY FRANCHISE — STICKY SCROLL REVEAL
-   Production-grade, SEO-safe
-   All content in DOM at load time
-   Left: sticky header + dots + CTA
-   Right: 6 reasons, alternating image/text
-   Scroll spy drives active state + fade-up
+   WHY FRANCHISE SECTION
 ══════════════════════════════════════ */}
 
 function WhySection() {
@@ -724,7 +723,7 @@ function WhySection() {
         }
 
         .why-top-header .why-eyebrow {
-          color: ${T.greenDark};
+          color: #ffffff;
           font-family: 'DM Sans', sans-serif;
           font-size: clamp(0.65rem, 0.9vw, 0.72rem);
           font-weight: 800;
@@ -733,23 +732,13 @@ function WhySection() {
           margin: 0 0 clamp(14px, 2vw, 20px);
         }
 
-        .why-top-header .why-heading {
-          font-size: clamp(2.05rem, 4.2vw, 3.15rem);
-          font-weight: 900;
-          letter-spacing: -0.04em;
-          color: ${T.heading};
-          margin: 0;
-          font-family: 'DM Sans', sans-serif;
-          line-height: 1.06;
-        }
-
         .why-top-header .why-sub {
           margin: 14px auto 0;
           max-width: 62ch;
           font-family: 'DM Sans', sans-serif;
           font-size: 0.95rem;
           line-height: 1.8;
-          color: ${T.body};
+          color: #ffffff;
         }
 
         .why-grid {
@@ -818,8 +807,8 @@ function WhySection() {
           display: grid;
           place-items: center;
           font-size: 2.2rem;
-          color: ${T.greenDark};
-          background: linear-gradient(135deg, rgba(183,205,127,0.32), rgba(151,182,76,0.16));
+          color: #ffffff;
+          background: #ffffff;
         }
 
         .why-card-top {
@@ -853,7 +842,7 @@ function WhySection() {
           font-size: 1.05rem;
           font-weight: 900;
           letter-spacing: -0.02em;
-          color: ${T.heading};
+          color: #ffffff;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -864,7 +853,7 @@ function WhySection() {
           font-size: 0.68rem;
           font-weight: 700;
           letter-spacing: 0.22em;
-          color: rgba(98,132,11,0.65);
+          color: #ffffff;
           flex-shrink: 0;
         }
 
@@ -872,7 +861,7 @@ function WhySection() {
           font-family: 'DM Sans', sans-serif;
           font-size: 0.95rem;
           line-height: 1.85;
-          color: ${T.body};
+          color: #ffffff;
           margin: 0;
           max-width: 44ch;
         }
@@ -889,7 +878,8 @@ function WhySection() {
       <section
         ref={sectionRef}
         style={{
-          background: "linear-gradient(160deg, #f7faef 0%, #eef6dc 60%, #e8f2d0 100%)",
+          background: "#97b64c",
+          color: "#ffffff",
           padding: isMobile ? "72px 0 64px" : "100px 0 96px",
           position: "relative",
           overflow: "hidden",
@@ -910,7 +900,7 @@ function WhySection() {
         {/* Dot grid */}
         <div aria-hidden style={{
           position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
-          backgroundImage: "radial-gradient(circle, rgba(98,132,11,0.08) 1px, transparent 1px)",
+          backgroundImage: "none",
           backgroundSize: "28px 28px",
           maskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 70%)",
           WebkitMaskImage: "radial-gradient(ellipse at 50% 50%, black 0%, transparent 70%)",
@@ -924,7 +914,7 @@ function WhySection() {
           width: 520,
           height: 520,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(151,182,76,0.22), transparent 70%)",
+          background: "transparent",
           filter: "blur(42px)",
           zIndex: 0,
           pointerEvents: "none",
@@ -936,7 +926,7 @@ function WhySection() {
           width: 560,
           height: 560,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(98,132,11,0.18), transparent 72%)",
+          background: "transparent",
           filter: "blur(48px)",
           zIndex: 0,
           pointerEvents: "none",
@@ -952,15 +942,11 @@ function WhySection() {
         }}>
           <div className="why-wrap">
             <header className="why-top-header">
-              <p className="why-eyebrow">Why Franchise With Us</p>
-              <h2 className="why-heading">
-                Join the{" "}
-                <span style={{ color: T.greenDark }}>Milkshop</span>{" "}
-                Family
+              
+              <h2 className="home-section-heading home-section-heading--on-green">
+                Why Franchise with us?
               </h2>
-              <p className="why-sub">
-                A proven system backed by real support, real brand strength, and real results.
-              </p>
+             
             </header>
 
             <div
@@ -1001,33 +987,7 @@ function WhySection() {
               ))}
             </div>
 
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <Link
-                to="/franchise#inquiry"
-                style={{
-                  display: "inline-flex", alignItems: "center",
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "0.86rem", fontWeight: 800,
-                  color: "#fff", background: "#E8A020",
-                  padding: "14px 26px", borderRadius: 999,
-                  textDecoration: "none",
-                  boxShadow: "0 12px 30px rgba(232,160,32,0.28)",
-                  transition: "transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)"
-                  e.currentTarget.style.background = "#CF8E18"
-                  e.currentTarget.style.boxShadow = "0 16px 36px rgba(232,160,32,0.34)"
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)"
-                  e.currentTarget.style.background = "#E8A020"
-                  e.currentTarget.style.boxShadow = "0 12px 30px rgba(232,160,32,0.28)"
-                }}
-              >
-                Become a Partner →
-              </Link>
-            </div>
+       
           </div>
         </div>
       </section>
@@ -1548,18 +1508,11 @@ function FranchiseTestimonialsSection() {
             <Eyebrow text="From Our Partners" large />
           </div>
           <h2
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: isMobile ? "2.1rem" : "clamp(2.2rem, 4.2vw, 3.2rem)",
-              fontWeight: 900,
-              letterSpacing: "-0.04em",
-              lineHeight: 1.05,
-              color: T.heading,
-              margin: "0 0 12px",
-            }}
+            className="home-section-heading"
+            style={{ margin: "0 0 12px" }}
           >
             Real Stories.{" "}
-            <span style={{ color: T.greenDark }}>Real Success.</span>
+            <span style={{ color: "#95b64c" }}>Real Success.</span>
           </h2>
          
         </div>

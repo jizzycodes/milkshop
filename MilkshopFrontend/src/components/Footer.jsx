@@ -191,6 +191,16 @@ export default function Footer() {
             gap: 4px;
           }
         }
+
+        .footer-brand-wordmark {
+          margin: 0;
+          font-family: 'Signia Pro', 'DM Sans', sans-serif;
+          font-size: clamp(1.15rem, 2vw, 1.35rem);
+          font-weight: 900;
+          line-height: 1.2;
+          letter-spacing: -0.04em;
+          color: ${FOOTER_TEXT};
+        }
       `}</style>
 
       {/* Watermark logo */}
@@ -232,8 +242,8 @@ export default function Footer() {
               <div style={{
                 width: 48, height: 48,
                 borderRadius: 14,
-                background: "rgba(255,255,255,0.22)",
-                border: "1px solid rgba(255,255,255,0.32)",
+                background: "#ffffff",
+                border: "1px solid rgba(255,255,255,0.5)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 flexShrink: 0,
                 boxShadow: "0 4px 14px rgba(98,132,11,0.15)",
@@ -245,10 +255,7 @@ export default function Footer() {
                 />
               </div>
               <div>
-                <div style={{
-                  fontSize: "1.2rem", fontWeight: 900,
-                  letterSpacing: "-0.03em", color: FOOTER_TEXT, lineHeight: 1,
-                }}>
+                <div className="footer-brand-wordmark">
                   Milkshop
                 </div>
                 <div style={{

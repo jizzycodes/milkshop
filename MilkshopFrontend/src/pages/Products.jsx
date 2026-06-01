@@ -14,11 +14,11 @@ const CATEGORIES = [
 ];
 
 const feedbacks = [
-  { id: 1,  name: "Angelica R.",  handle: "@angelicar_ph",  stars: 5, comment: "Best milk tea I've ever had in the Philippines! The black sugar boba is absolutely insane. Already on my 5th visit this month." },
-  { id: 2,  name: "Miguel T.",    handle: "@migueltravels", stars: 5, comment: "The popping boba is on another level. You can actually taste the real fruit juice when it bursts. Nothing like it in Manila." },
-  { id: 3,  name: "Trisha Mae",   handle: "@trishafoods",   stars: 5, comment: "Finally a milk tea brand that uses ACTUAL fresh milk. You can taste the difference. The matcha pearl is my forever go-to." },
-  { id: 4,  name: "Carlo B.",     handle: "@carloeats",     stars: 5, comment: "Ordered the taro and the chocolate pearl. Both were 10/10. The queue was long but 100% worth it. Will be back tomorrow." },
-  { id: 5,  name: "Diane L.",     handle: "@dianelim.ph",   stars: 5, comment: "The brown sugar milk tea here hits different. Tiger stripes are real, the pearls are chewy. Taiwanese quality for real." },
+  { id: 1,  name: "Angelica R.",  handle: "@angelicar_ph",  stars: 5, comment: "Our favorite MilkTea shop!!! Pinaka nagustuhan namin of all milktea places" },
+  { id: 2,  name: "Miguel T.",    handle: "@migueltravels", stars: 5, comment: "yummers talaga ang milktea nyo..ni-recommend ko to sa mga friends ko at nasiyahan naman sila" },
+  { id: 3,  name: "Trisha Mae",   handle: "@trishafoods",   stars: 5, comment: "sobrang sarap talaga ng Milkshop! walang wala sa mga big names sa milk tea industry. this is our favorite talaga. worth the money" },
+  { id: 4,  name: "Carlo B.",     handle: "@carloeats",     stars: 5, comment: "the kids love it. They also granted my request for the birthday note. Thank you so much highly recommended" },
+  { id: 5,  name: "Diane L.",     handle: "@dianelim.ph",   stars: 5, comment: "Unexpected taste for its cheap price! This is actually better than those popular milktea shop. Definitely will reorder" },
   { id: 6,  name: "Nico S.",      handle: "@nicosip",       stars: 5, comment: "My friends dragged me here and now I'm the one dragging everyone else. The lychee popping boba is completely addicting." },
   { id: 7,  name: "Justine A.",   handle: "@justineandco",  stars: 5, comment: "Visited the Cebu branch and it was packed! Staff was super friendly and drinks came out fast. Ube cream is a must-try." },
   { id: 8,  name: "Rachel P.",    handle: "@rachelpdiary",  stars: 5, comment: "Milkshop is the only milk tea that makes me feel like I'm actually in Taiwan. Every sip is just absolutely perfect." },
@@ -340,17 +340,13 @@ function CategorySection({ category, products }) {
 
         {/* Series title */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px" }}>
-          <h2 style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "clamp(1.8rem, 3.4vw, 2.6rem)", fontWeight: 900,
-            letterSpacing: "-0.04em", color: "#1e1e1e", margin: 0,
-            lineHeight: 1,
-          }}>
-            {isBreak ? "Fresh " : `${seriesName} `}
-            <span style={{
-              color: "#97b64c",
-              textShadow: "0 2px 20px rgba(151,182,76,0.25)",
-            }}>
+          <h2 className="ms-section-heading" style={{ color: "#1e1e1e" }}>
+            {isBreak ? (
+              <span style={{ color: "#1e1e1e" }}>Fresh </span>
+            ) : (
+              <span style={{ color: "#97b64c" }}>{seriesName} </span>
+            )}
+            <span style={{ color: "#1e1e1e" }}>
               {isBreak ? "Bread" : "Series"}
             </span>
           </h2>
@@ -469,6 +465,17 @@ export default function Products() {
       minHeight: "100vh",
       fontFamily: "'DM Sans', sans-serif",
     }}>
+      <style>{`
+        .ms-section-heading {
+          margin: 0;
+          font-family: 'Signia Pro', 'DM Sans', sans-serif;
+          font-size: clamp(2rem, 4vw, 3.4rem);
+          font-weight: 900;
+          line-height: 1.2;
+          letter-spacing: -0.04em;
+          color: #62840b;
+        }
+      `}</style>
 {/* ══ PRODUCTS HERO — Premium Redesign ══ */}
 <section
   style={{
@@ -539,7 +546,10 @@ export default function Products() {
     .ph-cup-4 { opacity:0; animation: fadeIn .5s ease forwards .4s; }
 
     /* ── Sway per cup ── */
-    .ph-cup-inner { animation: sway 9s ease-in-out infinite; }
+    .ph-cup-inner {
+      position: relative;
+      animation: sway 9s ease-in-out infinite;
+    }
     .ph-cup-0 .ph-cup-inner { animation-duration: 9s; }
     .ph-cup-1 .ph-cup-inner { animation-duration: 10.5s; animation-delay: -3s; }
     .ph-cup-2 .ph-cup-inner { animation-duration: 8s;  animation-delay: -1s; }
@@ -553,28 +563,45 @@ export default function Products() {
       gap: 8px;
       padding: 15px 32px;
       border-radius: 999px;
-      background: linear-gradient(
-        90deg,
-        #62840b 0%,
-        #97b64c 40%,
-        #c8dc8a 55%,
-        #97b64c 70%,
-        #62840b 100%
-      );
-      background-size: 200% auto;
+      background: #62840b;
       color: white;
       font-weight: 800;
       font-size: 15px;
       text-decoration: none;
       letter-spacing: 0.03em;
       box-shadow: 0 12px 32px rgba(98,132,11,0.35);
-      transition: box-shadow .3s, transform .3s;
+      transition: background 0.25s ease, box-shadow 0.3s, transform 0.3s;
       width: fit-content;
     }
     .ph-cta:hover {
-      animation: shimmer 1.2s linear infinite;
+      background: #536f09;
       transform: translateY(-3px);
       box-shadow: 0 18px 40px rgba(98,132,11,0.45);
+    }
+
+    .ph-cups-stage {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: clamp(4px, 0.9vw, 12px);
+      width: 100%;
+      min-height: clamp(300px, 52vh, 580px);
+      padding-bottom: 4px;
+    }
+    .ph-cup-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      flex: 0 0 auto;
+      position: relative;
+    }
+    .ph-cup-figure {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      width: 100%;
     }
 
     /* ── Cup image ── */
@@ -827,55 +854,47 @@ export default function Products() {
       </div>
     </div>
 
-    {/* ── RIGHT — 5 CUP ARC ── */}
-    <div
-      style={{
-        position: "relative",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-end",
-        gap: "clamp(2px, 0.8vw, 10px)",
-      }}
-    >
+    {/* ── RIGHT — 5 CUP ARC (bottom-aligned) ── */}
+    <div className="ph-cups-stage">
       {topDrinks.slice(0, 5).map((d, i) => {
-      const scales = [2.00, 1.88, 3.28, 1.88, 2.15]  // was 1.14 → 1.28 for center
-        const translateY = [44, 22, 0, 22, 44]
-        const rotations  = [-4, -2, 0, 2, 4]
-        const isCenter   = i === 2
+        const imgHeights = [
+          "clamp(220px, 36vh, 400px)",
+          "clamp(250px, 42vh, 450px)",
+          "clamp(300px, 50vh, 520px)",
+          "clamp(250px, 42vh, 450px)",
+          "clamp(220px, 36vh, 400px)",
+        ]
+        const rotations = [-5, -2.5, 0, 2.5, 5]
+        const isCenter = i === 2
 
         return (
           <div
             key={d.id}
-            className={`ph-cup-${i}`}
+            className={`ph-cup-col ph-cup-${i}`}
             style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              transform: `translateY(${translateY[i]}px) scale(${scales[i]}) rotate(${rotations[i]}deg)`,
               zIndex: isCenter ? 5 : 3,
-              position: "relative",
+              transform: `rotate(${rotations[i]}deg)`,
             }}
           >
-            {/* Sway wrapper */}
-            <div
-              className="ph-cup-inner"
-              style={{ "--base-transform": `translateY(${translateY[i]}px)` }}
-            >
-              <img
-                src={d.imageUrl}
-                alt={d.name}
-                className="ph-cup-img"
-                draggable={false}
-              />
-
-              {/* Halo glow under center cup only */}
-              {isCenter && <div className="ph-halo" />}
+            <div className="ph-cup-figure">
+              <div className="ph-cup-inner" style={{ "--base-transform": "translateY(0)" }}>
+                <img
+                  src={d.imageUrl}
+                  alt={d.name}
+                  className="ph-cup-img"
+                  draggable={false}
+                  style={{
+                    height: imgHeights[i],
+                    width: "auto",
+                    maxWidth: isCenter ? "min(42vw, 280px)" : "min(32vw, 200px)",
+                  }}
+                />
+                {isCenter && <div className="ph-halo" />}
+              </div>
             </div>
 
-            {/* Shadow puddle */}
             <div className="ph-puddle" />
 
-            {/* Name tag */}
             <div className="ph-cup-tag">
               {d.name}
             </div>
@@ -934,17 +953,11 @@ export default function Products() {
               <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                 Top 5 Picks
               </p>
-              <h2 className="text-4xl lg:text-5xl font-bold text-[#1e1e1e] leading-tight" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
+              <h2 className="ms-section-heading">
                 Fan Favorites
               </h2>
             </div>
-            <Link
-              to="/products"
-              className="text-sm font-semibold text-[#97b64c] hover:text-[#62840b] transition-colors"
-              style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}
-            >
-              View Full Menu →
-            </Link>
+           
           </div>
           <DrinksCarousel />
         </div>
@@ -995,15 +1008,7 @@ export default function Products() {
                   fontFamily: "'DM Sans', sans-serif",
                 }}>Customer Feedbacks</span>
               </div>
-              <h2 style={{
-                fontSize: "clamp(2rem,4vw,3rem)",
-                fontWeight: 900,
-                letterSpacing: "-0.03em",
-                color: "#1e1e1e",
-                lineHeight: 1.05,
-                margin: "0 0 16px",
-                fontFamily: "'DM Sans', sans-serif",
-              }}>
+              <h2 className="ms-section-heading" style={{ margin: "0 0 16px" }}>
                 What they<span style={{ color: "#97b64c" }}> Say</span>
               </h2>
              
