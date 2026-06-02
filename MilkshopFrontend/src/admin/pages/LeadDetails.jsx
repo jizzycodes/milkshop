@@ -35,8 +35,8 @@ export default function LeadDetails() {
           fetchLeadContactLogs(token, id),
         ]);
         if (!isMounted) return;
-        setLead(leadRes.data);
-        setLogs(logsRes.data || []);
+        setLead(leadRes?.data ?? null);
+        setLogs(logsRes?.data || []);
       } catch (err) {
         if (!isMounted) return;
         setErrorMessage(err?.message || "Unable to load lead.");
@@ -53,7 +53,7 @@ export default function LeadDetails() {
     const stage = e.target.value;
     try {
       const res = await updateLead(token, id, { stage });
-      setLead(res.data);
+      setLead(res?.data ?? null);
     } catch (err) {
       setErrorMessage(err?.message || "Unable to update stage.");
     }
@@ -64,7 +64,7 @@ export default function LeadDetails() {
     const status = e.target.value;
     try {
       const res = await updateLead(token, id, { status });
-      setLead(res.data);
+      setLead(res?.data ?? null);
     } catch (err) {
       setErrorMessage(err?.message || "Unable to update status.");
     }
@@ -75,9 +75,9 @@ export default function LeadDetails() {
       await createLeadContactLog(token, id, payload);
       setModalOpen(false);
       const freshLogs = await fetchLeadContactLogs(token, id);
-      setLogs(freshLogs.data || []);
+      setLogs(freshLogs?.data || []);
       const freshLead = await fetchLeadById(token, id);
-      setLead(freshLead.data);
+      setLead(freshLead?.data ?? null);
       setSuccessMessage("Contact record saved.");
     } catch (err) {
       setErrorMessage(err?.message || "Unable to save contact record.");

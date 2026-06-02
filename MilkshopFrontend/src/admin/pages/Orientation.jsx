@@ -413,7 +413,7 @@ export default function Orientation({ initialSubStatus }) {
     setLoading(true)
     setError("")
     fetchLeads(token, { tab: "orientation", page: 1, pageSize: 50 })
-      .then((res)  => { if (!cancelled) setLeads(res.data || []) })
+      .then((res)  => { if (!cancelled) setLeads(res?.data || []) })
       .catch((err) => { if (!cancelled) setError(err?.message || "Failed to load orientation"); setLeads([]) })
       .finally(()  => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }

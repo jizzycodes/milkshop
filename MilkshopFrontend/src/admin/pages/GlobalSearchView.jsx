@@ -46,7 +46,7 @@ export default function GlobalSearchView({ search }) {
     setError("")
     fetchLeads(token, { search, page: 1, pageSize: 50 })
       .then((res) => {
-        if (!cancelled) setLeads(res.data || [])
+        if (!cancelled) setLeads(res?.data || [])
       })
       .catch((err) => {
         if (!cancelled) setError(err?.message || "Failed to search leads")
