@@ -474,7 +474,7 @@ export default function Register() {
     setLoading(true)
     setError("")
     fetchLeads(token, { tab: "new", page: 1, pageSize: 50 })
-      .then((res)  => { if (!cancelled) setLeads(res?.data || []) })
+      .then((res)  => { if (!cancelled) setLeads(res.data || []) })
       .catch((err) => { if (!cancelled) { setError(err?.message || "Failed to load leads"); setLeads([]) } })
       .finally(()  => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }

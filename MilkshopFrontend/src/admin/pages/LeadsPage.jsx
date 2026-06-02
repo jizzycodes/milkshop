@@ -299,7 +299,7 @@ export default function LeadsPage() {
     const t = setTimeout(() => {
       setSearchLoading(true)
       fetchLeads(token, { search: searchTrimmed, page: 1, pageSize: 20 })
-        .then((res) => setSearchResults(res?.data || []))
+        .then((res) => setSearchResults(res.data || []))
         .catch(() => setSearchResults([]))
         .finally(() => setSearchLoading(false))
     }, SEARCH_DEBOUNCE_MS)

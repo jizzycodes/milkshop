@@ -16,9 +16,7 @@ async function handleResponse(response) {
     throw error;
   }
 
-  // Some endpoints may return 200/204 with an empty body. Normalize to an object
-  // so callers can safely read `res?.data`.
-  return body ?? {};
+  return body;
 }
 
 export async function fetchAdminDashboard(token) {

@@ -403,7 +403,7 @@ export default function AdminRequests() {
           search: search || undefined,
         });
         if (!isMounted) return;
-        setItems(res?.data || []);
+        setItems(res.data || []);
         setTotal(res.pagination?.total || 0);
         setTotalPages(res.pagination?.totalPages || 1);
       } catch (err) {

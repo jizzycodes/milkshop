@@ -71,7 +71,7 @@ export default function Reservation() {
     setLoading(true)
     setError("")
     fetchLeads(token, { tab: "reservation", page: 1, pageSize: 50 })
-      .then((res) => { if (!cancelled) setLeads(res?.data || []) })
+      .then((res) => { if (!cancelled) setLeads(res.data || []) })
       .catch((err) => { if (!cancelled) { setError(err?.message || "Failed to load reservation"); setLeads([]) } })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
