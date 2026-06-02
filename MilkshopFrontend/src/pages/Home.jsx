@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { useEffect, useRef, useState } from "react"
 import Hero from "../components/Hero"
+import FranchiseInquiryTrigger from "../components/FranchiseInquiryTrigger"
 import { supabase } from "../lib/supabaseClient"
 
 // ─── DESIGN TOKENS ────────────────────────────────────────────────────────────
@@ -136,14 +137,81 @@ const globalStyles = `
   .home-section-heading {
     margin: 0;
     font-family: 'Signia Pro', 'DM Sans', sans-serif;
-    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-size: clamp(1.75rem, 5.2vw, 3.4rem);
     font-weight: 900;
-    line-height: 1.2;
+    line-height: 1.15;
     letter-spacing: -0.04em;
     color: ${T.greenDark};
   }
   .home-section-heading--on-green {
     color: #ffffff;
+  }
+
+  /* Mobile-first layout utilities */
+  .home-container {
+    width: 100%;
+    max-width: min(1160px, 100%);
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+  }
+  .home-container--wide {
+    max-width: min(1320px, 100%);
+  }
+  @media (min-width: 768px) {
+    .home-container {
+      padding-left: 32px;
+      padding-right: 32px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .home-container {
+      padding-left: 48px;
+      padding-right: 48px;
+    }
+  }
+
+  .home-section-pad {
+    padding: 72px 0 80px;
+  }
+  @media (min-width: 768px) {
+    .home-section-pad {
+      padding: 100px 0 104px;
+    }
+  }
+
+  .home-section-pad--green {
+    padding: 72px 0 64px;
+  }
+  @media (min-width: 768px) {
+    .home-section-pad--green {
+      padding: 100px 0 96px;
+    }
+  }
+
+  .home-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    min-width: 0;
+  }
+  @media (min-width: 1024px) {
+    .home-stats-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+  }
+
+  .home-stats-shell {
+    border-radius: 18px;
+    padding: 8px;
+  }
+  @media (min-width: 768px) {
+    .home-stats-shell {
+      border-radius: 22px;
+      padding: 10px;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -439,25 +507,6 @@ function Reveal({ children, delay = 0, fade = false, style = {}, className = "" 
   )
 }
 
-function useViewport() {
-  const [width, setWidth] = useState(() => {
-    if (typeof window === "undefined") return 1280
-    return window.innerWidth
-  })
-
-  useEffect(() => {
-    const onResize = () => setWidth(window.innerWidth)
-    window.addEventListener("resize", onResize)
-    return () => window.removeEventListener("resize", onResize)
-  }, [])
-
-  return {
-    width,
-    isMobile: width < 768,
-    isTablet: width >= 768 && width < 1024,
-  }
-}
-
 function useCountUp(target, duration = 1600, active = false) {
   const [count, setCount] = useState(0)
  
@@ -528,12 +577,12 @@ function AnimatedStat({ value, suffix, label, active }) {
 const whyProps = [
   {
     
-    title: "Low-Cost Franchising Fee",
+    title: "NO Franchising Fee",
     stat: "24",
     statSuffix: "mo",
     statLabel: "Average Payback Period",
     body: "Our franchise fee is affordable and allows you to start your own business without breaking the bank.",
-    image: "/franchise/why/why-01.jpg",
+    image: "/franchise/why/why-01.png",
   },
   {
    
@@ -542,7 +591,7 @@ const whyProps = [
     statSuffix: "%",
     statLabel: "Franchisee Satisfaction Rate",
     body: "We offer marketing materials, such as brochures and banners, to help promote your store in your local area.",
-    image: "/franchise/why/why-02.jpg",
+    image: "/franchise/why/why-02.png",
   },
   {
    
@@ -551,7 +600,7 @@ const whyProps = [
     statSuffix: "+",
     statLabel: "Active Franchise Branches",
     body: "We provide training to help you get started, as well as ongoing support to help your business succeed.",
-    image: "/franchise/why/why-03.jpg",
+    image: "/franchise/why/why-03.png",
   },
   {
     
@@ -560,7 +609,7 @@ const whyProps = [
     statSuffix: "°",
     statLabel: "Launch-to-Growth Support",
     body: "We offer a range of store designs to choose from, giving you the flexibility to create a concept that fit your vision.",
-    image: "/franchise/why/why-04.jpg",
+    image: "/franchise/why/why-04.png",
   },
   {
    
@@ -569,7 +618,7 @@ const whyProps = [
     statSuffix: "d",
     statLabel: "Onboarding & Ops Training",
     body: "We provide training to help you get started, as well as ongoing support to help your business succeed.",
-    image: "/franchise/why/why-05.jpg",
+    image: "/franchise/why/why-05.png",
   },
   {
     
@@ -578,7 +627,7 @@ const whyProps = [
     statSuffix: "",
     statLabel: "Cart · Kiosk · In-line",
     body: "Guaranteed earning due big percentage of new and returning customers. Return of investments would be 10 to 12 months.",
-    image: "/franchise/why/why-06.jpg",
+    image: "/franchise/why/why-06.png",
   },
 ]
 
@@ -672,32 +721,33 @@ function SectionDivider({ flip = false }) {
 
 function WhySection() {
   const sectionRef = useRef(null)
-  const gridRef = useRef(null)
-  const [revealed, setRevealed] = useState(false)
-  const { isMobile, isTablet } = useViewport()
+  const [motionOk] = useState(() => {
+    if (typeof window === "undefined") return false
+    return !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  })
+  const [inView, setInView] = useState(() => {
+    if (typeof window === "undefined") return true
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  })
 
   useEffect(() => {
-    const el = gridRef.current
-    if (!el) return
-    let revealTimer
+    if (!motionOk || inView) return undefined
+    const el = sectionRef.current
+    if (!el) return undefined
 
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting) return
-        obs.disconnect()
-        revealTimer = window.setTimeout(() => setRevealed(true), 120)
+        if (entry.isIntersecting) {
+          setInView(true)
+          obs.disconnect()
+        }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
+      { threshold: 0.08, rootMargin: "0px 0px -5% 0px" },
     )
 
     obs.observe(el)
-    return () => {
-      obs.disconnect()
-      if (revealTimer) window.clearTimeout(revealTimer)
-    }
-  }, [])
-
-  const pad = isMobile ? "0 20px" : isTablet ? "0 32px" : "0 56px"
+    return () => obs.disconnect()
+  }, [motionOk, inView])
 
   return (
     <>
@@ -722,6 +772,18 @@ function WhySection() {
           padding: 0 clamp(8px, 2vw, 24px);
         }
 
+        .why-section.why-motion-ready:not(.is-inview) .why-top-header .home-section-heading {
+          opacity: 0;
+          transform: translate3d(0, 28px, 0);
+        }
+
+        .why-section.is-inview .why-top-header .home-section-heading {
+          opacity: 1;
+          transform: translate3d(0, 0, 0);
+          transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
         .why-top-header .why-eyebrow {
           color: #ffffff;
           font-family: 'DM Sans', sans-serif;
@@ -743,28 +805,73 @@ function WhySection() {
 
         .why-grid {
           display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: clamp(18px, 2.2vw, 26px);
+          grid-template-columns: 1fr;
+          gap: 20px;
           width: 100%;
           min-width: 0;
         }
-
-        .why-card {
-          opacity: 0;
-          transform: translate3d(0, 46px, 0);
-          transition:
-            opacity 0.7s ease,
-            transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
-          transition-delay: calc(var(--why-i, 0) * 120ms);
+        @media (min-width: 521px) {
+          .why-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: clamp(16px, 3vw, 22px);
+          }
+        }
+        @media (min-width: 961px) {
+          .why-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: clamp(18px, 2.2vw, 26px);
+          }
         }
 
-        .why-grid.is-revealed .why-card {
+        .why-card {
           opacity: 1;
-          transform: translate3d(0, 0, 0);
+          transform: none;
+        }
+
+        .why-section.why-motion-ready:not(.is-inview) .why-card {
+          opacity: 0;
+          transform: translate3d(0, 44px, 0) scale(0.98);
+        }
+
+        .why-section.is-inview .why-card {
+          opacity: 1;
+          transform: translate3d(0, 0, 0) scale(1);
+          transition:
+            opacity 0.65s ease,
+            transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+          transition-delay: calc(80ms + var(--why-i, 0) * 110ms);
+        }
+
+        .why-section.why-motion-ready:not(.is-inview) .why-card-media img {
+          transform: scale(1.08);
+        }
+
+        .why-section.is-inview .why-card-media img {
+          transform: scale(1);
+          transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+          transition-delay: calc(120ms + var(--why-i, 0) * 110ms);
+        }
+
+        .why-section.is-inview .why-card-top,
+        .why-section.is-inview .why-body {
+          animation: whyTextIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation-delay: calc(180ms + var(--why-i, 0) * 110ms);
+        }
+
+        @keyframes whyTextIn {
+          from { opacity: 0; transform: translate3d(0, 12px, 0); }
+          to   { opacity: 1; transform: translate3d(0, 0, 0); }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .why-card { opacity: 1; transform: none; transition: none; }
+          .why-section .why-card,
+          .why-section .why-card-media img,
+          .why-section .why-top-header .home-section-heading {
+            opacity: 1 !important;
+            transform: none !important;
+            transition: none !important;
+            animation: none !important;
+          }
         }
 
         .why-card-inner {
@@ -783,32 +890,58 @@ function WhySection() {
 
         .why-card-media {
           position: relative;
-          width: 92%;
-          max-width: 420px;
-          aspect-ratio: 10 / 9;
-          border-radius: 20px;
+          width: 100%;
+          max-width: none;
+          aspect-ratio: 16 / 10;
+          min-height: 168px;
+          border-radius: 16px;
           overflow: hidden;
           background: transparent;
           border: none;
           box-shadow: 0 10px 32px rgba(98,132,11,0.10);
         }
+        @media (min-width: 521px) {
+          .why-card-media {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            min-height: 180px;
+            border-radius: 20px;
+          }
+        }
+        @media (min-width: 961px) {
+          .why-card-media {
+            aspect-ratio: 3 / 2;
+            min-height: 200px;
+          }
+        }
 
         .why-card-media img {
+          position: absolute;
+          inset: 0;
           width: 100%;
           height: 100%;
           display: block;
           object-fit: cover;
           object-position: center;
+          z-index: 1;
+          transform: scale(1);
+          will-change: transform;
         }
 
         .why-card-media .why-media-fallback {
           position: absolute;
           inset: 0;
-          display: grid;
+          display: none;
           place-items: center;
           font-size: 2.2rem;
-          color: #ffffff;
-          background: #ffffff;
+          color: #62840b;
+          background: #eef5e2;
+          z-index: 0;
+        }
+
+        .why-card-media:not(:has(img)) .why-media-fallback,
+        .why-card-media[data-img-failed="true"] .why-media-fallback {
+          display: grid;
         }
 
         .why-card-top {
@@ -839,13 +972,15 @@ function WhySection() {
 
         .why-chip .why-title {
           font-family: 'DM Sans', sans-serif;
-          font-size: 1.05rem;
+          font-size: clamp(0.95rem, 2.8vw, 1.05rem);
           font-weight: 900;
           letter-spacing: -0.02em;
           color: #ffffff;
-          white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+        }
+        @media (min-width: 521px) {
+          .why-chip .why-title { white-space: nowrap; }
         }
 
         .why-num {
@@ -866,21 +1001,14 @@ function WhySection() {
           max-width: 44ch;
         }
 
-        @media (max-width: 960px) {
-          .why-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-
-        @media (max-width: 520px) {
-          .why-grid { grid-template-columns: 1fr; }
-        }
       `}</style>
 
       <section
         ref={sectionRef}
+        className={`home-section-pad--green why-section${motionOk ? " why-motion-ready" : ""}${inView ? " is-inview" : ""}`}
         style={{
           background: "#97b64c",
           color: "#ffffff",
-          padding: isMobile ? "72px 0 64px" : "100px 0 96px",
           position: "relative",
           overflow: "hidden",
         }}
@@ -932,13 +1060,9 @@ function WhySection() {
           pointerEvents: "none",
         }} />
 
-        <div style={{
-          margin: "0 auto",
-          padding: pad,
+        <div className="home-container home-container--wide" style={{
           position: "relative",
           zIndex: 1,
-          width: "100%",
-          boxSizing: "border-box",
         }}>
           <div className="why-wrap">
             <header className="why-top-header">
@@ -949,10 +1073,7 @@ function WhySection() {
              
             </header>
 
-            <div
-              ref={gridRef}
-              className={`why-grid${revealed ? " is-revealed" : ""}`}
-            >
+            <div className="why-grid">
               {whyProps.map((item, i) => (
                 <article
                   key={item.title}
@@ -967,7 +1088,10 @@ function WhySection() {
                           alt={`Milkshop franchise — ${item.title}`}
                           loading="lazy"
                           decoding="async"
-                          onError={(e) => { e.currentTarget.style.display = "none" }}
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            e.currentTarget.parentElement?.setAttribute("data-img-failed", "true");
+                          }}
                         />
                       ) : null}
                       <div className="why-media-fallback" aria-hidden>
@@ -995,12 +1119,11 @@ function WhySection() {
   )
 }
 function InvestorProofSection() {
-  const { isMobile, isTablet } = useViewport()
   return (
     <section
+      className="home-section-pad"
       style={{
         background: "linear-gradient(180deg, #f4f7ed 0%, #eef3e3 100%)",
-        padding: isMobile ? "64px 0" : "90px 0",
         position: "relative",
         overflow: "hidden",
       }}
@@ -1032,22 +1155,12 @@ function InvestorProofSection() {
         }}
       />
 
-      <div
-        style={{
-          maxWidth: 1080,
-          margin: "0 auto",
-          padding: isMobile ? "0 16px" : isTablet ? "0 28px" : "0 40px",
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
-      
+      <div className="home-container" style={{ maxWidth: 1080, position: "relative", zIndex: 1 }}>
 
         {/* STATS — compact horizontal ticker style */}
         <div
+          className="home-stats-shell"
           style={{
-            borderRadius: 22,
-            padding: isMobile ? "8px" : "10px",
             background: "linear-gradient(135deg, rgba(255,255,255,0.72), rgba(245,250,235,0.86))",
             border: "1px solid rgba(151,182,76,0.26)",
             boxShadow: "0 12px 28px rgba(98,132,11,0.08)",
@@ -1055,18 +1168,7 @@ function InvestorProofSection() {
             maxWidth: "100%",
           }}
         >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: isMobile
-                ? "repeat(2, minmax(0, 1fr))"
-                : isTablet
-                  ? "repeat(2, minmax(0, 1fr))"
-                  : "repeat(4, minmax(0, 1fr))",
-              gap: isMobile ? 8 : 10,
-              minWidth: 0,
-            }}
-          >
+          <div className="home-stats-grid">
             {stats.map((s, i) => (
               <Reveal key={s.label} delay={i * 80}>
                 <div
@@ -1230,7 +1332,6 @@ function FranchiseTestimonialsSection() {
   const sectionRef = useRef(null)
   const activeIndexRef = useRef(0)
   const fadeTimerRef = useRef(null)
-  const { isMobile, isTablet } = useViewport()
 
   useEffect(() => {
     let cancelled = false
@@ -1333,14 +1434,12 @@ function FranchiseTestimonialsSection() {
     }
   }, [])
 
-  const padX = isMobile ? 20 : isTablet ? 32 : 48
-
   return (
     <section
       ref={sectionRef}
+      className="home-section-pad"
       style={{
         background: T.surface,
-        padding: isMobile ? "72px 0 80px" : "100px 0 104px",
         overflow: "hidden",
         position: "relative",
       }}
@@ -1367,6 +1466,8 @@ function FranchiseTestimonialsSection() {
 
         .tm-story-btn {
           width: 100%;
+          flex: 0 0 min(88vw, 300px);
+          scroll-snap-align: start;
           text-align: left;
           cursor: pointer;
           border: 1px solid ${T.border};
@@ -1374,11 +1475,19 @@ function FranchiseTestimonialsSection() {
           border-radius: 20px;
           overflow: hidden;
           display: grid;
-          grid-template-columns: minmax(128px, 38%) 1fr;
-          min-height: 128px;
+          grid-template-columns: minmax(112px, 42%) 1fr;
+          min-height: 120px;
           padding: 0;
           font: inherit;
           transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+          -webkit-tap-highlight-color: transparent;
+        }
+        @media (min-width: 768px) {
+          .tm-story-btn {
+            flex: none;
+            grid-template-columns: minmax(128px, 38%) 1fr;
+            min-height: 128px;
+          }
         }
         .tm-story-btn:hover {
           transform: translateY(-3px);
@@ -1393,25 +1502,49 @@ function FranchiseTestimonialsSection() {
         .tm-story-btn img { transition: transform 0.45s ease; }
         .tm-story-btn:hover img { transform: scale(1.04); }
 
+        .tm-layout {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 20px;
+          align-items: start;
+        }
+        @media (min-width: 768px) {
+          .tm-layout {
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 22px;
+          }
+        }
+
+        .tm-header {
+          margin-bottom: 40px;
+        }
+        @media (min-width: 768px) {
+          .tm-header { margin-bottom: 52px; }
+        }
+
+        .tm-featured-body {
+          padding: 20px 20px 22px;
+        }
+        @media (min-width: 768px) {
+          .tm-featured-body { padding: 28px 32px 30px; }
+        }
+
         .tm-side-list {
           display: flex;
-          flex-direction: column;
-          gap: 14px;
+          flex-direction: row;
+          gap: 12px;
+          overflow-x: auto;
+          padding-bottom: 8px;
+          scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
         }
-        @media (max-width: 767px) {
+        @media (min-width: 768px) {
           .tm-side-list {
-            flex-direction: row;
-            overflow-x: auto;
-            gap: 12px;
-            padding-bottom: 6px;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-          }
-          .tm-story-btn {
-            flex: 0 0 min(88vw, 300px);
-            scroll-snap-align: start;
-            grid-template-columns: minmax(112px, 42%) 1fr;
-            min-height: 120px;
+            flex-direction: column;
+            overflow-x: visible;
+            padding-bottom: 0;
+            gap: 14px;
           }
         }
 
@@ -1422,6 +1555,7 @@ function FranchiseTestimonialsSection() {
           text-decoration: none;
           border-radius: 20px;
           padding: 20px 22px;
+          min-height: 52px;
           background: ${T.greenDark};
           color: ${T.white};
           font-family: 'DM Sans', sans-serif;
@@ -1429,13 +1563,19 @@ function FranchiseTestimonialsSection() {
           font-size: 0.92rem;
           box-shadow: 0 8px 24px rgba(98,132,11,0.22);
           transition: transform 0.22s ease, background 0.22s ease;
+          flex: 0 0 min(88vw, 300px);
+          scroll-snap-align: start;
+          -webkit-tap-highlight-color: transparent;
         }
         .tm-cta-link:hover {
           transform: translateY(-2px);
           background: #536f09;
         }
-        @media (max-width: 767px) {
-          .tm-cta-link { flex: 0 0 min(88vw, 300px); scroll-snap-align: start; }
+        @media (min-width: 768px) {
+          .tm-cta-link {
+            flex: none;
+            width: 100%;
+          }
         }
 
         .tm-featured-media {
@@ -1482,22 +1622,11 @@ function FranchiseTestimonialsSection() {
         }
       `}</style>
 
-      <div
-        style={{
-          maxWidth: 1160,
-          margin: "0 auto",
-          padding: `0 ${padX}px`,
-          position: "relative",
-          zIndex: 1,
-          boxSizing: "border-box",
-          width: "100%",
-        }}
-      >
+      <div className="home-container" style={{ position: "relative", zIndex: 1 }}>
         {/* Header */}
         <div
-          className={`tm-fade ${inView ? "visible" : ""}`}
+          className={`tm-fade tm-header ${inView ? "visible" : ""}`}
           style={{
-            marginBottom: isMobile ? 40 : 52,
             maxWidth: 720,
             marginLeft: "auto",
             marginRight: "auto",
@@ -1512,21 +1641,15 @@ function FranchiseTestimonialsSection() {
             style={{ margin: "0 0 12px" }}
           >
             Real Stories.{" "}
-            <span style={{ color: "#95b64c" }}>Real Success.</span>
+            <span style={{ color: T.ink }}>Real Success.</span>
           </h2>
          
         </div>
 
         {/* Main grid */}
         <div
-          className={`tm-fade ${inView ? "visible" : ""}`}
-          style={{
-            display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1.2fr 0.8fr",
-            gap: isMobile ? 20 : 22,
-            alignItems: "start",
-            transitionDelay: "0.12s",
-          }}
+          className={`tm-fade tm-layout ${inView ? "visible" : ""}`}
+          style={{ transitionDelay: "0.12s" }}
         >
           {/* Featured — image + quote below */}
           {active && (
@@ -1617,7 +1740,7 @@ function FranchiseTestimonialsSection() {
                 </span>
               </div>
 
-              <div style={{ padding: isMobile ? "20px 20px 22px" : "28px 32px 30px" }}>
+              <div className="tm-featured-body">
                 <p
                   style={{
                     margin: "0 0 16px",
@@ -1736,10 +1859,10 @@ function FranchiseTestimonialsSection() {
               </button>
             ))}
 
-            <Link to="/franchise#inquiry" className="tm-cta-link">
+            <FranchiseInquiryTrigger className="tm-cta-link">
               <span>Start Your Franchise Journey</span>
               <span aria-hidden>→</span>
-            </Link>
+            </FranchiseInquiryTrigger>
           </div>
         </div>
       </div>
@@ -1747,7 +1870,485 @@ function FranchiseTestimonialsSection() {
   )
 }
 
+const MOOBA_SRC = "/happy-customers/mooba.png"
 
+const happyCustomerPhotos = Array.from({ length: 10 }, (_, i) => ({
+  id: `h${i + 1}`,
+  src: `/happy-customers/h${i + 1}.jpg`,
+  alt: `Happy Milkshop customer ${i + 1}`,
+}))
+
+function HappyCustomersSection() {
+  const [inView, setInView] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(null)
+  const sectionRef = useRef(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setInView(true) },
+      { threshold: 0.1 },
+    )
+    if (sectionRef.current) observer.observe(sectionRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (lightboxIndex === null) return undefined
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    const onKey = (e) => {
+      if (e.key === "Escape") setLightboxIndex(null)
+      if (e.key === "ArrowRight") {
+        setLightboxIndex((i) => ((i ?? 0) + 1) % happyCustomerPhotos.length)
+      }
+      if (e.key === "ArrowLeft") {
+        setLightboxIndex(
+          (i) => ((i ?? 0) - 1 + happyCustomerPhotos.length) % happyCustomerPhotos.length,
+        )
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener("keydown", onKey)
+    }
+  }, [lightboxIndex])
+
+  const openLightbox = (index) => setLightboxIndex(index)
+  const goPrev = (e) => {
+    e.stopPropagation()
+    setLightboxIndex(
+      (i) => ((i ?? 0) - 1 + happyCustomerPhotos.length) % happyCustomerPhotos.length,
+    )
+  }
+  const goNext = (e) => {
+    e.stopPropagation()
+    setLightboxIndex((i) => ((i ?? 0) + 1) % happyCustomerPhotos.length)
+  }
+
+  return (
+    <section
+      ref={sectionRef}
+      className="home-section-pad"
+      aria-labelledby="hc-section-title"
+      style={{
+        background: T.white,
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      <style>{`
+        .hc-fade {
+          opacity: 0;
+          transform: translateY(20px);
+          transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .hc-fade.visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        .hc-sr-only {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border: 0;
+        }
+
+        .hc-header {
+          text-align: center;
+          max-width: 720px;
+          margin: 0 auto clamp(28px, 5vw, 44px);
+        }
+
+        .hc-header-sub {
+          margin: 0;
+          color: ${T.muted};
+          font-size: clamp(0.88rem, 2.2vw, 0.98rem);
+          line-height: 1.6;
+          font-family: 'DM Sans', sans-serif;
+        }
+
+        .hc-layout {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          align-items: stretch;
+        }
+
+        .hc-mooba {
+          flex-shrink: 0;
+          display: none;
+          justify-content: flex-start;
+          align-items: flex-end;
+          margin: 0 0 -12px;
+          z-index: 2;
+        }
+
+        .hc-mooba img {
+          width: min(92vw, 360px);
+          height: auto;
+          display: block;
+          object-fit: contain;
+        }
+
+        .hc-photos {
+          flex: 1;
+          min-width: 0;
+          padding-bottom: 28px;
+          width: 100%;
+        }
+
+        .hc-grid-frame {
+          position: relative;
+          background: #ffffff;
+          border: 3px solid ${T.borderDark};
+          border-radius: 22px;
+          padding: 10px;
+          box-shadow: 0 10px 36px rgba(98, 132, 11, 0.12);
+          width: 100%;
+        }
+
+        .hc-gallery {
+          display: grid;
+          grid-auto-flow: column;
+          grid-auto-columns: min(88vw, 340px);
+          gap: 14px;
+          overflow-x: auto;
+          overflow-y: hidden;
+          scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          padding: 4px 0 8px;
+          margin-left: -20px;
+          margin-right: -20px;
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+        .hc-gallery::-webkit-scrollbar { display: none; }
+
+        .hc-card {
+          scroll-snap-align: center;
+          border: none;
+          padding: 0;
+          margin: 0;
+          cursor: pointer;
+          border-radius: 18px;
+          overflow: hidden;
+          background: ${T.greenFade};
+          box-shadow: 0 8px 28px rgba(98, 132, 11, 0.12);
+          border: 2px solid ${T.border};
+          aspect-ratio: 5 / 4;
+          position: relative;
+          font: inherit;
+          transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .hc-card:active { transform: scale(0.98); }
+
+        .hc-card img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
+        .hc-hint {
+          text-align: center;
+          margin: 12px 0 0;
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: ${T.muted};
+          font-family: 'DM Sans', sans-serif;
+        }
+
+        @media (max-width: 767px) {
+          .hc-grid-frame {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+          }
+        }
+
+        @media (min-width: 480px) {
+          .hc-gallery { gap: 16px; }
+          .hc-grid-frame { padding: 10px; border-radius: 24px; }
+          .hc-card { border-radius: 16px; }
+        }
+
+        @media (min-width: 768px) {
+          .hc-layout {
+            flex-direction: row;
+            align-items: center;
+            gap: 0 20px;
+          }
+          .hc-mooba {
+            display: flex;
+            flex: 0 0 34%;
+            max-width: 380px;
+            margin: 0;
+            align-items: center;
+          }
+          .hc-mooba img {
+            width: 100%;
+            max-width: 360px;
+          }
+          .hc-photos {
+            flex: 1 1 64%;
+            min-width: 0;
+            padding-bottom: 24px;
+          }
+          .hc-grid-frame {
+            padding: 14px;
+            border-width: 4px;
+            border-radius: 28px;
+            transform: rotate(2.5deg);
+            min-height: 380px;
+          }
+          .hc-gallery {
+            grid-auto-flow: row;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-columns: unset;
+            grid-auto-rows: 1fr;
+            overflow: visible;
+            margin-left: 0;
+            margin-right: 0;
+            padding-left: 0;
+            padding-right: 0;
+            gap: 10px;
+            width: 100%;
+            height: 100%;
+            min-height: 340px;
+          }
+          .hc-card {
+            scroll-snap-align: unset;
+            aspect-ratio: 1;
+            min-height: 0;
+            height: auto;
+            border-radius: 14px;
+            box-shadow: none;
+            border-width: 0;
+          }
+          .hc-hint { display: none; }
+          .hc-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 18px rgba(98, 132, 11, 0.2);
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .hc-layout { gap: 0 24px; align-items: center; }
+          .hc-mooba {
+            flex: 0 0 36%;
+            max-width: 420px;
+            align-self: center;
+          }
+          .hc-mooba img { max-width: 400px; }
+          .hc-photos { flex: 1 1 62%; padding-bottom: 28px; }
+          .hc-grid-frame {
+            padding: 16px;
+            transform: rotate(3deg);
+            min-height: 480px;
+          }
+          .hc-gallery {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: minmax(120px, 1.15fr) minmax(120px, 1.15fr) minmax(88px, 0.85fr) minmax(88px, 0.85fr);
+            gap: 12px;
+            min-height: 440px;
+            height: 100%;
+          }
+          .hc-card {
+            aspect-ratio: unset;
+            min-height: 0;
+            height: 100%;
+            width: 100%;
+            display: block;
+          }
+          .hc-card img {
+            min-height: 100%;
+          }
+          .hc-card:nth-child(1) { grid-column: 1 / 7; grid-row: 1 / 3; }
+          .hc-card:nth-child(2) { grid-column: 7 / 13; grid-row: 1 / 3; }
+          .hc-card:nth-child(3) { grid-column: 1 / 4; grid-row: 3; }
+          .hc-card:nth-child(4) { grid-column: 4 / 7; grid-row: 3; }
+          .hc-card:nth-child(5) { grid-column: 7 / 10; grid-row: 3; }
+          .hc-card:nth-child(6) { grid-column: 10 / 13; grid-row: 3; }
+          .hc-card:nth-child(7) { grid-column: 1 / 4; grid-row: 4; }
+          .hc-card:nth-child(8) { grid-column: 4 / 7; grid-row: 4; }
+          .hc-card:nth-child(9) { grid-column: 7 / 10; grid-row: 4; }
+          .hc-card:nth-child(10) { grid-column: 10 / 13; grid-row: 4; }
+          .hc-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 40px rgba(98, 132, 11, 0.18);
+          }
+        }
+
+        @media (min-width: 1280px) {
+          .hc-layout { gap: 0 32px; }
+          .hc-grid-frame {
+            padding: 18px;
+            min-height: 540px;
+          }
+          .hc-gallery {
+            gap: 14px;
+            min-height: 500px;
+            grid-template-rows: minmax(140px, 1.2fr) minmax(140px, 1.2fr) minmax(100px, 0.8fr) minmax(100px, 0.8fr);
+          }
+        }
+
+        .hc-lightbox {
+          position: fixed;
+          inset: 0;
+          z-index: 10040;
+          background: rgba(10, 18, 4, 0.92);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+          box-sizing: border-box;
+        }
+        .hc-lightbox img {
+          max-width: min(100%, 720px);
+          max-height: min(85dvh, 900px);
+          width: auto;
+          height: auto;
+          object-fit: contain;
+          border-radius: 12px;
+        }
+        .hc-lightbox-close {
+          position: absolute;
+          top: max(12px, env(safe-area-inset-top));
+          right: max(12px, env(safe-area-inset-right));
+          width: 48px;
+          height: 48px;
+          border: none;
+          border-radius: 12px;
+          background: rgba(255,255,255,0.12);
+          color: #fff;
+          font-size: 1.75rem;
+          line-height: 1;
+          cursor: pointer;
+        }
+        .hc-lightbox-nav {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 48px;
+          height: 48px;
+          border: none;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.15);
+          color: #fff;
+          font-size: 1.5rem;
+          cursor: pointer;
+        }
+        .hc-lightbox-prev { left: max(8px, env(safe-area-inset-left)); }
+        .hc-lightbox-next { right: max(8px, env(safe-area-inset-right)); }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hc-fade { transition: none; opacity: 1; transform: none; }
+          .hc-card { transition: none; }
+        }
+      `}</style>
+
+      <div className="home-container home-container--wide" style={{ position: "relative", zIndex: 1 }}>
+        <div className={`hc-fade hc-header ${inView ? "visible" : ""}`}>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Eyebrow text="Community" large />
+          </div>
+          <h2 id="hc-section-title" className="home-section-heading" style={{ margin: "0 0 10px" }}>
+            Happy Customers,{" "}
+            <span style={{ color: T.ink }}>Happy Moments!</span>
+          </h2>
+          <p className="hc-header-sub">
+            Real smiles from Milkshop fans across the Philippines.
+          </p>
+        </div>
+
+        <div
+          className={`hc-layout hc-fade ${inView ? "visible" : ""}`}
+          style={{ transitionDelay: "0.08s" }}
+        >
+          <div className="hc-mooba">
+            <img
+              src={MOOBA_SRC}
+              alt="Mooba, Milkshop mascot welcoming happy customers"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+
+          <div className="hc-photos">
+            <div className="hc-grid-frame">
+              <div className="hc-gallery" role="list" aria-label="Happy customer photos">
+                {happyCustomerPhotos.map((photo, index) => (
+                  <button
+                    key={photo.id}
+                    type="button"
+                    className="hc-card"
+                    role="listitem"
+                    onClick={() => openLightbox(index)}
+                    aria-label={`View photo ${index + 1} of ${happyCustomerPhotos.length}`}
+                  >
+                    <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <p className="hc-hint">Swipe for more →</p>
+          </div>
+        </div>
+      </div>
+
+      {lightboxIndex !== null && (
+        <div
+          className="hc-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Photo viewer"
+          onClick={() => setLightboxIndex(null)}
+        >
+          <button
+            type="button"
+            className="hc-lightbox-close"
+            onClick={() => setLightboxIndex(null)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <button
+            type="button"
+            className="hc-lightbox-nav hc-lightbox-prev"
+            onClick={goPrev}
+            aria-label="Previous photo"
+          >
+            ‹
+          </button>
+          <img
+            src={happyCustomerPhotos[lightboxIndex].src}
+            alt={happyCustomerPhotos[lightboxIndex].alt}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            type="button"
+            className="hc-lightbox-nav hc-lightbox-next"
+            onClick={goNext}
+            aria-label="Next photo"
+          >
+            ›
+          </button>
+        </div>
+      )}
+    </section>
+  )
+}
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function Home() {
@@ -1755,6 +2356,7 @@ export default function Home() {
     <>
       <style>{globalStyles}</style>
       <main
+        className="home-page"
         style={{
           backgroundColor: T.white,
           overflowX: "hidden",
@@ -1765,7 +2367,7 @@ export default function Home() {
         <Hero />
         <WhySection />
         <FranchiseTestimonialsSection />
-    
+        <HappyCustomersSection />
       </main>
     </>
   )

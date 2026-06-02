@@ -8,6 +8,8 @@ import { AdminAuthProvider } from './admin/context/AdminAuthContext'
 import RouteLoader from './components/RouteLoader'
 import FranchiseCTAFloating from './components/FranchiseCTAFloating'
 import ScrollPerformance from './components/ScrollPerformance'
+import { FranchiseInquiryProvider, useFranchiseInquiry } from './context/FranchiseInquiryContext'
+import { FRANCHISE_INQUIRY_ID, scheduleScrollToFranchiseInquiry } from './utils/franchiseInquiry'
 import './App.css'
 
 const Home = lazy(() => import('./pages/Home'))
@@ -42,12 +44,20 @@ function PreloadAssets() {
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
+  const { open } = useFranchiseInquiry()
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // If there is a hash, scroll to that section after the route paints.
       if (hash) {
         const id = hash.replace('#', '')
+        if (id === FRANCHISE_INQUIRY_ID) {
+          if (pathname === '/franchise') {
+            scheduleScrollToFranchiseInquiry()
+          } else {
+            open()
+          }
+          return
+        }
         const tryScroll = () => {
           const el = document.getElementById(id)
           if (el) {
@@ -57,7 +67,6 @@ function ScrollToTop() {
           return false
         }
 
-        // Attempt immediately + after a couple frames (handles lazy/Suspense renders).
         if (tryScroll()) return
         requestAnimationFrame(() => {
           if (tryScroll()) return
@@ -67,7 +76,7 @@ function ScrollToTop() {
         window.scrollTo(0, 0)
       }
     }
-  }, [pathname, hash])
+  }, [pathname, hash, open])
 
   return null
 }
@@ -172,10 +181,12 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <AdminAuthProvider>
-        <PreloadAssets />
-        <AppRoutes />
-      </AdminAuthProvider>
+      <FranchiseInquiryProvider>
+        <AdminAuthProvider>
+          <PreloadAssets />
+          <AppRoutes />
+        </AdminAuthProvider>
+      </FranchiseInquiryProvider>
     </BrowserRouter>
   )
 }

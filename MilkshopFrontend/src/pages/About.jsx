@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
+import FranchiseInquiryTrigger from "../components/FranchiseInquiryTrigger"
 const logo = "/milkshop-logo-removebg-preview.png";
 
 // ─── DESIGN TOKENS (match Home / Franchise) ───────────────────────────────────
@@ -88,28 +89,22 @@ function HistoryImage({ src, fallback, alt }) {
 
 const rawMaterials = [
   {
-    icon: "🍃",
     title: "Premium Tea Leaves",
-    origin: "Taiwan Highlands",
-    desc: "Slow-grown tea leaves with deep aroma and smooth finish.",
+    caption: "Imported from Taiwan Highlands",
+    image: "/about/raw-materials/premium-tea-leaves.png",
+    imageAlt: "Milkshop Signature Taiwan Black Tea raw material packaging",
   },
   {
-    icon: "🥛",
-    title: "Fresh Milk",
-    origin: "Daily Sourced",
-    desc: "Creamy texture that balances every brewed flavor.",
-  },
-  {
-    icon: "🧋",
     title: "Brown Sugar Pearls",
-    origin: "Handcrafted Daily",
-    desc: "Soft, chewy pearls cooked for the perfect bite.",
+    caption: "Handcrafted Daily",
+    image: "/about/raw-materials/brown-sugar-pearls.png",
+    imageAlt: "Brown sugar tapioca pearls in a bowl with a spoon",
   },
   {
-    icon: "🌿",
     title: "Natural Ingredients",
-    origin: "Carefully Selected",
-    desc: "Made with quality ingredients chosen for authentic taste.",
+    caption: "Carefully Selected",
+    image: "/about/raw-materials/natural-ingredients.png",
+    imageAlt: "Fresh fruit, berries, and popping boba on ice",
   },
 ]
 
@@ -163,11 +158,26 @@ export default function About() {
     if (typeof window === "undefined") return false
     return window.innerWidth < 768
   })
+  const [heroAnimReady, setHeroAnimReady] = useState(false)
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768)
     window.addEventListener("resize", onResize)
     return () => window.removeEventListener("resize", onResize)
+  }, [])
+
+  useEffect(() => {
+    const startAnim = () => setHeroAnimReady(true)
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      startAnim()
+      return undefined
+    }
+    window.addEventListener("milkshop:route-loader-hidden", startAnim, { once: true })
+    const fallback = window.setTimeout(startAnim, 2200)
+    return () => {
+      window.removeEventListener("milkshop:route-loader-hidden", startAnim)
+      window.clearTimeout(fallback)
+    }
   }, [])
 
   return (
@@ -191,6 +201,7 @@ export default function About() {
     ABOUT HERO — Premium Light, Animated
 ══════════════════════════════════════════════ */}
 <section
+  className={heroAnimReady ? "about-hero--ready" : ""}
   style={{
     position: "relative",
     overflow: "hidden",
@@ -301,16 +312,32 @@ export default function About() {
       100% { background-position: 200% center; }
     }
 
-    .about-hero-tag  { opacity:0; animation: aboutFadeUp 0.6s ease forwards; animation-delay: 0.15s; }
-    .about-hero-h1   { opacity:0; animation: aboutFadeLeft 0.75s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay: 0.3s; }
-    .about-hero-p    { opacity:0; animation: aboutFadeLeft 0.75s ease forwards; animation-delay: 0.5s; }
-    .about-hero-stat { opacity:0; animation: aboutFadeUp 0.7s ease forwards; animation-delay: 0.65s; }
-    .about-hero-cta  { opacity:0; animation: aboutFadeUp 0.7s ease forwards; animation-delay: 0.8s; }
-    .about-hero-img  { opacity:0; animation: aboutFadeRight 0.9s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay: 0.2s; }
+    .about-hero-tag, .about-hero-h1, .about-hero-p, .about-hero-stat, .about-hero-cta, .about-hero-img { opacity: 0; }
+    .about-hero--ready .about-hero-tag  { animation: aboutFadeUp 0.6s ease forwards; animation-delay: 0.15s; }
+    .about-hero--ready .about-hero-h1   { animation: aboutFadeLeft 0.75s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay: 0.3s; }
+    .about-hero--ready .about-hero-p    { animation: aboutFadeLeft 0.75s ease forwards; animation-delay: 0.5s; }
+    .about-hero--ready .about-hero-stat { animation: aboutFadeUp 0.7s ease forwards; animation-delay: 0.65s; }
+    .about-hero--ready .about-hero-cta  { animation: aboutFadeUp 0.7s ease forwards; animation-delay: 0.8s; }
+    .about-hero--ready .about-hero-img  { animation: aboutFadeRight 0.9s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay: 0.2s; }
+
+    .about-hero-scroll-bar { opacity: 0; }
+    .about-hero--ready .about-hero-scroll-bar { opacity: 1; animation: aboutScrollLine 1.8s ease-in-out infinite; }
 
     .about-hero-img-inner {
+      opacity: 0;
+    }
+    .about-hero--ready .about-hero-img-inner {
+      opacity: 1;
       animation: aboutFloatImg 8s ease-in-out infinite;
       animation-delay: 1.2s;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .about-hero-tag, .about-hero-h1, .about-hero-p, .about-hero-stat, .about-hero-cta, .about-hero-img, .about-hero-img-inner, .about-hero-scroll-bar {
+        opacity: 1 !important;
+        animation: none !important;
+        transform: none !important;
+      }
     }
 
   .about-cta-primary {
@@ -519,9 +546,9 @@ export default function About() {
 
       {/* CTAs */}
       <div className="about-hero-cta" style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
-        <Link to="/franchise#inquiry" className="about-cta-primary">
+        <FranchiseInquiryTrigger className="about-cta-primary">
          Franchise Opportunities 
-        </Link>
+        </FranchiseInquiryTrigger>
         <Link to="/products" className="about-cta-secondary">
           See our Menu →
         </Link>
@@ -542,11 +569,13 @@ export default function About() {
       width: 1, height: 44, overflow: "hidden",
       background: "rgba(98,132,11,0.18)", borderRadius: 1, position: "relative",
     }}>
-      <div style={{
-        position: "absolute", top: 0, width: "100%", height: "40%",
-        background: "#97b64c", borderRadius: 1,
-        animation: "aboutScrollLine 1.8s ease-in-out infinite",
-      }} />
+      <div
+        className="about-hero-scroll-bar"
+        style={{
+          position: "absolute", top: 0, width: "100%", height: "40%",
+          background: "#97b64c", borderRadius: 1,
+        }}
+      />
     </div>
     <span style={{
       fontFamily: "'DM Mono', monospace",
@@ -558,109 +587,123 @@ export default function About() {
 </section>
 
 
+{/* ── Ingredients ── */}
+<section
+  className="ing-section"
+  style={{
+    background: T.green,
+    padding: isMobile ? "56px 16px 64px" : "80px 32px 96px",
+    borderTop: "1px solid rgba(255,255,255,0.12)",
+    borderBottom: "1px solid rgba(255,255,255,0.12)",
+  }}
+>
+  <style>{`
+    .ing-section-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
 
-      {/* ── Ingredients ── */}
-      <section
-        style={{
-          background: T.white,
-          padding: isMobile ? "56px 20px 64px" : "72px 48px 80px",
-          borderTop: `1px solid ${T.border}`,
-          borderBottom: `1px solid ${T.border}`,
-        }}
-      >
-        <style>{`
-          .ftc-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: clamp(16px, 2.5vw, 24px);
-          }
-          .ftc-item {
-            padding: clamp(18px, 2.5vw, 22px);
-            background: ${T.offWhite};
-            border: 1px solid ${T.border};
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            height: 100%;
-          }
-          .ftc-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: ${T.white};
-            border: 1px solid ${T.border};
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.35rem;
-            flex-shrink: 0;
-          }
-          .ftc-origin {
-            margin: 0;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 9px;
-            font-weight: 800;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: ${T.greenDark};
-          }
-          .ftc-title {
-            margin: 0;
-            font-family: 'DM Sans', sans-serif;
-            font-size: clamp(1rem, 1.4vw, 1.12rem);
-            font-weight: 900;
-            letter-spacing: -0.02em;
-            color: ${T.ink};
-            line-height: 1.2;
-          }
-          .ftc-desc {
-            margin: 0;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.84rem;
-            line-height: 1.65;
-            color: ${T.body};
-          }
-          @media (max-width: 900px) {
-            .ftc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-          }
-          @media (max-width: 520px) {
-            .ftc-grid { grid-template-columns: 1fr; }
-          }
-        `}</style>
+    .ing-header {
+      text-align: center;
+      margin-bottom: clamp(36px, 5vw, 56px);
+    }
 
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <Slide direction="up" className="text-center" style={{ marginBottom: isMobile ? 32 : 40 }}>
-          
-            <h2 className="ms-section-heading" style={{ margin: "0 0 12px" }}>
-              Ingredients that Make the Difference
-            </h2>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "0.92rem",
-              color: T.ink,
-              maxWidth: 480,
-              margin: "0 auto",
-              lineHeight: 1.7,
-            }}>
-              Every cup starts with ingredients sourced and crafted for one purpose — authentic taste.
-            </p>
-          </Slide>
+    .ing-header h2 {
+      margin: 0;
+      font-family: 'Signia Pro', sans-serif;
+      font-size: clamp(1.75rem, 4.8vw, 2.85rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 1.15;
+      text-transform: uppercase;
+      color: ${T.white};
+    }
 
-          <div className="ftc-grid">
-            {rawMaterials.map((r, i) => (
-              <Slide key={r.title} direction="up" delay={i * 60}>
-                <article className="ftc-item">
-                  <div className="ftc-icon" aria-hidden>{r.icon}</div>
-                  <p className="ftc-origin">{r.origin}</p>
-                  <h3 className="ftc-title">{r.title}</h3>
-                  <p className="ftc-desc">{r.desc}</p>
-                </article>
-              </Slide>
-            ))}
-          </div>
-        </div>
-      </section>
+    .ing-cards {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .ing-card {
+      display: flex;
+      flex-direction: column;
+      border-radius: 18px;
+      overflow: hidden;
+      background: ${T.white};
+    }
+
+    .ing-card-photo {
+      width: 100%;
+      aspect-ratio: 16 / 12;
+      overflow: hidden;
+      border-radius: 18px 18px 0 0;
+      background: #f3f4f2;
+    }
+
+    .ing-card-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    .ing-card-caption {
+      margin: 0;
+      padding: 14px 16px;
+      background: ${T.white};
+      color: ${T.green};
+      font-family: 'DM Sans', sans-serif;
+      font-size: clamp(0.78rem, 2vw, 0.88rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1.35;
+      text-align: center;
+      border-radius: 0 0 18px 18px;
+    }
+
+    @media (min-width: 640px) {
+      .ing-cards {
+        grid-template-columns: repeat(3, 1fr);
+        gap: clamp(18px, 2.4vw, 28px);
+      }
+      .ing-card-photo {
+        aspect-ratio: 16 / 11;
+        min-height: 240px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .ing-card-photo {
+        aspect-ratio: 25 / 18;
+        min-height: 264px;
+      }
+    }
+  `}</style>
+
+  <div className="ing-section-inner">
+    <Slide direction="up" className="ing-header">
+      <h2>Ingredients that Make the Difference</h2>
+    </Slide>
+
+    <ul className="ing-cards">
+      {rawMaterials.map((r, i) => (
+        <Slide key={r.title} direction="up" delay={i * 80} style={{ display: "contents" }}>
+          <li className="ing-card">
+            <div className="ing-card-photo">
+              <img src={r.image} alt={r.imageAlt || r.title} loading="lazy" decoding="async" />
+            </div>
+            <p className="ing-card-caption">{r.caption}</p>
+          </li>
+        </Slide>
+      ))}
+    </ul>
+  </div>
+</section>
 
  
      {/* ══════════════════════════════════════════════
@@ -1205,9 +1248,9 @@ export default function About() {
           </h2>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 4 }}>
-            <Link to="/franchise#inquiry" className="bmc-cta">
+            <FranchiseInquiryTrigger className="bmc-cta">
               Start Your Journey →
-            </Link>
+            </FranchiseInquiryTrigger>
             <Link to="/franchise" className="bmc-ghost">
               Learn More
             </Link>

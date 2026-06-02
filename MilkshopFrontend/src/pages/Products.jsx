@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Reveal from "../components/Reveal";
 import { supabase } from "../lib/supabaseClient";
@@ -100,7 +100,7 @@ function SeriesCupsGrid({ products }) {
           max-width: 260px;
         }
       `}</style>
-      <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-10 pb-10">
+      <div className="prod-container prod-container--wide pb-10">
         <div className="series-cups-grid">
         {products.map((product) => (
           <article
@@ -320,7 +320,7 @@ function CategorySection({ category, products }) {
     <section style={{ marginBottom: "20px" }}>
 
       {/* Section Header */}
-      <div style={{ textAlign: "center", marginBottom: "16px", padding: "0 24px" }}>
+      <div className="prod-category-header" style={{ textAlign: "center", marginBottom: "16px" }}>
 
         {/* Series eyebrow */}
         <div style={{
@@ -370,8 +370,7 @@ function CategorySection({ category, products }) {
       <SeriesCupsGrid products={products} />
 
       {/* Section Divider */}
-      <div style={{
-        margin: "0 80px",
+      <div className="prod-category-divider" style={{
         height: "1px",
         background: "linear-gradient(to right, transparent, rgba(151,182,76,0.25) 20%, rgba(151,182,76,0.25) 80%, transparent)",
       }} />
@@ -459,6 +458,15 @@ export default function Products() {
 
   const featured = feedbacks[activeReview];
 
+  const scrollToMenu = useCallback((e) => {
+    e.preventDefault();
+    const el = document.getElementById("menu");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.history.replaceState(null, "", `${window.location.pathname}#menu`);
+    }
+  }, []);
+
   return (
     <main style={{
       backgroundColor: "#ffffff",
@@ -469,219 +477,394 @@ export default function Products() {
         .ms-section-heading {
           margin: 0;
           font-family: 'Signia Pro', 'DM Sans', sans-serif;
-          font-size: clamp(2rem, 4vw, 3.4rem);
+          font-size: clamp(1.75rem, 5.2vw, 3.4rem);
           font-weight: 900;
-          line-height: 1.2;
+          line-height: 1.15;
           letter-spacing: -0.04em;
           color: #62840b;
         }
+
+        .prod-container {
+          width: 100%;
+          max-width: min(1100px, 100%);
+          margin: 0 auto;
+          padding-left: 20px;
+          padding-right: 20px;
+          box-sizing: border-box;
+        }
+        .prod-container--wide { max-width: min(1440px, 100%); }
+        @media (min-width: 768px) {
+          .prod-container { padding-left: 32px; padding-right: 32px; }
+        }
+        @media (min-width: 1024px) {
+          .prod-container { padding-left: 48px; padding-right: 48px; }
+        }
+
+        .prod-section-pad { padding: 56px 0; }
+        @media (min-width: 768px) {
+          .prod-section-pad { padding: 72px 0; }
+        }
+
+        .prod-category-header { padding: 0 4px; }
+        @media (min-width: 768px) {
+          .prod-category-header { padding: 0 24px; }
+        }
+
+        .prod-category-divider { margin: 0 20px; }
+        @media (min-width: 768px) {
+          .prod-category-divider { margin: 0 48px; }
+        }
+        @media (min-width: 1024px) {
+          .prod-category-divider { margin: 0 80px; }
+        }
+
+        .prod-reviews-layout {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+        @media (min-width: 900px) {
+          .prod-reviews-layout {
+            flex-direction: row;
+            flex-wrap: nowrap;
+            gap: 28px;
+            align-items: stretch;
+            justify-content: space-between;
+          }
+        }
+
+        .prod-reviews-intro {
+          flex: none;
+          width: 100%;
+          min-width: 0;
+          text-align: left;
+        }
+        @media (min-width: 900px) {
+          .prod-reviews-intro {
+            flex: 0 0 360px;
+            min-width: 320px;
+          }
+        }
+
+        .prod-review-card {
+          padding: 24px 20px;
+        }
+        @media (min-width: 768px) {
+          .prod-review-card { padding: 32px; }
+        }
+
+        .prod-review-dot {
+          min-width: 44px;
+          min-height: 44px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .prod-review-dot span {
+          display: block;
+          border-radius: 999px;
+          height: 6px;
+          transition: all 0.3s ease;
+        }
+
+        .prod-menu-section {
+          padding-top: 56px;
+          padding-bottom: 32px;
+        }
+        @media (min-width: 768px) {
+          .prod-menu-section {
+            padding-top: 80px;
+            padding-bottom: 40px;
+          }
+        }
       `}</style>
-{/* ══ PRODUCTS HERO — Premium Redesign ══ */}
+
+
+{/* ══ PRODUCTS HERO — Mobile-First Redesign ══ */}
 <section
   style={{
     position: "relative",
     overflow: "hidden",
     background: "#f7f9f2",
-    minHeight: "clamp(600px, 88vh, 900px)",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
     fontFamily: "'DM Sans', sans-serif",
   }}
 >
   <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&display=swap');
 
-    /* ── Entrance animations ── */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(36px); }
+      from { opacity: 0; transform: translateY(28px); }
       to   { opacity: 1; transform: translateY(0); }
     }
     @keyframes fadeIn {
       from { opacity: 0; }
       to   { opacity: 1; }
     }
-
-    /* ── Cup sway (natural, not bouncy) ── */
     @keyframes sway {
-      0%,100% { transform: var(--base-transform) rotate(-1.5deg); }
-      50%      { transform: var(--base-transform) translateY(-14px) rotate(1.5deg); }
+      0%,100% { transform: var(--base-tx, translateX(0)) rotate(var(--rot-base, 0deg)); }
+      50%      { transform: var(--base-tx, translateX(0)) translateY(-10px) rotate(var(--rot-peak, 0deg)); }
     }
-
-    /* ── Shimmer on CTA ── */
-    @keyframes shimmer {
-      0%   { background-position: -200% center; }
-      100% { background-position: 200% center; }
-    }
-
-    /* ── Marquee ── */
     @keyframes marquee {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
     }
-
-    /* ── Blob pulse ── */
     @keyframes blobPulse {
       0%,100% { transform: scale(1) rotate(0deg); }
       50%      { transform: scale(1.04) rotate(3deg); }
     }
-
-    /* ── Halo glow under center cup ── */
     @keyframes haloGlow {
-      0%,100% { opacity: 0.55; transform: scaleX(1); }
-      50%      { opacity: 0.85; transform: scaleX(1.08); }
+      0%,100% { opacity: 0.5; transform: translateX(-50%) scaleX(1); }
+      50%      { opacity: 0.8; transform: translateX(-50%) scaleX(1.1); }
     }
 
-    /* ── Left content stagger ── */
-    .ph-label   { opacity:0; animation: fadeUp .6s ease forwards .1s; }
-    .ph-heading { opacity:0; animation: fadeUp .7s ease forwards .25s; }
-    .ph-sub     { opacity:0; animation: fadeUp .6s ease forwards .4s; }
-    .ph-cta-wrap{ opacity:0; animation: fadeUp .6s ease forwards .55s; }
+    /* Stagger reveals */
+    .ph-label    { opacity:0; animation: fadeUp .55s ease forwards .08s; }
+    .ph-heading  { opacity:0; animation: fadeUp .65s ease forwards .2s; }
+    .ph-sub      { opacity:0; animation: fadeUp .55s ease forwards .32s; }
+    .ph-cta-wrap { opacity:0; animation: fadeUp .55s ease forwards .44s; }
+    .ph-trust    { opacity:0; animation: fadeUp .55s ease forwards .56s; }
 
-    /* ── Cup cascade ── */
-    .ph-cup-0 { opacity:0; animation: fadeIn .5s ease forwards .4s; }
-    .ph-cup-1 { opacity:0; animation: fadeIn .5s ease forwards .55s; }
-    .ph-cup-2 { opacity:0; animation: fadeIn .5s ease forwards .3s; }
-    .ph-cup-3 { opacity:0; animation: fadeIn .5s ease forwards .55s; }
-    .ph-cup-4 { opacity:0; animation: fadeIn .5s ease forwards .4s; }
+    /* Cup stagger */
+    .ph-cup-0 { opacity:0; animation: fadeIn .5s ease forwards .35s; }
+    .ph-cup-1 { opacity:0; animation: fadeIn .5s ease forwards .48s; }
+    .ph-cup-2 { opacity:0; animation: fadeIn .5s ease forwards .25s; }
+    .ph-cup-3 { opacity:0; animation: fadeIn .5s ease forwards .48s; }
+    .ph-cup-4 { opacity:0; animation: fadeIn .5s ease forwards .35s; }
 
-    /* ── Sway per cup ── */
-    .ph-cup-inner {
+    /* Sway per cup */
+    .ph-cup-0 .ph-sway { animation: sway 9s ease-in-out infinite; --rot-base: -1deg; --rot-peak: 1deg; }
+    .ph-cup-1 .ph-sway { animation: sway 10.5s ease-in-out infinite; animation-delay: -3s; --rot-base: -0.5deg; --rot-peak: 0.5deg; }
+    .ph-cup-2 .ph-sway { animation: sway 8s ease-in-out infinite; animation-delay: -1s; --rot-base: -1.5deg; --rot-peak: 1.5deg; }
+    .ph-cup-3 .ph-sway { animation: sway 11s ease-in-out infinite; animation-delay: -5s; --rot-base: -0.5deg; --rot-peak: 0.5deg; }
+    .ph-cup-4 .ph-sway { animation: sway 9.5s ease-in-out infinite; animation-delay: -2s; --rot-base: -1deg; --rot-peak: 1deg; }
+
+    /* ── LAYOUT ── */
+    .ph-wrapper {
       position: relative;
-      animation: sway 9s ease-in-out infinite;
-    }
-    .ph-cup-0 .ph-cup-inner { animation-duration: 9s; }
-    .ph-cup-1 .ph-cup-inner { animation-duration: 10.5s; animation-delay: -3s; }
-    .ph-cup-2 .ph-cup-inner { animation-duration: 8s;  animation-delay: -1s; }
-    .ph-cup-3 .ph-cup-inner { animation-duration: 11s; animation-delay: -5s; }
-    .ph-cup-4 .ph-cup-inner { animation-duration: 9.5s;animation-delay: -2s; }
-
-    /* ── CTA button ── */
-    .ph-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 15px 32px;
-      border-radius: 999px;
-      background: #62840b;
-      color: white;
-      font-weight: 800;
-      font-size: 15px;
-      text-decoration: none;
-      letter-spacing: 0.03em;
-      box-shadow: 0 12px 32px rgba(98,132,11,0.35);
-      transition: background 0.25s ease, box-shadow 0.3s, transform 0.3s;
-      width: fit-content;
-    }
-    .ph-cta:hover {
-      background: #536f09;
-      transform: translateY(-3px);
-      box-shadow: 0 18px 40px rgba(98,132,11,0.45);
+      z-index: 10;
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
     }
 
+    /* Mobile: stacked — text → cups → trust */
+    .ph-layout {
+      display: flex;
+      flex-direction: column;
+      padding: 64px 24px 0;
+      gap: 0;
+    }
+
+    .ph-left {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      order: 1;
+    }
+
+    /* Cups stage mobile */
     .ph-cups-stage {
+      order: 2;
       position: relative;
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      gap: clamp(4px, 0.9vw, 12px);
       width: 100%;
-      min-height: clamp(300px, 52vh, 580px);
-      padding-bottom: 4px;
+      height: clamp(260px, 48vw, 380px);
+      margin-top: 28px;
+      overflow: visible;
     }
+
     .ph-cup-col {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      flex: 0 0 auto;
-      position: relative;
-    }
-    .ph-cup-figure {
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      width: 100%;
+      position: absolute;
+      bottom: 0;
     }
 
-    /* ── Cup image ── */
-   .ph-cup-img {
-  height: clamp(260px, 45vh, 520px);  /* was clamp(200px, 35vh, 400px) */
-  object-fit: contain;
-  display: block;
-  filter: drop-shadow(0 24px 32px rgba(0,0,0,0.13));
-}
-@media(min-width:1024px){
-  .ph-cup-img { height: clamp(360px, 58vh, 680px); }  /* was clamp(280px, 48vh, 520px) */
-}
+    /* Mobile: only 3 cups, tighter arc */
+    .ph-cup-col.hide-mobile { display: none; }
 
-    /* ── Marquee strip ── */
-    .ph-marquee-track {
-      display: flex;
-      width: max-content;
-      animation: marquee 28s linear infinite;
-    }
-    .ph-marquee-track:hover { animation-play-state: paused; }
-
-    /* ── Cup label tag ── */
-    .ph-cup-tag {
-      margin-top: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(255,255,255,0.82);
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(98,132,11,0.15);
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 9px;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      color: #62840b;
-      white-space: nowrap;
-    }
-    .ph-cup-tag::before {
-      content:'';
-      width:5px;
-      height:5px;
-      border-radius:50%;
-      background:#97b64c;
-      flex-shrink:0;
+    /* Desktop overrides */
+    @media (min-width: 1024px) {
+      .ph-layout {
+        flex-direction: row;
+        align-items: center;
+        padding: 100px 48px 0;
+        gap: 40px;
+        min-height: clamp(600px, 80vh, 880px);
+      }
+      .ph-left {
+        flex: 0 0 auto;
+        width: 42%;
+        order: 1;
+        gap: 22px;
+      }
+      .ph-cups-stage {
+        order: 2;
+        flex: 1;
+        height: clamp(440px, 72vh, 780px);
+        margin-top: 0;
+        align-items: flex-end;
+      }
+      .ph-cup-col.hide-mobile { display: flex; }
     }
 
-    /* ── Halo under center cup ── */
+    /* Cup image sizing */
+    .ph-cup-img {
+      display: block;
+      object-fit: contain;
+      filter: drop-shadow(0 20px 28px rgba(0,0,0,0.12));
+      width: auto;
+    }
+
+    /* Mobile cup sizes */
+    .ph-img-side   { height: clamp(140px, 28vw, 200px); }
+    .ph-img-mid    { height: clamp(170px, 34vw, 240px); }
+    .ph-img-center { height: clamp(200px, 40vw, 300px); }
+
+    /* Desktop cup sizes */
+    @media (min-width: 1024px) {
+      .ph-img-side   { height: clamp(260px, 34vh, 400px); }
+      .ph-img-mid    { height: clamp(320px, 42vh, 470px); }
+      .ph-img-center { height: clamp(380px, 52vh, 560px); }
+    }
+
+    /* Arc positions — mobile (3 cups: index 0,2,4 → positions left, center, right) */
+    .ph-pos-0 { left: 5%;  transform: rotate(-4deg); z-index: 2; }
+    .ph-pos-2 { left: 50%; transform: translateX(-50%) rotate(0deg); z-index: 5; }
+    .ph-pos-4 { right: 5%; transform: rotate(4deg); z-index: 2; }
+
+    /* Desktop 5-cup arc */
+    @media (min-width: 1024px) {
+      .ph-pos-0 { left: 2%;   transform: rotate(-5deg);  z-index: 2; }
+      .ph-pos-1 { left: 22%;  transform: rotate(-2.5deg); z-index: 3; }
+      .ph-pos-2 { left: 50%;  transform: translateX(-50%) rotate(0deg); z-index: 5; }
+      .ph-pos-3 { right: 22%; transform: rotate(2.5deg);  z-index: 3; }
+      .ph-pos-4 { right: 2%;  transform: rotate(5deg);    z-index: 2; }
+    }
+
+    /* Halo under center */
     .ph-halo {
       position: absolute;
-      bottom: -8px;
+      bottom: -6px;
       left: 50%;
       transform: translateX(-50%);
-      width: 110px;
-      height: 28px;
-      background: radial-gradient(ellipse, rgba(151,182,76,0.55) 0%, transparent 75%);
-      filter: blur(6px);
+      width: 90px;
+      height: 22px;
+      background: radial-gradient(ellipse, rgba(151,182,76,0.6) 0%, transparent 72%);
+      filter: blur(5px);
       animation: haloGlow 3s ease-in-out infinite;
       pointer-events: none;
     }
 
-    /* ── Shadow puddle under all cups ── */
+    /* Shadow puddle */
     .ph-puddle {
-      width: 60%;
-      height: 10px;
-      margin: 4px auto 0;
-      background: radial-gradient(ellipse, rgba(0,0,0,0.09) 0%, transparent 70%);
-      filter: blur(3px);
+      width: 55%;
+      height: 8px;
+      margin: 2px auto 0;
+      background: radial-gradient(ellipse, rgba(0,0,0,0.08) 0%, transparent 70%);
+      filter: blur(2px);
     }
+
+    /* Cup name tag */
+    .ph-cup-tag {
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(98,132,11,0.15);
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: #62840b;
+      white-space: nowrap;
+      max-width: min(28vw, 140px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ph-cup-tag::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #97b64c;
+      flex-shrink: 0;
+    }
+
+    @media (min-width: 1024px) {
+      .ph-cup-tag {
+        font-size: 9px;
+        max-width: min(14vw, 180px);
+        padding: 4px 10px;
+      }
+    }
+
+    /* Trust badges */
+    .ph-trust {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* CTA */
+    .ph-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 14px 28px;
+      border-radius: 999px;
+      background: #62840b;
+      color: white;
+      font-weight: 800;
+      font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      box-shadow: 0 10px 28px rgba(98,132,11,0.32);
+      transition: background 0.22s ease, box-shadow 0.25s ease, transform 0.22s ease;
+      width: fit-content;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ph-cta:hover {
+      background: #536f09;
+      transform: translateY(-2px);
+      box-shadow: 0 16px 36px rgba(98,132,11,0.42);
+    }
+    .ph-cta:active { transform: translateY(0); }
+
+    /* Marquee */
+    .ph-marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marquee 26s linear infinite;
+    }
+    .ph-marquee-track:hover { animation-play-state: paused; }
   `}</style>
 
-  {/* ── Decorative blobs (SVG, no images) ── */}
+  {/* ── Decorative blobs ── */}
   <svg
     aria-hidden="true"
     style={{
       position: "absolute",
       top: "-80px",
       right: "-100px",
-      width: "clamp(340px,44vw,620px)",
-      opacity: 0.38,
+      width: "clamp(280px,40vw,580px)",
+      opacity: 0.36,
       pointerEvents: "none",
       animation: "blobPulse 12s ease-in-out infinite",
     }}
@@ -691,10 +874,10 @@ export default function Products() {
   >
     <path
       d="M480 60 C560 120 600 240 560 340 C520 440 400 500 300 490 C200 480 80 420 40 320 C0 220 40 80 140 40 C240 0 400 0 480 60Z"
-      fill="url(#blob1)"
+      fill="url(#blob1h)"
     />
     <defs>
-      <radialGradient id="blob1" cx="50%" cy="50%" r="50%">
+      <radialGradient id="blob1h" cx="50%" cy="50%" r="50%">
         <stop offset="0%" stopColor="#c8dc8a" />
         <stop offset="100%" stopColor="#e8f2c8" />
       </radialGradient>
@@ -705,10 +888,10 @@ export default function Products() {
     aria-hidden="true"
     style={{
       position: "absolute",
-      bottom: "20px",
+      bottom: "60px",
       left: "-80px",
-      width: "clamp(200px,28vw,380px)",
-      opacity: 0.25,
+      width: "clamp(160px,24vw,340px)",
+      opacity: 0.22,
       pointerEvents: "none",
       animation: "blobPulse 15s ease-in-out infinite reverse",
     }}
@@ -718,17 +901,17 @@ export default function Products() {
   >
     <path
       d="M300 30 C360 80 390 180 360 270 C330 360 220 400 130 370 C40 340 -20 240 10 150 C40 60 130 -10 220 2 C270 8 290 20 300 30Z"
-      fill="url(#blob2)"
+      fill="url(#blob2h)"
     />
     <defs>
-      <radialGradient id="blob2" cx="50%" cy="50%" r="50%">
+      <radialGradient id="blob2h" cx="50%" cy="50%" r="50%">
         <stop offset="0%" stopColor="#97b64c" />
         <stop offset="100%" stopColor="#d4e8a0" />
       </radialGradient>
     </defs>
   </svg>
 
-  {/* ── Subtle dot grid texture ── */}
+  {/* ── Dot grid ── */}
   <svg
     aria-hidden="true"
     style={{
@@ -736,185 +919,151 @@ export default function Products() {
       inset: 0,
       width: "100%",
       height: "100%",
-      opacity: 0.18,
+      opacity: 0.16,
       pointerEvents: "none",
     }}
     xmlns="http://www.w3.org/2000/svg"
   >
     <defs>
-      <pattern id="dotgrid" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+      <pattern id="dotgridh" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
         <circle cx="2" cy="2" r="1.2" fill="#62840b" />
       </pattern>
     </defs>
-    <rect width="100%" height="100%" fill="url(#dotgrid)" />
+    <rect width="100%" height="100%" fill="url(#dotgridh)" />
   </svg>
 
-  {/* ── Main content grid ── */}
-  <div
-    style={{
-      position: "relative",
-      zIndex: 10,
-      maxWidth: 1280,
-      margin: "0 auto",
-      padding: "100px 40px 80px",
-      display: "grid",
-      gridTemplateColumns: "1fr 1.4fr",
-      gap: 40,
-      alignItems: "center",
-    }}
-    className="max-lg:grid-cols-1"
-  >
-    {/* ── LEFT ── */}
-    <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+  {/* ── Main ── */}
+  <div className="ph-wrapper">
+    <div className="ph-layout">
 
-      {/* Label */}
-      <div className="ph-label" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <span style={{ width: 28, height: 2, background: "#97b64c", display: "block", borderRadius: 2 }} />
-        <span style={{ fontSize: 11, letterSpacing: "0.22em", fontWeight: 800, color: "#62840b" }}>
-          THE MENU
-        </span>
-      </div>
+      {/* LEFT */}
+      <div className="ph-left">
 
-      {/* Heading */}
-      <h1
-        className="ph-heading"
-        style={{
-          fontSize: "clamp(3.2rem,6.2vw,5.8rem)",
-          fontWeight: 900,
-          lineHeight: 0.92,
-          margin: 0,
-          color: "#1a1e14",
-          letterSpacing: "-0.02em",
-        }}
-      >
-        Sip the <br />
-        <span
+        <div className="ph-label" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ width: 26, height: 2, background: "#97b64c", display: "block", borderRadius: 2 }} />
+          <span style={{ fontSize: 11, letterSpacing: "0.22em", fontWeight: 800, color: "#62840b" }}>
+            THE MENU
+          </span>
+        </div>
+
+        <h1
+          className="ph-heading"
           style={{
-            background: "linear-gradient(135deg,#62840b 0%,#97b64c 50%,#b7cd7f 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            fontSize: "clamp(2.8rem,5.8vw,5.6rem)",
+            fontWeight: 900,
+            lineHeight: 0.93,
+            margin: 0,
+            color: "#1a1e14",
+            letterSpacing: "-0.025em",
           }}
         >
-          Difference.
-        </span>
-      </h1>
-
-      {/* Subtext */}
-      <p
-        className="ph-sub"
-        style={{
-          color: "#4d5c3a",
-          maxWidth: 380,
-          fontSize: "clamp(14px,1.1vw,16px)",
-          lineHeight: 1.65,
-          margin: 0,
-        }}
-      >
-        Premium milk tea crafted fresh — no powders, only real ingredients.
-      </p>
-
-      {/* CTA */}
-      <div className="ph-cta-wrap">
-        <a href="#menu" className="ph-cta">
-          Browse Menu
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 3v10M3 8l5 5 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </a>
-      </div>
-
-      {/* Trust micro-line */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 16,
-          marginTop: 4,
-          opacity: 0,
-          animation: "fadeUp .6s ease forwards .7s",
-        }}
-      >
-        {["Real Tea", "No Powders", "Fresh Daily"].map((t) => (
+          Sip the <br />
           <span
-            key={t}
             style={{
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              color: "#97b64c",
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
+              background: "linear-gradient(135deg,#62840b 0%,#97b64c 50%,#b7cd7f 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
             }}
           >
-            <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#97b64c", display:"inline-block" }} />
-            {t}
+            Difference.
           </span>
-        ))}
+        </h1>
+
+        <p
+          className="ph-sub"
+          style={{
+            color: "#4d5c3a",
+            maxWidth: 360,
+            fontSize: "clamp(13px,1.05vw,15px)",
+            lineHeight: 1.65,
+            margin: 0,
+          }}
+        >
+          Premium milk tea crafted fresh — no powders, only real ingredients.
+        </p>
+
+        <div className="ph-cta-wrap">
+          <a href="#menu" className="ph-cta" onClick={scrollToMenu}>
+            Browse Menu
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+              <path d="M8 3v10M3 8l5 5 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </a>
+        </div>
+
+        <div className="ph-trust">
+          {["Real Tea", "No Powders", "Fresh Daily"].map((t) => (
+            <span
+              key={t}
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                color: "#97b64c",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#97b64c", display: "inline-block" }} />
+              {t}
+            </span>
+          ))}
+        </div>
       </div>
-    </div>
 
-    {/* ── RIGHT — 5 CUP ARC (bottom-aligned) ── */}
-    <div className="ph-cups-stage">
-      {topDrinks.slice(0, 5).map((d, i) => {
-        const imgHeights = [
-          "clamp(220px, 36vh, 400px)",
-          "clamp(250px, 42vh, 450px)",
-          "clamp(300px, 50vh, 520px)",
-          "clamp(250px, 42vh, 450px)",
-          "clamp(220px, 36vh, 400px)",
-        ]
-        const rotations = [-5, -2.5, 0, 2.5, 5]
-        const isCenter = i === 2
+      {/* RIGHT — Cups arc */}
+      <div className="ph-cups-stage">
+        {topDrinks.slice(0, 5).map((d, i) => {
+          const isCenter = i === 1  // index 1 in the visible set of 3 for mobile
+          const posClass = `ph-pos-${i}`
+          // Mobile: hide indices 1 and 3 (show 0, 2, 4)
+          const hideMobile = i === 1 || i === 3
+          // Size class
+          const sizeClass = i === 2
+            ? "ph-img-center"
+            : (i === 1 || i === 3)
+            ? "ph-img-mid"
+            : "ph-img-side"
+          // For the actual center cup (i===2), show halo
+          const showHalo = i === 2
 
-        return (
-          <div
-            key={d.id}
-            className={`ph-cup-col ph-cup-${i}`}
-            style={{
-              zIndex: isCenter ? 5 : 3,
-              transform: `rotate(${rotations[i]}deg)`,
-            }}
-          >
-            <div className="ph-cup-figure">
-              <div className="ph-cup-inner" style={{ "--base-transform": "translateY(0)" }}>
+          return (
+            <div
+              key={d.id}
+              className={`ph-cup-col ph-cup-${i} ${posClass}${hideMobile ? " hide-mobile" : ""}`}
+            >
+              <div className="ph-sway" style={{ position: "relative" }}>
                 <img
                   src={d.imageUrl}
                   alt={d.name}
-                  className="ph-cup-img"
+                  className={`ph-cup-img ${sizeClass}`}
                   draggable={false}
-                  style={{
-                    height: imgHeights[i],
-                    width: "auto",
-                    maxWidth: isCenter ? "min(42vw, 280px)" : "min(32vw, 200px)",
-                  }}
                 />
-                {isCenter && <div className="ph-halo" />}
+                {showHalo && <div className="ph-halo" />}
               </div>
+              <div className="ph-puddle" />
+              <div className="ph-cup-tag">{d.name}</div>
             </div>
+          )
+        })}
+      </div>
 
-            <div className="ph-puddle" />
-
-            <div className="ph-cup-tag">
-              {d.name}
-            </div>
-          </div>
-        )
-      })}
     </div>
   </div>
 
-  {/* ── Marquee strip at the bottom ── */}
+  {/* ── Marquee strip ── */}
   <div
     style={{
       position: "relative",
       zIndex: 10,
-      borderTop: "1px solid rgba(98,132,11,0.12)",
-      borderBottom: "1px solid rgba(98,132,11,0.12)",
-      background: "rgba(255,255,255,0.55)",
+      borderTop: "1px solid rgba(98,132,11,0.11)",
+      borderBottom: "1px solid rgba(98,132,11,0.11)",
+      background: "rgba(255,255,255,0.52)",
       backdropFilter: "blur(4px)",
-      padding: "11px 0",
+      padding: "10px 0",
       overflow: "hidden",
+      marginTop: "clamp(28px,5vw,56px)",
     }}
   >
     <div className="ph-marquee-track">
@@ -934,7 +1083,7 @@ export default function Products() {
               fontWeight: 700,
               letterSpacing: "0.18em",
               color: j % 3 === 0 ? "#62840b" : "#97b64c",
-              padding: "0 28px",
+              padding: "0 24px",
               whiteSpace: "nowrap",
             }}
           >
@@ -946,8 +1095,8 @@ export default function Products() {
   </div>
 </section>
 
-      <Reveal as="section" className="bg-white py-20 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+      <Reveal as="section" className="bg-white prod-section-pad overflow-hidden">
+        <div className="prod-container prod-container--wide">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
               <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
@@ -964,7 +1113,11 @@ export default function Products() {
       </Reveal>
 
       {/* ══ ALL SERIES ══════════════════════════════════════════════ */}
-      <section style={{ paddingTop: "80px", paddingBottom: "40px" }}>
+      <section
+        id="menu"
+        className="prod-menu-section"
+        style={{ scrollMarginTop: 96 }}
+      >
         {loading ? (
           <div style={{
             display: "flex", alignItems: "center",
@@ -989,14 +1142,15 @@ export default function Products() {
       </section>
 
       {/* ══ REVIEWS ══════════════════════════════════════════════ */}
-      <section style={{
-        overflow: "hidden", padding: "72px 0",
-        backgroundColor: "#ffffff", borderTop: "1px solid #dde8cc",
+      <section className="prod-section-pad" style={{
+        overflow: "hidden",
+        backgroundColor: "#ffffff",
+        borderTop: "1px solid #dde8cc",
       }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 16px", marginBottom: "24px" }}>
-          <div style={{ display: "flex", flexWrap: "nowrap", gap: "28px", alignItems: "stretch", justifyContent: "space-between" }}>
+        <div className="prod-container" style={{ marginBottom: "24px" }}>
+          <div className="prod-reviews-layout">
 
-            <Reveal as="div" style={{ flex: "0 0 360px", minWidth: "320px", textAlign: "left" }}>
+            <Reveal as="div" className="prod-reviews-intro">
               <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: "12px", marginBottom: "14px" }}>
                 <div style={{ width: "34px", height: "2px", backgroundColor: "#97b64c" }} />
                 <span style={{
@@ -1008,8 +1162,8 @@ export default function Products() {
                   fontFamily: "'DM Sans', sans-serif",
                 }}>Customer Feedbacks</span>
               </div>
-              <h2 className="ms-section-heading" style={{ margin: "0 0 16px" }}>
-                What they<span style={{ color: "#97b64c" }}> Say</span>
+              <h2 className="ms-section-heading" style={{ margin: "0 0 16px", color: "#1e1e1e" }}>
+                What they Say
               </h2>
              
               
@@ -1020,8 +1174,8 @@ export default function Products() {
               delay={80}
               style={{ flex: "1 1 auto", minWidth: "0" }}
             >
-              <div style={{
-                backgroundColor: "white", borderRadius: "24px", padding: "32px",
+              <div className="prod-review-card" style={{
+                backgroundColor: "white", borderRadius: "24px",
                 border: "1px solid #dde8cc",
                 boxShadow: "0 10px 34px rgba(151,182,76,0.12)",
               }}>
@@ -1055,15 +1209,20 @@ export default function Products() {
                     ))}
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
+                <div style={{ display: "flex", gap: "4px", marginTop: "16px", flexWrap: "wrap" }}>
                   {feedbacks.map((_, i) => (
-                    <button key={i} onClick={() => setActiveReview(i)} style={{
-                      borderRadius: "999px", height: "6px",
-                      width: i === activeReview ? "24px" : "6px",
-                      backgroundColor: i === activeReview ? "#97b64c" : "#dde8cc",
-                      border: "none", cursor: "pointer",
-                      transition: "all 0.3s ease", padding: 0,
-                    }} />
+                    <button
+                      key={i}
+                      type="button"
+                      className="prod-review-dot"
+                      onClick={() => setActiveReview(i)}
+                      aria-label={`Show review ${i + 1}`}
+                    >
+                      <span style={{
+                        width: i === activeReview ? "24px" : "6px",
+                        backgroundColor: i === activeReview ? "#97b64c" : "#dde8cc",
+                      }} />
+                    </button>
                   ))}
                 </div>
               </div>

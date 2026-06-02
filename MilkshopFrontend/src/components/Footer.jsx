@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import FranchiseInquiryTrigger from "./FranchiseInquiryTrigger";
 
 const logo = "/milkshop-logo-removebg-preview.png";
 
@@ -14,7 +15,7 @@ const navLinks = [
   { label: "Menu", path: "/products" },
   { label: "Locations", path: "/locations" },
   { label: "About", path: "/about" },
-  { label: "Franchise", path: "/franchise#inquiry" },
+  { label: "Franchise", path: "/franchise", inquiry: true },
 ];
 
 const socials = [
@@ -61,34 +62,68 @@ export default function Footer() {
       }}
     >
       <style>{`
-        /* CTA section */
-        .footer-cta-section {
-          border-bottom: 1px solid rgba(255,255,255,0.22);
-          padding: 52px 0 44px;
+        .footer-inner {
+          max-width: 1160px;
+          margin: 0 auto;
+          padding: 0 20px;
+          padding-bottom: env(safe-area-inset-bottom, 0);
+          position: relative;
+          z-index: 1;
+          box-sizing: border-box;
+          width: 100%;
+        }
+        @media (min-width: 768px) {
+          .footer-inner { padding-left: 32px; padding-right: 32px; }
+        }
+        @media (min-width: 1024px) {
+          .footer-inner { padding-left: 48px; padding-right: 48px; }
         }
 
-        /* Main grid */
+        .footer-watermark {
+          position: absolute;
+          right: -60px;
+          bottom: -24px;
+          width: 180px;
+          opacity: 0.12;
+          filter: brightness(0) invert(1);
+          pointer-events: none;
+          user-select: none;
+          z-index: 0;
+        }
+        @media (min-width: 521px) {
+          .footer-watermark { right: -40px; width: 220px; }
+        }
+        @media (min-width: 861px) {
+          .footer-watermark { width: 260px; bottom: -20px; }
+        }
+
+        .footer-cta-section {
+          border-bottom: 1px solid rgba(255,255,255,0.22);
+          padding: 40px 0 36px;
+        }
+        @media (min-width: 861px) {
+          .footer-cta-section { padding: 52px 0 44px; }
+        }
+
         .footer-main {
-          padding: 44px 0 36px;
+          padding: 36px 0 28px;
           display: grid;
-          grid-template-columns: 1.4fr 1fr 1fr 1fr;
-          gap: 40px;
+          grid-template-columns: 1fr;
+          gap: 32px;
           align-items: start;
           border-bottom: 1px solid rgba(255,255,255,0.22);
         }
-        @media (max-width: 860px) {
+        @media (min-width: 521px) {
           .footer-main {
             grid-template-columns: 1fr 1fr;
             gap: 36px;
           }
         }
-        @media (max-width: 520px) {
+        @media (min-width: 861px) {
           .footer-main {
-            grid-template-columns: 1fr;
-            gap: 32px;
-          }
-          .footer-cta-section {
-            padding: 40px 0 36px;
+            grid-template-columns: 1.4fr 1fr 1fr 1fr;
+            gap: 40px;
+            padding: 44px 0 36px;
           }
         }
 
@@ -109,6 +144,17 @@ export default function Footer() {
           font-weight: 600;
           transition: color 0.18s ease, transform 0.18s ease;
           margin-bottom: 9px;
+          padding: 4px 0;
+        }
+        button.footer-nav-link {
+          background: none;
+          border: none;
+          cursor: pointer;
+          width: 100%;
+          text-align: left;
+          font-family: inherit;
+          min-height: 32px;
+          -webkit-tap-highlight-color: transparent;
         }
         .footer-nav-link:hover {
           color: ${FOOTER_TEXT};
@@ -140,7 +186,7 @@ export default function Footer() {
         .footer-follow-link:hover { color: ${FOOTER_TEXT}; }
 
         .footer-social-btn {
-          width: 36px; height: 36px;
+          width: 44px; height: 44px;
           border-radius: 10px;
           display: flex; align-items: center; justify-content: center;
           color: ${FOOTER_TEXT};
@@ -178,17 +224,18 @@ export default function Footer() {
         /* Bottom bar */
         .footer-bottom {
           display: flex;
-          align-items: center;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 8px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 4px;
           padding: 16px 0;
         }
-        @media (max-width: 520px) {
+        @media (min-width: 521px) {
           .footer-bottom {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
           }
         }
 
@@ -208,22 +255,10 @@ export default function Footer() {
         src={logo}
         alt=""
         aria-hidden="true"
-        style={{
-          position: "absolute",
-          right: -40, bottom: -20,
-          width: 260, opacity: 0.12,
-          filter: "brightness(0) invert(1)",
-          pointerEvents: "none", userSelect: "none",
-          zIndex: 0,
-        }}
+        className="footer-watermark"
       />
 
-      <div style={{
-        maxWidth: 1160, margin: "0 auto",
-        padding: "0 clamp(20px,4vw,40px)",
-        position: "relative", zIndex: 1,
-        boxSizing: "border-box", width: "100%",
-      }}>
+      <div className="footer-inner">
 
      
 
@@ -297,6 +332,14 @@ export default function Footer() {
           <div>
             <p className="footer-col-label">Navigation</p>
             {navLinks.map((link) => (
+              link.inquiry ? (
+              <FranchiseInquiryTrigger
+                key={link.path}
+                className="footer-nav-link"
+              >
+                {link.label}
+              </FranchiseInquiryTrigger>
+              ) : (
               <Link
                 key={link.path}
                 to={link.path}
@@ -304,6 +347,7 @@ export default function Footer() {
               >
                 {link.label}
               </Link>
+              )
             ))}
           </div>
 

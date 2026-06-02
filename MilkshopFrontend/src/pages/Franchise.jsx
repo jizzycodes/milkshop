@@ -1,8 +1,13 @@
-﻿import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { createPortal } from "react-dom"
-import { Link } from "react-router-dom"
-import { createFranchiseRequest } from "../services/api"
-import { localDatetimeLocalFloor } from "../utils/dateInputConstraints"
+import { Link, useLocation } from "react-router-dom"
+import FranchiseInquiryForm from "../components/FranchiseInquiryForm"
+import FranchiseInquiryTrigger from "../components/FranchiseInquiryTrigger"
+import {
+  FRANCHISE_INQUIRY_ID,
+  isFranchiseInquiryHash,
+  scheduleScrollToFranchiseInquiry,
+} from "../utils/franchiseInquiry"
 
 
 // ─── DATA (unchanged) ────────────────────────────────────────────────────────
@@ -198,31 +203,118 @@ function ProcessStepsGrid() {
   );
 }
 
-// ─── FORM HELPERS ─────────────────────────────────────────────────────────────
-
-function Field({ label, required, error, children }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-bold uppercase tracking-widest flex items-center gap-1" style={{ color: T.ink, fontFamily: "'DM Sans', sans-serif" }}>
-        {label}{required && <span style={{ color: "#97b64c" }}>*</span>}
-      </label>
-      {children}
-      {error && <p className="text-xs flex items-center gap-1 mt-0.5" style={{ color: "#dc2626" }}>⚠ {error}</p>}
-    </div>
-  );
-}
-
-const inputBase = "w-full px-4 py-3 rounded-xl border text-sm placeholder-gray-400 focus:outline-none transition-all duration-200 bg-white";
-const inputIdle = "border-[#d0e0b0] focus:border-[#97b64c] focus:ring-2 focus:ring-[#e8f0dc]";
-const inputErr  = "border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 focus:ring-red-100";
-
-const FRANCHISE_FORM_ID = "inquiry";
-
 /** Scoped to this page route — overflow + stable gutter when process scroll-lock runs */
 const franchisePageStyles = `
   html {
     overflow-x: hidden;
     scrollbar-gutter: stable;
+  }
+
+  .franchise-page-main {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .franchise-inquiry-section {
+    position: relative;
+    overflow: hidden;
+    background: #ffffff;
+    padding: 48px 0;
+  }
+  @media (min-width: 768px) {
+    .franchise-inquiry-section { padding: 56px 0; }
+  }
+  @media (min-width: 1024px) {
+    .franchise-inquiry-section { padding: 64px 0; }
+  }
+
+  .franchise-inquiry-inner {
+    position: relative;
+    z-index: 10;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0 16px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  @media (min-width: 768px) {
+    .franchise-inquiry-inner { padding: 0 24px; }
+  }
+  @media (min-width: 1024px) {
+    .franchise-inquiry-inner { padding: 0 64px; }
+  }
+
+  .franchise-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  @media (min-width: 1024px) {
+    .franchise-form-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+  }
+
+  .franchise-form-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  @media (min-width: 768px) {
+    .franchise-form-header { margin-bottom: 48px; }
+  }
+
+  .franchise-form-cta-row {
+    margin-top: 32px;
+    padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 20px;
+    border-top: 1px solid rgba(151,182,76,0.15);
+  }
+  @media (min-width: 1024px) {
+    .franchise-form-cta-row {
+      margin-top: 40px;
+      padding-top: 32px;
+      flex-direction: row;
+      align-items: center;
+      gap: 24px;
+    }
+  }
+
+  .franchise-form-trust {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #62840b;
+  }
+  @media (min-width: 1024px) {
+    .franchise-form-trust { justify-content: flex-start; }
+  }
+
+  .franchise-submit-btn {
+    width: 100%;
+    min-height: 48px;
+    padding: 14px 32px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (min-width: 1024px) {
+    .franchise-submit-btn {
+      width: auto;
+      flex-shrink: 0;
+      padding: 16px 40px;
+    }
   }
 
   @keyframes heroFadeUp {
@@ -297,15 +389,17 @@ const packages = [
  
 const PACKAGE_IMG_FALLBACK = "/hero-bg-3.png";
  
-function PackageCards({ formData, setFormData, setFieldErrors }) {
-  const selected = formData.preferredPackage;
+function PackageCards({ onPackageSelect }) {
+  const [selected, setSelected] = useState("");
   const [pkgImgTier, setPkgImgTier] = useState({});
-  const [lightbox, setLightbox] = useState(null);
+  const [selectionNotice, setSelectionNotice] = useState(null);
   const [stageRef, stageInView] = useInView(0.12);
 
   const handleSelect = (id) => {
-    setFormData((p) => ({ ...p, preferredPackage: id }));
-    setFieldErrors((p) => ({ ...p, preferredPackage: "" }));
+    const pkg = packages.find((p) => p.id === id);
+    setSelected(id);
+    onPackageSelect?.(id);
+    if (pkg) setSelectionNotice(pkg);
   };
 
   const srcFor = (pkg) => {
@@ -324,16 +418,10 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
   };
 
   useEffect(() => {
-    if (!lightbox) return;
-    const onKey = (e) => { if (e.key === "Escape") setLightbox(null); };
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [lightbox]);
+    if (!selectionNotice) return undefined;
+    const timer = window.setTimeout(() => setSelectionNotice(null), 4500);
+    return () => window.clearTimeout(timer);
+  }, [selectionNotice]);
 
   return (
     <>
@@ -452,20 +540,71 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
           text-transform: uppercase;
           color: #62840b;
         }
-        .pkg-3d-view {
-          margin-top: 8px;
+
+        .pkg-select-toast {
+          pointer-events: none;
+          position: fixed;
+          inset: 0;
+          z-index: 9998;
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          padding: 88px 20px 0;
+        }
+        .pkg-select-toast-inner {
+          pointer-events: auto;
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          max-width: min(420px, calc(100vw - 40px));
+          padding: 14px 18px;
+          border-radius: 14px;
+          background: #ffffff;
+          border: 1px solid rgba(151, 182, 76, 0.35);
+          box-shadow: 0 12px 40px rgba(98, 132, 11, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08);
+          animation: pkgToastIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .pkg-select-toast-icon {
+          flex-shrink: 0;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: #62840b;
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+          font-weight: 800;
+        }
+        .pkg-select-toast-text {
+          margin: 0;
           font-family: 'DM Sans', sans-serif;
-          font-size: 0.68rem;
-          font-weight: 700;
-          color: #97b64c;
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: ${T.ink};
+          line-height: 1.45;
+        }
+        .pkg-select-toast-text strong {
+          color: #62840b;
+          font-weight: 800;
+        }
+        .pkg-select-toast-close {
+          flex-shrink: 0;
+          margin-left: 4px;
           background: none;
           border: none;
+          color: #8a9a7a;
+          font-size: 1.1rem;
+          line-height: 1;
           cursor: pointer;
-          text-decoration: underline;
-          text-underline-offset: 3px;
-          padding: 0;
+          padding: 2px 4px;
         }
-        .pkg-3d-view:hover { color: #62840b; }
+        .pkg-select-toast-close:hover { color: #62840b; }
+        @keyframes pkgToastIn {
+          from { opacity: 0; transform: translateY(-12px) scale(0.96); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
 
         /* Scroll-in + stagger */
         .pkg-3d-stage:not(.pkg-3d-stage--in) .pkg-3d-item {
@@ -533,9 +672,6 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
         @keyframes pkgTextFade {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
-        }
-        .pkg-3d-item:hover .pkg-3d-img {
-          transform: scale(1.05) translateY(-4px);
         }
         .pkg-3d-item.is-selected .pkg-3d-img-wrap::after {
           content: '';
@@ -657,67 +793,27 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
               <h3 className="pkg-3d-label">{pkg.label}</h3>
               <p className="pkg-3d-meta">{pkg.tagline}</p>
               {isSelected && <span className="pkg-3d-selected">Selected</span>}
-              {imgSrc && (
-                <button
-                  type="button"
-                  className="pkg-3d-view"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setLightbox(pkg);
-                  }}
-                >
-                  View larger
-                </button>
-              )}
             </div>
           );
         })}
       </div>
 
-      {/* Lightbox */}
-      {lightbox && createPortal(
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={`${lightbox.label} package image`}
-          onClick={() => setLightbox(null)}
-          style={{
-            position: "fixed", inset: 0, zIndex: 9999,
-            background: "rgba(0,0,0,0.82)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "24px",
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              position: "relative",
-              maxWidth: "min(90vw, 900px)",
-              maxHeight: "85vh",
-              borderRadius: 20,
-              overflow: "hidden",
-              boxShadow: "0 32px 80px rgba(0,0,0,0.5)",
-            }}
-          >
-            <img
-              src={srcFor(lightbox) ?? PACKAGE_IMG_FALLBACK}
-              alt={`Milkshop ${lightbox.label} package`}
-              style={{ display: "block", width: "100%", height: "auto", maxHeight: "85vh", objectFit: "contain" }}
-            />
+      {selectionNotice && createPortal(
+        <div className="pkg-select-toast" role="status" aria-live="polite">
+          <div className="pkg-select-toast-inner">
+            <span className="pkg-select-toast-icon" aria-hidden>✓</span>
+            <p className="pkg-select-toast-text">
+              This package is selected: <strong>{selectionNotice.label}</strong>.
+              {" "}It is set in the application form below.
+            </p>
             <button
               type="button"
-              onClick={() => setLightbox(null)}
-              style={{
-                position: "absolute", top: 14, right: 14,
-                background: "rgba(0,0,0,0.5)", color: "#fff",
-                border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: 999, width: 34, height: 34,
-                fontSize: "1rem", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "'DM Sans', sans-serif",
-              }}
-              aria-label="Close"
-            >✕</button>
+              className="pkg-select-toast-close"
+              onClick={() => setSelectionNotice(null)}
+              aria-label="Dismiss notification"
+            >
+              ×
+            </button>
           </div>
         </div>,
         document.body
@@ -731,22 +827,21 @@ function PackageCards({ formData, setFormData, setFieldErrors }) {
 
 
 export default function Franchise() {
+  const location = useLocation();
+  const inquiryFromLink = isFranchiseInquiryHash(location.hash);
+
   const [openFaq, setOpenFaq]           = useState(null);
-  const [formData, setFormData]         = useState({ name: "", email: "", contactNumber: "", bestContactTime: "", estimatedAnnualIncome: "", proposedLocation: "", preferredPackage: "", remarks: "", referral: "" });
-  const [fieldErrors, setFieldErrors]   = useState({});
-  const [submitted, setSubmitted]       = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [preferredPackage, setPreferredPackage] = useState("");
   const [heroInlineAnimReady, setHeroInlineAnimReady] = useState(false);
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth < 768;
   });
+
   useEffect(() => {
-    if (window.location.hash !== `#${FRANCHISE_FORM_ID}`) return;
-    const el = document.getElementById(FRANCHISE_FORM_ID);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
+    if (!inquiryFromLink) return;
+    scheduleScrollToFranchiseInquiry();
+  }, [inquiryFromLink]);
 
   useEffect(() => {
     let raf = 0;
@@ -778,73 +873,11 @@ export default function Franchise() {
     };
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    let next = value;
-    if (name === "bestContactTime" && value) {
-      const min = localDatetimeLocalFloor();
-      if (value < min) next = min;
-    }
-    setFormData((p) => ({ ...p, [name]: next }));
-    if (fieldErrors[name]) setFieldErrors((p) => ({ ...p, [name]: "" }));
-  };
-
-  const validate = () => {
-    const e = {};
-    if (!formData.name.trim())                      e.name                  = "Full name is required.";
-    if (!formData.email.trim())                     e.email                 = "Email address is required.";
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) e.email                 = "Enter a valid email address.";
-    if (!formData.contactNumber.trim())             e.contactNumber         = "Contact number is required.";
-    if (!formData.bestContactTime)                  e.bestContactTime       = "Please pick a date and time.";
-    if (!formData.estimatedAnnualIncome.trim())     e.estimatedAnnualIncome = "Please provide your estimated income.";
-    if (!formData.proposedLocation.trim())          e.proposedLocation      = "Proposed location is required.";
-    if (!formData.preferredPackage)                 e.preferredPackage      = "Please select a package.";
-    if (!formData.remarks.trim())                   e.remarks               = "Please tell us a bit about yourself.";
-    return e;
-  };
-
-  const FORM_FIELDS = [
-    "name",
-    "email",
-    "contactNumber",
-    "bestContactTime",
-    "estimatedAnnualIncome",
-    "proposedLocation",
-    "preferredPackage",
-    "remarks",
-  ]
-   
-  const filledCount = FORM_FIELDS.filter(
-    (key) => String(formData[key] ?? "").trim() !== ""
-  ).length
-   
-  const progressPct = Math.round((filledCount / FORM_FIELDS.length) * 100)
-
-  const handleSubmit = async (ev) => {
-    ev.preventDefault();
-    setErrorMessage("");
-    const errors = validate();
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
-      document.getElementById(Object.keys(errors)[0])?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      await createFranchiseRequest(formData);
-      setSubmitted(true);
-      setFormData({ name: "", email: "", contactNumber: "", bestContactTime: "", estimatedAnnualIncome: "", proposedLocation: "", preferredPackage: "", remarks: "", referral: "" });
-    } catch (err) {
-      setErrorMessage(err?.message || "Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <>
       <style>{franchisePageStyles}</style>
       <main
+        className="franchise-page-main"
         style={{
           backgroundColor: "#fafaf8",
           fontFamily: "'DM Sans', sans-serif",
@@ -859,346 +892,311 @@ export default function Franchise() {
       SLIDE 1 — HERO (PREMIUM UPGRADE)
 ══════════════════════════════════════ */}
 {/* ══════════════════════════════════════
-   PREMIUM FRANCHISE HERO — UPGRADED
-   Direction: Natural Editorial
-   Left: cream/paper light with brand texture
-   Right: store image, full bleed
-   Divider: soft organic SVG curve
+    REPLACE THIS ENTIRE BLOCK:
+    From: <section className="relative overflow-hidden" ...> (the hero)
+    To:   </section>  (line 1242, just before the FRANCHISING PROCESS comment)
+    WITH THE SECTION BELOW
 ══════════════════════════════════════ */}
+
 <section
-  className="relative overflow-hidden"
   style={{
-    background: T.offWhite,
-    minHeight: isMobile ? "110svh" : "clamp(920px, 110svh, 1180px)",
-    display: "flex",
-    alignItems: "center",
     position: "relative",
+    overflow: "hidden",
     fontFamily: "'DM Sans', sans-serif",
+    minHeight: "100svh",
+    display: "flex",
+    alignItems: "flex-end",
   }}
 >
-  {/* ── BACKGROUND LAYER ── */}
-  <div
-    style={{
-      position: "absolute",
-      inset: 0,
-      overflow: "hidden",
-      pointerEvents: "none",
-      zIndex: 0,
-    }}
-  >
-    {/* === LEFT PANEL — paper cream base === */}
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        background: T.heroGradient,
-        zIndex: 0,
-      }}
-    />
+  <style>{`
+    @keyframes fhFadeUp {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fhImgScale {
+      from { transform: scale(1.06); }
+      to   { transform: scale(1); }
+    }
+    @keyframes fhBadgePulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(151,182,76,0.5); }
+      50%      { box-shadow: 0 0 0 8px rgba(151,182,76,0); }
+    }
 
-    {/* === Fine dot grid — left half only, very subtle === */}
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        backgroundImage: "radial-gradient(circle, rgba(98,132,11,0.13) 1px, transparent 1px)",
-        backgroundSize: "22px 22px",
-        maskImage: "linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.6) 18%, rgba(0,0,0,0.9) 36%, transparent 52%)",
-        WebkitMaskImage: "linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.6) 18%, rgba(0,0,0,0.9) 36%, transparent 52%)",
-        zIndex: 2,
-      }}
-    />
+    /* ── Mobile: full-screen image bg, text at bottom ── */
+    .fh-bg-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 55%;
+      animation: fhImgScale 1.6s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
 
-    {/* === Thin brand rule — left accent line === */}
-    <div
-      style={{
-        position: "absolute",
-        left: isMobile ? 28 : 48,
-        top: "18%",
-        width: 1,
-        height: isMobile ? "0%" : "64%",
-        background: "linear-gradient(180deg, transparent 0%, rgba(98,132,11,0.18) 20%, rgba(98,132,11,0.22) 70%, transparent 100%)",
-        zIndex: 3,
-      }}
-    />
+    /* Dark gradient — strong top-to-bottom, heavier overall for legibility */
+    .fh-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(10,18,4,0.52) 0%,
+        rgba(10,18,4,0.44) 35%,
+        rgba(10,18,4,0.72) 65%,
+        rgba(10,18,4,0.92) 100%
+      );
+      z-index: 1;
+    }
 
-    {/* === Small brand circle accent — bottom left, very restrained === */}
-    <div
-      style={{
-        position: "absolute",
-        bottom: isMobile ? "auto" : -80,
-        top: isMobile ? "auto" : "auto",
-        left: -80,
-        width: 320,
-        height: 320,
-        borderRadius: "50%",
-        border: "1.5px solid rgba(98,132,11,0.1)",
-        zIndex: 2,
-      }}
-    />
-    <div
-      style={{
-        position: "absolute",
-        bottom: isMobile ? "auto" : -120,
-        left: -120,
-        width: 480,
-        height: 480,
-        borderRadius: "50%",
-        border: "1px solid rgba(151,182,76,0.07)",
-        zIndex: 2,
-      }}
-    />
+    /* Solid dark base behind text — ensures contrast regardless of image */
+    .fh-overlay::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(8,14,3,0.28);
+    }
 
-    {/* === STORE IMAGE — right side, entrance from right === */}
-    <div
-      aria-hidden
-      style={{
-        position: "absolute",
-        top: isMobile ? "auto" : 0,
-        right: 0,
-        bottom: isMobile ? 0 : "auto",
-        width: isMobile ? "100%" : "68%",
-        height: isMobile ? "52%" : "100%",
-        zIndex: 3,
-      }}
-    >
-      <div
-        className={`hero-inline-enter${heroInlineAnimReady ? " hero-inline-enter--active" : ""}${isMobile ? " hero-inline-enter--mobile" : ""}`}
-        style={{ position: "relative", width: "100%", height: "100%" }}
-      >
-      <img
-        src={packages.find((p) => p.id === "inline")?.image ?? "/franchise/packages/8.png"}
-        alt=""
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          objectPosition: isMobile ? "center bottom" : "center center",
-          display: "block",
-        }}
-        onError={(e) => { e.currentTarget.src = PACKAGE_IMG_FALLBACK; }}
-      />
+    /* Green tint layer — brand colour warmth */
+    .fh-tint {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 80%, rgba(98,132,11,0.22) 0%, transparent 60%);
+      z-index: 2;
+    }
 
-      {/* Soft dim over image for contrast */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "rgba(247,250,239,0.08)",
-          zIndex: 1,
-        }}
-      />
-      </div>
-    </div>
+    /* Content sits above overlays */
+    .fh-content {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      padding: 100px 24px 52px;
+      box-sizing: border-box;
+    }
 
-    {/* === ORGANIC CURVE DIVIDER — sits between text and store image === */}
-    {!isMobile && (
-      <svg
-        viewBox="0 0 900 900"
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "58%",
-          height: "100%",
-          zIndex: 4,
-          pointerEvents: "none",
-        }}
-      >
-        {/* Main filled cream shape covering left content zone */}
-        <path
-          d="M0,0 L800,0 C800,0 740,80 720,200 C698,340 750,420 728,560 C706,700 760,820 740,900 L0,900 Z"
-          fill="#f4f9e8"
-        />
-        {/* Subtle second layer for depth */}
-        <path
-          d="M0,0 L780,0 C780,0 728,90 710,210 C690,355 740,435 720,572 C700,710 748,828 728,900 L0,900 Z"
-          fill="#eef6dc"
-          opacity="0.7"
-        />
-        {/* Brand green stroke edge — the organic curve line itself */}
-        <path
-          d="M800,0 C800,0 740,80 720,200 C698,340 750,420 728,560 C706,700 760,820 740,900"
-          fill="none"
-          stroke="rgba(98,132,11,0.14)"
-          strokeWidth="1.5"
-        />
-        {/* Lighter inner stroke for dimension */}
-        <path
-          d="M780,0 C780,0 728,90 710,210 C690,355 740,435 720,572 C700,710 748,828 728,900"
-          fill="none"
-          stroke="rgba(151,182,76,0.09)"
-          strokeWidth="1"
-        />
-      </svg>
-    )}
+    /* ── Desktop: split layout restored ── */
+    @media (min-width: 768px) {
+      .fh-section {
+        align-items: center !important;
+        min-height: clamp(920px, 110svh, 1180px) !important;
+      }
 
-    {/* === MOBILE: top fade instead of curve === */}
-    {isMobile && (
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "58%",
-          background: "linear-gradient(180deg, #f4f9e8 0%, #eef6dc 55%, transparent 100%)",
-          zIndex: 4,
-        }}
-      />
-    )}
-  </div>
+      .fh-bg-img {
+        /* On desktop image stays right side via object-position */
+        object-position: center center;
+      }
 
-  {/* ── WATERMARK LOGO ── */}
+      /* Desktop overlay: dark left for text, lighter right to show store */
+      .fh-overlay {
+        background: linear-gradient(
+          105deg,
+          rgba(8,14,3,0.88) 0%,
+          rgba(8,14,3,0.72) 35%,
+          rgba(8,14,3,0.28) 60%,
+          rgba(8,14,3,0.12) 100%
+        );
+      }
+      .fh-overlay::after { display: none; }
+
+      .fh-tint {
+        background: radial-gradient(ellipse at 25% 60%, rgba(98,132,11,0.2) 0%, transparent 55%);
+      }
+
+      .fh-content {
+        padding: 0 clamp(48px, 6vw, 96px);
+        max-width: 1380px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        min-height: inherit;
+      }
+
+      /* Desktop: organic cream shape over left content zone */
+      .fh-desktop-curve {
+        display: block !important;
+      }
+    }
+
+    /* Animations */
+    .fh-anim-1 { opacity: 0; animation: fhFadeUp 0.7s 0.15s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .fh-anim-2 { opacity: 0; animation: fhFadeUp 0.7s 0.28s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .fh-anim-3 { opacity: 0; animation: fhFadeUp 0.7s 0.42s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .fh-anim-4 { opacity: 0; animation: fhFadeUp 0.7s 0.56s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+    .fh-badge-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #97b64c; flex-shrink: 0;
+      animation: fhBadgePulse 2.2s ease-in-out infinite;
+    }
+
+    .fh-btn-main {
+      display: inline-flex; align-items: center; justify-content: center;
+      height: 52px; padding: 0 28px; border-radius: 999px;
+      background: #62840b; color: #fff;
+      font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 0.92rem;
+      border: none; cursor: pointer; text-decoration: none;
+      box-shadow: 0 8px 28px rgba(98,132,11,0.38);
+      transition: transform 0.2s ease, background 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .fh-btn-main:hover { transform: translateY(-2px); background: #4e6a09; }
+    .fh-btn-main:active { transform: translateY(0); }
+
+    .fh-btn-secondary {
+      display: inline-flex; align-items: center; justify-content: center;
+      height: 52px; padding: 0 24px; border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.45);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.9rem;
+      text-decoration: none; cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: transform 0.2s ease, background 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .fh-btn-secondary:hover { transform: translateY(-2px); background: rgba(255,255,255,0.2); }
+
+    /* Mobile: stat bar at bottom */
+    .fh-stat-bar {
+      display: flex;
+      gap: 0;
+      margin-top: 36px;
+      border-top: 1px solid rgba(255,255,255,0.14);
+      padding-top: 24px;
+    }
+    .fh-stat-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 0 12px;
+      border-right: 1px solid rgba(255,255,255,0.12);
+    }
+    .fh-stat-item:first-child { padding-left: 0; }
+    .fh-stat-item:last-child { border-right: none; }
+    .fh-stat-num {
+      font-family: 'DM Sans', sans-serif;
+      font-size: clamp(1.4rem, 5vw, 1.8rem);
+      font-weight: 900;
+      color: #b7cd7f;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .fh-stat-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.04em;
+      line-height: 1.3;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fh-anim-1, .fh-anim-2, .fh-anim-3, .fh-anim-4 {
+        opacity: 1 !important; animation: none !important;
+      }
+      .fh-bg-img { animation: none !important; }
+      .fh-badge-dot { animation: none !important; }
+    }
+  `}</style>
+
+  {/* ── Full-bleed background image ── */}
+  <img
+    className="fh-bg-img"
+    src={packages.find((p) => p.id === "inline")?.image ?? "/franchise/packages/8.png"}
+    alt=""
+    aria-hidden="true"
+    onError={(e) => { e.currentTarget.src = PACKAGE_IMG_FALLBACK; }}
+  />
+
+  {/* ── Overlays ── */}
+  <div className="fh-overlay" />
+  <div className="fh-tint" />
+
+  {/* ── Watermark logo ── */}
   <img
     src="/milkshop-logo-removebg-preview.png"
     alt=""
     aria-hidden="true"
     style={{
       position: "absolute",
-      bottom: "6%",
-      left: isMobile ? "50%" : "22%",
-      transform: "translateX(-50%)",
-      opacity: 0.04,
-      width: 300,
+      bottom: "8%",
+      right: "5%",
+      opacity: 0.06,
+      width: 220,
       pointerEvents: "none",
-      zIndex: 5,
+      zIndex: 3,
       userSelect: "none",
     }}
   />
 
-  <style>{`
-    @keyframes heroFadeUp {
-      from { opacity: 0; transform: translateY(28px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes heroBadgePulse {
-      0%,100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.4); opacity: 0.55; }
-    }
-    @keyframes heroInlineEnter {
-      from { opacity: 0; transform: translateX(56px) scale(0.8); }
-      to   { opacity: 1; transform: translateX(0) scale(0.8); }
-    }
+  {/* ── Content ── */}
+  <div className="fh-content">
+    <div style={{ maxWidth: 540, display: "flex", flexDirection: "column", gap: 20 }}>
 
-    .hero-reveal { animation: heroFadeUp .9s cubic-bezier(.16,1,.3,1) forwards; }
-    .hero-inline-enter {
-      opacity: 0;
-      transform: translateX(56px) scale(0.8);
-      transform-origin: right center;
-    }
-    .hero-inline-enter--active {
-      animation: heroInlineEnter 1.15s cubic-bezier(.16,1,.3,1) both;
-    }
-    .hero-inline-enter--mobile { transform-origin: center bottom; }
-    .hero-reveal-delayed { animation: heroFadeUp .9s .2s cubic-bezier(.16,1,.3,1) both; }
-    .hero-badge-dot {
-      width: 7px; height: 7px; border-radius: 50%; background: #62840b;
-      animation: heroBadgePulse 2s ease-in-out infinite; flex-shrink: 0;
-    }
+   
 
-    .hero-btn-main, .hero-btn-secondary {
-      display: inline-flex; align-items: center; justify-content: center;
-      text-decoration: none; box-sizing: border-box;
-    }
-    .hero-btn-main {
-      height: 54px; padding: 0 32px; border-radius: 999px;
-      background: #62840b; color: #fff; font-weight: 800; font-size: .92rem;
-      box-shadow: 0 8px 24px rgba(98,132,11,0.22);
-      transition: transform .22s ease, background .22s ease;
-    }
-    .hero-btn-main:hover { transform: translateY(-3px); background: #536f09; }
-    .hero-btn-secondary {
-      height: 54px; padding: 0 28px; border-radius: 999px;
-      background: rgba(255,255,255,0.55); border: 1.5px solid rgba(98,132,11,0.28);
-      color: #62840b; font-weight: 700; font-size: .9rem;
-      transition: transform .22s ease, background .22s ease;
-    }
-    .hero-btn-secondary:hover { transform: translateY(-3px); background: #fff; }
-
-    @media (prefers-reduced-motion: reduce) {
-      .hero-reveal, .hero-reveal-delayed, .hero-badge-dot, .hero-inline-enter {
-        animation: none !important;
-        opacity: 1;
-        transform: scale(0.8);
-      }
-      .hero-inline-enter--active { transform: scale(0.8); }
-    }
-  `}</style>
-
-  {/* ── CONTENT ── */}
-  <div
-    style={{
-      width: "100%",
-      maxWidth: 1380,
-      margin: "0 auto",
-      padding: isMobile ? "130px 28px calc(58vh + 32px)" : "130px 48px 120px",
-      position: "relative",
-      zIndex: 10,
-    }}
-  >
-    <div
-      className="hero-reveal"
-      style={{
-        maxWidth: 520,
-        display: "flex",
-        flexDirection: "column",
-        gap: 28,
-        position: "relative",
-        zIndex: 11,
-      }}
-    >
       {/* Headline */}
-      <h1
-        style={{
-          margin: 0,
-          fontSize: "clamp(3.6rem,6.5vw,6.8rem)",
-          lineHeight: .88,
-          letterSpacing: "-.06em",
-          fontWeight: 900,
-          color: T.ink,
-        }}
-      >
-        Own the
-        <br />
-        Future of
-        <br />
-        <span style={{ color: T.greenDark }}>Milk Tea.</span>
+      <h1 className="fh-anim-2" style={{
+        margin: 0,
+        fontSize: "clamp(3.2rem, 10vw, 6.8rem)",
+        lineHeight: 0.88,
+        letterSpacing: "-0.05em",
+        fontWeight: 900,
+        color: "#F6F1E7",
+        textShadow: "0 4px 24px rgba(0,0,0,0.3)",
+      }}>
+        Own the<br />
+        Future of<br />
+        <span style={{
+          background: "linear-gradient(135deg, #A6C44A 0%, #C8D97B 50%, #97b64c 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+          display: "inline-block",
+        }}>
+          Milk Tea.
+        </span>
       </h1>
 
-      {/* Divider accent */}
-      <div
-        style={{
-          width: 52,
-          height: 3,
-          background: T.greenDark,
-          borderRadius: 2,
-        }}
-      />
+      {/* Accent rule */}
+      <div className="fh-anim-2" style={{ width: 48, height: 3, background: "#97b64c", borderRadius: 2 }} />
 
-      {/* Desc */}
-      <p
-        style={{
-          margin: 0,
-          maxWidth: 420,
-          fontSize: "1rem",
-          lineHeight: 1.85,
-          color: T.body,
-          fontWeight: 500,
-        }}
-      >
+      {/* Description */}
+      <p className="fh-anim-3" style={{
+        margin: 0,
+        maxWidth: 400,
+        fontSize: "clamp(0.9rem, 2.4vw, 1rem)",
+        lineHeight: 1.8,
+        color: "rgba(246,241,231,0.75)",
+        fontWeight: 400,
+      }}>
         Launch a premium milk tea franchise with proven operations,
-        strong branding, and modern customer experience built for the
-        Filipino market.
+        strong branding, and modern customer experience built for the Filipino market.
       </p>
 
-      {/* CTA */}
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <a href={`#${FRANCHISE_FORM_ID}`} className="hero-btn-main">Apply for Franchise →</a>
-        <a href="#packages" className="hero-btn-secondary">Explore Packages</a>
+      {/* CTAs */}
+      <div className="fh-anim-4" style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <FranchiseInquiryTrigger className="fh-btn-main">
+          Apply for Franchise →
+        </FranchiseInquiryTrigger>
+        <a href="#packages" className="fh-btn-secondary">Explore Packages</a>
       </div>
+
+      {/* Stat bar */}
+      <div className="fh-anim-4 fh-stat-bar">
+        <div className="fh-stat-item">
+          <span className="fh-stat-num">11+</span>
+          <span className="fh-stat-label">Active Branches</span>
+        </div>
+        <div className="fh-stat-item">
+          <span className="fh-stat-num">12–18<span style={{ fontSize: "0.55em", fontWeight: 700 }}>mo</span></span>
+          <span className="fh-stat-label">Avg. ROI Period</span>
+        </div>
+        <div className="fh-stat-item">
+          <span className="fh-stat-num">🇹🇼</span>
+          <span className="fh-stat-label">Authentic Taiwan Brand</span>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -1502,7 +1500,7 @@ export default function Franchise() {
  
     {/* Packages grid — full section width */}
     <div className="mt-10 mb-2 w-full max-w-[min(100%,1520px)] mx-auto px-[clamp(10px,1.2vw,20px)]">
-      <PackageCards formData={formData} setFormData={setFormData} setFieldErrors={setFieldErrors} />
+      <PackageCards onPackageSelect={setPreferredPackage} />
     </div>
  
     {/* Bottom nudge */}
@@ -1511,7 +1509,7 @@ export default function Franchise() {
         fontSize: "0.78rem", color: T.body,
         fontFamily: "'DM Sans', sans-serif",
       }}>
-        Not sure? Select <strong style={{ color: T.greenDark }}>Not sure yet</strong> in the form below and we'll help you decide.
+        Not sure? Select <strong style={{ color: T.greenDark }}>Not sure</strong> in the application form and we&apos;ll help you decide.
       </p>
     </Slide>
   </div>
@@ -1523,280 +1521,40 @@ export default function Franchise() {
 {/* ══════════════════════════════════════
        SLIDE 4 — FRANCHISE INQUIRY
    ══════════════════════════════════════ */}
-<section id="inquiry" className="relative py-12 sm:py-14 lg:py-16 overflow-hidden" style={{ background: T.white }}>
-
-<div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-16 z-10">
-
-  {/* ── THANK YOU SCREEN (shown after submit, hidden on reload) ── */}
-  {submitted ? (
-    <div
-      className="flex flex-col items-center text-center py-6 lg:py-10"
-      style={{
-        animation: "tyFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both",
-      }}
-    >
-      <style>{`
-        @keyframes tyFadeUp {
-          from { opacity: 0; transform: translateY(28px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes tyPop {
-          0%   { transform: scale(0.7); opacity: 0; }
-          60%  { transform: scale(1.08); }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes tyRing {
-          0%,100% { box-shadow: 0 0 0 0 rgba(151,182,76,0.35); }
-          50%      { box-shadow: 0 0 0 18px rgba(151,182,76,0); }
-        }
-        @keyframes tySlideUp {
-          from { opacity: 0; transform: translateY(14px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-
-      {/* LOGO — replace the src below with your actual logo file path */}
-      <img
-        src="/milkshop-logo-removebg-preview.png"
-        alt="Milkshop Logo"
-        style={{
-          width: 80,
-          height: 80,
-          objectFit: "contain",
-          marginBottom: 24,
-          borderRadius: 16,
-          animation: "tyPop 0.55s cubic-bezier(0.16,1,0.3,1) 0.1s both",
-        }}
-      />
-
-      {/* CHECK CIRCLE */}
-      <div
-        style={{
-          width: 72,
-          height: 72,
-          borderRadius: "50%",
-          background: "linear-gradient(135deg,#62840b,#97b64c)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 24,
-          animation: "tyPop 0.55s cubic-bezier(0.16,1,0.3,1) 0.2s both, tyRing 1.8s ease 0.8s infinite",
-        }}
-      >
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-          <path d="M7 16.5l6 6 12-12" stroke="#fff" strokeWidth="2.8"
-            strokeLinecap="round" strokeLinejoin="round"
-            style={{ strokeDasharray: 30, strokeDashoffset: 30,
-              animation: "none", transition: "stroke-dashoffset 0.5s ease 0.7s",
-            }}
-          />
-        </svg>
-      </div>
-
-      {/* HEADLINE */}
-      <h2
-        className="ms-section-heading"
-        style={{
-          marginBottom: 8,
-          animation: "tySlideUp 0.5s ease 0.35s both",
-        }}
-      >
-        Thank You! 🎉
-      </h2>
-
-      {/* SUBTEXT */}
+<section id={FRANCHISE_INQUIRY_ID} className="franchise-inquiry-section">
+  <div className="franchise-inquiry-inner">
+    <Slide direction="up" className="franchise-form-header">
       <p
-        style={{
-          color: T.body,
-          fontSize: "0.95rem",
-          maxWidth: 380,
-          lineHeight: 1.65,
-          marginBottom: 32,
-          animation: "tySlideUp 0.5s ease 0.45s both",
-        }}
+        className="text-[11px] tracking-[0.3em] font-bold uppercase mb-3"
+        style={{ color: T.green, fontFamily: "'DM Sans', sans-serif" }}
       >
-        We've received your franchise application. Our team will reach out to you
-        within <strong style={{ color: T.greenDark }}>1–2 business days</strong> to
-        discuss the next steps.
+        Start Your Journey
       </p>
+      <h2 className="ms-section-heading" style={{ margin: 0 }}>
+        Franchise Application
+      </h2>
+    </Slide>
 
-      {/* DIVIDER */}
+    <Slide direction="up" delay={80}>
       <div
         style={{
-          width: 48, height: 3, borderRadius: 99,
-          background: "linear-gradient(90deg,#62840b,#97b64c)",
-          marginBottom: 32,
-          animation: "tySlideUp 0.5s ease 0.5s both",
-        }}
-      />
-
-      {/* TRUST BADGES */}
-      <div
-        style={{
-          display: "flex",
-          gap: 20,
-          fontSize: "0.78rem",
-          color: "#62840b",
-          fontWeight: 600,
-          animation: "tySlideUp 0.5s ease 0.55s both",
+          marginTop: 8,
+          background: "rgba(255,255,255,0.96)",
+          border: `1px solid ${T.border}`,
+          borderRadius: 24,
+          padding: "clamp(24px, 4vw, 40px)",
+          boxShadow: "0 16px 48px rgba(98, 132, 11, 0.08)",
         }}
       >
-        <span>🔒 Secure</span>
-        <span>⚡ Fast Review</span>
-        <span>📞 We'll Call You</span>
+        <FranchiseInquiryForm
+          key={preferredPackage || "default"}
+          idPrefix="franchise-"
+          preferredPackage={preferredPackage}
+          hideHeader
+        />
       </div>
-
-    </div>
-
-  ) : (
-    <>
-      {/* HEADER */}
-      <div className="text-center mb-12">
-       
-
-        <h2 className="ms-section-heading">
-          Franchise Application
-        </h2>
-
-      
-      </div>
-
-      <div className="w-full">
-
-        {/* PROGRESS BAR */}
-        <div className="mb-8">
-          <div className="flex justify-between text-[11px] mb-2"
-            style={{ color: T.greenDark }}>
-            <span>
-              {filledCount === 0
-                ? "Start filling the form"
-                : filledCount === FORM_FIELDS.length
-                ? "✓ All fields complete"
-                : `${filledCount} of ${FORM_FIELDS.length} fields filled`}
-            </span>
-            <span style={{ fontWeight: 700 }}>{progressPct}%</span>
-          </div>
-          <div className="w-full h-2 rounded-full bg-[#e8f0dc]" style={{ overflow: "hidden" }}>
-            <div
-              className="h-full rounded-full"
-              style={{
-                width: `${progressPct}%`,
-                background: progressPct === 100
-                  ? "linear-gradient(90deg, #62840b, #97b64c)"
-                  : "#97b64c",
-                transition: "width 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
-              }}
-            />
-          </div>
-        </div>
-
-        {/* FORM GRID */}
-        <div className="grid lg:grid-cols-2 gap-6">
-
-          {/* LEFT */}
-          <div className="flex flex-col gap-5">
-
-            <Field label="Full Name" required error={fieldErrors.name}>
-              <input name="name" value={formData.name} onChange={handleChange}
-                
-                className={`${inputBase} ${inputIdle}`} />
-            </Field>
-
-            <Field label="Email Address" required error={fieldErrors.email}>
-              <input type="email" name="email" value={formData.email} onChange={handleChange}
-                placeholder="you@email.com"
-                className={`${inputBase} ${inputIdle}`} />
-            </Field>
-
-            <Field label="Contact Number" required error={fieldErrors.contactNumber}>
-              <input name="contactNumber" value={formData.contactNumber} onChange={handleChange}
-                placeholder="09XX XXX XXXX"
-                className={`${inputBase} ${inputIdle}`} />
-            </Field>
-
-            <Field label="Preferred Contact Time" required error={fieldErrors.bestContactTime}>
-              <input type="datetime-local" name="bestContactTime"
-                value={formData.bestContactTime}
-                min={localDatetimeLocalFloor()}
-                onChange={handleChange}
-                className={`${inputBase} ${inputIdle}`} />
-            </Field>
-
-          </div>
-
-          {/* RIGHT */}
-          <div className="flex flex-col gap-5">
-
-            <Field label="Estimated Income" required error={fieldErrors.estimatedAnnualIncome}>
-              <input name="estimatedAnnualIncome"
-                value={formData.estimatedAnnualIncome}
-                onChange={handleChange}
-                
-                className={`${inputBase} ${inputIdle}`} />
-            </Field>
-
-            <Field label="Proposed Location" required error={fieldErrors.proposedLocation}>
-              <input name="proposedLocation"
-                value={formData.proposedLocation}
-                onChange={handleChange}
-                
-                className={`${inputBase} ${inputIdle}`} />
-            </Field>
-
-            <Field label="Preferred Package" required error={fieldErrors.preferredPackage}>
-              <select name="preferredPackage"
-                value={formData.preferredPackage}
-                onChange={handleChange}
-                className={`${inputBase} ${inputIdle}`}>
-                <option value="">Select package</option>
-                <option value="cart">Cart</option>
-                <option value="kiosk">Kiosk</option>
-                <option value="inline">In-line</option>
-                <option value="unsure">Not sure</option>
-              </select>
-            </Field>
-
-            <Field label="Additional Info" required error={fieldErrors.remarks}>
-              <textarea name="remarks"
-                rows={3}
-                value={formData.remarks}
-                onChange={handleChange}
-                placeholder="Tell us your plan..."
-                className={`${inputBase} ${inputIdle}`} />
-            </Field>
-
-          </div>
-        </div>
-
-        {/* CTA */}
-        <div className="mt-10 flex flex-col lg:flex-row items-center justify-between gap-4">
-
-          {/* TRUST */}
-          <div className="flex gap-3 text-xs"
-            style={{ color: T.greenDark }}>
-           
-          </div>
-
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="w-full lg:w-auto px-8 sm:px-10 py-3.5 sm:py-4 rounded-full font-bold text-sm transition-all active:scale-95"
-            style={{
-              background: isSubmitting ? "#b7cd7f" : "#62840b",
-              color: "#fff",
-              boxShadow: "0 10px 30px rgba(98,132,11,0.3)"
-            }}
-          >
-            {isSubmitting ? "Submitting..." : "Continue →"}
-          </button>
-
-        </div>
-
-      </div>
-    </>
-  )}
-
-</div>
+    </Slide>
+  </div>
 </section>
 
       {/* ══════════════════════════════════════

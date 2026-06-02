@@ -9,9 +9,7 @@ const navLinks = [
   { label: "Our Menu",  path: "/products" },
 ];
 
-// Navbar spacing — change these values to nudge logo / links
-const NAV_BRAND_MARGIN_LEFT  = "100px";
-const NAV_LINKS_MARGIN_RIGHT = "100px";
+const NAV_BREAKPOINT = "860px";
 
 const styles = `
   @keyframes navFade {
@@ -28,18 +26,103 @@ const styles = `
     animation: navFade 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  /* ── Desktop nav links ── */
+  .nav-inner {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    height: 72px;
+    padding: 0 20px;
+    padding-top: env(safe-area-inset-top, 0);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-sizing: border-box;
+  }
+
+  @media (min-width: ${NAV_BREAKPOINT}) {
+    .nav-inner {
+      height: 80px;
+      padding-left: clamp(24px, 5vw, 96px);
+      padding-right: clamp(24px, 5vw, 96px);
+      gap: 20px;
+    }
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  @media (min-width: ${NAV_BREAKPOINT}) {
+    .nav-actions { gap: 10px; }
+  }
+
+  /* Mobile-first: hide desktop, show mobile */
+  .nav-desktop-links {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: ${NAV_BREAKPOINT}) {
+    .nav-desktop-links {
+      display: flex;
+      gap: 12px;
+    }
+  }
+
+  .nav-mobile-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @media (min-width: ${NAV_BREAKPOINT}) {
+    .nav-mobile-actions { display: none; }
+  }
+
+  .nav-mobile-panel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: 8px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0));
+    border-top: 1px solid rgba(17, 24, 39, 0.08);
+    background: #ffffff;
+    box-shadow: 0 12px 32px rgba(10, 20, 5, 0.12);
+  }
+
+  .nav-mobile-panel.is-open {
+    display: block;
+    animation: menuIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @media (min-width: ${NAV_BREAKPOINT}) {
+    .nav-mobile-panel { display: none !important; }
+  }
+
   .nav-link {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    min-height: 44px;
     height: 48px;
-    padding: 0 14px;
+    padding: 0 12px;
     border-radius: 8px;
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: 1.28rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: -0.01em;
     color: rgba(17, 24, 39, 0.72);
@@ -49,6 +132,13 @@ const styles = `
       transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
       color 0.28s ease,
       text-shadow 0.28s ease;
+  }
+
+  @media (min-width: ${NAV_BREAKPOINT}) {
+    .nav-link {
+      font-size: 1.28rem;
+      padding: 0 14px;
+    }
   }
 
   .nav-link:hover {
@@ -64,61 +154,36 @@ const styles = `
     text-shadow: 0 0 10px rgba(151, 182, 76, 0.25);
   }
 
-  /* Franchise CTA — flat pill (like Apply for Franchise ref), solid orange */
-  .franchise-cta {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    height: 48px;
-    padding: 0 28px;
-    border-radius: 999px;
-    text-decoration: none;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: #ffffff;
-    background: #E8A020;
-    border: none;
-    box-shadow: none;
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: background 0.2s ease;
-  }
-
-  .franchise-cta:hover {
-    background: #d49218;
-    color: #ffffff;
-  }
-
-  .franchise-cta:active {
-    background: #c28415;
-  }
-
-  .franchise-cta-arrow {
-    font-style: normal;
-    font-weight: 400;
-    line-height: 1;
-  }
-
   .nav-brand-link {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     text-decoration: none;
-    flex-shrink: 0;
+    flex-shrink: 1;
+    min-width: 0;
     color: inherit;
+    margin-left: 0;
+  }
+
+  @media (min-width: ${NAV_BREAKPOINT}) {
+    .nav-brand-link { gap: 10px; flex-shrink: 0; }
   }
 
   .nav-brand-logo {
     display: block;
+    height: 44px;
+    width: auto;
     object-fit: contain;
     transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), filter 0.28s ease;
   }
 
+  @media (min-width: ${NAV_BREAKPOINT}) {
+    .nav-brand-logo { height: 52px; }
+  }
+
   .nav-brand-wordmark {
     font-family: 'Signia Pro', 'DM Sans', sans-serif;
+    font-size: 1.65rem;
     font-weight: 900;
     letter-spacing: -0.04em;
     line-height: 1.2;
@@ -129,10 +194,15 @@ const styles = `
     transition:
       transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
       text-shadow 0.28s ease,
-      color 0.28s ease,
-      font-size 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      color 0.28s ease;
     text-rendering: geometricPrecision;
     -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (min-width: ${NAV_BREAKPOINT}) {
+    .nav-brand-wordmark { font-size: 2.2rem; }
   }
 
   .nav-brand-link:hover .nav-brand-logo {
@@ -148,30 +218,38 @@ const styles = `
       0 0 4px rgba(98, 132, 11, 0.2);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .nav-brand-link:hover .nav-brand-logo,
-    .nav-brand-link:hover .nav-brand-wordmark,
-    .nav-link:hover,
-    .mobile-link:hover {
-      transform: none;
-      filter: none;
-      text-shadow: none;
-    }
-    .nav-link.active {
-      text-shadow: none;
-    }
+  .nav-menu-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid rgba(17, 24, 39, 0.10);
+    background: rgba(255, 255, 255, 0.65);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.2s ease, border-color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  /* ── Mobile menu links ── */
+  .nav-menu-btn.is-open {
+    background: rgba(151, 182, 76, 0.14);
+  }
+
   .mobile-link {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    min-height: 48px;
     padding: 13px 14px;
     border-radius: 12px;
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: 1.28rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: rgba(17, 24, 39, 0.78);
     border: 1px solid transparent;
@@ -179,6 +257,11 @@ const styles = `
       transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
       color 0.28s ease,
       text-shadow 0.28s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (min-width: ${NAV_BREAKPOINT}) {
+    .mobile-link { font-size: 1.28rem; }
   }
 
   .mobile-link:hover {
@@ -194,29 +277,54 @@ const styles = `
     text-shadow: 0 0 8px rgba(151, 182, 76, 0.22);
   }
 
-  /* ── Hamburger ── */
+  .nav-mobile-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
   .hb-line {
     display: block;
     height: 2px;
     border-radius: 999px;
-    background: rgba(17,24,39,0.82);
-    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.2s ease;
+    background: rgba(17, 24, 39, 0.82);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
     transform-origin: center;
     pointer-events: none;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-brand-link:hover .nav-brand-logo,
+    .nav-brand-link:hover .nav-brand-wordmark,
+    .nav-link:hover,
+    .mobile-link:hover {
+      transform: none;
+      filter: none;
+      text-shadow: none;
+    }
+    .nav-link.active,
+    .mobile-link.active {
+      text-shadow: none;
+    }
+    .nav-root,
+    .nav-mobile-panel.is-open {
+      animation: none;
+    }
+  }
 `;
 
+function isNavLinkActive(pathname, path) {
+  if (path === "/") return pathname === "/";
+  return pathname === path || pathname.startsWith(`${path}/`);
+}
+
 export default function Navbar() {
-  const [scrolled,  setScrolled]  = useState(false);
-  const [menuOpen,  setMenuOpen]  = useState(false);
-  const [isMobile,  setIsMobile]  = useState(
-    () => typeof window !== "undefined" ? window.innerWidth < 860 : false
-  );
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const location = useLocation();
-  const menuRef  = useRef(null);
+  const menuRef = useRef(null);
 
-  /* scroll listener — rAF-throttled to avoid extra re-renders per tick */
   useEffect(() => {
     let raf = 0;
     const update = () => {
@@ -234,10 +342,10 @@ export default function Navbar() {
     };
   }, []);
 
-  /* close on route change */
-  useEffect(() => { setMenuOpen(false); }, [location]);
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location]);
 
-  /* close on outside click */
   useEffect(() => {
     if (!menuOpen) return;
     const fn = (e) => {
@@ -247,14 +355,21 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", fn);
   }, [menuOpen]);
 
-  /* resize */
   useEffect(() => {
-    const fn = () => setIsMobile(window.innerWidth < 860);
-    window.addEventListener("resize", fn);
-    return () => window.removeEventListener("resize", fn);
+    const mq = window.matchMedia(`(min-width: ${NAV_BREAKPOINT})`);
+    const onChange = () => {
+      if (mq.matches) setMenuOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  const navHeight = isMobile ? 72 : 80;
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
 
   return (
     <>
@@ -263,190 +378,95 @@ export default function Navbar() {
       <header
         className="ms-site-nav"
         style={{
-          position:        "fixed",
-          top:             0,
-          left:            0,
-          right:           0,
-          zIndex:          1000,
-          background:      "#ffffff",
-          borderBottom:    scrolled
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          background: "#ffffff",
+          borderBottom: scrolled
             ? "1px solid rgba(17, 24, 39, 0.10)"
             : "1px solid rgba(151, 182, 76, 0.18)",
-          boxShadow:       scrolled ? "0 4px 18px rgba(10, 20, 5, 0.08)" : "none",
-          transition:      "box-shadow 0.25s ease, border-color 0.25s ease",
+          boxShadow: scrolled ? "0 4px 18px rgba(10, 20, 5, 0.08)" : "none",
+          transition: "box-shadow 0.25s ease, border-color 0.25s ease",
         }}
       >
-        <nav
-          ref={menuRef}
-          className="nav-root"
-          style={{
-            position:       "relative",
-            height:         navHeight,
-            width:          "100%",
-            maxWidth:       "100%",
-            margin:         0,
-            paddingTop:     0,
-            paddingBottom:  0,
-            paddingLeft:    isMobile ? "20px" : "1in",
-            paddingRight:   isMobile ? "20px" : "1in",
-            display:        "flex",
-            alignItems:     "center",
-            justifyContent: "space-between",
-            gap:            "20px",
-            boxSizing:      "border-box",
-          }}
-        >
-
-          {/* ── LOGO ── */}
-          <Link
-            to="/"
-            aria-label="Milkshop home"
-            className="nav-brand-link"
-            style={{ marginLeft: NAV_BRAND_MARGIN_LEFT }}
-          >
+        <nav ref={menuRef} className="nav-root nav-inner">
+          <Link to="/" aria-label="Milkshop home" className="nav-brand-link">
             <img
               src="/milkshop-logo-removebg-preview.png"
               alt=""
               aria-hidden
               className="nav-brand-logo"
-              style={{
-                height: isMobile ? 44 : 52,
-                width: "auto",
-              }}
             />
-            <span
-              className="nav-brand-wordmark"
-              style={{
-                fontSize: isMobile ? "1.75rem" : "2.2rem",
-              }}
-            >
-              Milkshop
-            </span>
+            <span className="nav-brand-wordmark">Milkshop</span>
           </Link>
 
-          {/* ── RIGHT: links + CTA (desktop) / CTA + menu (mobile) ── */}
-          <div
-            style={{
-              display:    "flex",
-              alignItems: "center",
-              gap:        isMobile ? 8 : 10,
-              flexShrink: 0,
-            }}
-          >
-            {!isMobile && (
-              <ul
-                style={{
-                  display:    "flex",
-                  alignItems: "center",
-                  gap:        12,
-                  margin:     0,
-                  marginRight: NAV_LINKS_MARGIN_RIGHT,
-                  padding:    0,
-                  listStyle:  "none",
-                }}
+          <div className="nav-actions">
+            <ul className="nav-desktop-links">
+              {navLinks.map((link) => {
+                const isActive = isNavLinkActive(location.pathname, link.path);
+                return (
+                  <li key={link.path}>
+                    <Link
+                      to={link.path}
+                      className={`nav-link${isActive ? " active" : ""}`}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <div className="nav-mobile-actions">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-label="Toggle menu"
+                aria-expanded={menuOpen}
+                className={`nav-menu-btn${menuOpen ? " is-open" : ""}`}
               >
-                {navLinks.map((link) => {
-                  const isActive =
-                    link.path === "/"
-                      ? location.pathname === "/"
-                      : location.pathname === link.path ||
-                        location.pathname.startsWith(`${link.path}/`);
-                  return (
-                    <li key={link.path}>
-                      <Link
-                        to={link.path}
-                        className={`nav-link${isActive ? " active" : ""}`}
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-
-       
-
-            {isMobile && (
-              <>
-                <Link
-                  to="/franchise#inquiry"
-                  className="franchise-cta"
-                  style={{ height: "42px", padding: "0 18px", fontSize: "0.9rem", gap: "6px" }}
-                >
-                  Franchise
-                  <span className="franchise-cta-arrow" aria-hidden>→</span>
-                </Link>
-
-                <button
-                  onClick={() => setMenuOpen(v => !v)}
-                  aria-label="Toggle menu"
-                  aria-expanded={menuOpen}
+                <span
+                  className="hb-line"
                   style={{
-                    width:          "40px",
-                    height:         "40px",
-                    borderRadius:   "12px",
-                    border:         "1px solid rgba(17,24,39,0.10)",
-                    background:     menuOpen ? "rgba(151,182,76,0.14)" : "rgba(255,255,255,0.65)",
-                    display:        "flex",
-                    flexDirection:  "column",
-                    alignItems:     "center",
-                    justifyContent: "center",
-                    gap:            "5px",
-                    cursor:         "pointer",
-                    padding:        0,
-                    flexShrink:     0,
-                    transition:     "background 0.2s ease, border-color 0.2s ease",
-                  }}
-                >
-                  <span className="hb-line" style={{
-                    width:     "18px",
+                    width: "18px",
                     transform: menuOpen ? "translateY(7px) rotate(45deg)" : "none",
-                  }} />
-                  <span className="hb-line" style={{
-                    width:   "12px",
-                    opacity: menuOpen ? 0 : 1,
-                  }} />
-                  <span className="hb-line" style={{
-                    width:     "18px",
+                  }}
+                />
+                <span
+                  className="hb-line"
+                  style={{ width: "12px", opacity: menuOpen ? 0 : 1 }}
+                />
+                <span
+                  className="hb-line"
+                  style={{
+                    width: "18px",
                     transform: menuOpen ? "translateY(-7px) rotate(-45deg)" : "none",
-                  }} />
-                </button>
-              </>
-            )}
+                  }}
+                />
+              </button>
+            </div>
           </div>
 
-          {/* ── MOBILE DROPDOWN ── */}
-          {isMobile && menuOpen && (
-            <div style={{
-              position:    "absolute",
-              top:           "100%",
-              left:          0,
-              right:         0,
-              padding:       "8px",
-              borderTop:     "1px solid rgba(17,24,39,0.08)",
-              background:    "#ffffff",
-              boxShadow:     "0 12px 32px rgba(10,20,5,0.12)",
-              animation:     "menuIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards",
-            }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                {navLinks.map((link) => {
-                  const isActive = location.pathname === link.path;
-                  return (
-                    <Link
-                      key={link.path}
-                      to={link.path}
-                      className={`mobile-link${isActive ? " active" : ""}`}
-                    >
-                      <span>{link.label}</span>
-                    </Link>
-                  );
-                })}
-              </div>
+          <div className={`nav-mobile-panel${menuOpen ? " is-open" : ""}`}>
+            <div className="nav-mobile-menu">
+              {navLinks.map((link) => {
+                const isActive = isNavLinkActive(location.pathname, link.path);
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`mobile-link${isActive ? " active" : ""}`}
+                  >
+                    <span>{link.label}</span>
+                  </Link>
+                );
+              })}
             </div>
-          )}
+          </div>
         </nav>
       </header>
     </>
   );
-} 
+}
