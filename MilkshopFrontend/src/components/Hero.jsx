@@ -130,15 +130,26 @@ const CSS = `
     justify-content: center;
     flex-wrap: wrap;
   }
-  .hero-taiwan span {
-    font-family: 'Fredoka One', cursive;
-    font-size: clamp(2.8rem, 13vw, 5rem);
-    line-height: 1;
-    display: inline-block;
-    text-shadow: -2px -2px 0 #1a1a1a, 2px -2px 0 #1a1a1a, -2px 2px 0 #1a1a1a, 2px 2px 0 #1a1a1a;
-    -webkit-text-stroke: 2px #1a1a1a;
+  .hero-taiwan img {
+    height: clamp(56px, 16vw, 92px);
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 10px 26px rgba(0,0,0,0.35));
     opacity: 0;
-    animation: letterPop 0.6s cubic-bezier(0.34,1.5,0.64,1) forwards;
+    transform: translateY(10px) scale(0.96) rotate(-1deg);
+    animation: heroTaiwanPop 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.42s,
+      heroTaiwanFloat 3.6s ease-in-out infinite 1.25s;
+    will-change: transform;
+  }
+
+  @keyframes heroTaiwanPop {
+    0%   { opacity: 0; transform: translateY(10px) scale(0.96) rotate(-1deg); filter: saturate(0.9) drop-shadow(0 10px 26px rgba(0,0,0,0.35)); }
+    55%  { opacity: 1; transform: translateY(0) scale(1.04) rotate(0deg); filter: saturate(1.05) drop-shadow(0 12px 30px rgba(0,0,0,0.36)); }
+    100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); filter: saturate(1) drop-shadow(0 10px 26px rgba(0,0,0,0.35)); }
+  }
+  @keyframes heroTaiwanFloat {
+    0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+    50%      { transform: translateY(-6px) scale(1) rotate(0deg); }
   }
 
   .hero-tagline {
@@ -298,7 +309,7 @@ const CSS = `
     .hero-eyebrow-line { width: 22px; }
     .hero-fresh { font-size: clamp(2.6rem, 4vw, 4rem); }
     .hero-taiwan { justify-content: flex-start; }
-    .hero-taiwan span { font-size: clamp(3.5rem, 6.5vw, 6rem); -webkit-text-stroke: 3px #1a1a1a; }
+    .hero-taiwan img { height: clamp(72px, 8.2vw, 120px); }
     .hero-tagline { font-size: clamp(1.15rem, 2vw, 1.5rem); }
     .hero-features {
       grid-template-columns: repeat(4, 1fr);
@@ -339,10 +350,11 @@ const CSS = `
 
   @media (prefers-reduced-motion: reduce) {
     .hero-eyebrow, .hero-fresh, .hero-tagline, .hero-features, .hero-btns,
-    .hero-taiwan span, .hero-cup-wrap, .hero-splash {
+    .hero-taiwan img, .hero-cup-wrap, .hero-splash {
       animation: none !important;
       opacity: 1 !important;
       transform: none !important;
+      filter: none !important;
     }
   }
 `;
@@ -468,17 +480,7 @@ export default function Hero() {
             <div className="hero-fresh">Fresh Taste of</div>
 
             <div className="hero-taiwan">
-              {TAIWAN_LETTERS.map((item, i) => (
-                <span
-                  key={i}
-                  style={{
-                    color: item.color,
-                    animationDelay: `${0.3 + i * 0.08}s`,
-                  }}
-                >
-                  {item.letter}
-                </span>
-              ))}
+              <img src="/taiwan-word.png" alt="Taiwan" />
             </div>
 
             <div className="hero-tagline">Milky · Healthy · Chewy</div>

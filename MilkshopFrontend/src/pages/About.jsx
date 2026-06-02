@@ -91,8 +91,8 @@ const rawMaterials = [
   {
     title: "Premium Tea Leaves",
     caption: "Imported from Taiwan Highlands",
-    image: "/about/raw-materials/premium-tea-leaves.png",
-    imageAlt: "Milkshop Signature Taiwan Black Tea raw material packaging",
+    image: "/franchise/why/why-05.png",
+    imageAlt: "Milkshop tea leaves and packaging imported from Taiwan",
   },
   {
     title: "Brown Sugar Pearls",
@@ -105,6 +105,12 @@ const rawMaterials = [
     caption: "Carefully Selected",
     image: "/about/raw-materials/natural-ingredients.png",
     imageAlt: "Fresh fruit, berries, and popping boba on ice",
+  },
+  {
+    title: "Fresh Milk & Cream",
+    caption: "Smooth & Creamy",
+    image: "/about/raw-materials/fresh-milk-boba.png",
+    imageAlt: "Milk being poured into a milk tea with boba pearls",
   },
 ]
 
@@ -311,6 +317,41 @@ export default function About() {
       0%   { background-position: -200% center; }
       100% { background-position: 200% center; }
     }
+    @keyframes aboutTaiwanPop {
+      0%   { opacity: 0; transform: translateY(12px) scale(0.96) rotate(-1deg); filter: saturate(0.9); }
+      55%  { opacity: 1; transform: translateY(0) scale(1.04) rotate(0deg); filter: saturate(1.05); }
+      100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); filter: saturate(1); }
+    }
+    @keyframes aboutTaiwanFloat {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-6px); }
+    }
+
+    .about-taiwan-word {
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      vertical-align: baseline;
+      margin-left: 14px;
+      transform-origin: 50% 80%;
+    }
+    .about-taiwan-word img {
+      height: clamp(44px, 7.6vw, 86px);
+      width: auto;
+      display: block;
+      transform: scale(1.15);
+      transform-origin: 50% 80%;
+      filter: drop-shadow(0 10px 26px rgba(0,0,0,0.38));
+    }
+    .about-hero--ready .about-taiwan-word {
+      animation: aboutTaiwanPop 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.45s;
+    }
+    .about-hero--ready .about-taiwan-word img {
+      animation: aboutTaiwanFloat 3.6s ease-in-out infinite;
+      animation-delay: 1.25s;
+      will-change: transform;
+    }
 
     .about-hero-tag, .about-hero-h1, .about-hero-p, .about-hero-stat, .about-hero-cta, .about-hero-img { opacity: 0; }
     .about-hero--ready .about-hero-tag  { animation: aboutFadeUp 0.6s ease forwards; animation-delay: 0.15s; }
@@ -333,10 +374,11 @@ export default function About() {
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .about-hero-tag, .about-hero-h1, .about-hero-p, .about-hero-stat, .about-hero-cta, .about-hero-img, .about-hero-img-inner, .about-hero-scroll-bar {
+      .about-hero-tag, .about-hero-h1, .about-hero-p, .about-hero-stat, .about-hero-cta, .about-hero-img, .about-hero-img-inner, .about-hero-scroll-bar, .about-taiwan-word, .about-taiwan-word img {
         opacity: 1 !important;
         animation: none !important;
         transform: none !important;
+        filter: none !important;
       }
     }
 
@@ -495,19 +537,8 @@ export default function About() {
     Born in
     
 
-    <span
-      style={{
-        background:
-          "linear-gradient(135deg, #A6C44A 0%, #C8D97B 45%, #E2C078 100%)",
-        backgroundSize: "200% auto",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-        backgroundClip: "text",
-        animation: "aboutShimmer 6s linear infinite",
-        display: "inline-block",
-      }}
-    >
-           Taiwan.
+    <span className="about-taiwan-word">
+      <img src="/about/taiwan-word.png" alt="Taiwan" />
     </span>
 
     <br />
@@ -668,7 +699,7 @@ export default function About() {
 
     @media (min-width: 640px) {
       .ing-cards {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: clamp(18px, 2.4vw, 28px);
       }
       .ing-card-photo {
@@ -678,6 +709,9 @@ export default function About() {
     }
 
     @media (min-width: 1024px) {
+      .ing-cards {
+        grid-template-columns: repeat(4, 1fr);
+      }
       .ing-card-photo {
         aspect-ratio: 25 / 18;
         min-height: 264px;
