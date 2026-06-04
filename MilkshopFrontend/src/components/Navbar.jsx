@@ -4,10 +4,10 @@ import { createPortal } from "react-dom";
 
 const navLinks = [
   { label: "Home",      path: "/" },
-  { label: "Our Menu",  path: "/products" },
-  { label: "Locations", path: "/locations" },
   { label: "Franchise", path: "/franchise" },
   { label: "About",     path: "/about" },
+  { label: "Locations", path: "/locations" },
+  { label: "Products",  path: "/products" },
 ];
 
 const NAV_BREAKPOINT = "860px";
@@ -111,7 +111,7 @@ const styles = `
     font-size: 1.15rem;
     font-weight: 700;
     letter-spacing: -0.01em;
-    color: rgba(255, 255, 255, 0.88);
+    color: rgba(24, 33, 15, 0.78);
     border: 1px solid transparent;
     white-space: nowrap;
     transition:
@@ -128,14 +128,14 @@ const styles = `
   }
 
   .nav-link:hover {
-    color: #ffffff;
+    color: ${NAV_GREEN_DARK};
     transform: scale(1.06);
-    text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+    text-shadow: none;
   }
 
   .nav-link.active {
-    color: #ffffff;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    color: ${NAV_GREEN_DARK};
+    text-shadow: none;
   }
 
   .nav-brand-link {
@@ -174,12 +174,7 @@ const styles = `
     white-space: nowrap;
     user-select: none;
     display: inline-block;
-    color: #ffffff;
-    transition:
-      transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-      text-shadow 0.28s ease,
-      color 0.28s ease;
-    text-rendering: geometricPrecision;
+    color: ${NAV_GREEN_DARK};
     -webkit-font-smoothing: antialiased;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -191,21 +186,21 @@ const styles = `
 
   .nav-brand-link:hover .nav-brand-logo {
     transform: scale(1.08);
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.45));
+    filter: drop-shadow(0 0 8px rgba(98, 132, 11, 0.25));
   }
 
   .nav-brand-link:hover .nav-brand-wordmark {
     transform: scale(1.05);
-    color: #ffffff;
-    text-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
+    color: ${NAV_GREEN_DARK};
+    text-shadow: none;
   }
 
   .nav-menu-btn {
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(98, 132, 11, 0.28);
+    background: rgba(151, 182, 76, 0.08);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -222,7 +217,7 @@ const styles = `
     display: block;
     height: 2px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.95);
+    background: ${NAV_GREEN_DARK};
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
     transform-origin: center;
     pointer-events: none;
@@ -233,7 +228,7 @@ const styles = `
     position: fixed;
     inset: 0;
     z-index: 10050;
-    background: ${NAV_GREEN};
+    background: #ffffff;
     display: flex;
     flex-direction: column;
     padding:
@@ -257,7 +252,7 @@ const styles = `
     font-weight: 900;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #ffffff;
+    color: ${NAV_GREEN_DARK};
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
   }
@@ -267,7 +262,7 @@ const styles = `
     height: 44px;
     border: none;
     background: none;
-    color: #ffffff;
+    color: ${NAV_GREEN_DARK};
     font-size: 1.75rem;
     font-weight: 300;
     line-height: 1;
@@ -296,7 +291,7 @@ const styles = `
     font-size: clamp(1.15rem, 4.8vw, 1.45rem);
     font-weight: 500;
     letter-spacing: 0.01em;
-    color: rgba(255, 255, 255, 0.96);
+    color: rgba(24, 33, 15, 0.88);
     text-decoration: none;
     opacity: 0;
     animation: navLinkIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -322,7 +317,7 @@ const styles = `
     font-size: 0.82rem;
     font-weight: 600;
     letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.92);
+    color: ${NAV_GREEN_DARK};
   }
 
   .nav-mobile-full-flag {
@@ -415,11 +410,11 @@ export default function Navbar() {
           left: 0,
           right: 0,
           zIndex: 1000,
-          background: NAV_GREEN,
+          background: "#ffffff",
           borderBottom: scrolled
-            ? "1px solid rgba(255, 255, 255, 0.18)"
-            : "1px solid rgba(255, 255, 255, 0.12)",
-          boxShadow: scrolled ? "0 4px 18px rgba(10, 20, 5, 0.14)" : "none",
+            ? "1px solid rgba(151, 182, 76, 0.22)"
+            : "1px solid rgba(151, 182, 76, 0.12)",
+          boxShadow: scrolled ? "0 4px 18px rgba(98, 132, 11, 0.08)" : "none",
           transition: "box-shadow 0.25s ease, border-color 0.25s ease",
         }}
       >

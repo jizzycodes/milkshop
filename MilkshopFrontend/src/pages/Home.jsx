@@ -576,25 +576,22 @@ function AnimatedStat({ value, suffix, label, active }) {
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const whyProps = [
   {
-    
-    title: "NO Franchising Fee",
+    title: "NO Royalty Fee",
     stat: "24",
     statSuffix: "mo",
     statLabel: "Average Payback Period",
     body: "Our franchise fee is affordable and allows you to start your own business without breaking the bank.",
-    image: "/franchise/why/why-01.png",
+    image: "/franchise/why/no-franchise-fee.png",
   },
   {
-   
-    title: "Marketing Support",
-    stat: "98",
-    statSuffix: "%",
-    statLabel: "Franchisee Satisfaction Rate",
-    body: "We offer marketing materials, such as brochures and banners, to help promote your store in your local area.",
-    image: "/franchise/why/why-02.png",
+    title: "Wide Market and ROI",
+    stat: "3",
+    statSuffix: "",
+    statLabel: "Cart · Kiosk · In-line",
+    body: "Estimated ROI: 10–12 months. Historical customer demand and repeat transactions indicate favorable investment potential.",
+    image: "/franchise/why/why-06.png",
   },
   {
-   
     title: "Training & Guidance",
     stat: "50",
     statSuffix: "+",
@@ -603,16 +600,14 @@ const whyProps = [
     image: "/franchise/why/why-03.png",
   },
   {
-    
-    title: "Flexible Store Type & Design",
-    stat: "360",
-    statSuffix: "°",
-    statLabel: "Launch-to-Growth Support",
-    body: "We offer a range of store designs to choose from, giving you the flexibility to create a concept that fit your vision.",
-    image: "/franchise/why/why-04.png",
+    title: "Marketing Support",
+    stat: "98",
+    statSuffix: "%",
+    statLabel: "Franchisee Satisfaction Rate",
+    body: "We offer marketing materials, such as brochures and banners, to help promote your store in your local area.",
+    image: "/franchise/why/why-02.png",
   },
   {
-   
     title: "Authentic TW Products",
     stat: "14",
     statSuffix: "d",
@@ -621,13 +616,12 @@ const whyProps = [
     image: "/franchise/why/why-05.png",
   },
   {
-    
-    title: "Wide Market and ROI",
-    stat: "3",
-    statSuffix: "",
-    statLabel: "Cart · Kiosk · In-line",
-    body: "Guaranteed earning due big percentage of new and returning customers. Return of investments would be 10 to 12 months.",
-    image: "/franchise/why/why-06.png",
+    title: "Flexible Store Type & Design",
+    stat: "360",
+    statSuffix: "°",
+    statLabel: "Launch-to-Growth Support",
+    body: "We offer a range of store designs to choose from, giving you the flexibility to create a concept that fit your vision.",
+    image: "/franchise/why/why-04.png",
   },
 ]
 

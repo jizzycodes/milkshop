@@ -90,25 +90,25 @@ function HistoryImage({ src, fallback, alt }) {
 const rawMaterials = [
   {
     title: "Premium Tea Leaves",
-    caption: "Imported from Taiwan Highlands",
+    caption: "Premium Taiwanese Tea",
     image: "/franchise/why/why-05.png",
     imageAlt: "Milkshop tea leaves and packaging imported from Taiwan",
   },
   {
     title: "Brown Sugar Pearls",
-    caption: "Handcrafted Daily",
+    caption: "Handcrafted and Chewy (Boba)",
     image: "/about/raw-materials/brown-sugar-pearls.png",
     imageAlt: "Brown sugar tapioca pearls in a bowl with a spoon",
   },
   {
     title: "Natural Ingredients",
-    caption: "Carefully Selected",
+    caption: "Healthy Options",
     image: "/about/raw-materials/natural-ingredients.png",
     imageAlt: "Fresh fruit, berries, and popping boba on ice",
   },
   {
     title: "Fresh Milk & Cream",
-    caption: "Smooth & Creamy",
+    caption: "Smooth & Milky",
     image: "/about/raw-materials/fresh-milk-boba.png",
     imageAlt: "Milk being poured into a milk tea with boba pearls",
   },

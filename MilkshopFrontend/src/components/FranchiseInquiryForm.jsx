@@ -419,9 +419,10 @@ export default function FranchiseInquiryForm({
               className={`${inputBase} ${inputIdle}`}
             >
               <option value="">Select package</option>
-              <option value="cart">Cart</option>
-              <option value="kiosk">Kiosk</option>
-              <option value="inline">In-line</option>
+              <option value="inline">In-line Store (30 SQM)</option>
+              <option value="kiosk-delights">To-Go Kiosk — Dairy Delights (6 SQM)</option>
+              <option value="basic">Basic Shop (8 SQM)</option>
+              <option value="kiosk-deal">To-Go Kiosk — Dairy Deal (4 SQM)</option>
               <option value="unsure">Not sure</option>
             </select>
           </Field>

@@ -93,7 +93,8 @@ const CSS = `
     width: 100%;
     max-width: 1280px;
     margin: 0 auto;
-    padding: 80px 24px 0;
+    /* Mobile: sit just below fixed nav (64px) + small gap */
+    padding: calc(64px + env(safe-area-inset-top, 0px) + 6px) 20px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -107,8 +108,8 @@ const CSS = `
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 10px;
-    padding-bottom: 16px;
+    gap: 8px;
+    padding-bottom: 12px;
   }
 
   .hero-eyebrow {
@@ -149,8 +150,8 @@ const CSS = `
     justify-content: center;
   }
   .hero-taiwan img {
-    height: clamp(64px, 18vw, 100px);
-    width: auto;
+    height: auto;
+    width: clamp(260px, 88vw, 720px);
     display: block;
     filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3));
     opacity: 0;
@@ -263,7 +264,10 @@ const CSS = `
   }
   .hero-btn-secondary:active { transform: translateY(0) scale(0.99); }
 
-  /* ─── RIGHT: Cups visual ──────────────────────────── */
+  /* ═══════════════════════════════════════════════════
+     HERO CUPS — MOBILE FIRST (phones, below 768px)
+     Edit ONLY this block for mobile layout.
+  ═══════════════════════════════════════════════════ */
   .hero-visual {
     position: relative;
     width: 100%;
@@ -274,37 +278,45 @@ const CSS = `
     margin-top: 4px;
   }
 
+  /* MOVE ALL 3 CUPS (mobile) — translateX: + right, - left | gap: space between cups */
   .hero-cups {
     display: flex;
     align-items: flex-end;
     justify-content: center;
+    gap: 0;
     position: relative;
+    width: 100%;
+    min-height: clamp(220px, 52vw, 320px);
     z-index: 2;
-    transform: rotate(-6deg);
+    transform: rotate(1deg) translateX(40px);
     transform-origin: 50% 100%;
   }
 
-  /* Cup wrappers — slanted left like \ */
   .hero-cup-wrap {
     flex-shrink: 0;
     position: relative;
     transition: opacity 0.6s ease;
   }
 
+  /* MOVE STRAWBERRY CUP (mobile) — translateX: + right closes gap to center */
   .hero-cup-wrap:nth-child(1) {
-    z-index: 1;
-    margin-right: -18vw;
-    transform: rotate(-5deg) translateX(8px) translateY(-6px);
-  }
-  .hero-cup-wrap:nth-child(2) {
     z-index: 3;
-    margin-bottom: 10px;
-    transform: rotate(-3deg) translateY(-2px);
+    margin: 0;
+    transform: rotate(-8deg) translateX(-1vw) translateY(1px);
   }
+
+  /* MOVE CHEESECAKE CUP (mobile) — translateX: + right | translateY: + down */
+  .hero-cup-wrap:nth-child(2) {
+    z-index: 10;
+    margin-left: -16vw;
+    transform: rotate(-3deg) translateX(-30px) translateY(0px);
+  }
+
+  /* MOVE BOBA CUP (mobile) — translateX: + right | translateY: + down */
   .hero-cup-wrap:nth-child(3) {
     z-index: 2;
     margin-left: -18vw;
-    transform: rotate(-1deg) translateX(-6px) translateY(8px);
+    transform: rotate(3deg) translateX(-11vw) translateY(1px);
   }
 
   .hero-cup-wrap:nth-child(1) img {
@@ -320,6 +332,7 @@ const CSS = `
       floatCup 5.6s ease-in-out infinite 1.2s;
   }
 
+  /* CUP SIZE (mobile) — center + cheesecake + boba default */
   .hero-cup-wrap img {
     height: clamp(160px, 44vw, 220px);
     width: auto;
@@ -327,7 +340,8 @@ const CSS = `
     filter: drop-shadow(0 16px 28px rgba(0,0,0,0.26));
     display: block;
   }
-  /* Slightly smaller side cups */
+
+  /* CUP SIZE (mobile) — strawberry + boba side cups (smaller) */
   .hero-cup-wrap:nth-child(1) img,
   .hero-cup-wrap:nth-child(3) img {
     height: clamp(130px, 36vw, 185px);
@@ -371,16 +385,16 @@ const CSS = `
       align-items: flex-start;
       text-align: left;
       padding-bottom: 100px;
-      gap: 11px;
+      gap: 3px;
     }
 
     .hero-eyebrow { justify-content: flex-start; }
     .hero-eyebrow-text { font-size: 10px; }
 
-    .hero-fresh { font-size: clamp(2.6rem, 3.8vw, 3.8rem); margin-bottom: -6px; }
+    .hero-fresh { font-size: clamp(6rem, 5vw, 5.5rem); margin-bottom: -6px; }
 
     .hero-taiwan { justify-content: flex-start; }
-    .hero-taiwan img { height: clamp(80px, 9vw, 130px); }
+    .hero-taiwan img {height: clamp(120px, 14vw, 200px); }
 
     .hero-tagline { font-size: clamp(1.1rem, 1.8vw, 1.5rem); }
 
@@ -414,29 +428,49 @@ const CSS = `
       justify-content: center;
     }
 
+    /* ═══ DESKTOP CUPS (768px+) — edit below for desktop only ═══ */
+
+    /* GAP between cups (desktop) — gap only adds space; overlap = margin-left below */
     .hero-cups {
-      transform: rotate(-7deg);
+      gap: 0;
+      transform: rotate(-7deg) translateX(200px);
     }
 
-    .hero-cup-wrap:nth-child(1) {
-      margin-right: -9vw;
-      transform: rotate(-6deg) translateX(10px) translateY(-10px);
+    /* TIGHTER: pull cups together (negative = overlap) */
+    .hero-cup-wrap:nth-child(2) {
+      margin-left: -10vw;
     }
     .hero-cup-wrap:nth-child(3) {
-      margin-left: -9vw;
-      transform: rotate(-2deg) translateX(-8px) translateY(12px);
-    }
-    .hero-cup-wrap:nth-child(2) {
-      margin-bottom: 30px;
-      transform: rotate(-4deg) translateY(-4px);
+      margin-left: -12vw;
     }
 
+    /* MOVE STRAWBERRY CUP (desktop) — translateX: + right | translateY: + down */
+    .hero-cup-wrap:nth-child(1) {
+      margin: 0;
+      transform: rotate(-10deg) translateX(8vw) translateY(100px);
+    }
+
+    /* MOVE CHEESECAKE CUP (desktop) — translateX: + right | translateY: + down */
+    .hero-cup-wrap:nth-child(2) {
+      margin: 0;
+      transform: rotate(-8deg) translateX(0px) translateY(0px);
+    }
+
+    /* MOVE BOBA CUP (desktop) — translateX: + right | translateY: + down */
+    .hero-cup-wrap:nth-child(3) {
+      margin: 0;
+      transform: rotate(2deg) translateX(0px) translateY(0px);
+    }
+
+    /* CUP SIZE (desktop) — center cheesecake cup */
     .hero-cup-wrap img {
       height: clamp(300px, 36vw, 500px);
     }
+
+    /* CUP SIZE (desktop) — strawberry + boba side cups */
     .hero-cup-wrap:nth-child(1) img,
     .hero-cup-wrap:nth-child(3) img {
-      height: clamp(240px, 28vw, 410px);
+      height: clamp(400px, 50vw, 600px);
     }
   }
 
@@ -444,13 +478,39 @@ const CSS = `
   @media (min-width: 1024px) {
     .hero-copy { flex: 0 0 44%; }
 
-    .hero-cup-wrap:nth-child(1) { margin-right: -10vw; }
-    .hero-cup-wrap:nth-child(3) { margin-left: -10vw; }
+    /* GAP between cups (large desktop) — gap: 0; tighten with margin-left on cup 2 & 3 */
+    .hero-cups {
+      gap: 0;
+    }
 
-    .hero-cup-wrap img { height: clamp(380px, 40vw, 560px); }
+    .hero-cup-wrap:nth-child(2) {
+      margin-left: -14vw;
+    }
+    .hero-cup-wrap:nth-child(3) {
+      margin-left: -16vw;
+    }
+
+    /* MOVE STRAWBERRY CUP (large desktop) — translateX: + right closes gap to center cup */
+    .hero-cup-wrap:nth-child(1) {
+      transform: rotate(1deg) translateX(2vw) translateY(120px);
+    }
+
+    /* MOVE CHEESECAKE CUP (large desktop) */
+    .hero-cup-wrap:nth-child(2) {
+      z-index: 12;
+      transform: rotate(2deg) translateX(0px) translateY(90px);
+    }
+
+    /* MOVE BOBA CUP (large desktop) */
+    .hero-cup-wrap:nth-child(3) {
+      transform: rotate(6deg) translateX(0px) translateY(100px);
+    }
+
+    /* CUP SIZE (large desktop) */
+    .hero-cup-wrap img { height: clamp(300px, 40vw, 560px); }
     .hero-cup-wrap:nth-child(1) img,
     .hero-cup-wrap:nth-child(3) img {
-      height: clamp(300px, 32vw, 460px);
+      height: clamp(30px, 32vw, 560px);
     }
   }
 
@@ -458,16 +518,15 @@ const CSS = `
   @media (prefers-reduced-motion: reduce) {
     .hero-eyebrow, .hero-fresh, .hero-tagline,
     .hero-features, .hero-btns, .hero-taiwan img,
-    .hero-cup-wrap, .hero-cup-wrap img, .hero-splash {
+    .hero-cup-wrap img, .hero-splash {
       animation: none !important;
       opacity: 1 !important;
+    }
+    .hero-taiwan img, .hero-splash {
       transform: none !important;
     }
-    /* Keep slant transforms for cups even in reduced motion */
-    .hero-cups { transform: rotate(-6deg); }
-    .hero-cup-wrap:nth-child(1) { transform: rotate(-5deg) translateX(8px) translateY(-6px); }
-    .hero-cup-wrap:nth-child(2) { transform: rotate(-3deg) translateY(-2px); }
-    .hero-cup-wrap:nth-child(3) { transform: rotate(-1deg) translateX(-6px) translateY(8px); }
+    /* Cup wrappers keep rotate/translate — do NOT set transform: none on .hero-cup-wrap */
+    .hero-cups { transform: rotate(-6deg) translateX(40px); }
   }
 `;
 
@@ -549,7 +608,7 @@ export default function Hero() {
             <div className="hero-fresh">Fresh Taste of</div>
 
             <div className="hero-taiwan">
-              <img src="/TAIWAN-WORD.png" alt="Taiwan" />
+              <img src="/taiwan-word.png" alt="Taiwan" />
             </div>
 
             <div className="hero-tagline">Milky · Healthy · Chewy</div>

@@ -1,5 +1,4 @@
 ﻿import { useState, useEffect, useRef, useCallback } from "react"
-import { createPortal } from "react-dom"
 import { Link, useLocation } from "react-router-dom"
 import FranchiseInquiryForm from "../components/FranchiseInquiryForm"
 import FranchiseInquiryTrigger from "../components/FranchiseInquiryTrigger"
@@ -23,12 +22,26 @@ const steps = [
 ];
 
 const faqs = [
-  { q: "Do I need food industry experience?",   a: "None required. Our end-to-end training program covers everything — operations, drink preparation, inventory, and customer service. We've trained first-timers who are now running multiple branches." },
-  { q: "How long is the franchise term?",        a: "Terms vary by package — 2 years for Cart, 3 years for Kiosk, and 5 years for In-Line Store. All terms are renewable upon mutual assessment." },
-  { q: "Is my territory exclusive?",             a: "Yes. Once your location is approved, no other Milkshop franchise will open within the agreed exclusivity radius — protecting your investment from day one." },
-  { q: "What is the expected ROI period?",       a: "Based on current branch performance, franchisees typically recover their investment within 12–18 months — depending on location foot traffic and daily volume." },
-  { q: "Does Milkshop supply the ingredients?",  a: "Yes. All tea, milk, boba, cups, and branded materials are supplied directly by Milkshop PH — so every cup you serve meets our quality standard." },
-  { q: "How do I get started?",                  a: "Simply fill out the Franchise Inquiry form on this page. Our team will reach out within 3–5 business days to schedule your initial interview." },
+  {
+    q: "Do I need food industry experience?",
+    a: "No experience is required. Milkshop provides a comprehensive training program covering daily operations, drink preparation, inventory management, and customer service.",
+  },
+  {
+    q: "What is the expected ROI period?",
+    a: "Franchisees typically recover their investment within 12–18 months, depending on location, foot traffic, and operational performance.",
+  },
+  {
+    q: "What training and support will I receive?",
+    a: "Milkshop provides complete franchise training, including a 5-day Barista and Management Training program for both owners and key staff.",
+  },
+  {
+    q: "Is my territory exclusive?",
+    a: "Yes. Once your location is officially approved, Milkshop will not open another franchise within your agreed exclusivity radius to help protect your investment.",
+  },
+  {
+    q: "How long is the current promotion available?",
+    a: "The special MAFBEX 2026 promotional offers—including NO FRANCHISE FEE and free concert tickets—are limited to the first 10 signed franchise agreements, encouraging immediate inquiry.",
+  },
 ];
 
 const whyUs = [
@@ -358,467 +371,235 @@ const franchisePageStyles = `
 
 
 
-// ─── PACKAGE CARDS — PEEK CAROUSEL ──────────────────────────────────────────
- 
-const packages = [
-  {
-    id: "cart",
-    label: "Cart",
-   
-    image: "/franchise/packages/2.png",
-    features: ["Compact footprint, any location","Low startup cost","Full Milkshop menu","Training & supply included"],
-    best: "Perfect for first-timers or tight spaces.",
-  },
-  {
-    id: "kiosk",
-    label: "Kiosk",
-  
-    image: "/franchise/packages/4.png",
-    features: ["Higher daily capacity","Exclusive territory radius","Brand signage & fixtures"],
-    best: "Ideal for malls, food parks & commercial areas.",
-  },
+// ─── STORE TYPES — CAROUSEL (Products Top 5 style) ───────────────────────────
+
+const STORE_PLACEHOLDER_IMAGE = "/franchise/packages/placeholder-store.png";
+
+const storeTypes = [
   {
     id: "inline",
-    label: "In-Line Store",
-    
-    image: "/franchise/packages/8.png",
-    features: ["Highest revenue potential","Premium exclusivity zone","Priority franchise support"],
-    best: "For serious operators ready to scale.",
+    label: "In-line Store",
+    storeName: "Milky Deluxe Haven",
+    size: "30 SQM",
+    description: "A cozy and premium dine-in experience for milktea lovers.",
+    tag: "Premium",
+    tagColor: "bg-[#62840b] text-white",
+    image: STORE_PLACEHOLDER_IMAGE,
+  },
+  {
+    id: "kiosk-delights",
+    label: "To-Go Kiosk",
+    storeName: "Dairy Delights",
+    size: "6 SQM",
+    description: "Perfect for malls, events, and busy on-the-go customers.",
+    tag: "Compact",
+    tagColor: "bg-[#97b64c] text-white",
+    image: STORE_PLACEHOLDER_IMAGE,
+  },
+  {
+    id: "basic",
+    label: "Basic Shop",
+    storeName: "Dairy Dream Express",
+    size: "8 SQM",
+    description: "Taiwan Milkbox-Inspired Store Concept",
+    tag: "Classic",
+    tagColor: "bg-[#E8A020] text-white",
+    image: STORE_PLACEHOLDER_IMAGE,
+  },
+  {
+    id: "kiosk-deal",
+    label: "To-Go Kiosk",
+    storeName: "Dairy Deal",
+    size: "4 SQM",
+    description: "Ideal for malls, food courts, and outdoor locations.",
+    tag: "Starter",
+    tagColor: "bg-rose-400 text-white",
+    image: STORE_PLACEHOLDER_IMAGE,
   },
 ];
- 
-const PACKAGE_IMG_FALLBACK = "/hero-bg-3.png";
- 
-function PackageCards({ onPackageSelect }) {
-  const [selected, setSelected] = useState("");
-  const [pkgImgTier, setPkgImgTier] = useState({});
-  const [selectionNotice, setSelectionNotice] = useState(null);
-  const [stageRef, stageInView] = useInView(0.12);
 
-  const handleSelect = (id) => {
-    const pkg = packages.find((p) => p.id === id);
-    setSelected(id);
-    onPackageSelect?.(id);
-    if (pkg) setSelectionNotice(pkg);
+const STORE_IMG_FALLBACK = "/hero-bg-3.png";
+
+function StoreTypesCarousel({ onPackageSelect }) {
+  const [active, setActive] = useState(0);
+  const [imgFallback, setImgFallback] = useState({});
+  const total = storeTypes.length;
+  const intervalRef = useRef(null);
+
+  const startAuto = () => {
+    intervalRef.current = setInterval(() => {
+      setActive((prev) => (prev + 1) % total);
+    }, 3500);
   };
 
-  const srcFor = (pkg) => {
-    const t = pkgImgTier[pkg.id] ?? 0;
-    if (t === 0) return pkg.image;
-    if (t === 1) return PACKAGE_IMG_FALLBACK;
-    return null;
-  };
-
-  const bumpImgTier = (pkgId) => {
-    setPkgImgTier((prev) => {
-      const t = prev[pkgId] ?? 0;
-      if (t >= 2) return prev;
-      return { ...prev, [pkgId]: t + 1 };
-    });
-  };
+  const stopAuto = () => clearInterval(intervalRef.current);
 
   useEffect(() => {
-    if (!selectionNotice) return undefined;
-    const timer = window.setTimeout(() => setSelectionNotice(null), 4500);
-    return () => window.clearTimeout(timer);
-  }, [selectionNotice]);
+    startAuto();
+    return () => stopAuto();
+  }, []);
+
+  const getPos = (index) => {
+    const diff = (index - active + total) % total;
+    if (diff === 0) return "center";
+    if (diff === 1) return "right1";
+    if (diff === 2) return "right2";
+    if (diff === total - 2) return "left2";
+    if (diff === total - 1) return "left1";
+    return "hidden";
+  };
+
+  const posStyles = {
+    center: "z-40 scale-110 opacity-100 translate-x-0",
+    right1: "z-30 scale-50 opacity-35 translate-x-[70%]",
+    left1: "z-30 scale-50 opacity-35 -translate-x-[70%]",
+    right2: "z-20 scale-50 opacity-35 translate-x-[130%]",
+    left2: "z-20 scale-50 opacity-35 -translate-x-[130%]",
+    hidden: "z-10 scale-50 opacity-0 translate-x-0 pointer-events-none",
+  };
+
+  const current = storeTypes[active];
+
+  const srcFor = (store) => {
+    if (imgFallback[store.id]) return STORE_IMG_FALLBACK;
+    return store.image;
+  };
+
+  const selectIndex = (i) => {
+    setActive(i);
+    onPackageSelect?.(storeTypes[i].id);
+  };
 
   return (
-    <>
-      <style>{`
-        .pkg-3d-stage {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: clamp(28px, 4.5vw, 56px);
-          width: 100%;
-          max-width: min(100%, 1520px);
-          margin: 0 auto;
-          padding: clamp(12px, 1.5vw, 24px) clamp(10px, 1.2vw, 20px) clamp(8px, 2vw, 16px);
-          align-items: end;
-          touch-action: pan-y;
-          box-sizing: border-box;
-        }
-        .pkg-3d-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-          cursor: pointer;
-          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-          -webkit-tap-highlight-color: transparent;
-          background: none;
-          border: none;
-          padding: 0;
-          font: inherit;
-        }
-        .pkg-3d-item.pos-0 {
-          transform: scale(0.94);
-          transform-origin: center bottom;
-        }
-        .pkg-3d-item.pos-1 {
-          transform: scale(1.04);
-          z-index: 2;
-        }
-        .pkg-3d-item.pos-2 {
-          transform: scale(0.94);
-          transform-origin: center bottom;
-        }
-        .pkg-3d-item.pos-0:hover {
-          transform: scale(0.98);
-        }
-        .pkg-3d-item.pos-1:hover {
-          transform: scale(1.06);
-        }
-        .pkg-3d-item.pos-2:hover {
-          transform: scale(0.98);
-        }
-        .pkg-3d-item.is-selected .pkg-3d-img-wrap {
-          box-shadow: 0 20px 40px rgba(98, 132, 11, 0.22);
-        }
-        .pkg-3d-img-wrap {
-          width: 100%;
-          position: relative;
-          margin-bottom: clamp(12px, 2vw, 18px);
-          border-radius: 16px;
-          transition: box-shadow 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .pkg-3d-img {
-          width: 100%;
-          height: auto;
-          max-height: clamp(340px, 52vw, 640px);
-          object-fit: contain;
-          object-position: center bottom;
-          display: block;
-          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-          pointer-events: none;
-        }
-        .pkg-3d-badge {
-          position: absolute;
-          top: 4%;
-          right: 6%;
-          z-index: 2;
-          background: #62840b;
-          color: #fff;
-          font-size: 0.52rem;
-          font-weight: 900;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-          padding: 5px 11px;
-          border-radius: 999px;
-          font-family: 'DM Sans', sans-serif;
-          box-shadow: 0 4px 14px rgba(98, 132, 11, 0.28);
-          pointer-events: none;
-        }
-        .pkg-3d-label {
-          font-family: 'DM Sans', sans-serif;
-          font-size: clamp(1.05rem, 2vw, 1.35rem);
-          font-weight: 900;
-          letter-spacing: -0.03em;
-          color: ${T.ink};
-          margin: 0 0 4px;
-          line-height: 1.15;
-          transition: color 0.25s ease;
-        }
-        .pkg-3d-item.is-selected .pkg-3d-label {
-          color: ${T.greenDark};
-        }
-        .pkg-3d-meta {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 0.72rem;
-          font-weight: 600;
-          color: ${T.body};
-          margin: 0;
-          line-height: 1.4;
-        }
-        .pkg-3d-selected {
-          display: inline-block;
-          margin-top: 6px;
-          font-family: 'DM Sans', sans-serif;
-          font-size: 0.65rem;
-          font-weight: 800;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: #62840b;
-        }
-
-        .pkg-select-toast {
-          pointer-events: none;
-          position: fixed;
-          inset: 0;
-          z-index: 9998;
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          padding: 88px 20px 0;
-        }
-        .pkg-select-toast-inner {
-          pointer-events: auto;
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          max-width: min(420px, calc(100vw - 40px));
-          padding: 14px 18px;
-          border-radius: 14px;
-          background: #ffffff;
-          border: 1px solid rgba(151, 182, 76, 0.35);
-          box-shadow: 0 12px 40px rgba(98, 132, 11, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08);
-          animation: pkgToastIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .pkg-select-toast-icon {
-          flex-shrink: 0;
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          background: #62840b;
-          color: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 14px;
-          font-weight: 800;
-        }
-        .pkg-select-toast-text {
-          margin: 0;
-          font-family: 'DM Sans', sans-serif;
-          font-size: 0.88rem;
-          font-weight: 600;
-          color: ${T.ink};
-          line-height: 1.45;
-        }
-        .pkg-select-toast-text strong {
-          color: #62840b;
-          font-weight: 800;
-        }
-        .pkg-select-toast-close {
-          flex-shrink: 0;
-          margin-left: 4px;
-          background: none;
-          border: none;
-          color: #8a9a7a;
-          font-size: 1.1rem;
-          line-height: 1;
-          cursor: pointer;
-          padding: 2px 4px;
-        }
-        .pkg-select-toast-close:hover { color: #62840b; }
-        @keyframes pkgToastIn {
-          from { opacity: 0; transform: translateY(-12px) scale(0.96); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        /* Scroll-in + stagger */
-        .pkg-3d-stage:not(.pkg-3d-stage--in) .pkg-3d-item {
-          opacity: 0;
-        }
-        .pkg-3d-stage--in .pkg-3d-item.pos-0 {
-          animation: pkgRevealSide 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
-        }
-        .pkg-3d-stage--in .pkg-3d-item.pos-1 {
-          animation: pkgRevealCenter 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
-        }
-        .pkg-3d-stage--in .pkg-3d-item.pos-2 {
-          animation: pkgRevealSideR 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-        }
-        @keyframes pkgRevealSide {
-          from {
-            opacity: 0;
-            transform: translateY(24px) scale(0.9);
-          }
-          to {
-            opacity: 1;
-            transform: scale(0.94);
-          }
-        }
-        @keyframes pkgRevealSideR {
-          from {
-            opacity: 0;
-            transform: translateY(24px) scale(0.9);
-          }
-          to {
-            opacity: 1;
-            transform: scale(0.94);
-          }
-        }
-        @keyframes pkgRevealCenter {
-          from {
-            opacity: 0;
-            transform: translateY(28px) scale(0.92);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1.04);
-          }
-        }
-        .pkg-3d-stage--in .pkg-3d-badge {
-          animation: pkgBadgePop 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-        .pkg-3d-item.pos-0 .pkg-3d-badge { animation-delay: 0.4s; }
-        .pkg-3d-item.pos-1 .pkg-3d-badge { animation-delay: 0.5s; }
-        .pkg-3d-item.pos-2 .pkg-3d-badge { animation-delay: 0.6s; }
-        @keyframes pkgBadgePop {
-          from { opacity: 0; transform: scale(0.6) translateY(-8px); }
-          to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        .pkg-3d-stage--in .pkg-3d-label,
-        .pkg-3d-stage--in .pkg-3d-meta {
-          animation: pkgTextFade 0.6s ease both;
-        }
-        .pkg-3d-item.pos-0 .pkg-3d-label { animation-delay: 0.45s; }
-        .pkg-3d-item.pos-1 .pkg-3d-label { animation-delay: 0.55s; }
-        .pkg-3d-item.pos-2 .pkg-3d-label { animation-delay: 0.65s; }
-        .pkg-3d-item.pos-0 .pkg-3d-meta { animation-delay: 0.52s; }
-        .pkg-3d-item.pos-1 .pkg-3d-meta { animation-delay: 0.62s; }
-        .pkg-3d-item.pos-2 .pkg-3d-meta { animation-delay: 0.72s; }
-        @keyframes pkgTextFade {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .pkg-3d-item.is-selected .pkg-3d-img-wrap::after {
-          content: '';
-          position: absolute;
-          inset: -4%;
-          border-radius: 20px;
-          border: 2px solid rgba(98, 132, 11, 0.5);
-          pointer-events: none;
-        }
-
-        @media (max-width: 767px) {
-          .pkg-3d-stage {
-            grid-template-columns: 1fr;
-            gap: 28px;
-            max-width: 420px;
-          }
-          .pkg-3d-item,
-          .pkg-3d-item.pos-0,
-          .pkg-3d-item.pos-1,
-          .pkg-3d-item.pos-2,
-          .pkg-3d-item.pos-0:hover,
-          .pkg-3d-item.pos-1:hover,
-          .pkg-3d-item.pos-2:hover {
-            transform: none !important;
-          }
-          .pkg-3d-img { max-height: 420px; }
-          .pkg-3d-stage {
-            max-width: 100%;
-            gap: 32px;
-          }
-          .pkg-3d-stage--in .pkg-3d-item.pos-0,
-          .pkg-3d-stage--in .pkg-3d-item.pos-1,
-          .pkg-3d-stage--in .pkg-3d-item.pos-2 {
-            animation: pkgRevealMobile 0.75s cubic-bezier(0.16, 1, 0.3, 1) both !important;
-          }
-          .pkg-3d-item.pos-1 { animation-delay: 0.12s !important; }
-          .pkg-3d-item.pos-2 { animation-delay: 0.24s !important; }
-        }
-        @keyframes pkgRevealMobile {
-          from { opacity: 0; transform: translateY(28px) scale(0.96); }
-          to { opacity: 1; transform: none; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .pkg-3d-item,
-          .pkg-3d-item.pos-0,
-          .pkg-3d-item.pos-1,
-          .pkg-3d-item.pos-2 {
-            transform: none !important;
-            transition: none !important;
-            animation: none !important;
-            opacity: 1 !important;
-          }
-          .pkg-3d-stage:not(.pkg-3d-stage--in) .pkg-3d-item {
-            opacity: 1;
-            pointer-events: auto;
-          }
-          .pkg-3d-item.is-selected .pkg-3d-img-wrap::after {
-            animation: none !important;
-          }
-        }
-      `}</style>
-
-      <div ref={stageRef} className={`pkg-3d-stage${stageInView ? " pkg-3d-stage--in" : ""}`}>
-        {packages.map((pkg, i) => {
-          const isSelected = selected === pkg.id;
-          const imgSrc = srcFor(pkg);
-
+    <div
+      className="w-full"
+      onMouseEnter={stopAuto}
+      onMouseLeave={startAuto}
+    >
+      <div className="relative h-64 sm:h-72 md:h-80 flex items-center justify-center overflow-hidden">
+        {storeTypes.map((store, i) => {
+          const pos = getPos(i);
+          const isCenter = pos === "center";
           return (
-            <div
-              key={pkg.id}
-              role="button"
-              tabIndex={0}
-              className={`pkg-3d-item pos-${i}${isSelected ? " is-selected" : ""}`}
-              aria-pressed={isSelected}
-              aria-label={`Select ${pkg.label} package`}
-              onClick={() => handleSelect(pkg.id)}
-              onKeyDown={(ev) => {
-                if (ev.key === "Enter" || ev.key === " ") {
-                  ev.preventDefault();
-                  handleSelect(pkg.id);
-                }
-              }}
+            <button
+              key={store.id}
+              type="button"
+              onClick={() => selectIndex(i)}
+              className={`absolute transition-all duration-500 ease-in-out flex flex-col items-center cursor-pointer bg-transparent border-0 p-0 ${posStyles[pos]}`}
+              aria-label={`${store.label}, ${store.storeName}`}
+              aria-pressed={i === active}
             >
-              <div className="pkg-3d-img-wrap">
-                {pkg.badge && (
-                  <span className="pkg-3d-badge">{pkg.badge}</span>
-                )}
-                {imgSrc ? (
-                  <img
-                    key={`${pkg.id}-${imgSrc}`}
-                    className="pkg-3d-img"
-                    src={imgSrc}
-                    alt={`Milkshop ${pkg.label} franchise package`}
-                    loading="lazy"
-                    decoding="async"
-                    draggable={false}
-                    onError={() => bumpImgTier(pkg.id)}
-                  />
-                ) : (
-                  <div
-                    className="pkg-3d-img"
-                    style={{
-                      minHeight: 180,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "#62840b",
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 12,
-                      fontWeight: 700,
-                    }}
-                  >
-                    Add photo
-                  </div>
-                )}
+              <div
+                className={`rounded-2xl overflow-hidden bg-white border border-[#dde8cc] shadow-lg ${
+                  isCenter ? "w-[min(280px,78vw)]" : "w-[min(200px,55vw)]"
+                }`}
+              >
+                <img
+                  src={srcFor(store)}
+                  alt={store.label}
+                  className={`w-full object-cover select-none ${
+                    isCenter ? "h-48 sm:h-56 md:h-64" : "h-36 sm:h-44"
+                  }`}
+                  draggable={false}
+                  loading="lazy"
+                  decoding="async"
+                  onError={() =>
+                    setImgFallback((prev) => ({ ...prev, [store.id]: true }))
+                  }
+                />
               </div>
-
-              <h3 className="pkg-3d-label">{pkg.label}</h3>
-              <p className="pkg-3d-meta">{pkg.tagline}</p>
-              {isSelected && <span className="pkg-3d-selected">Selected</span>}
-            </div>
+            </button>
           );
         })}
-      </div>
 
-      {selectionNotice && createPortal(
-        <div className="pkg-select-toast" role="status" aria-live="polite">
-          <div className="pkg-select-toast-inner">
-            <span className="pkg-select-toast-icon" aria-hidden>✓</span>
-            <p className="pkg-select-toast-text">
-              This package is selected: <strong>{selectionNotice.label}</strong>.
-              {" "}It is set in the application form below.
-            </p>
+        {total > 1 && (
+          <>
             <button
               type="button"
-              className="pkg-select-toast-close"
-              onClick={() => setSelectionNotice(null)}
-              aria-label="Dismiss notification"
+              onClick={() => selectIndex((active - 1 + total) % total)}
+              className="hidden sm:flex items-center justify-center absolute left-4 md:left-10 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border text-xs transition-colors"
+              style={{
+                borderColor: "#b7cd7f",
+                backgroundColor: "rgba(183,205,127,0.18)",
+                color: "#62840b",
+              }}
+              aria-label="Previous store type"
             >
-              ×
+              ←
             </button>
-          </div>
-        </div>,
-        document.body
-      )}
-    </>
+            <button
+              type="button"
+              onClick={() => selectIndex((active + 1) % total)}
+              className="hidden sm:flex items-center justify-center absolute right-4 md:right-10 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border text-xs transition-colors"
+              style={{
+                borderColor: "#b7cd7f",
+                backgroundColor: "rgba(183,205,127,0.18)",
+                color: "#62840b",
+              }}
+              aria-label="Next store type"
+            >
+              →
+            </button>
+          </>
+        )}
+      </div>
+
+      <div className="mt-6 flex flex-col items-center text-center gap-2 px-4 min-h-[200px] transition-all duration-300">
+        <span
+          className={`text-[11px] font-bold px-3 py-1 rounded-full ${current.tagColor}`}
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+          {current.tag}
+        </span>
+        <h3
+          className="text-xl sm:text-2xl font-bold text-[#1e1e1e] m-0"
+          style={{ fontFamily: "'DM Sans', sans-serif", letterSpacing: "-0.02em" }}
+        >
+          {current.label}
+        </h3>
+        <p
+          className="text-[#62840b] text-base sm:text-lg m-0 italic font-medium"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+          {current.storeName}
+        </p>
+        <p
+          className="text-[#1e1e1e] text-lg sm:text-xl font-extrabold m-0"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+          {current.size}
+        </p>
+        <div
+          className="w-full max-w-md my-1"
+          style={{
+            borderTop: "2px dotted rgba(98, 132, 11, 0.35)",
+          }}
+          aria-hidden
+        />
+        <p
+          className="text-[#5a5a5a] text-sm sm:text-base max-w-md leading-relaxed m-0"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+          {current.description}
+        </p>
+      </div>
+
+      <div className="flex justify-center gap-2 mt-5">
+        {storeTypes.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => selectIndex(i)}
+            className={`rounded-full transition-all duration-300 border-0 cursor-pointer ${
+              i === active
+                ? "w-6 h-2 bg-[#97b64c]"
+                : "w-2 h-2 bg-[#d0e0b0] hover:bg-[#b7cd7f]"
+            }`}
+            aria-label={`Show ${storeTypes[i].label}`}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -1101,10 +882,10 @@ export default function Franchise() {
   {/* ── Full-bleed background image ── */}
   <img
     className="fh-bg-img"
-    src={packages.find((p) => p.id === "inline")?.image ?? "/franchise/packages/8.png"}
+    src="/franchise/packages/8.png"
     alt=""
     aria-hidden="true"
-    onError={(e) => { e.currentTarget.src = PACKAGE_IMG_FALLBACK; }}
+    onError={(e) => { e.currentTarget.src = STORE_IMG_FALLBACK; }}
   />
 
   {/* ── Overlays ── */}
@@ -1490,7 +1271,7 @@ export default function Franchise() {
     
       <Slide direction="up" delay={60}>
         <h2 className="ms-section-heading" style={{ margin: "0 0 10px" }}>
-          Find the Right Fit for You
+          Store Types
         </h2>
       </Slide>
       <Slide direction="up" delay={100}>
@@ -1500,7 +1281,7 @@ export default function Franchise() {
  
     {/* Packages grid — full section width */}
     <div className="mt-10 mb-2 w-full max-w-[min(100%,1520px)] mx-auto px-[clamp(10px,1.2vw,20px)]">
-      <PackageCards onPackageSelect={setPreferredPackage} />
+      <StoreTypesCarousel onPackageSelect={setPreferredPackage} />
     </div>
  
     {/* Bottom nudge */}

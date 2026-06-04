@@ -123,6 +123,98 @@ function pinDisplayName(name) {
   return `Milkshop ${short}`
 }
 
+function buildMapsQuery(loc) {
+  const lat = parseFloat(loc?.lat)
+  const lng = parseFloat(loc?.lng)
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    return `${lat},${lng}`
+  }
+  const label = [loc?.name, loc?.address].filter(Boolean).join(", ").trim()
+  return label || null
+}
+
+function getGoogleMapsViewUrl(loc) {
+  const query = buildMapsQuery(loc)
+  if (!query) return null
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+}
+
+function getGoogleMapsDirectionsUrl(loc) {
+  const query = buildMapsQuery(loc)
+  if (!query) return null
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}&travelmode=driving`
+}
+
+function openGoogleMaps(url) {
+  if (!url) return
+  window.open(url, "_blank", "noopener,noreferrer")
+}
+
+function BranchMapActions({ loc, accent = "#97b64c", compact = false }) {
+  const viewUrl = getGoogleMapsViewUrl(loc)
+  const directionsUrl = getGoogleMapsDirectionsUrl(loc)
+  if (!viewUrl && !directionsUrl) return null
+
+  const fontSize = compact ? "11px" : "12px"
+  const padding = compact ? "9px 8px" : "10px 10px"
+
+  return (
+    <div style={{ display: "flex", gap: 8, marginTop: compact ? 12 : 14, flexWrap: "wrap" }}>
+      {viewUrl && (
+        <button
+          type="button"
+          onClick={() => openGoogleMaps(viewUrl)}
+          style={{
+            flex: "1 1 120px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            padding,
+            borderRadius: 8,
+            background: "#fff",
+            color: accent,
+            border: `1.5px solid ${accent}55`,
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize,
+            fontWeight: 700,
+            cursor: "pointer",
+            transition: "background 0.15s ease, border-color 0.15s ease",
+          }}
+        >
+          View on Google Maps
+        </button>
+      )}
+      {directionsUrl && (
+        <button
+          type="button"
+          onClick={() => openGoogleMaps(directionsUrl)}
+          style={{
+            flex: "1 1 120px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            padding,
+            borderRadius: 8,
+            background: accent,
+            color: "#fff",
+            border: "none",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize,
+            fontWeight: 700,
+            cursor: "pointer",
+            boxShadow: `0 4px 14px ${accent}35`,
+            transition: "opacity 0.15s ease",
+          }}
+        >
+          Visit the Store
+        </button>
+      )}
+    </div>
+  )
+}
+
 function BranchPanel({ loc, onClose }) {
   const accent = regionAccent[loc.region] || "#97b64c"
   return (
@@ -178,6 +270,7 @@ function BranchPanel({ loc, onClose }) {
             </div>
           ))}
         </div>
+        <BranchMapActions loc={loc} accent={accent} compact />
         {loc.facebookUrl && (
           <a href={loc.facebookUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, padding: "8px 16px", borderRadius: 999, background: `linear-gradient(135deg, ${accent}, ${accent}bb)`, color: "#fff", textDecoration: "none", fontFamily: "'DM Sans', sans-serif", fontSize: "11px", fontWeight: 700, boxShadow: `0 4px 14px ${accent}35`, transition: "all 0.2s ease" }}>View Page →</a>
         )}
@@ -1090,6 +1183,7 @@ export default function Locations() {
                     </div>
                   )}
                 </div>
+                <BranchMapActions loc={selectedLoc} accent={accent} />
                 {selectedLoc.facebookUrl && (
                   <a href={selectedLoc.facebookUrl} target="_blank" rel="noopener noreferrer"
                     style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 14, padding: "10px 0", borderRadius: 8, background: "#62840b", color: "#fff", textDecoration: "none", fontFamily: "'DM Sans', sans-serif", fontSize: "12px", fontWeight: 700, transition: "background 0.15s ease" }}
@@ -1364,6 +1458,7 @@ export default function Locations() {
                 </div>
               )}
             </div>
+            <BranchMapActions loc={selectedLoc} accent={accent} />
             {selectedLoc.facebookUrl && (
               <a href={selectedLoc.facebookUrl} target="_blank" rel="noopener noreferrer"
                 style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 18, padding: "13px 0", borderRadius: 10, background: "#62840b", color: "#fff", textDecoration: "none", fontFamily: "'DM Sans', sans-serif", fontSize: "13px", fontWeight: 800, letterSpacing: "0.01em" }}>
