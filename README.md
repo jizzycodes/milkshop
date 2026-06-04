@@ -257,6 +257,11 @@ ufw reload
 
 ## Update / Deploy when you push new changes (GitHub → Linode)
 
+1. PUSH TO GITHUB
+2. ssh root@172.104.187.56
+3. cd /var/www/milkshop
+4. git pull
+
 ### Backend update
 
 ```sh
