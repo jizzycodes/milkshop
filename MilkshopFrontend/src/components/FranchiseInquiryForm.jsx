@@ -59,54 +59,98 @@ function Field({ label, required, error, children }) {
 
 function ThankYouView() {
   return (
-    <div
-      className="flex flex-col items-center text-center py-8 px-4"
-      style={{ animation: "fiTyFadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both" }}
-    >
-      <img
-        src="/milkshop-logo-removebg-preview.png"
-        alt="Milkshop"
-        style={{
-          width: 72,
-          height: 72,
-          objectFit: "contain",
-          marginBottom: 20,
-        }}
-      />
-      <h2
-        className="ms-section-heading"
-        style={{ marginBottom: 8, fontSize: "clamp(1.5rem, 5vw, 2rem)" }}
-      >
-        Thank You! 🎉
-      </h2>
-      <p
-        style={{
-          color: T.body,
-          fontSize: "0.92rem",
-          maxWidth: 360,
-          lineHeight: 1.65,
-          marginBottom: 24,
-        }}
-      >
-        We&apos;ve received your franchise application. Our team will reach out within{" "}
-        <strong style={{ color: T.greenDark }}>1–2 business days</strong>.
-      </p>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          gap: 16,
-          fontSize: "0.78rem",
-          color: T.greenDark,
-          fontWeight: 600,
-        }}
-      >
-        <span>🔒 Secure</span>
-        <span>⚡ Fast Review</span>
-        <span>📞 We&apos;ll Call You</span>
+    <>
+      <style>{`
+        .fi-thankyou {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 20px;
+          padding: clamp(16px, 3vw, 28px) 12px;
+          animation: fiTyFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @media (min-width: 560px) {
+          .fi-thankyou {
+            flex-direction: row;
+            align-items: center;
+            gap: 24px 32px;
+          }
+        }
+        .fi-thankyou-visual {
+          flex-shrink: 0;
+        }
+        .fi-thankyou-visual img {
+          display: block;
+          width: auto;
+          max-width: min(300px, 72vw);
+          height: auto;
+          max-height: 280px;
+          object-fit: contain;
+        }
+        @media (min-width: 560px) {
+          .fi-thankyou-visual img {
+            max-width: 300px;
+            max-height: 320px;
+          }
+        }
+        .fi-thankyou-copy {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+        .fi-thankyou-copy p {
+          max-width: 36ch;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        .fi-thankyou-trust {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 12px 16px;
+        }
+      `}</style>
+      <div className="fi-thankyou">
+        <div className="fi-thankyou-visual">
+          <img src="/mooba-ty.png" alt="Mooba thank you" draggable={false} />
+        </div>
+        <div className="fi-thankyou-copy">
+          <h2
+            className="ms-section-heading"
+            style={{ marginBottom: 8, fontSize: "clamp(1.35rem, 4.5vw, 1.85rem)" }}
+          >
+            Thank You!
+          </h2>
+          <p
+            style={{
+              color: T.body,
+              fontSize: "0.92rem",
+              lineHeight: 1.65,
+              margin: "0 0 20px",
+            }}
+          >
+            We&apos;ve received your franchise application. Our team will reach out within{" "}
+            <strong style={{ color: T.greenDark }}>1–2 business days</strong>.
+          </p>
+          <div
+            className="fi-thankyou-trust"
+            style={{
+              fontSize: "0.78rem",
+              color: T.greenDark,
+              fontWeight: 600,
+            }}
+          >
+            <span>🔒 Secure</span>
+            <span>⚡ Fast Review</span>
+            <span>📞 We&apos;ll Call You</span>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

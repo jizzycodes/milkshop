@@ -837,9 +837,9 @@ function WhySection() {
           opacity: 1;
           transform: translate3d(0, 0, 0) scale(1);
           transition:
-            opacity 0.65s ease,
-            transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-          transition-delay: calc(80ms + var(--why-i, 0) * 110ms);
+            opacity 0.55s ease,
+            transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+          transition-delay: calc(40ms + var(--why-i, 0) * 70ms);
         }
 
         .why-section.why-motion-ready:not(.is-inview) .why-card-media img {
@@ -848,19 +848,8 @@ function WhySection() {
 
         .why-section.is-inview .why-card-media img {
           transform: scale(1);
-          transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
-          transition-delay: calc(120ms + var(--why-i, 0) * 110ms);
-        }
-
-        .why-section.is-inview .why-card-top,
-        .why-section.is-inview .why-body {
-          animation: whyTextIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-          animation-delay: calc(180ms + var(--why-i, 0) * 110ms);
-        }
-
-        @keyframes whyTextIn {
-          from { opacity: 0; transform: translate3d(0, 12px, 0); }
-          to   { opacity: 1; transform: translate3d(0, 0, 0); }
+          transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+          transition-delay: calc(40ms + var(--why-i, 0) * 70ms);
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -870,7 +859,6 @@ function WhySection() {
             opacity: 1 !important;
             transform: none !important;
             transition: none !important;
-            animation: none !important;
           }
         }
 
@@ -947,7 +935,7 @@ function WhySection() {
         .why-card-top {
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          justify-content: center;
           gap: 10px;
           width: 100%;
           max-width: 44ch;
@@ -981,15 +969,6 @@ function WhySection() {
         }
         @media (min-width: 521px) {
           .why-chip .why-title { white-space: nowrap; }
-        }
-
-        .why-num {
-          font-family: 'DM Mono', monospace;
-          font-size: 0.68rem;
-          font-weight: 700;
-          letter-spacing: 0.22em;
-          color: #ffffff;
-          flex-shrink: 0;
         }
 
         .why-body {
@@ -1103,7 +1082,6 @@ function WhySection() {
                         <span className="why-ic" aria-hidden>{item.icon}</span>
                         <span className="why-title">{item.title}</span>
                       </div>
-                      <span className="why-num">{String(i + 1).padStart(2, "0")}</span>
                     </div>
                     <p className="why-body">{item.body}</p>
                   </div>

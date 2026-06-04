@@ -323,8 +323,8 @@ export default function About() {
       100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); filter: saturate(1); }
     }
     @keyframes aboutTaiwanFloat {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-6px); }
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-6px) scale(1); }
     }
 
     .about-taiwan-word {
@@ -336,11 +336,9 @@ export default function About() {
       transform-origin: 50% 80%;
     }
     .about-taiwan-word img {
-      height: clamp(44px, 7.6vw, 86px);
+      height: clamp(53px, 9.12vw, 103px);
       width: auto;
       display: block;
-      transform: scale(1.15);
-      transform-origin: 50% 80%;
       filter: drop-shadow(0 10px 26px rgba(0,0,0,0.38));
     }
     .about-hero--ready .about-taiwan-word {

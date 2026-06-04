@@ -1,15 +1,19 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { createPortal } from "react-dom";
 
 const navLinks = [
   { label: "Home",      path: "/" },
+  { label: "Our Menu",  path: "/products" },
+  { label: "Locations", path: "/locations" },
   { label: "Franchise", path: "/franchise" },
   { label: "About",     path: "/about" },
-  { label: "Locations", path: "/locations" },
-  { label: "Our Menu",  path: "/products" },
 ];
 
 const NAV_BREAKPOINT = "860px";
+
+const NAV_GREEN = "#97b64c";
+const NAV_GREEN_DARK = "#62840b";
 
 const styles = `
   @keyframes navFade {
@@ -17,9 +21,14 @@ const styles = `
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  @keyframes menuIn {
-    from { opacity: 0; transform: translateY(-10px) scale(0.97); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+  @keyframes navFullIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes navLinkIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   .nav-root {
@@ -31,19 +40,19 @@ const styles = `
     width: 100%;
     max-width: 100%;
     margin: 0;
-    height: 72px;
-    padding: 0 20px;
+    height: 64px;
+    padding: 0 16px;
     padding-top: env(safe-area-inset-top, 0);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 9px;
     box-sizing: border-box;
   }
 
   @media (min-width: ${NAV_BREAKPOINT}) {
     .nav-inner {
-      height: 80px;
+      height: 92px;
       padding-left: clamp(24px, 5vw, 96px);
       padding-right: clamp(24px, 5vw, 96px);
       gap: 20px;
@@ -62,7 +71,6 @@ const styles = `
     .nav-actions { gap: 10px; }
   }
 
-  /* Mobile-first: hide desktop, show mobile */
   .nav-desktop-links {
     display: none;
     align-items: center;
@@ -89,43 +97,21 @@ const styles = `
     .nav-mobile-actions { display: none; }
   }
 
-  .nav-mobile-panel {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    padding: 8px;
-    padding-bottom: max(8px, env(safe-area-inset-bottom, 0));
-    border-top: 1px solid rgba(17, 24, 39, 0.08);
-    background: #ffffff;
-    box-shadow: 0 12px 32px rgba(10, 20, 5, 0.12);
-  }
-
-  .nav-mobile-panel.is-open {
-    display: block;
-    animation: menuIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  @media (min-width: ${NAV_BREAKPOINT}) {
-    .nav-mobile-panel { display: none !important; }
-  }
-
   .nav-link {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 44px;
-    height: 48px;
-    padding: 0 12px;
+    min-height: 51px;
+    height: 55px;
+    padding: 0 14px;
     border-radius: 8px;
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: 1rem;
+    font-size: 1.15rem;
     font-weight: 700;
     letter-spacing: -0.01em;
-    color: rgba(17, 24, 39, 0.72);
+    color: rgba(255, 255, 255, 0.88);
     border: 1px solid transparent;
     white-space: nowrap;
     transition:
@@ -136,22 +122,20 @@ const styles = `
 
   @media (min-width: ${NAV_BREAKPOINT}) {
     .nav-link {
-      font-size: 1.28rem;
-      padding: 0 14px;
+      font-size: 1.47rem;
+      padding: 0 16px;
     }
   }
 
   .nav-link:hover {
-    color: #536f09;
+    color: #ffffff;
     transform: scale(1.06);
-    text-shadow:
-      0 0 16px rgba(151, 182, 76, 0.4),
-      0 0 4px rgba(98, 132, 11, 0.18);
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
   }
 
   .nav-link.active {
-    color: #62840b;
-    text-shadow: 0 0 10px rgba(151, 182, 76, 0.25);
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
   }
 
   .nav-brand-link {
@@ -171,26 +155,26 @@ const styles = `
 
   .nav-brand-logo {
     display: block;
-    height: 44px;
+    height: 39px;
     width: auto;
     object-fit: contain;
     transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), filter 0.28s ease;
   }
 
   @media (min-width: ${NAV_BREAKPOINT}) {
-    .nav-brand-logo { height: 52px; }
+    .nav-brand-logo { height: 60px; }
   }
 
   .nav-brand-wordmark {
     font-family: 'Signia Pro', 'DM Sans', sans-serif;
-    font-size: 1.65rem;
+    font-size: 1.47rem;
     font-weight: 900;
     letter-spacing: -0.04em;
     line-height: 1.2;
     white-space: nowrap;
     user-select: none;
     display: inline-block;
-    color: #62840b;
+    color: #ffffff;
     transition:
       transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
       text-shadow 0.28s ease,
@@ -202,28 +186,26 @@ const styles = `
   }
 
   @media (min-width: ${NAV_BREAKPOINT}) {
-    .nav-brand-wordmark { font-size: 2.2rem; }
+    .nav-brand-wordmark { font-size: 2.53rem; }
   }
 
   .nav-brand-link:hover .nav-brand-logo {
     transform: scale(1.08);
-    filter: drop-shadow(0 0 12px rgba(151, 182, 76, 0.5));
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.45));
   }
 
   .nav-brand-link:hover .nav-brand-wordmark {
     transform: scale(1.05);
-    color: #536f09;
-    text-shadow:
-      0 0 18px rgba(151, 182, 76, 0.45),
-      0 0 4px rgba(98, 132, 11, 0.2);
+    color: #ffffff;
+    text-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
   }
 
   .nav-menu-btn {
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    border: 1px solid rgba(17, 24, 39, 0.10);
-    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.12);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -236,79 +218,139 @@ const styles = `
     -webkit-tap-highlight-color: transparent;
   }
 
-  .nav-menu-btn.is-open {
-    background: rgba(151, 182, 76, 0.14);
-  }
-
-  .mobile-link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 48px;
-    padding: 13px 14px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: rgba(17, 24, 39, 0.78);
-    border: 1px solid transparent;
-    transition:
-      transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-      color 0.28s ease,
-      text-shadow 0.28s ease;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  @media (min-width: ${NAV_BREAKPOINT}) {
-    .mobile-link { font-size: 1.28rem; }
-  }
-
-  .mobile-link:hover {
-    color: #536f09;
-    transform: scale(1.03);
-    text-shadow:
-      0 0 14px rgba(151, 182, 76, 0.38),
-      0 0 4px rgba(98, 132, 11, 0.16);
-  }
-
-  .mobile-link.active {
-    color: #62840b;
-    text-shadow: 0 0 8px rgba(151, 182, 76, 0.22);
-  }
-
-  .nav-mobile-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
   .hb-line {
     display: block;
     height: 2px;
     border-radius: 999px;
-    background: rgba(17, 24, 39, 0.82);
+    background: rgba(255, 255, 255, 0.95);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
     transform-origin: center;
     pointer-events: none;
   }
 
+  /* ── Full-screen mobile menu (Pickup-style) ── */
+  .nav-mobile-full {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    background: ${NAV_GREEN};
+    display: flex;
+    flex-direction: column;
+    padding:
+      calc(20px + env(safe-area-inset-top, 0))
+      24px
+      calc(28px + env(safe-area-inset-bottom, 0));
+    animation: navFullIn 0.28s ease forwards;
+    overflow: hidden;
+  }
+
+  .nav-mobile-full-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .nav-mobile-full-brand {
+    font-family: 'Signia Pro', 'DM Sans', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .nav-mobile-full-close {
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: none;
+    color: #ffffff;
+    font-size: 1.75rem;
+    font-weight: 300;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .nav-mobile-full-links {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(22px, 5.5vw, 34px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-mobile-full-link {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(1.15rem, 4.8vw, 1.45rem);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: rgba(255, 255, 255, 0.96);
+    text-decoration: none;
+    opacity: 0;
+    animation: navLinkIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.2s ease;
+  }
+
+  .nav-mobile-full-link:active {
+    opacity: 0.72;
+  }
+
+  .nav-mobile-full-link.is-active {
+    font-weight: 700;
+  }
+
+  .nav-mobile-full-footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  .nav-mobile-full-flag {
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+
+  @media (min-width: ${NAV_BREAKPOINT}) {
+    .nav-mobile-full { display: none !important; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .nav-brand-link:hover .nav-brand-logo,
     .nav-brand-link:hover .nav-brand-wordmark,
-    .nav-link:hover,
-    .mobile-link:hover {
+    .nav-link:hover {
       transform: none;
       filter: none;
       text-shadow: none;
     }
-    .nav-link.active,
-    .mobile-link.active {
+    .nav-link.active {
       text-shadow: none;
     }
     .nav-root,
-    .nav-mobile-panel.is-open {
-      animation: none;
+    .nav-mobile-full,
+    .nav-mobile-full-link {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
     }
   }
 `;
@@ -323,7 +365,6 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const location = useLocation();
-  const menuRef = useRef(null);
 
   useEffect(() => {
     let raf = 0;
@@ -345,15 +386,6 @@ export default function Navbar() {
   useEffect(() => {
     setMenuOpen(false);
   }, [location]);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const fn = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
-    };
-    document.addEventListener("mousedown", fn);
-    return () => document.removeEventListener("mousedown", fn);
-  }, [menuOpen]);
 
   useEffect(() => {
     const mq = window.matchMedia(`(min-width: ${NAV_BREAKPOINT})`);
@@ -383,15 +415,15 @@ export default function Navbar() {
           left: 0,
           right: 0,
           zIndex: 1000,
-          background: "#ffffff",
+          background: NAV_GREEN,
           borderBottom: scrolled
-            ? "1px solid rgba(17, 24, 39, 0.10)"
-            : "1px solid rgba(151, 182, 76, 0.18)",
-          boxShadow: scrolled ? "0 4px 18px rgba(10, 20, 5, 0.08)" : "none",
+            ? "1px solid rgba(255, 255, 255, 0.18)"
+            : "1px solid rgba(255, 255, 255, 0.12)",
+          boxShadow: scrolled ? "0 4px 18px rgba(10, 20, 5, 0.14)" : "none",
           transition: "box-shadow 0.25s ease, border-color 0.25s ease",
         }}
       >
-        <nav ref={menuRef} className="nav-root nav-inner">
+        <nav className="nav-root nav-inner">
           <Link to="/" aria-label="Milkshop home" className="nav-brand-link">
             <img
               src="/milkshop-logo-removebg-preview.png"
@@ -422,51 +454,70 @@ export default function Navbar() {
             <div className="nav-mobile-actions">
               <button
                 type="button"
-                onClick={() => setMenuOpen((v) => !v)}
-                aria-label="Toggle menu"
+                onClick={() => setMenuOpen(true)}
+                aria-label="Open menu"
                 aria-expanded={menuOpen}
-                className={`nav-menu-btn${menuOpen ? " is-open" : ""}`}
+                className="nav-menu-btn"
               >
-                <span
-                  className="hb-line"
-                  style={{
-                    width: "18px",
-                    transform: menuOpen ? "translateY(7px) rotate(45deg)" : "none",
-                  }}
-                />
-                <span
-                  className="hb-line"
-                  style={{ width: "12px", opacity: menuOpen ? 0 : 1 }}
-                />
-                <span
-                  className="hb-line"
-                  style={{
-                    width: "18px",
-                    transform: menuOpen ? "translateY(-7px) rotate(-45deg)" : "none",
-                  }}
-                />
+                <span className="hb-line" style={{ width: "21px" }} />
+                <span className="hb-line" style={{ width: "14px" }} />
+                <span className="hb-line" style={{ width: "21px" }} />
               </button>
-            </div>
-          </div>
-
-          <div className={`nav-mobile-panel${menuOpen ? " is-open" : ""}`}>
-            <div className="nav-mobile-menu">
-              {navLinks.map((link) => {
-                const isActive = isNavLinkActive(location.pathname, link.path);
-                return (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    className={`mobile-link${isActive ? " active" : ""}`}
-                  >
-                    <span>{link.label}</span>
-                  </Link>
-                );
-              })}
             </div>
           </div>
         </nav>
       </header>
+
+      {menuOpen && createPortal(
+        <div
+          className="nav-mobile-full"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+        >
+          <div className="nav-mobile-full-top">
+            <Link
+              to="/"
+              className="nav-mobile-full-brand"
+              onClick={() => setMenuOpen(false)}
+            >
+              Milkshop
+            </Link>
+            <button
+              type="button"
+              className="nav-mobile-full-close"
+              aria-label="Close menu"
+              onClick={() => setMenuOpen(false)}
+            >
+              ×
+            </button>
+          </div>
+
+          <ul className="nav-mobile-full-links">
+            {navLinks.map((link, i) => {
+              const isActive = isNavLinkActive(location.pathname, link.path);
+              return (
+                <li key={link.path}>
+                  <Link
+                    to={link.path}
+                    className={`nav-mobile-full-link${isActive ? " is-active" : ""}`}
+                    style={{ animationDelay: `${0.06 + i * 0.05}s` }}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="nav-mobile-full-footer">
+            <span className="nav-mobile-full-flag" aria-hidden>🇵🇭</span>
+            <span>PH</span>
+          </div>
+        </div>,
+        document.body
+      )}
     </>
   );
 }

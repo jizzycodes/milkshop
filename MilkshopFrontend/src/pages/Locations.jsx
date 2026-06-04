@@ -384,7 +384,12 @@ export default function Locations() {
         zoomControl: false,
         attributionControl: true,
         scrollWheelZoom: false,
+        touchZoom: true,
+        dragging: true,
       })
+      const mapEl = map.getContainer()
+      mapEl.style.touchAction = "none"
+      mapEl.style.overscrollBehavior = "contain"
       L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
         attribution: '© <a href="https://www.openstreetmap.org/">OSM</a> © <a href="https://carto.com/">CARTO</a>',
         subdomains: "abcd",
@@ -552,6 +557,10 @@ export default function Locations() {
         .loc-map-pane {
           min-height: 68.2vh;
           order: 2;
+          overscroll-behavior: contain;
+        }
+        .loc-map-pane .leaflet-container {
+          touch-action: none;
         }
         @media (min-width: 901px) {
           .loc-map-section { padding: 79px 48px 53px; }
@@ -826,6 +835,13 @@ export default function Locations() {
     .leaflet-control-attribution { font-size: 8px !important; opacity: 0.45 !important; background: rgba(255,255,255,0.5) !important; border-radius: 8px; padding: 2px 6px !important; }
     .leaflet-attribution-flag { display: none !important; }
     .leaflet-container { font-family: 'DM Sans', sans-serif !important; }
+    @media (max-width: 900px) {
+      .loc-map-pane,
+      .loc-map-pane .leaflet-container {
+        touch-action: none;
+        overscroll-behavior: contain;
+      }
+    }
 
     /* ── Drawer (mobile) ── */
     .loc-drawer-backdrop {
@@ -884,7 +900,11 @@ export default function Locations() {
       }}>
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 5, background: "linear-gradient(180deg, rgba(248,252,241,0.18) 0%, rgba(255,255,255,0.04) 45%, rgba(0,0,0,0.04) 100%)" }} />
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 6, border: "1px solid rgba(255,255,255,0.5)" }} />
-        <div ref={mapContainerRef} style={{ width: "100%", height: "100%" }} />
+        <div
+          ref={mapContainerRef}
+          className="loc-map-canvas"
+          style={{ width: "100%", height: "100%", touchAction: "none" }}
+        />
 
         {/* Map controls */}
         {mapReady && (
@@ -1360,33 +1380,35 @@ export default function Locations() {
 </section>
 
       {/* CTA — expanding nationwide */}
-      <section
-        className="loc-expand-cta"
-        style={{
-          backgroundColor: "#ffffff",
-          borderTop: "1px solid #e8f0dc",
-          padding: "clamp(28px, 4vw, 40px) clamp(20px, 5vw, 48px)",
-        }}
-      >
+      <section className="loc-expand-cta">
         <style>{`
+          .loc-expand-cta {
+            background: #ffffff;
+            border-top: 1px solid #e8f0dc;
+            padding: clamp(31px, 4.4vw, 44px) clamp(16px, 4vw, 48px);
+            min-height: clamp(198px, 38vw, 242px);
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+          }
           .loc-expand-inner {
+            width: 100%;
             max-width: 1120px;
             margin: 0 auto;
             display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px 32px;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 22px;
           }
           .loc-expand-copy {
-            flex: 1 1 280px;
             min-width: 0;
+            text-align: left;
           }
           .loc-expand-eyebrow {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
           }
           .loc-expand-eyebrow span {
             width: 28px;
@@ -1397,15 +1419,21 @@ export default function Locations() {
           }
           .loc-expand-eyebrow p {
             margin: 0;
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 800;
-            letter-spacing: 0.26em;
+            letter-spacing: 0.22em;
             text-transform: uppercase;
             color: #62840b;
             font-family: 'DM Sans', sans-serif;
           }
           .loc-expand-title {
-            margin: 0 0 6px;
+            margin: 0 0 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 900;
+            font-size: clamp(1.75rem, 7vw, 2.2rem);
+            color: #18210f;
+            line-height: 1.12;
+            letter-spacing: -0.03em;
           }
           .loc-expand-title em {
             font-style: normal;
@@ -1413,72 +1441,79 @@ export default function Locations() {
           }
           .loc-expand-body {
             margin: 0;
-            max-width: 48ch;
+            max-width: 42ch;
             font-family: 'DM Sans', sans-serif;
-            font-size: 0.84rem;
-            line-height: 1.6;
+            font-size: clamp(0.88rem, 3.6vw, 0.95rem);
+            line-height: 1.65;
             color: #4a5640;
           }
           .loc-expand-actions {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 10px;
-            align-items: center;
-            flex-shrink: 0;
+            width: 100%;
           }
-          .loc-expand-btn-primary {
-            display: inline-flex;
+          .loc-expand-btn-primary,
+          .loc-expand-btn-secondary {
+            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 12px 22px;
+            width: 100%;
+            min-height: 48px;
+            padding: 14px 22px;
             border-radius: 999px;
-            background: #62840b;
-            color: #fff;
             font-family: 'DM Sans', sans-serif;
-            font-size: 0.82rem;
+            font-size: 0.88rem;
             font-weight: 800;
             text-decoration: none;
+            box-sizing: border-box;
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+          }
+          .loc-expand-btn-primary {
+            background: #62840b;
+            color: #fff;
             border: none;
             box-shadow: 0 6px 18px rgba(98, 132, 11, 0.28);
-            transition: transform 0.2s ease, background 0.2s ease;
-            white-space: nowrap;
           }
           .loc-expand-btn-primary:hover {
             background: #536f09;
             transform: translateY(-1px);
           }
           .loc-expand-btn-secondary {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 11px 20px;
-            border-radius: 999px;
             background: #fff;
             color: #62840b;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.82rem;
             font-weight: 700;
-            text-decoration: none;
             border: 1.5px solid #d0e0b0;
-            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-            white-space: nowrap;
           }
           .loc-expand-btn-secondary:hover {
             border-color: #97b64c;
             background: #f7faef;
             transform: translateY(-1px);
           }
-          .loc-expand-inner {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-          .loc-expand-actions { width: 100%; }
           @media (min-width: 641px) {
             .loc-expand-inner {
               flex-direction: row;
               align-items: center;
+              justify-content: space-between;
+              gap: 28px 32px;
             }
-            .loc-expand-actions { width: auto; }
+            .loc-expand-copy {
+              flex: 1 1 280px;
+            }
+            .loc-expand-actions {
+              flex-direction: row;
+              flex-wrap: wrap;
+              width: auto;
+              flex-shrink: 0;
+            }
+            .loc-expand-btn-primary,
+            .loc-expand-btn-secondary {
+              width: auto;
+              min-height: 44px;
+              padding: 12px 22px;
+              font-size: 0.82rem;
+            }
           }
         `}</style>
 
@@ -1488,17 +1523,7 @@ export default function Locations() {
               <span />
               <p>Franchise Opportunity</p>
             </div>
-            <h2
-              className="loc-expand-title"
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 900,
-                fontSize: "clamp(1.6rem, 4vw, 2.2rem)",
-                color: "#18210f",
-                lineHeight: 1.1,
-                margin: "0 0 8px",
-              }}
-            >
+            <h2 className="loc-expand-title">
               We&apos;re <em>Expanding</em> Nationwide
             </h2>
             <p className="loc-expand-body">
