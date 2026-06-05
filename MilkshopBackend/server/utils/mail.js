@@ -1,29 +1,15 @@
 const fs = require('fs')
 const path = require('path')
-const nodemailer = require('nodemailer')
+const sgMail = require('@sendgrid/mail')
 const { getSetting, KEYS } = require('../models/appSettingsModel')
 
 const LOGO_PATH = path.join(__dirname, '../assets/LOGOLAND.png')
 
-const SMTP_USER = process.env.SMTP_USER
-const SMTP_PASS = process.env.SMTP_PASS
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY
+const SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL
 
-let transporter = null
-
-function getTransporter() {
-  if (!SMTP_USER || !SMTP_PASS) return null
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: 'mail.spacemail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS,
-      },
-    })
-  }
-  return transporter
+function isSendGridConfigured() {
+  return !!(SENDGRID_API_KEY && SENDGRID_FROM_EMAIL)
 }
 
 /** Fallback if DB has no template yet — use literal (name) in the body. */
@@ -91,10 +77,14 @@ Thank you for your interest in Milkshop Franchising. We understand that you need
 }
 
 async function sendTemplatedEmail(toEmail, name, subject, template) {
-  const transport = getTransporter()
-  if (!transport) {
-    return { sent: false, error: 'SMTP not configured (SMTP_USER / SMTP_PASS)' }
+  if (!isSendGridConfigured()) {
+    return {
+      sent: false,
+      error: 'SendGrid not configured (SENDGRID_API_KEY / SENDGRID_FROM_EMAIL)',
+    }
   }
+
+  sgMail.setApiKey(SENDGRID_API_KEY)
 
   const textBody = applyNamePlaceholders(template, name)
   const logoSrc = getLogoSrc()
@@ -110,16 +100,21 @@ async function sendTemplatedEmail(toEmail, name, subject, template) {
   `
 
   try {
-    await transport.sendMail({
-      from: `"Milkshop Franchise" <${SMTP_USER}>`,
+    await sgMail.send({
       to: toEmail,
+      from: {
+        email: SENDGRID_FROM_EMAIL,
+        name: 'Milkshop Franchise',
+      },
       subject,
       text: textBody,
       html,
     })
     return { sent: true }
   } catch (err) {
-    return { sent: false, error: err.message }
+    const message =
+      err?.response?.body?.errors?.[0]?.message || err.message || 'SendGrid send failed'
+    return { sent: false, error: message }
   }
 }
 
