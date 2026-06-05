@@ -183,6 +183,17 @@ $$ LANGUAGE plpgsql`,
   // 008: optional schedule datetime on contact logs (e.g. onboarding Confirmed Schedule)
   'ALTER TABLE lead_contact_logs ADD COLUMN IF NOT EXISTS schedule_date_time timestamptz',
   // 011: Store Open pipeline stage + Store Opening contact outcome
+  // Clear invalid legacy outcome values before applying the expanded CHECK constraint.
+  `UPDATE lead_contact_logs
+   SET outcome = NULL
+   WHERE outcome IS NOT NULL
+   AND (
+     TRIM(outcome) = ''
+     OR outcome NOT IN (
+       'NO_ANSWER','INTERESTED','NOT_INTERESTED','PAID','PAID_RESERVATION','PRESENT','ABSENT','FINISHED',
+       'CALLBACK','CONFIRMED_SCHEDULE','ARCHIVE','DROP','CANCEL','REMIND_SUCCESS','STORE_OPENING'
+     )
+   )`,
   'ALTER TABLE franchise_leads DROP CONSTRAINT IF EXISTS franchise_leads_stage_check',
   `ALTER TABLE franchise_leads
    ADD CONSTRAINT franchise_leads_stage_check CHECK (stage IN (
