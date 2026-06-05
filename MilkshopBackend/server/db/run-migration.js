@@ -7,14 +7,30 @@ const path = require('path')
 require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
 const { Pool } = require('pg')
 
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT) || 5432,
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD != null ? String(process.env.DB_PASSWORD) : undefined,
-  database: process.env.DB_NAME || 'milkshop_backend',
-  ssl: (process.env.DB_HOST || '').includes('neon.tech') ? { rejectUnauthorized: false } : undefined,
-})
+const url = process.env.DATABASE_URL || ''
+const wantsSsl =
+  String(process.env.DB_SSL || '').toLowerCase() === 'true' ||
+  url.includes('neon.tech') ||
+  url.includes('sslmode=require') ||
+  String(process.env.DB_HOST || '').includes('neon.tech')
+const sslConfig = wantsSsl ? { rejectUnauthorized: false } : undefined
+
+const pool = new Pool(
+  process.env.DATABASE_URL
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: sslConfig,
+      }
+    : {
+        host: process.env.DB_HOST || 'localhost',
+        port: Number(process.env.DB_PORT) || 5432,
+        user: process.env.DB_USER || 'postgres',
+        password:
+          process.env.DB_PASSWORD != null ? String(process.env.DB_PASSWORD) : '',
+        database: process.env.DB_NAME || 'milkshop_backend',
+        ssl: sslConfig,
+      },
+)
 
 const statements = [
   'CREATE EXTENSION IF NOT EXISTS "pgcrypto"',
@@ -166,6 +182,18 @@ $$ LANGUAGE plpgsql`,
    END $$`,
   // 008: optional schedule datetime on contact logs (e.g. onboarding Confirmed Schedule)
   'ALTER TABLE lead_contact_logs ADD COLUMN IF NOT EXISTS schedule_date_time timestamptz',
+  // 011: Store Open pipeline stage + Store Opening contact outcome
+  'ALTER TABLE franchise_leads DROP CONSTRAINT IF EXISTS franchise_leads_stage_check',
+  `ALTER TABLE franchise_leads
+   ADD CONSTRAINT franchise_leads_stage_check CHECK (stage IN (
+     'REGISTERED','ORIENTATION','RESERVATION','ONBOARDING','STORE_OPEN','CLOSED'
+   ))`,
+  'ALTER TABLE lead_contact_logs DROP CONSTRAINT IF EXISTS lead_contact_logs_outcome_check',
+  `ALTER TABLE lead_contact_logs
+   ADD CONSTRAINT lead_contact_logs_outcome_check CHECK (outcome IS NULL OR outcome IN (
+     'NO_ANSWER','INTERESTED','NOT_INTERESTED','PAID','PAID_RESERVATION','PRESENT','ABSENT','FINISHED',
+     'CALLBACK','CONFIRMED_SCHEDULE','ARCHIVE','DROP','CANCEL','REMIND_SUCCESS','STORE_OPENING'
+   ))`,
 ]
 
 async function run() {

@@ -159,6 +159,7 @@ export default function LeadDetails() {
                 <option value="ORIENTATION">Orientation</option>
                 <option value="ATTENDED">Attended</option>
                 <option value="ONBOARDING">Onboarding</option>
+                <option value="STORE_OPEN">Store Open</option>
                 <option value="CLOSED">Closed</option>
               </select>
             </div>

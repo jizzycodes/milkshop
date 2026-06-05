@@ -4,6 +4,11 @@ import LeadModal from "../components/LeadModal"
 import { useAdminAuth } from "../context/AdminAuthContext"
 import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
+import {
+  countActiveInactive,
+  filterActivityLeads,
+  tabsWithCounts,
+} from "../utils/leadActivity"
 
 const ATTENDED_TABS = [
   { value: "active",   label: "Active"   },
@@ -456,17 +461,13 @@ export default function Attended() {
     return log
   }
 
-  const filteredLeads = leads
-    .filter((l) => l.status !== "DROPPED" && l.status !== "ARCHIVED")
-    .filter((lead) => {
-      const ts = lead.next_followup_at || lead.best_contact_at
-      if (!ts) return subStatus === "inactive"
-      const now = new Date()
-      const d   = new Date(ts)
-      return subStatus === "active"
-        ? d.getTime() <= now.getTime()
-        : d.getTime() >  now.getTime()
-    })
+  const baseLeads = leads.filter((l) => l.status !== "DROPPED" && l.status !== "ARCHIVED")
+  const activityCounts = countActiveInactive(baseLeads)
+  const attendedTabs = tabsWithCounts(ATTENDED_TABS, {
+    active: activityCounts.active,
+    inactive: activityCounts.inactive,
+  })
+  const filteredLeads = filterActivityLeads(baseLeads, subStatus)
 
   const clockIcon = (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -501,7 +502,7 @@ export default function Attended() {
           </div>
           <div className="att-hero-actions">
             <div className="att-toggle">
-                {ATTENDED_TABS.map((tab) => (
+                {attendedTabs.map((tab) => (
                   <button
                     key={tab.value}
                     type="button"
@@ -537,9 +538,9 @@ export default function Attended() {
           <>
             <div className="att-countbar">
               <span className="att-count-label">
-                {subStatus === "active" ? "Active" : "Inactive"} leads
+                Active {activityCounts.active} · Inactive {activityCounts.inactive} · Total {activityCounts.total}
               </span>
-              <span className="att-count-pill">{filteredLeads.length} leads</span>
+              <span className="att-count-pill">{filteredLeads.length} showing</span>
             </div>
 
             <LeadTable

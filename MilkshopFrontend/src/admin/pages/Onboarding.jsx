@@ -5,6 +5,11 @@ import StatusTabs from "../components/StatusTabs"
 import { useAdminAuth } from "../context/AdminAuthContext"
 import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
+import {
+  countActiveInactive,
+  filterActivityLeads,
+  tabsWithCounts,
+} from "../utils/leadActivity"
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
@@ -360,17 +365,20 @@ export default function Onboarding() {
     if (!token) { setLoading(false); return }
     setLoading(true)
     setError("")
-    fetchLeads(token, { tab: "onboarding", onboardingStep: subtab, page: 1, pageSize: 50 })
+    fetchLeads(token, { tab: "onboarding", page: 1, pageSize: 50 })
       .then((res)  => { if (!cancelled) setLeads(res.data || []) })
       .catch((err) => { if (!cancelled) setError(err?.message || "Failed to load onboarding"); setLeads([]) })
       .finally(()  => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [token, subtab, refreshKey])
 
-  const getContactOptions = () => {
-    if (subtab === "GRAND_OPENING") return []
-    return ["No Response", "Callback", "Confirmed Schedule", "Finished"]
-  }
+  const getContactOptions = () => [
+    "No Response",
+    "Callback",
+    "Confirmed Schedule",
+    "Finished",
+    "Store Opening",
+  ]
 
   const handleSaveContact = async ({ contactRecord, nextContactAt, notes, nextScheduleAt }) => {
     if (!token || !selectedLead) return
@@ -380,6 +388,7 @@ export default function Onboarding() {
       Callback: "CALLBACK",
       "Confirmed Schedule": "CONFIRMED_SCHEDULE",
       Finished: "FINISHED",
+      "Store Opening": "STORE_OPENING",
     }
 
     const outcome = outcomeMap[contactRecord] || null
@@ -392,7 +401,12 @@ export default function Onboarding() {
         outcome === "CONFIRMED_SCHEDULE" && nextScheduleAt ? nextScheduleAt : null,
     })
 
-    if (contactRecord === "Finished") {
+    if (contactRecord === "Store Opening") {
+      await updateLead(token, selectedLead.id, {
+        stage: "STORE_OPEN",
+        onboarding_step: subtab,
+      })
+    } else if (contactRecord === "Finished") {
       if (subtab === "MANAGEMENT_TRAINING") {
         await updateLead(token, selectedLead.id, {
           onboarding_step: "BARISTA_TRAINING",
@@ -415,15 +429,18 @@ export default function Onboarding() {
     setRefreshKey((k) => k + 1)
   }
 
-  const filteredLeads = leads.filter((lead) => {
-    const ts = lead.next_followup_at || lead.best_contact_at
-    if (!ts) return activity === "inactive"
-    const now = new Date()
-    const d = new Date(ts)
-    return activity === "active"
-      ? d.getTime() <= now.getTime()
-      : d.getTime() > now.getTime()
+  const subtabLeads = leads.filter((lead) => (lead.onboarding_step || "MANAGEMENT_TRAINING") === subtab)
+  const activityCounts = countActiveInactive(subtabLeads)
+  const onboardingSubtabs = tabsWithCounts(ONBOARDING_SUBTABS, {
+    MANAGEMENT_TRAINING: leads.filter((l) => (l.onboarding_step || "MANAGEMENT_TRAINING") === "MANAGEMENT_TRAINING").length,
+    BARISTA_TRAINING: leads.filter((l) => l.onboarding_step === "BARISTA_TRAINING").length,
+    GRAND_OPENING: leads.filter((l) => l.onboarding_step === "GRAND_OPENING").length,
   })
+  const activityTabs = tabsWithCounts(ONBOARDING_ACTIVITY, {
+    active: activityCounts.active,
+    inactive: activityCounts.inactive,
+  })
+  const filteredLeads = filterActivityLeads(subtabLeads, activity)
 
   const calIcon = (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -458,12 +475,12 @@ export default function Onboarding() {
               <h1 className="onb-banner-title">Onboarding</h1>
               <p className="onb-banner-desc">Leads that have paid and are moving into onboarding.</p>
               <div style={{ marginTop: 12 }}>
-                <StatusTabs options={ONBOARDING_SUBTABS} value={subtab} onChange={setSubtab} />
+                <StatusTabs options={onboardingSubtabs} value={subtab} onChange={setSubtab} />
               </div>
             </div>
           </div>
           <div>
-            <StatusTabs options={ONBOARDING_ACTIVITY} value={activity} onChange={setActivity} />
+            <StatusTabs options={activityTabs} value={activity} onChange={setActivity} />
           </div>
         </header>
 
@@ -489,9 +506,9 @@ export default function Onboarding() {
           <>
             <div className="onb-countbar">
               <span className="onb-count-label">
-                {ONBOARDING_SUBTABS.find((s) => s.value === subtab)?.label} · {activity === "active" ? "Active" : "Inactive"}
+                {ONBOARDING_SUBTABS.find((s) => s.value === subtab)?.label} · Active {activityCounts.active} · Inactive {activityCounts.inactive} · Total {activityCounts.total}
               </span>
-              <span className="onb-count-pill">{filteredLeads.length} leads</span>
+              <span className="onb-count-pill">{filteredLeads.length} showing</span>
             </div>
 
             <LeadTable

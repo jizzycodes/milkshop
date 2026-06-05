@@ -1,8 +1,10 @@
 const { query } = require('../config/db')
+const { mergeOutcomeEmails } = require('../constants/leadEmailTemplates')
 
 const KEYS = {
   QR_URL: 'franchise_qr_url',
   EMAIL_TEMPLATE: 'franchise_confirmation_email_template',
+  OUTCOME_EMAIL_TEMPLATES: 'lead_outcome_email_templates',
 }
 
 async function getSetting(key) {
@@ -19,20 +21,35 @@ async function setSetting(key, value) {
   )
 }
 
+function parseOutcomeEmailsJson(raw) {
+  if (!raw || !String(raw).trim()) return null
+  try {
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' ? parsed : null
+  } catch {
+    return null
+  }
+}
+
 async function getQrEmailSettings() {
-  const [qrUrl, emailTemplate] = await Promise.all([
+  const [qrUrl, emailTemplate, outcomeEmailsRaw] = await Promise.all([
     getSetting(KEYS.QR_URL),
     getSetting(KEYS.EMAIL_TEMPLATE),
+    getSetting(KEYS.OUTCOME_EMAIL_TEMPLATES),
   ])
   return {
     qrUrl: qrUrl || '',
     emailTemplate: emailTemplate || '',
+    outcomeEmails: mergeOutcomeEmails(parseOutcomeEmailsJson(outcomeEmailsRaw)),
   }
 }
 
-async function updateQrEmailSettings({ qrUrl, emailTemplate }) {
+async function updateQrEmailSettings({ qrUrl, emailTemplate, outcomeEmails }) {
   if (qrUrl !== undefined) await setSetting(KEYS.QR_URL, String(qrUrl))
   if (emailTemplate !== undefined) await setSetting(KEYS.EMAIL_TEMPLATE, String(emailTemplate))
+  if (outcomeEmails !== undefined) {
+    await setSetting(KEYS.OUTCOME_EMAIL_TEMPLATES, JSON.stringify(outcomeEmails))
+  }
   return getQrEmailSettings()
 }
 

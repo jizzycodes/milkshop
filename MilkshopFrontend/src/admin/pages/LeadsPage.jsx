@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import StatusTabs from "../components/StatusTabs"
 import LeadModal from "../components/LeadModal"
 import Register from "./Register"
@@ -6,10 +6,12 @@ import Orientation from "./Orientation"
 import Attended from "./Attended"
 import Reservation from "./Reservation"
 import Onboarding from "./Onboarding"
+import StoreOpen from "./StoreOpen"
 import Archived from "./Archived"
 import Dropped from "./Dropped"
 import { useAdminAuth } from "../context/AdminAuthContext"
 import { fetchLeads } from "../services/leadService"
+import { tabsWithCounts } from "../utils/leadActivity"
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
@@ -224,9 +226,21 @@ const STAGE_TABS = [
   { value: "attended",    label: "Attended"    },
   { value: "reservation", label: "Reservation" },
   { value: "onboarding",  label: "Onboarding"  },
+  { value: "store_open",  label: "Store Open"  },
   { value: "archived",    label: "Archived"    },
   { value: "dropped",     label: "Dropped"     },
 ]
+
+const STAGE_TAB_FETCH = {
+  register:    { tab: "new" },
+  orientation: { tab: "orientation" },
+  attended:    { status: "APPROVED" },
+  reservation: { tab: "reservation" },
+  onboarding:  { tab: "onboarding" },
+  store_open:  { tab: "store_open" },
+  archived:    { tab: "archived" },
+  dropped:     { tab: "dropped" },
+}
 
 function getPipelineStageValue(lead) {
   const status = (lead?.status || "").toUpperCase()
@@ -234,6 +248,7 @@ function getPipelineStageValue(lead) {
   if (status === "DROPPED")     return "dropped"
   if (status === "ARCHIVED")    return "archived"
   if (stage  === "ONBOARDING")  return "onboarding"
+  if (stage  === "STORE_OPEN")  return "store_open"
   if (stage  === "RESERVATION") return "reservation"
   if (status === "APPROVED")    return "attended"
   if (stage  === "ORIENTATION") return "orientation"
@@ -247,6 +262,7 @@ function getPipelineStageLabel(lead) {
   if (status === "DROPPED")     return "Dropped"
   if (status === "ARCHIVED")    return "Archived"
   if (stage  === "ONBOARDING")  return "Onboarding"
+  if (stage  === "STORE_OPEN")  return "Store Open"
   if (stage  === "RESERVATION") return "Reservation"
   if (status === "APPROVED")    return "Attended"
   if (stage  === "ORIENTATION") return "Orientation"
@@ -285,7 +301,38 @@ export default function LeadsPage() {
   const [searchLoading, setSearchLoading]         = useState(false)
   const [selectedLeadForModal, setSelectedLeadForModal] = useState(null)
   const [orientationSubStatus, setOrientationSubStatus] = useState(null)
+  const [stageCounts, setStageCounts] = useState({})
   const searchWrapRef = useRef(null)
+
+  useEffect(() => {
+    if (!token) {
+      setStageCounts({})
+      return
+    }
+    let cancelled = false
+    Promise.all(
+      STAGE_TABS.map(async ({ value }) => {
+        try {
+          const res = await fetchLeads(token, {
+            page: 1,
+            pageSize: 1,
+            ...STAGE_TAB_FETCH[value],
+          })
+          return [value, res?.pagination?.total ?? 0]
+        } catch {
+          return [value, 0]
+        }
+      }),
+    ).then((entries) => {
+      if (!cancelled) setStageCounts(Object.fromEntries(entries))
+    })
+    return () => { cancelled = true }
+  }, [token])
+
+  const stageTabs = useMemo(
+    () => tabsWithCounts(STAGE_TABS, stageCounts),
+    [stageCounts],
+  )
 
   const searchTrimmed = searchQuery.trim()
   const showDropdown  = searchTrimmed.length > 0
@@ -334,6 +381,7 @@ export default function LeadsPage() {
   else if (stage === "attended")    content = <Attended />
   else if (stage === "reservation") content = <Reservation />
   else if (stage === "onboarding")  content = <Onboarding />
+  else if (stage === "store_open")  content = <StoreOpen />
   else if (stage === "archived")    content = <Archived />
   else if (stage === "dropped")     content = <Dropped />
 
@@ -357,7 +405,7 @@ export default function LeadsPage() {
               <input
                 type="search"
                 className="lp-search-input"
-                placeholder="Search leads by name or email..."
+                placeholder="Search leads by name, email, or phone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 aria-label="Search leads"
@@ -402,7 +450,7 @@ export default function LeadsPage() {
             </div>
 
             {/* Stage Tabs */}
-            <StatusTabs options={STAGE_TABS} value={stage} onChange={setStage} />
+            <StatusTabs options={stageTabs} value={stage} onChange={setStage} />
           </div>
 
           {/* ── Page Content ── */}

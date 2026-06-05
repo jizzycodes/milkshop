@@ -5,6 +5,7 @@ import LeadModal from "../components/LeadModal"
 import { useAdminAuth } from "../context/AdminAuthContext"
 import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
+import { filterOrientationLeads, tabsWithCounts } from "../utils/leadActivity"
 
 const ORIENTATION_TABS = [
   { value: "reschedule", label: "Reschedule" },
@@ -464,24 +465,17 @@ export default function Orientation({ initialSubStatus }) {
     return log
   }
 
-  const filteredLeads = leads
-    .filter((l) => l.status !== "DROPPED" && l.status !== "ARCHIVED" && l.status !== "APPROVED")
-    .filter((lead) => {
-      if (lead.status === "INACTIVE" && subStatus !== "reschedule") return false
-      if (subStatus === "reschedule") return lead.status === "INACTIVE"
-      const ts = lead.next_followup_at || lead.best_contact_at
-      if (!ts) return false
-      const now    = new Date()
-      const d      = new Date(ts)
-      const today  = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-      const target = new Date(d.getFullYear(), d.getMonth(), d.getDate())
-      const diffDays  = (target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-      const diffHours = (now.getTime() - d.getTime()) / (1000 * 60 * 60)
-      if (subStatus === "remind")     return diffDays === 1
-      if (subStatus === "attendance") return diffHours >= 1
-      if (subStatus === "confirmed")  return d.getTime() > now.getTime() && diffDays !== 1
-      return true
-    })
+  const orientationTabs = tabsWithCounts(ORIENTATION_TABS, {
+    reschedule: filterOrientationLeads(leads, "reschedule").length,
+    confirmed: filterOrientationLeads(leads, "confirmed").length,
+    remind: filterOrientationLeads(leads, "remind").length,
+    attendance: filterOrientationLeads(leads, "attendance").length,
+  })
+  const filteredLeads = filterOrientationLeads(leads, subStatus)
+  const orientationTotal = ORIENTATION_TABS.reduce(
+    (sum, tab) => sum + filterOrientationLeads(leads, tab.value).length,
+    0,
+  )
 
   const clockIcon = (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -516,7 +510,7 @@ export default function Orientation({ initialSubStatus }) {
           </div>
           <div className="ori-hero-actions">
             <StatusTabs
-              options={ORIENTATION_TABS}
+              options={orientationTabs}
               value={subStatus}
               onChange={setSubStatus}
             />
@@ -543,9 +537,9 @@ export default function Orientation({ initialSubStatus }) {
           <>
             <div className="ori-countbar">
               <span className="ori-count-label">
-                {ORIENTATION_TABS.find((t) => t.value === subStatus)?.label} leads
+                {ORIENTATION_TABS.find((t) => t.value === subStatus)?.label} · Total {orientationTotal}
               </span>
-              <span className="ori-count-pill">{filteredLeads.length} leads</span>
+              <span className="ori-count-pill">{filteredLeads.length} showing</span>
             </div>
 
             <LeadTable

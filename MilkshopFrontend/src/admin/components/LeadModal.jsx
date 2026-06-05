@@ -525,6 +525,7 @@ function getOutcomeMeta(code) {
     REMIND_SUCCESS:     { label: "Reminded",             variant: "green" },
     CANCEL:             { label: "Cancel",               variant: "red"   },
     INTERESTED:         { label: "Interested",           variant: "amber" },
+    STORE_OPENING:      { label: "Store Opening",        variant: "green" },
   }
   return map[code] || { label: code || "—", variant: "gray" }
 }
@@ -596,7 +597,7 @@ export default function LeadModal({
     if (onSaved) onSaved()
     setLogsRefreshKey((k) => k + 1)
 
-    if (contactRecord === "Drop" || contactRecord === "Archive") {
+    if (contactRecord === "Drop" || contactRecord === "Archive" || contactRecord === "Store Opening") {
       onClose?.()
     }
 

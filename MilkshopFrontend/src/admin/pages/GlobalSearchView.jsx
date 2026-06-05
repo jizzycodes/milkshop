@@ -11,6 +11,7 @@ function getPipelineStageLabel(lead) {
   if (status === "DROPPED") return "Dropped"
   if (status === "ARCHIVED") return "Archived"
   if (stage === "ONBOARDING") return "Onboarding"
+  if (stage === "STORE_OPEN") return "Store Open"
   if (stage === "RESERVATION") return "Reservation"
   if (status === "APPROVED") return "Attended"
   if (stage === "ORIENTATION") return "Orientation"

@@ -255,34 +255,48 @@ ufw allow 443/tcp
 ufw reload
 ```
 
-## Update / Deploy when you push new changes (GitHub → Linode)
+HOW TO DEPLOY TO PRODUCTION???
 
-1. PUSH TO GITHUB
-2. ssh root@172.104.187.56
-3. cd /var/www/milkshop
-4. git pull
+sTEP 1: git add first
+git add .
+git commit -m "your message"
+git push
 
-### Backend update
 
-```sh
+Step2 : Pull Latest Code
+ssh root@172.104.187.56
 cd /var/www/milkshop
 git pull
+
+
+Backend---->>>
+ if .env is changed then:
 cd MilkshopBackend
+nano .env
+
+edit -> ctrl + O -> HIT ENTER -> ctrl + X
+
+step 3 — Install + migrate + restart backend
+
 npm install
 node server/db/run-migration.js
-pm2 restart all
-```
+pm2 restart all --update-env
 
-### Frontend update
+Step 4 — Verify backend
 
-```sh
-cd /var/www/milkshop
-git pull
-cd MilkshopFrontend
+curl http://127.0.0.1:4000/api/health
+pm2 logs milkshop-backend --lines 10
+
+
+in FRONTEND:
+cd ../MilkshopFrontend
+nano .env.production
+
 npm install
 npm run build
 systemctl reload nginx
-```
+
+
 
 ## Quick “is everything healthy?” checklist
 
@@ -294,3 +308,45 @@ curl -i http://YOUR_LINODE_IP/api/health
 pm2 status
 systemctl status nginx --no-pager
 ```
+
+Deploy to Linode (backend + .env changes)
+On your PC first:
+
+git add .
+git commit -m "your message"
+git push
+On Linode:
+
+Step 1 — Pull latest code
+
+ssh root@172.104.187.56
+cd /var/www/milkshop
+git pull
+Step 2 — Update backend .env (if changed)
+
+cd MilkshopBackend
+nano .env
+Paste/update values manually. Never commit .env to GitHub.
+
+Step 3 — Install + migrate + restart backend
+
+npm install
+node server/db/run-migration.js
+pm2 restart all --update-env
+Step 4 — Verify backend
+
+curl http://127.0.0.1:4000/api/health
+pm2 logs milkshop-backend --lines 10
+Step 5 — Update frontend .env.production (if changed)
+
+cd ../MilkshopFrontend
+nano .env.production
+Step 6 — Rebuild frontend (if frontend code or env changed)
+
+npm install
+npm run build
+systemctl reload nginx
+Step 7 — Test in browser
+
+http://milk-shop.ph
+Submit form / check admin leads

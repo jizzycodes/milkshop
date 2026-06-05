@@ -49,6 +49,7 @@ export async function fetchLeads(token, options = {}) {
     stage,
     status,
     assignedTo,
+    onboardingStep,
   } = options;
 
   const params = new URLSearchParams({
@@ -63,6 +64,7 @@ export async function fetchLeads(token, options = {}) {
   if (stage) params.set("stage", stage);
   if (status) params.set("status", status);
   if (assignedTo) params.set("assignedTo", assignedTo);
+  if (onboardingStep) params.set("onboardingStep", onboardingStep);
 
   const response = await fetch(`${API_BASE_URL}/api/admin/leads?${params.toString()}`, {
     headers: {

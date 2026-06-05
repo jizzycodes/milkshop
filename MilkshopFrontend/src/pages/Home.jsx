@@ -581,7 +581,7 @@ const whyProps = [
     statSuffix: "mo",
     statLabel: "Average Payback Period",
     body: "Our franchise fee is affordable and allows you to start your own business without breaking the bank.",
-    image: "/franchise/why/no-franchise-fee.png",
+    image: "/franchise/why/no-royalty-fee.png",
   },
   {
     title: "Wide Market and ROI",

@@ -24,10 +24,11 @@ async function getQrEmail(req, res, next) {
 async function putQrEmail(req, res, next) {
   try {
     ensureAdmin(req)
-    const { qrUrl, emailTemplate } = req.body || {}
+    const { qrUrl, emailTemplate, outcomeEmails } = req.body || {}
     const data = await updateQrEmailSettings({
       qrUrl,
       emailTemplate,
+      outcomeEmails,
     })
     res.json({ success: true, data })
   } catch (err) {

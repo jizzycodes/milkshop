@@ -139,10 +139,21 @@ async function listLeads(options = {}) {
     conditions.push(`created_at <= $${params.length}`)
   }
   if (search) {
-    params.push(`%${String(search).toLowerCase()}%`)
-    conditions.push(
-      `(LOWER(full_name) LIKE $${params.length} OR LOWER(email) LIKE $${params.length})`,
-    )
+    const term = String(search).toLowerCase()
+    params.push(`%${term}%`)
+    const searchConditions = [
+      `LOWER(full_name) LIKE $${params.length}`,
+      `LOWER(email) LIKE $${params.length}`,
+      `LOWER(contact_number) LIKE $${params.length}`,
+    ]
+    const digitsOnly = String(search).replace(/\D/g, '')
+    if (digitsOnly.length >= 2) {
+      params.push(`%${digitsOnly}%`)
+      searchConditions.push(
+        `regexp_replace(contact_number, '[^0-9]', '', 'g') LIKE $${params.length}`,
+      )
+    }
+    conditions.push(`(${searchConditions.join(' OR ')})`)
   }
   if (effectiveStage) {
     params.push(effectiveStage)
@@ -228,6 +239,8 @@ async function getLeadFocusStats() {
       COUNT(*) FILTER (WHERE status = 'FOR_FOLLOWUP')::int AS for_followup
     FROM franchise_leads
     WHERE status NOT IN ('DROPPED', 'ARCHIVED')
+      AND stage <> 'STORE_OPEN'
+      AND stage <> 'STORE_OPEN'
     `,
   )
 

@@ -29,9 +29,75 @@ function normalizeEmailTemplateFromServer(raw) {
   return s === "" ? DEFAULT_EMAIL_TEMPLATE : raw;
 }
 
+const DEFAULT_OUTCOME_EMAILS = {
+  CONFIRMED_SCHEDULE: {
+    subject: "Milkshop Franchise - Schedule Confirmed",
+    template: `Hello (name),
+
+Thank you for choosing Milkshop. We are pleased to confirm that your franchise application has been received and successfully scheduled for the next stage of evaluation. Our team will contact you with further details, requirements, and instructions. We look forward to exploring this opportunity with you.`,
+  },
+  DROP: {
+    subject: "Milkshop Franchise - Application Update",
+    template: `Hello (name),
+
+Thank you for your interest in franchising with Milkshop. We understand that you're unable to proceed with your franchise application at this time. Should your plans change in the future, we'd be happy to discuss opportunities with you. We look forward to welcoming you to the Milkshop family.`,
+  },
+  ARCHIVE: {
+    subject: "Milkshop Franchise - Staying in Touch",
+    template: `Hello (name),
+
+Thank you for your interest in Milkshop Franchising. We've attempted to reach you regarding your franchise inquiry but have been unable to connect. To keep you informed about franchise opportunities, promotions, and business updates, we may keep your contact information on file. Feel free to reach out anytime if you'd like to continue the discussion.`,
+  },
+  PAID_RESERVATION: {
+    subject: "Milkshop Franchise - Reservation Payment Received",
+    template: `Hello (name),
+
+Thank you for securing your Milkshop franchise reservation. We have successfully received your reservation payment and your preferred location is now being reserved for the evaluation process. Our franchising team will contact you shortly regarding the next requirements and steps toward franchise approval.`,
+  },
+  PAID: {
+    subject: "Milkshop Franchise - Franchise Fee Payment Received",
+    template: `Hello (name),
+
+Congratulations! We have successfully received your Milkshop Franchise Fee payment. You are now officially moving forward as a Milkshop Franchise Partner. Our team will coordinate with you regarding onboarding, store development, training, and the succeeding phases of your franchise journey. We look forward to building a successful business together.`,
+  },
+  CANCEL: {
+    subject: "Milkshop Franchise - Schedule Cancelled",
+    template: `Hello (name),
+
+Thank you for your interest in Milkshop Franchising. We understand that you need to cancel or postpone your scheduled franchise meeting. No worries—our team will be happy to assist you in arranging a new schedule at your convenience. Simply contact us when you're ready to continue your franchise journey with Milkshop. We look forward to speaking with you soon.`,
+  },
+};
+
+const OUTCOME_EMAIL_META = [
+  { key: "CONFIRMED_SCHEDULE", label: "Confirmed Schedule" },
+  { key: "DROP", label: "Drop" },
+  { key: "ARCHIVE", label: "Archive" },
+  { key: "PAID_RESERVATION", label: "Paid Reservation" },
+  { key: "PAID", label: "Paid Franchise Fee" },
+  { key: "CANCEL", label: "Cancelled Schedule" },
+];
+
+function normalizeOutcomeEmailsFromServer(raw) {
+  const merged = Object.fromEntries(
+    Object.entries(DEFAULT_OUTCOME_EMAILS).map(([key, value]) => [
+      key,
+      { subject: value.subject, template: value.template },
+    ]),
+  );
+  if (!raw || typeof raw !== "object") return merged;
+  for (const [key, value] of Object.entries(raw)) {
+    if (!merged[key] || !value) continue;
+    if (value.subject != null && String(value.subject).trim()) merged[key].subject = String(value.subject);
+    if (value.template != null && String(value.template).trim()) merged[key].template = String(value.template);
+  }
+  return merged;
+}
+
 function previewWithSampleName(text) {
   if (!text) return "";
-  return String(text).replace(/\(name\)/gi, "Juan");
+  return String(text)
+    .replace(/\(name\)/gi, "Juan")
+    .replace(/\[client name\]/gi, "Juan");
 }
 
 function qrImageSrc(url) {
@@ -52,6 +118,24 @@ const STYLES = `
     --text-primary:  #1e1e1e;
     --text-secondary:#374151;
     --white:         #ffffff;
+  }
+
+  .qe-outcome-section {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .qe-outcome-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .qe-outcome-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
   }
 
   .qe-root {
@@ -393,6 +477,7 @@ export default function QrAndEmail() {
   const authToken = resolveAdminToken(token);
   const [qrUrl, setQrUrl]                   = useState("");
   const [emailTemplate, setEmailTemplate]   = useState(DEFAULT_EMAIL_TEMPLATE);
+  const [outcomeEmails, setOutcomeEmails]   = useState(() => normalizeOutcomeEmailsFromServer(null));
   const [loading, setLoading]               = useState(true);
   const [saving, setSaving]                 = useState(false);
   const [error, setError]                   = useState(null);
@@ -408,6 +493,7 @@ export default function QrAndEmail() {
       const d   = res?.data || {};
       setQrUrl(d.qrUrl ?? "");
       setEmailTemplate(normalizeEmailTemplateFromServer(d.emailTemplate));
+      setOutcomeEmails(normalizeOutcomeEmailsFromServer(d.outcomeEmails));
     } catch (e) {
       setError(e?.message || "Failed to load settings");
     } finally {
@@ -426,8 +512,8 @@ export default function QrAndEmail() {
     setError(null);
     setSavedMsg(null);
     try {
-      await updateQrEmailSettings(t, { qrUrl, emailTemplate });
-      setSavedMsg("Saved. New franchise inquiries will use this email body.");
+      await updateQrEmailSettings(t, { qrUrl, emailTemplate, outcomeEmails });
+      setSavedMsg("Saved. QR, confirmation, and lead outcome emails are updated.");
       await load();
     } catch (e) {
       setError(e?.message || "Save failed");
@@ -449,8 +535,8 @@ export default function QrAndEmail() {
             <p className="qe-header-eyebrow">Settings</p>
             <h1 className="qe-header-title">QR & Email</h1>
             <p className="qe-header-sub">
-              Configure the franchise QR destination and the confirmation email sent to every new inquiry.
-              Use <strong>(name)</strong> where the recipient's name should appear.
+              Configure the franchise QR destination, inquiry confirmation email, and lead outcome emails.
+              Use <strong>(name)</strong> or <strong>[client name]</strong> where the recipient&apos;s name should appear.
             </p>
           </div>
 
@@ -588,12 +674,94 @@ export default function QrAndEmail() {
               </span>
               <span className="qe-meta-pill">
                 <span className="qe-meta-pill-dot" />
-                Gmail send
+                Form submission
               </span>
             </div>
           </section>
 
         </div>
+
+        <section className="qe-outcome-section">
+          <div className="qe-outcome-heading">
+            <p className="qe-header-eyebrow">Lead outcomes</p>
+            <h2 className="qe-header-title" style={{ fontSize: "17px" }}>Contact Record Emails</h2>
+            <p className="qe-header-sub">
+              Sent automatically when an admin saves a contact record with the matching result.
+            </p>
+          </div>
+
+          <div className="qe-outcome-list">
+            {OUTCOME_EMAIL_META.map(({ key, label }) => {
+              const item = outcomeEmails[key] || DEFAULT_OUTCOME_EMAILS[key];
+              const preview = previewWithSampleName(item?.template || "");
+              return (
+                <section className="qe-card" key={key}>
+                  <div className="qe-card-header">
+                    <div className="qe-card-icon">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="2"/>
+                        <polyline points="2 6 12 13 22 6"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="qe-card-title">{label}</p>
+                      <p className="qe-card-sub">Auto-sent on Save Record → {label}</p>
+                    </div>
+                  </div>
+
+                  <div className="qe-card-body">
+                    <div className="qe-field">
+                      <label className="qe-label">Email Subject</label>
+                      <input
+                        type="text"
+                        className="qe-input"
+                        value={item?.subject || ""}
+                        onChange={(e) =>
+                          setOutcomeEmails((prev) => ({
+                            ...prev,
+                            [key]: { ...prev[key], subject: e.target.value },
+                          }))
+                        }
+                        disabled={loading}
+                      />
+                    </div>
+
+                    <div className="qe-field">
+                      <label className="qe-label">Email Body</label>
+                      <textarea
+                        className="qe-textarea"
+                        value={item?.template || ""}
+                        onChange={(e) =>
+                          setOutcomeEmails((prev) => ({
+                            ...prev,
+                            [key]: { ...prev[key], template: e.target.value },
+                          }))
+                        }
+                        disabled={loading}
+                      />
+                    </div>
+
+                    <div className="qe-field">
+                      <label className="qe-label">Preview — Sample Name: Juan</label>
+                      <div className="qe-preview-box">
+                        {preview || "(Nothing to preview — type the email body above.)"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="qe-card-footer">
+                    <span className="qe-meta-text">{label}</span>
+                    <span className="qe-meta-pill">
+                      <span className="qe-meta-pill-dot" />
+                      Save Record
+                    </span>
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        </section>
+
       </div>
     </>
   );

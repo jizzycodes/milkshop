@@ -17,7 +17,7 @@ const DEFAULT_RESULT_OPTIONS = [
 ]
 
 /** Next contact date not used; field is disabled in the modal. */
-const SKIP_NEXT_CONTACT_RESULTS = new Set(["Drop", "Archive"])
+const SKIP_NEXT_CONTACT_RESULTS = new Set(["Drop", "Archive", "Store Opening"])
 
 const STYLES = `
   :root {

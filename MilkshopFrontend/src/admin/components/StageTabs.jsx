@@ -6,6 +6,7 @@ const TAB_LABELS = {
   orientation:  "Orientation",
   reservation:  "Reservation",
   onboarding:   "Onboarding",
+  store_open:   "Store Open",
   dropped:      "Dropped",
   archived:     "Archived",
 }
@@ -54,7 +55,7 @@ const STYLES = `
 export default function StageTabs({ value, onChange, tabs: customTabs }) {
   const tabs = customTabs && customTabs.length
     ? customTabs
-    : ["all", "new", "active", "for_follow_up", "orientation", "reservation", "onboarding", "dropped", "archived"]
+    : ["all", "new", "active", "for_follow_up", "orientation", "reservation", "onboarding", "store_open", "dropped", "archived"]
 
   return (
     <>

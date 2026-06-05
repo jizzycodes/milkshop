@@ -5,6 +5,11 @@ import LeadModal from "../components/LeadModal"
 import { useAdminAuth } from "../context/AdminAuthContext"
 import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
+import {
+  countActiveInactive,
+  filterRegisterLeads,
+  tabsWithCounts,
+} from "../utils/leadActivity"
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
@@ -404,6 +409,36 @@ const STYLES = `
     from { opacity: 0; transform: translateY(-8px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+
+  .reg-countbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .reg-count-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-secondary);
+    opacity: 0.65;
+  }
+
+  .reg-count-pill {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green-dark);
+    background: #eef5df;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
 `
 
 const REGISTER_TABS = [
@@ -520,17 +555,13 @@ export default function Register() {
     return log
   }
 
-  const filteredLeads = leads
-    .filter((l) => l.status !== "ARCHIVED" && l.status !== "DROPPED")
-    .filter((l) => {
-      const ts = l.next_followup_at || l.best_contact_at
-      if (!ts) return subStatus === "inactive"
-      const now = new Date()
-      const d   = new Date(ts)
-      return subStatus === "active"
-        ? d.getTime() <= now.getTime()
-        : d.getTime() >  now.getTime()
-    })
+  const baseLeads = leads.filter((l) => l.status !== "ARCHIVED" && l.status !== "DROPPED")
+  const activityCounts = countActiveInactive(baseLeads)
+  const registerTabs = tabsWithCounts(REGISTER_TABS, {
+    active: activityCounts.active,
+    inactive: activityCounts.inactive,
+  })
+  const filteredLeads = filterRegisterLeads(leads, subStatus)
 
   return (
     <>
@@ -561,7 +592,7 @@ export default function Register() {
             </div>
           </div>
           <div className="reg-hero-actions">
-            <StatusTabs options={REGISTER_TABS} value={subStatus} onChange={setSubStatus} />
+            <StatusTabs options={registerTabs} value={subStatus} onChange={setSubStatus} />
           </div>
         </header>
 
@@ -582,6 +613,13 @@ export default function Register() {
             <span className="reg-loading-text">Loading leads...</span>
           </div>
         ) : (
+          <>
+          <div className="reg-countbar">
+            <span className="reg-count-label">
+              Active {activityCounts.active} · Inactive {activityCounts.inactive} · Total {activityCounts.total}
+            </span>
+            <span className="reg-count-pill">{filteredLeads.length} showing</span>
+          </div>
           <div className="reg-table-card">
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead className="reg-thead">
@@ -641,6 +679,7 @@ export default function Register() {
               </tbody>
             </table>
           </div>
+          </>
         )}
 
         {selectedLead && (
