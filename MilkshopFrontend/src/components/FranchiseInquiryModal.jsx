@@ -22,8 +22,8 @@ export default function FranchiseInquiryModal({ isOpen, onClose, preferredPackag
           to   { opacity: 1; }
         }
         @keyframes fiSheetUp {
-          from { opacity: 0; transform: translateY(100%); }
-          to   { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; }
+          to   { opacity: 1; }
         }
         @keyframes fiDialogIn {
           from { opacity: 0; transform: translateY(20px) scale(0.96); }
@@ -58,13 +58,14 @@ export default function FranchiseInquiryModal({ isOpen, onClose, preferredPackag
           flex-direction: column;
           animation: fiSheetUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
           overflow: hidden;
+          transform: none;
         }
         @media (min-width: 768px) {
           .fi-modal-panel {
             width: 100%;
-            max-width: 720px;
-            max-height: min(90dvh, 880px);
-            border-radius: 20px;
+            max-width: 920px;
+            max-height: min(92dvh, 900px);
+            border-radius: 24px;
             animation: fiDialogIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 24px 80px rgba(0,0,0,0.22);
           }
@@ -110,13 +111,12 @@ export default function FranchiseInquiryModal({ isOpen, onClose, preferredPackag
         }
         .fi-modal-body {
           flex: 1;
-          overflow-y: auto;
-          overflow-x: hidden;
-          padding: 20px 16px 28px;
-          -webkit-overflow-scrolling: touch;
-        }
-        @media (min-width: 768px) {
-          .fi-modal-body { padding: 24px 28px 32px; }
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          padding: 0;
+          background: #fafbf7;
         }
         .fi-modal-handle {
           width: 40px;
@@ -161,6 +161,8 @@ export default function FranchiseInquiryModal({ isOpen, onClose, preferredPackag
               key={preferredPackage || "default"}
               idPrefix="modal-fi-"
               preferredPackage={preferredPackage}
+              hideHeader
+              variant="modal"
             />
           </div>
         </div>

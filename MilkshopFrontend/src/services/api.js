@@ -42,6 +42,7 @@ export async function createFranchiseRequest(payload) {
       preferredPackage: payload.preferredPackage,
       remarks: payload.remarks || '',
       referral: payload.referral || '',
+      turnstileToken: payload.turnstileToken || '',
     }),
   })
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFranchiseRequest } from "../services/api";
 import { localDatetimeLocalFloor } from "../utils/dateInputConstraints";
 
@@ -36,6 +36,14 @@ const inputBase =
   "w-full px-4 py-3 rounded-xl border text-sm placeholder-gray-400 focus:outline-none transition-all duration-200 bg-white min-h-[48px]";
 const inputIdle =
   "border-[#d0e0b0] focus:border-[#97b64c] focus:ring-2 focus:ring-[#e8f0dc]";
+
+const TURNSTILE_SITE_KEY =
+  import.meta.env.VITE_TURNSTILE_SITE_KEY || "0x4AAAAAADe_Eo_j7PaIbsrR";
+const TURNSTILE_SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+
+window.onTurnstileSuccess = (token) => {
+  document.dispatchEvent(new CustomEvent("turnstile:success", { detail: token }));
+};
 
 function Field({ label, required, error, children }) {
   return (
@@ -159,7 +167,9 @@ export default function FranchiseInquiryForm({
   idPrefix = "fi-",
   preferredPackage = "",
   hideHeader = false,
+  variant = "page",
 }) {
+  const isModal = variant === "modal";
   const [formData, setFormData] = useState(() => ({
     ...EMPTY_FORM,
     preferredPackage: preferredPackage || "",
@@ -168,11 +178,79 @@ export default function FranchiseInquiryForm({
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const turnstileRef = useRef(null);
+  const turnstileWidgetId = useRef(null);
 
   useEffect(() => {
     if (!preferredPackage) return;
     setFormData((p) => ({ ...p, preferredPackage }));
   }, [preferredPackage]);
+
+  useEffect(() => {
+    const handler = (e) => setTurnstileToken(e.detail);
+    document.addEventListener("turnstile:success", handler);
+    return () => document.removeEventListener("turnstile:success", handler);
+  }, []);
+
+  useEffect(() => {
+    const el = turnstileRef.current;
+    if (!el || !TURNSTILE_SITE_KEY) return undefined;
+
+    const onSuccess = (token) => {
+      setTurnstileToken(token);
+      document.dispatchEvent(new CustomEvent("turnstile:success", { detail: token }));
+    };
+
+    const renderWidget = () => {
+      if (!window.turnstile || !el) return;
+      if (turnstileWidgetId.current != null) {
+        try {
+          window.turnstile.remove(turnstileWidgetId.current);
+        } catch {
+          /* already removed */
+        }
+        turnstileWidgetId.current = null;
+      }
+      el.innerHTML = "";
+      turnstileWidgetId.current = window.turnstile.render(el, {
+        sitekey: TURNSTILE_SITE_KEY,
+        theme: "light",
+        callback: onSuccess,
+        "expired-callback": () => setTurnstileToken(""),
+        "error-callback": () => setTurnstileToken(""),
+      });
+    };
+
+    if (window.turnstile) {
+      renderWidget();
+    } else {
+      let script = document.querySelector(`script[src="${TURNSTILE_SCRIPT}"]`);
+      const onLoad = () => renderWidget();
+      if (!script) {
+        script = document.createElement("script");
+        script.src = TURNSTILE_SCRIPT;
+        script.async = true;
+        script.defer = true;
+        script.addEventListener("load", onLoad);
+        document.head.appendChild(script);
+      } else {
+        script.addEventListener("load", onLoad);
+        if (window.turnstile) renderWidget();
+      }
+    }
+
+    return () => {
+      if (turnstileWidgetId.current != null && window.turnstile) {
+        try {
+          window.turnstile.remove(turnstileWidgetId.current);
+        } catch {
+          /* already removed */
+        }
+      }
+      turnstileWidgetId.current = null;
+    };
+  }, [isModal]);
 
   const fieldId = (name) => `${idPrefix}${name}`;
 
@@ -207,7 +285,11 @@ export default function FranchiseInquiryForm({
 
   const handleSubmit = async (ev) => {
     ev.preventDefault();
-    setErrorMessage("");
+    setErrorMessage(""); 
+     if (!turnstileToken) {
+      setErrorMessage("Please complete the security check.");
+      return;
+    }
     const errors = validate();
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -216,7 +298,7 @@ export default function FranchiseInquiryForm({
     }
     setIsSubmitting(true);
     try {
-      await createFranchiseRequest(formData);
+      await createFranchiseRequest({ ...formData, turnstileToken });
       setSubmitted(true);
       setFormData(EMPTY_FORM);
     } catch (err) {
@@ -229,7 +311,7 @@ export default function FranchiseInquiryForm({
   if (submitted) return <ThankYouView />;
 
   return (
-    <>
+    <div className={isModal ? "fi-form-root fi-form--modal" : "fi-form-root"}>
       <style>{`
         @keyframes fiTyFadeUp {
           from { opacity: 0; transform: translateY(16px); }
@@ -244,6 +326,18 @@ export default function FranchiseInquiryForm({
         @media (min-width: 768px) {
           .fi-form-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
         }
+        .fi-form--modal .fi-form-grid {
+          gap: 14px;
+        }
+        @media (min-width: 640px) {
+          .fi-form--modal .fi-form-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 16px 22px;
+          }
+        }
+        .fi-form--modal .fi-form-progress {
+          margin-bottom: 20px;
+        }
         .fi-form-cta-row {
           margin-top: 24px;
           padding-top: 20px;
@@ -251,13 +345,20 @@ export default function FranchiseInquiryForm({
           display: flex;
           flex-direction: column;
           gap: 16px;
+          overflow: visible;
         }
         @media (min-width: 768px) {
-          .fi-form-cta-row {
+          .fi-form-root:not(.fi-form--modal) .fi-form-cta-row {
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
           }
+        }
+        .fi-form--modal .fi-form-cta-row {
+          margin-top: 20px;
+          padding-top: 18px;
+          gap: 14px;
+          align-items: stretch;
         }
         .fi-form-trust {
           display: flex;
@@ -269,7 +370,81 @@ export default function FranchiseInquiryForm({
           color: ${T.greenDark};
         }
         @media (min-width: 768px) {
-          .fi-form-trust { justify-content: flex-start; }
+          .fi-form-root:not(.fi-form--modal) .fi-form-trust { justify-content: flex-start; }
+        }
+        .fi-form--modal .fi-form-trust {
+          justify-content: center;
+          gap: 10px 18px;
+          padding-bottom: 4px;
+        }
+        .fi-form--modal {
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+          min-height: 0;
+        }
+        .fi-form--modal .fi-form-scroll {
+          flex: 1;
+          min-height: 0;
+          overflow-y: auto;
+          overflow-x: hidden;
+          -webkit-overflow-scrolling: touch;
+          padding: 16px 16px 12px;
+        }
+        @media (min-width: 768px) {
+          .fi-form--modal .fi-form-scroll { padding: 20px 32px 16px; }
+        }
+     .fi-form--modal .fi-form-footer {
+  flex-shrink: 0;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: #fafbf7;
+  border-top: 1px solid ${T.border};
+  position: relative;
+  z-index: 50;
+}
+
+.fi-form--modal .fi-form-footer {
+  overflow: visible !important;
+}
+.fi-form--modal {
+  overflow: visible !important;
+}
+.fi-turnstile-wrap iframe {
+  pointer-events: auto !important;
+  touch-action: auto !important;
+  position: relative;
+  z-index: 9999;
+}
+        @media (min-width: 768px) {
+          .fi-form--modal .fi-form-footer { padding: 14px 32px 24px; }
+        }
+       .fi-turnstile-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70px;
+  width: 100%;
+  position: relative;
+  z-index: 100;
+  pointer-events: auto !important;
+  touch-action: auto !important;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.fi-turnstile-wrap > div {
+  pointer-events: auto !important;
+  touch-action: auto !important;
+  position: relative;
+  z-index: 100;
+}
+.fi-turnstile-wrap iframe {
+  pointer-events: auto !important;
+  touch-action: auto !important;
+}
+        .fi-form--modal .fi-submit-btn {
+          width: 100%;
+          min-height: 50px;
+          font-size: 0.9rem;
         }
         .fi-submit-btn {
           width: 100%;
@@ -285,23 +460,15 @@ export default function FranchiseInquiryForm({
           box-shadow: 0 8px 24px rgba(98,132,11,0.28);
         }
         @media (min-width: 768px) {
-          .fi-submit-btn { width: auto; }
+          .fi-form-root:not(.fi-form--modal) .fi-submit-btn { width: auto; }
         }
         .fi-submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
       `}</style>
 
-      {!hideHeader && (
-        <div className="fi-form-header">
-          <h2
-            className="ms-section-heading"
-            style={{ fontSize: "clamp(1.35rem, 4.5vw, 2rem)" }}
-          >
-            Franchise Application
-          </h2>
-        </div>
-      )}
-
-      <div className="mb-6">
+      {isModal ? (
+        <>
+        <div className="fi-form-scroll">
+          <div className="mb-6 fi-form-progress">
         <div
           className="flex justify-between text-[11px] mb-2"
           style={{ color: T.greenDark }}
@@ -439,22 +606,201 @@ export default function FranchiseInquiryForm({
           </Field>
         </div>
       </div>
-
-      <div className="fi-form-cta-row">
-        <div className="fi-form-trust">
-          <span>🔒 Secure</span>
-          <span>⚡ Fast Review</span>
-          <span>📞 We&apos;ll Call You</span>
         </div>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="fi-submit-btn"
-        >
-          {isSubmitting ? "Submitting..." : "Submit Application →"}
-        </button>
-      </div>
-    </>
+
+        <div className="fi-form-footer">
+          <div className="fi-form-cta-row">
+            <div className="fi-form-trust">
+              <span>🔒 Secure</span>
+              <span>⚡ Fast Review</span>
+              <span>📞 We&apos;ll Call You</span>
+            </div>
+            <div className="fi-turnstile-wrap">
+              <div ref={turnstileRef} />
+            </div>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="fi-submit-btn"
+            >
+              {isSubmitting ? "Submitting..." : "Submit Application →"}
+            </button>
+          </div>
+        </div>
+        </>
+      ) : (
+        <>
+          {!hideHeader && (
+            <div className="fi-form-header">
+              <h2
+                className="ms-section-heading"
+                style={{ fontSize: "clamp(1.35rem, 4.5vw, 2rem)" }}
+              >
+                Franchise Application
+              </h2>
+            </div>
+          )}
+
+          <div className="mb-6 fi-form-progress">
+            <div
+              className="flex justify-between text-[11px] mb-2"
+              style={{ color: T.greenDark }}
+            >
+              <span>
+                {filledCount === 0
+                  ? "Start filling the form"
+                  : filledCount === FORM_FIELDS.length
+                    ? "✓ All fields complete"
+                    : `${filledCount} of ${FORM_FIELDS.length} fields filled`}
+              </span>
+              <span style={{ fontWeight: 700 }}>{progressPct}%</span>
+            </div>
+            <div className="w-full h-2 rounded-full bg-[#e8f0dc]" style={{ overflow: "hidden" }}>
+              <div
+                className="h-full rounded-full"
+                style={{
+                  width: `${progressPct}%`,
+                  background:
+                    progressPct === 100
+                      ? "linear-gradient(90deg, #62840b, #97b64c)"
+                      : "#97b64c",
+                  transition: "width 0.35s ease",
+                }}
+              />
+            </div>
+          </div>
+
+          {errorMessage && (
+            <p
+              role="alert"
+              style={{
+                marginBottom: 16,
+                padding: "10px 14px",
+                borderRadius: 12,
+                background: "#fef2f2",
+                color: "#dc2626",
+                fontSize: "0.85rem",
+              }}
+            >
+              {errorMessage}
+            </p>
+          )}
+
+          <div className="fi-form-grid">
+            <div className="flex flex-col gap-4">
+              <Field label="Full Name" required error={fieldErrors.name}>
+                <input
+                  id={fieldId("name")}
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className={`${inputBase} ${inputIdle}`}
+                />
+              </Field>
+              <Field label="Email Address" required error={fieldErrors.email}>
+                <input
+                  id={fieldId("email")}
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="you@email.com"
+                  className={`${inputBase} ${inputIdle}`}
+                />
+              </Field>
+              <Field label="Contact Number" required error={fieldErrors.contactNumber}>
+                <input
+                  id={fieldId("contactNumber")}
+                  name="contactNumber"
+                  value={formData.contactNumber}
+                  onChange={handleChange}
+                  placeholder="09XX XXX XXXX"
+                  className={`${inputBase} ${inputIdle}`}
+                />
+              </Field>
+              <Field label="Preferred Contact Time" required error={fieldErrors.bestContactTime}>
+                <input
+                  id={fieldId("bestContactTime")}
+                  type="datetime-local"
+                  name="bestContactTime"
+                  value={formData.bestContactTime}
+                  min={localDatetimeLocalFloor()}
+                  onChange={handleChange}
+                  className={`${inputBase} ${inputIdle}`}
+                />
+              </Field>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <Field label="Estimated Income" required error={fieldErrors.estimatedAnnualIncome}>
+                <input
+                  id={fieldId("estimatedAnnualIncome")}
+                  name="estimatedAnnualIncome"
+                  value={formData.estimatedAnnualIncome}
+                  onChange={handleChange}
+                  className={`${inputBase} ${inputIdle}`}
+                />
+              </Field>
+              <Field label="Proposed Location" required error={fieldErrors.proposedLocation}>
+                <input
+                  id={fieldId("proposedLocation")}
+                  name="proposedLocation"
+                  value={formData.proposedLocation}
+                  onChange={handleChange}
+                  className={`${inputBase} ${inputIdle}`}
+                />
+              </Field>
+              <Field label="Preferred Package" required error={fieldErrors.preferredPackage}>
+                <select
+                  id={fieldId("preferredPackage")}
+                  name="preferredPackage"
+                  value={formData.preferredPackage}
+                  onChange={handleChange}
+                  className={`${inputBase} ${inputIdle}`}
+                >
+                  <option value="">Select package</option>
+                  <option value="inline">In-line Store (30 SQM)</option>
+                  <option value="kiosk-delights">To-Go Kiosk — Dairy Delights (6 SQM)</option>
+                  <option value="basic">Basic Shop (8 SQM)</option>
+                  <option value="kiosk-deal">To-Go Kiosk — Dairy Deal (4 SQM)</option>
+                  <option value="unsure">Not sure</option>
+                </select>
+              </Field>
+              <Field label="Additional Info" required error={fieldErrors.remarks}>
+                <textarea
+                  id={fieldId("remarks")}
+                  name="remarks"
+                  rows={3}
+                  value={formData.remarks}
+                  onChange={handleChange}
+                  placeholder="Tell us your plan..."
+                  className={`${inputBase} ${inputIdle}`}
+                />
+              </Field>
+            </div>
+          </div>
+
+          <div className="fi-form-cta-row">
+            <div className="fi-form-trust">
+              <span>🔒 Secure</span>
+              <span>⚡ Fast Review</span>
+              <span>📞 We&apos;ll Call You</span>
+            </div>
+            <div className="fi-turnstile-wrap">
+              <div ref={turnstileRef} />
+            </div>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="fi-submit-btn"
+            >
+              {isSubmitting ? "Submitting..." : "Submit Application →"}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
   );
 }

@@ -3,6 +3,22 @@ const { createLeadFromFranchisePayload } = require('../models/franchiseLeadModel
 const { sendFranchiseConfirmation } = require('../utils/mail')
 const { sendFranchiseConfirmationSms } = require('../utils/sms')
 
+async function verifyTurnstile(token) {
+  const response = await fetch(
+    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        secret: process.env.TURNSTILE_SECRET_KEY,
+        response: token,
+      }),
+    }
+  );
+  const data = await response.json();
+  return data.success;
+}
+
 function validateFranchisePayload(body) {
   const requiredFields = [
     'name',
@@ -34,6 +50,15 @@ function validateFranchisePayload(body) {
 
 async function createFranchise(req, res, next) {
   try {
+    // Verify Turnstile token first
+    const turnstileValid = await verifyTurnstile(req.body.turnstileToken)
+    if (!turnstileValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Security check failed. Please try again.',
+      })
+    }
+
     validateFranchisePayload(req.body)
 
     const payload = {
@@ -100,4 +125,3 @@ async function createFranchise(req, res, next) {
 module.exports = {
   createFranchise,
 }
-

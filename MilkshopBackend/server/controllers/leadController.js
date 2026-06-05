@@ -8,6 +8,7 @@ const {
   updateLeadFields,
 } = require('../models/franchiseLeadModel')
 const { listByLeadId, createContactLog } = require('../models/leadContactLogModel')
+const { sendLeadOutcomeEmail } = require('../utils/mail')
 const {
   isValidStage,
   isValidStatus,
@@ -169,6 +170,30 @@ async function postContactLog(req, res, next) {
       },
       req.user?.email || req.user?.sub || null,
     )
+
+    const emailOutcomes = [
+      'DROP',
+      'ARCHIVE',
+      'CONFIRMED_SCHEDULE',
+      'PAID_RESERVATION',
+      'PAID',
+      'CANCEL',
+    ]
+    if (emailOutcomes.includes(outcome)) {
+      try {
+        const result = await sendLeadOutcomeEmail(outcome, lead.email, lead.full_name)
+        if (result.sent) {
+          // eslint-disable-next-line no-console
+          console.log(`[Lead] Outcome email (${outcome}) sent to`, lead.email)
+        } else {
+          // eslint-disable-next-line no-console
+          console.warn(`[Lead] Outcome email (${outcome}) NOT sent:`, result.error || 'unknown')
+        }
+      } catch (mailErr) {
+        // eslint-disable-next-line no-console
+        console.warn(`[Lead] Outcome email (${outcome}) error:`, mailErr.message)
+      }
+    }
 
     res.status(201).json({ success: true, data: log })
   } catch (err) {
