@@ -24,10 +24,17 @@ const topDrinks = [
 ];
 
 const FEATURES = [
-  { id: "ingredients", label: "Premium Ingredients" },
-  { id: "taste", label: "Authentic Taiwanese Taste" },
-  { id: "healthy", label: "Milky & Healthy" },
-  { id: "chewy", label: "Irresistibly Chewy" },
+  { id: "ingredients", line1: "Premium", line2: "Ingredients" },
+  { id: "taste", line1: "Authentic", line2: "Taiwanese Taste" },
+  { id: "healthy", line1: "Milky", line2: "& Healthy" },
+  { id: "chewy", line1: "Irresistibly", line2: "Chewy" },
+];
+
+const HERO_HIGHLIGHTS = [
+  { id: "brewed", icon: "leaf", title: "Freshly Brewed", subtitle: "Every Day" },
+  { id: "love", icon: "cup", title: "Made with Love", subtitle: "in Taiwan" },
+  { id: "best", icon: "trophy", title: "Best Taiwan Milktea", subtitle: "in Town!" },
+  { id: "near", icon: "pin", title: "Now Brewing", subtitle: "Near You" },
 ];
 
 const CSS = `
@@ -67,7 +74,8 @@ const CSS = `
   .hero-section {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(150deg, #c8dc7a 0%, #97b64c 30%, #7ca03e 60%, #5e7f0a 100%);
+    background:
+      radial-gradient(ellipse 120% 90% at 50% 28%, #c5dc6a 0%, #89b031 48%, #4e6e1a 100%);
     min-height: 100svh;
     display: flex;
     flex-direction: column;
@@ -81,8 +89,9 @@ const CSS = `
     pointer-events: none;
     z-index: 0;
     background:
-      radial-gradient(ellipse 60% 50% at 75% 15%, rgba(220,240,160,0.38) 0%, transparent 70%),
-      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(100,160,20,0.2) 0%, transparent 65%);
+      radial-gradient(ellipse 55% 45% at 52% 22%, rgba(220, 236, 130, 0.42) 0%, transparent 68%),
+      radial-gradient(ellipse 50% 40% at 78% 18%, rgba(197, 220, 106, 0.22) 0%, transparent 72%),
+      radial-gradient(ellipse 45% 38% at 18% 78%, rgba(78, 110, 26, 0.28) 0%, transparent 70%);
   }
 
   /* ─── Inner layout ────────────────────────────────── */
@@ -172,11 +181,11 @@ const CSS = `
 
   .hero-features {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px 10px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px 6px;
     width: 100%;
-    max-width: 320px;
-    margin-top: 16px;
+    max-width: 100%;
+    margin-top: 18px;
     animation: fadeUp 0.5s ease forwards 0.95s;
     opacity: 0;
   }
@@ -184,29 +193,38 @@ const CSS = `
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     text-align: center;
+    min-width: 0;
   }
   .hero-feature-icon {
-    width: 50px;
-    height: 50px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
-    border: 1.5px solid rgba(255,255,255,0.75);
+    border: 1.5px solid rgba(255,255,255,0.55);
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.14);
     backdrop-filter: blur(4px);
+    flex-shrink: 0;
   }
   .hero-feature-label {
-    font-size: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 100%;
+  }
+  .hero-feature-line1,
+  .hero-feature-line2 {
+    display: block;
+    font-size: 7px;
     font-weight: 800;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.93);
-    line-height: 1.4;
-    max-width: 110px;
+    color: #fff;
+    line-height: 1.25;
   }
 
   /* ─── Buttons ─────────────────────────────────────── */
@@ -363,6 +381,108 @@ const CSS = `
     display: block;
   }
 
+  /* ─── Bottom highlight bar ────────────────────────── */
+  .hero-highlights {
+    position: relative;
+    z-index: 6;
+    flex-shrink: 0;
+    background: #f3efe6;
+    border-top: 1px solid rgba(98, 132, 11, 0.1);
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    animation: fadeUp 0.55s ease forwards 1.2s;
+    opacity: 0;
+  }
+
+  .hero-highlights-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 12px;
+    align-items: center;
+  }
+
+  .hero-highlight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .hero-highlight-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(151, 182, 76, 0.14);
+    border: 1px solid rgba(98, 132, 11, 0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #62840b;
+  }
+
+  .hero-highlight-text {
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  .hero-highlight-title {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #62840b;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-highlight-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #5a6a48;
+  }
+
+  .hero-highlights-cta {
+    position: relative;
+    grid-column: 1 / -1;
+    justify-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #62840b;
+    box-shadow: 0 6px 18px rgba(98, 132, 11, 0.28);
+    text-decoration: none;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .hero-highlights-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(98, 132, 11, 0.34);
+  }
+
+  .hero-highlights-cta img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+  }
+
+  .hero-highlights-cta svg {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    padding: 2px;
+    color: #62840b;
+  }
+
   /* ─── Decorative absolute elements ───────────────── */
   .hero-deco {
     position: absolute;
@@ -399,13 +519,12 @@ const CSS = `
     .hero-tagline { font-size: clamp(1.1rem, 1.8vw, 1.5rem); }
 
     .hero-features {
-      grid-template-columns: repeat(4, 1fr);
-      max-width: 100%;
-      gap: 12px;
-      margin-top: 20px;
+      gap: 16px;
+      margin-top: 22px;
     }
-    .hero-feature-label { font-size: 7px; max-width: 88px; }
-    .hero-feature-icon { width: 46px; height: 46px; }
+    .hero-feature-line1,
+    .hero-feature-line2 { font-size: 8px; letter-spacing: 0.1em; }
+    .hero-feature-icon { width: 52px; height: 52px; }
 
     .hero-btns {
       flex-direction: row;
@@ -512,13 +631,49 @@ const CSS = `
     .hero-cup-wrap:nth-child(3) img {
       height: clamp(30px, 32vw, 560px);
     }
+
+    .hero-highlights {
+      padding: 16px 40px calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .hero-highlights-inner {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .hero-highlight {
+      flex: 1 1 0;
+      justify-content: center;
+    }
+
+    .hero-highlight-icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .hero-highlight-title { font-size: 0.8rem; }
+    .hero-highlight-sub { font-size: 0.74rem; }
+
+    .hero-highlights-cta {
+      grid-column: auto;
+      justify-self: auto;
+      flex-shrink: 0;
+      position: relative;
+      width: 48px;
+      height: 48px;
+      margin-left: 8px;
+    }
+
+    .hero-highlights-cta img { width: 24px; height: 24px; }
   }
 
   /* ─── Reduced motion ──────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {
     .hero-eyebrow, .hero-fresh, .hero-tagline,
     .hero-features, .hero-btns, .hero-taiwan img,
-    .hero-cup-wrap img, .hero-splash {
+    .hero-cup-wrap img, .hero-splash, .hero-highlights {
       animation: none !important;
       opacity: 1 !important;
     }
@@ -530,6 +685,42 @@ const CSS = `
   }
 `;
 
+function HighlightIcon({ type }) {
+  const icons = {
+    leaf: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22C12 22 4 16 4 10a8 8 0 0116 0c0 6-8 12-8 12z" />
+        <path d="M12 10v12" />
+      </svg>
+    ),
+    cup: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 8h12l-1 10H7L6 8z" />
+        <path d="M9 8V6a3 3 0 016 0v2" />
+        <circle cx="9" cy="14" r="1.2" fill="currentColor" stroke="none" />
+        <circle cx="13" cy="16" r="1" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="13" r="0.9" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+    trophy: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8 4h8v3a4 4 0 01-8 0V4z" />
+        <path d="M6 4H4a2 2 0 002 4" />
+        <path d="M18 4h2a2 2 0 01-2 4" />
+        <path d="M10 14h4v3H10z" />
+        <path d="M8 20h8" />
+      </svg>
+    ),
+    pin: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 21s7-4.5 7-11a7 7 0 10-14 0c0 6.5 7 11 7 11z" />
+        <circle cx="12" cy="10" r="2.2" />
+      </svg>
+    ),
+  };
+  return icons[type] || icons.leaf;
+}
+
 function FeatureIcon({ type }) {
   const icons = {
     ingredients: (
@@ -540,23 +731,25 @@ function FeatureIcon({ type }) {
     ),
     taste: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 3c1.5 2 4 3.5 4 6a4 4 0 01-8 0c0-2.5 2.5-4 4-6z" />
-        <path d="M6 20c0-3.5 2.7-6 6-6s6 2.5 6 6" />
+        <path d="M14 4c-2 1-4 3-4 6 0 2 1 4 2 5 1-1 2-3 2-5 0-3-2-5-4-6z" />
+        <path d="M10 8c-1 2-2 4-2 7 0 4 2 7 4 9 2-2 4-5 4-9 0-3-1-5-2-7z" />
+        <path d="M8 18c1 2 3 3 4 3s3-1 4-3" />
       </svg>
     ),
     healthy: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22V12" />
-        <path d="M12 12C12 12 6 10 4 4c4 0 8 2 8 8" />
-        <path d="M12 12c0 0 6-2 8-8-4 0-8 2-8 8" />
+        <path d="M12 20V10" />
+        <path d="M12 10C12 10 8 8 6 4c3 0 5 2 6 6" />
+        <path d="M12 10c0 0 4-2 6-6-3 0-5 2-6 6" />
       </svg>
     ),
     chewy: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="8" cy="14" r="2.5" />
-        <circle cx="14" cy="10" r="2.5" />
-        <circle cx="16" cy="17" r="2" />
-        <circle cx="7" cy="8" r="1.5" />
+        <path d="M7 8h10l-1 10H8L7 8z" />
+        <path d="M9 8V6a3 3 0 016 0v2" />
+        <circle cx="9" cy="15" r="1.2" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="16" r="1.1" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="14" r="1" fill="currentColor" stroke="none" />
       </svg>
     ),
   };
@@ -619,7 +812,10 @@ export default function Hero() {
                   <div className="hero-feature-icon">
                     <FeatureIcon type={f.id} />
                   </div>
-                  <span className="hero-feature-label">{f.label}</span>
+                  <div className="hero-feature-label">
+                    <span className="hero-feature-line1">{f.line1}</span>
+                    <span className="hero-feature-line2">{f.line2}</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -754,6 +950,29 @@ export default function Hero() {
               fill="#ffffff"
             />
           </svg>
+        </div>
+
+        {/* ── Bottom highlights ── */}
+        <div className="hero-highlights">
+          <div className="hero-highlights-inner">
+            {HERO_HIGHLIGHTS.map((item) => (
+              <div key={item.id} className="hero-highlight">
+                <div className="hero-highlight-icon" aria-hidden>
+                  <HighlightIcon type={item.icon} />
+                </div>
+                <div className="hero-highlight-text">
+                  <span className="hero-highlight-title">{item.title}</span>
+                  <span className="hero-highlight-sub">{item.subtitle}</span>
+                </div>
+              </div>
+            ))}
+            <Link to="/locations" className="hero-highlights-cta" aria-label="Find Milkshop locations">
+              <img src="/milkshop-logo-removebg-preview.png" alt="" aria-hidden />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </Link>
+          </div>
         </div>
 
       </section>
