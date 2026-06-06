@@ -1,21 +1,21 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-const EXIT_MS = 280;
+const EXIT_MS = 180;
 const LOGO_SRC = "/milkshop-logo-removebg-preview.png";
 
 /**
  * Full-screen route transition loader (Milkshop brand — pour bar + logo sway).
- * - First paint: `initialDurationMs`
+ * - First paint: skipped (home loads immediately)
  * - Navigations: `minDurationMs`
  *
  * Two layout effects keep React Strict Mode from leaving the overlay stuck visible.
  */
-export default function RouteLoader({ minDurationMs = 900, initialDurationMs = 1400 }) {
+export default function RouteLoader({ minDurationMs = 650 }) {
   const { pathname } = useLocation();
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
   const [leaving, setLeaving] = useState(false);
-  const [activeMs, setActiveMs] = useState(initialDurationMs);
+  const [activeMs, setActiveMs] = useState(minDurationMs);
   const hideTimerRef = useRef(null);
   const prevPathnameRef = useRef(null);
 
@@ -40,7 +40,7 @@ export default function RouteLoader({ minDurationMs = 900, initialDurationMs = 1
   };
 
   useLayoutEffect(() => {
-    scheduleHide(initialDurationMs);
+    window.dispatchEvent(new CustomEvent("milkshop:route-loader-hidden"));
     return clearTimer;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- first paint only
   }, []);
@@ -138,7 +138,7 @@ export default function RouteLoader({ minDurationMs = 900, initialDurationMs = 1
           background: linear-gradient(90deg, #62840b 0%, #97b64c 55%, #b7cd7f 100%);
           transform: scaleX(0);
           transform-origin: left center;
-          animation: msPour var(--ms-loader-ms, 1400ms) cubic-bezier(0.33, 1, 0.32, 1) forwards;
+          animation: msPour var(--ms-loader-ms, 450ms) cubic-bezier(0.33, 1, 0.32, 1) forwards;
         }
         .ms-loader-label {
           font-family: 'Signia Pro', 'DM Sans', sans-serif;

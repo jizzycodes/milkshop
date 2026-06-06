@@ -96,7 +96,7 @@ const rawMaterials = [
   },
   {
     title: "Brown Sugar Pearls",
-    caption: "Handcrafted and Chewy (Boba)",
+    caption: "Handcrafted and Chewy",
     image: "/about/raw-materials/brown-sugar-pearls.png",
     imageAlt: "Brown sugar tapioca pearls in a bowl with a spoon",
   },
@@ -618,125 +618,188 @@ export default function About() {
 
 {/* ── Ingredients ── */}
 <section
-  className="ing-section"
-  style={{
-    background: T.green,
-    padding: isMobile ? "56px 16px 64px" : "80px 32px 96px",
-    borderTop: "1px solid rgba(255,255,255,0.12)",
-    borderBottom: "1px solid rgba(255,255,255,0.12)",
-  }}
->
-  <style>{`
-    .ing-section-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-    }
+        style={{
+          background: T.greenLight,
+          padding: isMobile ? "56px 20px 64px" : "72px 48px 80px",
+          borderTop: "1px solid rgba(255,255,255,0.12)",
+          borderBottom: "1px solid rgba(255,255,255,0.12)",
+        }}
+      >
+        <style>{`
+          .ftc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: clamp(14px, 2vw, 20px);
+          }
+          .ftc-item {
+            background: #fff;
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100%;
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            cursor: default;
+          }
+          .ftc-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.14);
+          }
+          .ftc-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(0,0,0,0.07);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            flex-shrink: 0;
+            margin: 16px 16px 0;
+          }
+          .ftc-media {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: #f0ede8;
+          }
+          .ftc-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            transition: transform 0.35s ease;
+          }
+          .ftc-item:hover .ftc-media img {
+            transform: scale(1.05);
+          }
+          .ftc-body {
+            padding: 14px 18px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+          }
+          .ftc-origin {
+            margin: 0;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: ${T.greenDark};
+            display: flex;
+            align-items: center;
+            gap: 6px;
+          }
+          .ftc-origin::before {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 2px;
+            background: ${T.greenDark};
+            border-radius: 2px;
+            flex-shrink: 0;
+            opacity: 0.7;
+          }
+          .ftc-title {
+            margin: 0;
+            font-family: 'DM Sans', sans-serif;
+            font-size: clamp(0.95rem, 1.3vw, 1.08rem);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: ${T.ink};
+            line-height: 1.2;
+          }
+          .ftc-desc {
+            margin: 0;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            line-height: 1.65;
+            color: ${T.body};
+          }
+          .ftc-heading-wrap {
+            text-align: center;
+            margin-bottom: ${isMobile ? "32px" : "40px"};
+          }
+          .ftc-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.26em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 10px;
+          }
+          .ftc-eyebrow-line {
+            width: 20px;
+            height: 2px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 2px;
+          }
+          @media (max-width: 900px) {
+            .ftc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          }
+          @media (max-width: 520px) {
+            .ftc-grid { grid-template-columns: 1fr; }
+            .ftc-item { border-radius: 16px; }
+          }
+        `}</style>
 
-    .ing-header {
-      text-align: center;
-      margin-bottom: clamp(36px, 5vw, 56px);
-    }
-
-    .ing-header h2 {
-      margin: 0;
-      font-family: 'Signia Pro', sans-serif;
-      font-size: clamp(1.75rem, 4.8vw, 2.85rem);
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      line-height: 1.15;
-      text-transform: uppercase;
-      color: ${T.white};
-    }
-
-    .ing-cards {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
-
-    .ing-card {
-      display: flex;
-      flex-direction: column;
-      border-radius: 18px;
-      overflow: hidden;
-      background: ${T.white};
-    }
-
-    .ing-card-photo {
-      width: 100%;
-      aspect-ratio: 16 / 12;
-      overflow: hidden;
-      border-radius: 18px 18px 0 0;
-      background: #f3f4f2;
-    }
-
-    .ing-card-photo img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-    }
-
-    .ing-card-caption {
-      margin: 0;
-      padding: 14px 16px;
-      background: ${T.white};
-      color: ${T.green};
-      font-family: 'DM Sans', sans-serif;
-      font-size: clamp(0.78rem, 2vw, 0.88rem);
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      line-height: 1.35;
-      text-align: center;
-      border-radius: 0 0 18px 18px;
-    }
-
-    @media (min-width: 640px) {
-      .ing-cards {
-        grid-template-columns: repeat(2, 1fr);
-        gap: clamp(18px, 2.4vw, 28px);
-      }
-      .ing-card-photo {
-        aspect-ratio: 16 / 11;
-        min-height: 240px;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .ing-cards {
-        grid-template-columns: repeat(4, 1fr);
-      }
-      .ing-card-photo {
-        aspect-ratio: 25 / 18;
-        min-height: 264px;
-      }
-    }
-  `}</style>
-
-  <div className="ing-section-inner">
-    <Slide direction="up" className="ing-header">
-      <h2>Ingredients that Make the Difference</h2>
-    </Slide>
-
-    <ul className="ing-cards">
-      {rawMaterials.map((r, i) => (
-        <Slide key={r.title} direction="up" delay={i * 80} style={{ display: "contents" }}>
-          <li className="ing-card">
-            <div className="ing-card-photo">
-              <img src={r.image} alt={r.imageAlt || r.title} loading="lazy" decoding="async" />
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <Slide direction="up">
+            <div className="ftc-heading-wrap">
+              <div className="ftc-eyebrow">
+                <span className="ftc-eyebrow-line" />
+                What Goes Inside
+                <span className="ftc-eyebrow-line" />
+              </div>
+              <h2 className="ms-section-heading" style={{ margin: "0 0 10px", color: T.white }}>
+                Ingredients that Make the Difference
+              </h2>
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.92rem",
+                color: "rgba(255,255,255,0.82)",
+                maxWidth: 460,
+                margin: "0 auto",
+                lineHeight: 1.7,
+              }}>
+                Every cup starts with ingredients sourced and crafted for one purpose — authentic taste.
+              </p>
             </div>
-            <p className="ing-card-caption">{r.caption}</p>
-          </li>
-        </Slide>
-      ))}
-    </ul>
-  </div>
-</section>
+          </Slide>
 
+          <div className="ftc-grid">
+            {rawMaterials.map((r, i) => (
+              <Slide key={r.title} direction="up" delay={i * 60}>
+                <article className="ftc-item">
+                  {r.image ? (
+                    <div className="ftc-media">
+                      <img src={r.image} alt={r.imageAlt || r.title} loading="lazy" decoding="async" />
+                    </div>
+                  ) : (
+                    <div className="ftc-icon" aria-hidden>{r.icon}</div>
+                  )}
+                  <div className="ftc-body">
+                    <p className="ftc-origin">{r.origin}</p>
+                    <h3 className="ftc-title">{r.title}</h3>
+                    <p className="ftc-desc">{r.desc}</p>
+                  </div>
+                </article>
+              </Slide>
+            ))}
+          </div>
+        </div>
+      </section>
  
      {/* ══════════════════════════════════════════════
     COMPANY HISTORY — PREMIUM TIMELINE

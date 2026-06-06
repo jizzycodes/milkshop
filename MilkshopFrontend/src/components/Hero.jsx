@@ -1,27 +1,8 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import FranchiseInquiryTrigger from "./FranchiseInquiryTrigger";
 
-const topDrinks = [
-  {
-    id: 1,
-    name: "Milku Strawberry",
-    imageUrl:
-      "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/milku_series/M1.png",
-  },
-  {
-    id: 2,
-    name: "Cheesecake Black Sugar",
-    imageUrl:
-      "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/cheesecake_series/K1.png",
-  },
-  {
-    id: 3,
-    name: "Black Sugar Boba",
-    imageUrl:
-      "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/milktea_series/A1.png",
-  },
-];
+/** Decorative cups composite */
+const HERO_CUPS_SRC = "/hero/hero-cups.png";
 
 const FEATURES = [
   { id: "ingredients", line1: "Premium", line2: "Ingredients" },
@@ -44,14 +25,6 @@ const CSS = `
     from { opacity: 0; transform: translateY(24px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  @keyframes floatCup {
-    0%, 100% { transform: translateY(0px); }
-    50%      { transform: translateY(-10px); }
-  }
-  @keyframes floatCupAlt {
-    0%, 100% { transform: translateY(-6px); }
-    50%      { transform: translateY(4px); }
-  }
   @keyframes heroTaiwanPop {
     0%   { opacity: 0; transform: translateY(14px) scale(0.94); }
     60%  { opacity: 1; transform: translateY(0) scale(1.03); }
@@ -61,13 +34,14 @@ const CSS = `
     0%, 100% { transform: translateY(0); }
     50%      { transform: translateY(-6px); }
   }
-  @keyframes splashPulse {
-    0%, 100% { transform: scaleY(1) scaleX(1); }
-    50%      { transform: scaleY(1.025) scaleX(1.003); }
+  @keyframes featurePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.18); }
+    50%      { box-shadow: 0 0 0 5px rgba(255,255,255,0.06); }
   }
-  @keyframes cupEntrance {
-    from { opacity: 0; transform: translateY(40px) scale(0.92); }
-    to   { opacity: 1; }
+  @keyframes heroCupsEnter {
+    0%   { opacity: 0; transform: translateY(40px) scale(0.9); }
+    60%  { opacity: 1; transform: translateY(-8px) scale(1.03); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
   }
 
   /* ─── Section ─────────────────────────────────────── */
@@ -102,11 +76,10 @@ const CSS = `
     width: 100%;
     max-width: 1280px;
     margin: 0 auto;
-    /* Mobile: sit just below fixed nav (64px) + small gap */
-    padding: calc(64px + env(safe-area-inset-top, 0px) + 6px) 20px 0;
+    padding: calc(64px + env(safe-area-inset-top, 0px) + clamp(18px, 4vw, 28px)) 20px 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     gap: 0;
   }
 
@@ -115,16 +88,23 @@ const CSS = `
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 8px;
+    align-items: flex-start;
+    text-align: left;
+    gap: clamp(4px, 1.2vw, 10px);
     padding-bottom: 12px;
   }
 
   .hero-eyebrow {
     display: flex;
     align-items: center;
+    justify-content: center;
+    align-self: center;
+    width: 100%;
     gap: 8px;
+    margin-top: clamp(4px, 1.5vw, 10px);
+    margin-bottom: 0;
+    position: relative;
+    top: clamp(18px, 5vw, 36px);
     animation: fadeUp 0.5s ease forwards;
   }
   .hero-eyebrow-line {
@@ -134,7 +114,7 @@ const CSS = `
     border-radius: 2px;
   }
   .hero-eyebrow-text {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.28em;
     color: rgba(255,255,255,0.95);
@@ -143,24 +123,35 @@ const CSS = `
 
   .hero-fresh {
     font-family: 'Caveat', cursive;
-    font-size: clamp(2rem, 8vw, 3rem);
+    font-size: clamp(1.85rem, 8vw, 2.65rem);
     font-weight: 800;
     color: #fff;
-    line-height: 1;
+    line-height: 0.95;
     text-shadow: 0 2px 10px rgba(0,0,0,0.2);
     animation: fadeUp 0.5s ease forwards 0.1s;
     opacity: 0;
-    margin-bottom: -4px;
+    margin-top: 0;
+    margin-bottom: clamp(-20px, -5vw, -10px);
+    max-width: 100%;
+    width: 100%;
+    text-align: center;
+    align-self: center;
+    position: relative;
+    top: clamp(18px, 5vw, 36px);
   }
 
   .hero-taiwan {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    width: 100%;
+    margin-left: -2px;
+    margin-top: 0;
   }
   .hero-taiwan img {
     height: auto;
-    width: clamp(260px, 88vw, 720px);
+    width: min(100%, clamp(248px, 92vw, 400px));
+    max-width: 100%;
     display: block;
     filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3));
     opacity: 0;
@@ -171,14 +162,164 @@ const CSS = `
 
   .hero-tagline {
     font-family: 'Fredoka One', cursive;
-    font-size: clamp(1rem, 4.5vw, 1.35rem);
+    font-size: clamp(0.92rem, 4.2vw, 1.22rem);
     color: #fff;
-    letter-spacing: 0.06em;
-    margin-top: 4px;
+    letter-spacing: clamp(0.02em, 0.4vw, 0.06em);
+    line-height: 1.25;
+    margin-top: clamp(2px, 1vw, 8px);
     animation: fadeUp 0.5s ease forwards 0.75s;
     opacity: 0;
+    max-width: 100%;
+    width: 100%;
+    text-align: center;
+    align-self: center;
   }
 
+  /* Taiwan → tagline → features → CTAs (dragged down as one block) */
+  .hero-copy-lower {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    top: clamp(28px, 8vw, 52px);
+    margin-bottom: clamp(-28px, -8vw, -52px);
+    z-index: 1;
+  }
+
+  /* Small phones */
+  @media (max-width: 379px) {
+    .hero-eyebrow-text {
+      font-size: 8px;
+      letter-spacing: 0.22em;
+    }
+    .hero-fresh {
+      font-size: clamp(1.6rem, 7.2vw, 2rem);
+    }
+    .hero-taiwan img {
+      width: min(100%, clamp(220px, 88vw, 300px));
+    }
+    .hero-tagline {
+      font-size: clamp(0.84rem, 3.8vw, 1rem);
+    }
+  }
+
+  /* Large phones */
+  @media (min-width: 480px) and (max-width: 767px) {
+    .hero-fresh {
+      font-size: clamp(2rem, 6.8vw, 2.85rem);
+    }
+    .hero-taiwan img {
+      width: min(100%, clamp(280px, 86vw, 440px));
+    }
+    .hero-tagline {
+      font-size: clamp(1rem, 3.6vw, 1.32rem);
+    }
+  }
+
+  /* ─── MOBILE spacing + buttons (<768px) ─────────── */
+  @media (max-width: 767px) {
+    .hero-inner {
+      padding-top: calc(64px + env(safe-area-inset-top, 0px) + clamp(28px, 6vw, 42px));
+    }
+
+    .hero-copy {
+      gap: clamp(2px, 0.6vw, 6px);
+    }
+
+    .hero-eyebrow {
+      margin-top: clamp(6px, 2vw, 14px);
+      margin-bottom: 0;
+      top: clamp(20px, 5.5vw, 40px);
+    }
+
+    .hero-fresh {
+      margin-top: 0;
+      margin-bottom: clamp(-24px, -6vw, -14px);
+      top: clamp(20px, 5.5vw, 40px);
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-copy-lower {
+      align-items: center;
+      top: clamp(40px, 11vw, 80px);
+      margin-bottom: clamp(-40px, -11vw, -80px);
+    }
+
+    .hero-taiwan {
+      justify-content: center;
+      margin-left: 0;
+      margin-top: clamp(-12px, -3vw, -6px);
+    }
+
+    .hero-tagline {
+      margin-top: clamp(10px, 2.5vw, 16px);
+    }
+
+    .hero-features {
+      margin-top: clamp(22px, 5.5vw, 32px);
+      gap: 10px 8px;
+    }
+
+    .hero-btns {
+      flex-direction: column;
+      align-items: center;
+      align-self: center;
+      width: 100%;
+      max-width: 100%;
+      margin-top: clamp(24px, 5.5vw, 32px);
+      margin-bottom: clamp(14px, 3.5vw, 22px);
+      margin-left: auto;
+      margin-right: auto;
+      gap: 12px;
+    }
+
+    .hero-visual {
+      margin-top: clamp(12px, 3vw, 20px);
+    }
+
+    .hero-btn-primary,
+    .hero-btn-secondary {
+      width: auto;
+      align-self: center;
+      max-width: min(100%, 260px);
+      min-width: 0;
+      font-family: 'Signia Pro', 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      padding: 10px 20px;
+      border-radius: 999px;
+      min-height: 48px;
+      box-shadow: none;
+      border: none;
+    }
+
+    .hero-btn-primary {
+      background: #e8a020;
+      color: #fff;
+      padding-left: 12px;
+      gap: 10px;
+    }
+
+    .hero-btn-primary:hover {
+      background: #d49218;
+    }
+
+    .hero-btn-secondary {
+      background: #ffffff;
+      color: #62840b;
+    }
+
+    .hero-btn-secondary:hover {
+      background: #f5f8ef;
+      color: #62840b;
+    }
+  }
+
+  /* ─── Feature Pills ───────────────────────────────── */
   .hero-features {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -188,6 +329,8 @@ const CSS = `
     margin-top: 18px;
     animation: fadeUp 0.5s ease forwards 0.95s;
     opacity: 0;
+    justify-items: stretch;
+    align-self: stretch;
   }
   .hero-feature {
     display: flex;
@@ -196,12 +339,24 @@ const CSS = `
     gap: 8px;
     text-align: center;
     min-width: 0;
+    padding: 10px 4px 8px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(6px);
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    cursor: default;
+  }
+  .hero-feature:hover {
+    background: rgba(255,255,255,0.16);
+    border-color: rgba(255,255,255,0.35);
+    transform: translateY(-2px);
   }
   .hero-feature-icon {
-    width: 46px;
-    height: 46px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    border: 1.5px solid rgba(255,255,255,0.55);
+    border: 1.5px solid rgba(255,255,255,0.45);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -209,7 +364,12 @@ const CSS = `
     background: rgba(255,255,255,0.14);
     backdrop-filter: blur(4px);
     flex-shrink: 0;
+    animation: featurePulse 3s ease-in-out infinite;
   }
+  .hero-feature:nth-child(2) .hero-feature-icon { animation-delay: 0.75s; }
+  .hero-feature:nth-child(3) .hero-feature-icon { animation-delay: 1.5s; }
+  .hero-feature:nth-child(4) .hero-feature-icon { animation-delay: 2.25s; }
+
   .hero-feature-label {
     display: flex;
     flex-direction: column;
@@ -219,166 +379,128 @@ const CSS = `
   .hero-feature-line1,
   .hero-feature-line2 {
     display: block;
-    font-size: 7px;
+    font-size: 8px;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
-    color: #fff;
+    color: rgba(255,255,255,0.95);
     line-height: 1.25;
+  }
+  .hero-feature-line1 {
+    color: #fff;
+  }
+  .hero-feature-line2 {
+    color: rgba(255,255,255,0.78);
   }
 
   /* ─── Buttons ─────────────────────────────────────── */
   .hero-btns {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 11px;
+    align-items: stretch;
+    gap: 10px;
     width: 100%;
-    max-width: 300px;
+    max-width: 100%;
     margin-top: 20px;
     animation: fadeUp 0.5s ease forwards 1.1s;
     opacity: 0;
+    align-self: stretch;
   }
+
   .hero-btn-primary,
   .hero-btn-secondary {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     width: 100%;
-    padding: 14px 28px;
+    padding: 10px 20px;
     border-radius: 999px;
-    font-weight: 800;
+    min-height: 48px;
+    font-family: 'Signia Pro', 'DM Sans', sans-serif;
+    font-weight: 700;
     font-size: 14px;
+    letter-spacing: 0.02em;
+    text-transform: none;
     text-decoration: none;
     cursor: pointer;
     border: none;
-    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-    font-family: 'DM Sans', sans-serif;
-    letter-spacing: 0.02em;
+    box-shadow: none;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
   }
   .hero-btn-primary {
-    background: linear-gradient(135deg, #f0a820 0%, #d48a10 100%);
+    background: #e8a020;
     color: #fff;
-    box-shadow: 0 6px 20px rgba(232,160,32,0.45), 0 2px 6px rgba(0,0,0,0.15);
+    padding-left: 12px;
   }
   .hero-btn-primary:hover {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: 0 10px 28px rgba(232,160,32,0.55), 0 4px 10px rgba(0,0,0,0.18);
-    background: linear-gradient(135deg, #f5b030 0%, #e09418 100%);
+    background: #d49218;
   }
-  .hero-btn-primary:active { transform: translateY(0) scale(0.99); }
 
   .hero-btn-secondary {
-    background: rgba(255,255,255,0.95);
-    color: #4a7008;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-    border: 1.5px solid rgba(255,255,255,0.9);
+    background: #ffffff;
+    color: #62840b;
   }
   .hero-btn-secondary:hover {
-    transform: translateY(-2px) scale(1.01);
-    background: #fff;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.16);
+    background: #f5f8ef;
+    color: #62840b;
   }
-  .hero-btn-secondary:active { transform: translateY(0) scale(0.99); }
 
-  /* ═══════════════════════════════════════════════════
-     HERO CUPS — MOBILE FIRST (phones, below 768px)
-     Edit ONLY this block for mobile layout.
-  ═══════════════════════════════════════════════════ */
+  .hero-btn-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    overflow: hidden;
+  }
+  .hero-btn-icon img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
+
+  /* ─── Decorative cups (single composite image) ─── */
   .hero-visual {
     position: relative;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    min-height: 240px;
-    margin-top: 4px;
+    min-height: clamp(320px, 78vw, 520px);
+    margin-top: 6px;
+    margin-bottom: -12px;
+    pointer-events: none;
+    overflow: visible;
   }
 
-  /* MOVE ALL 3 CUPS (mobile) — translateX: + right, - left | gap: space between cups */
-  .hero-cups {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 0;
+  .hero-cups-frame {
     position: relative;
     width: 100%;
-    min-height: clamp(220px, 52vw, 320px);
-    z-index: 2;
-    transform: rotate(1deg) translateX(40px);
-    transform-origin: 50% 100%;
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: visible;
   }
 
-  .hero-cup-wrap {
-    flex-shrink: 0;
-    position: relative;
-    transition: opacity 0.6s ease;
-  }
-
-  /* MOVE STRAWBERRY CUP (mobile) — translateX: + right closes gap to center */
-  .hero-cup-wrap:nth-child(1) {
-    z-index: 3;
-    margin: 0;
-    transform: rotate(-8deg) translateX(-1vw) translateY(1px);
-  }
-
-  /* MOVE CHEESECAKE CUP (mobile) — translateX: + right | translateY: + down */
-  .hero-cup-wrap:nth-child(2) {
-    z-index: 10;
-    margin-left: -16vw;
-    transform: rotate(-3deg) translateX(-30px) translateY(0px);
-  }
-
-  /* MOVE BOBA CUP (mobile) — translateX: + right | translateY: + down */
-  .hero-cup-wrap:nth-child(3) {
-    z-index: 2;
-    margin-left: -18vw;
-    transform: rotate(3deg) translateX(-11vw) translateY(1px);
-  }
-
-  .hero-cup-wrap:nth-child(1) img {
-    animation: cupEntrance 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards,
-      floatCup 5.2s ease-in-out infinite 0.7s;
-  }
-  .hero-cup-wrap:nth-child(2) img {
-    animation: cupEntrance 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards 0.12s,
-      floatCupAlt 4.8s ease-in-out infinite 1s;
-  }
-  .hero-cup-wrap:nth-child(3) img {
-    animation: cupEntrance 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards 0.24s,
-      floatCup 5.6s ease-in-out infinite 1.2s;
-  }
-
-  /* CUP SIZE (mobile) — center + cheesecake + boba default */
-  .hero-cup-wrap img {
-    height: clamp(160px, 44vw, 220px);
-    width: auto;
+  .hero-cups-img {
+    display: block;
+    width: 142%;
+    max-width: none;
+    height: auto;
+    margin-left: -21%;
     object-fit: contain;
-    filter: drop-shadow(0 16px 28px rgba(0,0,0,0.26));
-    display: block;
-  }
-
-  /* CUP SIZE (mobile) — strawberry + boba side cups (smaller) */
-  .hero-cup-wrap:nth-child(1) img,
-  .hero-cup-wrap:nth-child(3) img {
-    height: clamp(130px, 36vw, 185px);
-    filter: drop-shadow(0 12px 22px rgba(0,0,0,0.22));
-  }
-
-  /* ─── Milk splash wave ────────────────────────────── */
-  .hero-splash {
-    position: relative;
-    z-index: 5;
-    margin-top: -2px;
-    transform-origin: bottom center;
-    animation: splashPulse 6s ease-in-out infinite;
-    line-height: 0;
-    flex-shrink: 0;
-  }
-  .hero-splash svg {
-    width: 100%;
-    display: block;
+    object-position: center bottom;
+    mix-blend-mode: screen;
+    filter: drop-shadow(0 16px 28px rgba(0,0,0,0.22));
+    animation: heroCupsEnter 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.45s;
+    opacity: 0;
+    transform-origin: center bottom;
+    will-change: transform, opacity;
   }
 
   /* ─── Bottom highlight bar ────────────────────────── */
@@ -387,8 +509,8 @@ const CSS = `
     z-index: 6;
     flex-shrink: 0;
     background: #f3efe6;
-    border-top: 1px solid rgba(98, 132, 11, 0.1);
-    padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    border-top: 2px solid rgba(98, 132, 11, 0.08);
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
     animation: fadeUp 0.55s ease forwards 1.2s;
     opacity: 0;
   }
@@ -398,7 +520,7 @@ const CSS = `
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px 12px;
+    gap: 12px 10px;
     align-items: center;
   }
 
@@ -407,15 +529,24 @@ const CSS = `
     align-items: center;
     gap: 10px;
     min-width: 0;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: rgba(98,132,11,0.06);
+    border: 1px solid rgba(98,132,11,0.1);
+    transition: background 0.18s ease, border-color 0.18s ease;
+  }
+  .hero-highlight:hover {
+    background: rgba(98,132,11,0.11);
+    border-color: rgba(98,132,11,0.2);
   }
 
   .hero-highlight-icon {
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    background: rgba(151, 182, 76, 0.14);
-    border: 1px solid rgba(98, 132, 11, 0.22);
+    background: rgba(151, 182, 76, 0.18);
+    border: 1.5px solid rgba(98, 132, 11, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -429,9 +560,9 @@ const CSS = `
 
   .hero-highlight-title {
     display: block;
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     font-weight: 800;
-    color: #62840b;
+    color: #3d5507;
     letter-spacing: -0.01em;
   }
 
@@ -440,47 +571,7 @@ const CSS = `
     margin-top: 2px;
     font-size: 0.68rem;
     font-weight: 600;
-    color: #5a6a48;
-  }
-
-  .hero-highlights-cta {
-    position: relative;
-    grid-column: 1 / -1;
-    justify-self: center;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #62840b;
-    box-shadow: 0 6px 18px rgba(98, 132, 11, 0.28);
-    text-decoration: none;
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-  }
-
-  .hero-highlights-cta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(98, 132, 11, 0.34);
-  }
-
-  .hero-highlights-cta img {
-    width: 22px;
-    height: 22px;
-    object-fit: contain;
-    filter: brightness(0) invert(1);
-  }
-
-  .hero-highlights-cta svg {
-    position: absolute;
-    right: -2px;
-    bottom: -2px;
-    width: 14px;
-    height: 14px;
-    background: #fff;
-    border-radius: 50%;
-    padding: 2px;
-    color: #62840b;
+    color: #6a7a52;
   }
 
   /* ─── Decorative absolute elements ───────────────── */
@@ -495,193 +586,462 @@ const CSS = `
     .hero-inner {
       flex-direction: row;
       align-items: flex-end;
-      padding: 90px 48px 0;
+      padding: 80px clamp(24px, 4vw, 48px) 0;
       gap: 0;
-      min-height: calc(100svh - 120px);
+      min-height: calc(100svh - 80px);
     }
 
     .hero-copy {
-      flex: 0 0 48%;
+      flex: 0 0 42%;
+      max-width: 520px;
       align-items: flex-start;
       text-align: left;
-      padding-bottom: 100px;
-      gap: 3px;
+      padding-bottom: clamp(28px, 4vw, 48px);
+      gap: 4px;
+      align-self: flex-end;
     }
 
-    .hero-eyebrow { justify-content: flex-start; }
-    .hero-eyebrow-text { font-size: 10px; }
+    .hero-eyebrow {
+      justify-content: flex-start;
+      align-self: flex-start;
+      width: auto;
+      margin-top: 0;
+      top: 0;
+    }
+    .hero-eyebrow-text { font-size: 10px; letter-spacing: 0.24em; }
 
-    .hero-fresh { font-size: clamp(6rem, 5vw, 5.5rem); margin-bottom: -6px; }
+    .hero-fresh {
+      font-size: clamp(2.4rem, 3.6vw, 3.75rem);
+      margin-bottom: -6px;
+      position: relative;
+      z-index: 2;
+      width: auto;
+      text-align: left;
+      align-self: flex-start;
+      top: 0;
+    }
 
-    .hero-taiwan { justify-content: flex-start; }
-    .hero-taiwan img {height: clamp(120px, 14vw, 200px); }
+    .hero-copy-lower {
+      align-items: flex-start;
+      top: 0;
+      margin-bottom: 0;
+    }
 
-    .hero-tagline { font-size: clamp(1.1rem, 1.8vw, 1.5rem); }
+    .hero-taiwan {
+      justify-content: flex-start;
+      margin-top: 0;
+    }
+    .hero-taiwan img {
+      width: min(100%, clamp(320px, 38vw, 560px));
+      height: auto;
+      max-width: 100%;
+    }
+
+    .hero-tagline {
+      font-size: clamp(1rem, 1.35vw, 1.35rem);
+      margin-top: 6px;
+      width: auto;
+      text-align: left;
+      align-self: flex-start;
+    }
 
     .hero-features {
-      gap: 16px;
-      margin-top: 22px;
+      gap: clamp(10px, 1.2vw, 16px);
+      margin-top: clamp(14px, 2vw, 22px);
+      max-width: min(100%, 520px);
+      width: 100%;
+      align-self: flex-start;
+    }
+    .hero-feature {
+      padding: clamp(8px, 1vw, 11px) clamp(4px, 0.5vw, 8px);
     }
     .hero-feature-line1,
-    .hero-feature-line2 { font-size: 8px; letter-spacing: 0.1em; }
-    .hero-feature-icon { width: 52px; height: 52px; }
+    .hero-feature-line2 { font-size: clamp(7px, 0.55vw, 8px); letter-spacing: 0.1em; }
+    .hero-feature-icon { width: clamp(44px, 4vw, 52px); height: clamp(44px, 4vw, 52px); }
 
     .hero-btns {
       flex-direction: row;
+      align-items: center;
+      align-self: flex-start;
       max-width: none;
       width: auto;
-      align-items: flex-start;
-      margin-top: 24px;
+      margin-top: clamp(16px, 2vw, 24px);
+      gap: 12px;
     }
     .hero-btn-primary,
     .hero-btn-secondary {
       width: auto;
-      min-width: 155px;
+      min-width: 148px;
+      font-size: 14px;
+      padding: 12px 22px;
     }
 
     .hero-visual {
       flex: 1;
-      min-height: 500px;
+      min-width: 0;
+      max-width: 52%;
+      min-height: clamp(320px, 42vw, 480px);
       margin-top: 0;
       align-items: flex-end;
-      justify-content: center;
+      justify-content: flex-end;
+      overflow: visible;
     }
 
-    /* ═══ DESKTOP CUPS (768px+) — edit below for desktop only ═══ */
-
-    /* GAP between cups (desktop) — gap only adds space; overlap = margin-left below */
-    .hero-cups {
-      gap: 0;
-      transform: rotate(-7deg) translateX(200px);
+    .hero-cups-frame {
+      width: clamp(320px, 46vw, 640px);
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: 0;
     }
 
-    /* TIGHTER: pull cups together (negative = overlap) */
-    .hero-cup-wrap:nth-child(2) {
-      margin-left: -10vw;
-    }
-    .hero-cup-wrap:nth-child(3) {
-      margin-left: -12vw;
-    }
-
-    /* MOVE STRAWBERRY CUP (desktop) — translateX: + right | translateY: + down */
-    .hero-cup-wrap:nth-child(1) {
-      margin: 0;
-      transform: rotate(-10deg) translateX(8vw) translateY(100px);
-    }
-
-    /* MOVE CHEESECAKE CUP (desktop) — translateX: + right | translateY: + down */
-    .hero-cup-wrap:nth-child(2) {
-      margin: 0;
-      transform: rotate(-8deg) translateX(0px) translateY(0px);
-    }
-
-    /* MOVE BOBA CUP (desktop) — translateX: + right | translateY: + down */
-    .hero-cup-wrap:nth-child(3) {
-      margin: 0;
-      transform: rotate(2deg) translateX(0px) translateY(0px);
-    }
-
-    /* CUP SIZE (desktop) — center cheesecake cup */
-    .hero-cup-wrap img {
-      height: clamp(300px, 36vw, 500px);
-    }
-
-    /* CUP SIZE (desktop) — strawberry + boba side cups */
-    .hero-cup-wrap:nth-child(1) img,
-    .hero-cup-wrap:nth-child(3) img {
-      height: clamp(400px, 50vw, 600px);
-    }
-  }
-
-  /* ─── LARGE DESKTOP (1024px+) ────────────────────── */
-  @media (min-width: 1024px) {
-    .hero-copy { flex: 0 0 44%; }
-
-    /* GAP between cups (large desktop) — gap: 0; tighten with margin-left on cup 2 & 3 */
-    .hero-cups {
-      gap: 0;
-    }
-
-    .hero-cup-wrap:nth-child(2) {
-      margin-left: -14vw;
-    }
-    .hero-cup-wrap:nth-child(3) {
-      margin-left: -16vw;
-    }
-
-    /* MOVE STRAWBERRY CUP (large desktop) — translateX: + right closes gap to center cup */
-    .hero-cup-wrap:nth-child(1) {
-      transform: rotate(1deg) translateX(2vw) translateY(120px);
-    }
-
-    /* MOVE CHEESECAKE CUP (large desktop) */
-    .hero-cup-wrap:nth-child(2) {
-      z-index: 12;
-      transform: rotate(2deg) translateX(0px) translateY(90px);
-    }
-
-    /* MOVE BOBA CUP (large desktop) */
-    .hero-cup-wrap:nth-child(3) {
-      transform: rotate(6deg) translateX(0px) translateY(100px);
-    }
-
-    /* CUP SIZE (large desktop) */
-    .hero-cup-wrap img { height: clamp(300px, 40vw, 560px); }
-    .hero-cup-wrap:nth-child(1) img,
-    .hero-cup-wrap:nth-child(3) img {
-      height: clamp(30px, 32vw, 560px);
-    }
-
-    .hero-highlights {
-      padding: 16px 40px calc(16px + env(safe-area-inset-bottom, 0px));
+    .hero-cups-img {
+      width: 100%;
+      max-height: clamp(340px, 44vh, 480px);
+      margin-left: 0;
+      object-fit: contain;
+      object-position: right bottom;
+      transform-origin: right bottom;
     }
 
     .hero-highlights-inner {
       display: flex;
       flex-wrap: nowrap;
       justify-content: space-between;
-      gap: 20px;
+      gap: 12px;
+    }
+    .hero-highlight {
+      flex: 1 1 0;
+      justify-content: flex-start;
+    }
+  }
+
+  /* ─── TABLET (768px–1023px) ──────────────────────── */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .hero-section {
+      min-height: auto;
+    }
+
+    .hero-inner {
+      align-items: center;
+      min-height: auto;
+      padding:
+        calc(64px + env(safe-area-inset-top, 0px) + 12px)
+        clamp(16px, 3vw, 28px)
+        clamp(8px, 2vw, 16px);
+    }
+
+    .hero-copy {
+      flex: 0 0 44%;
+      max-width: 420px;
+      padding-bottom: clamp(16px, 3vw, 36px);
+    }
+
+    .hero-eyebrow { top: 0; }
+
+    .hero-fresh {
+      font-size: clamp(1.85rem, 3vw, 2.65rem);
+      margin-bottom: -4px;
+      top: 0;
+    }
+
+    .hero-copy-lower {
+      top: 0;
+      margin-bottom: 0;
+      align-items: flex-start;
+    }
+
+    .hero-taiwan { justify-content: flex-start; }
+    .hero-taiwan img {
+      width: min(100%, clamp(280px, 34vw, 440px));
+      height: auto;
+      max-width: 100%;
+    }
+
+    .hero-tagline {
+      font-size: clamp(0.9rem, 1.2vw, 1.15rem);
+      margin-top: clamp(4px, 0.8vw, 8px);
+      letter-spacing: 0.05em;
+    }
+
+    .hero-features {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      max-width: min(100%, 420px);
+      width: 100%;
+      gap: 8px;
+      margin-top: 12px;
+      align-self: flex-start;
+    }
+
+    .hero-feature-icon {
+      width: 38px;
+      height: 38px;
+    }
+
+    .hero-feature-line1,
+    .hero-feature-line2 {
+      font-size: 6.5px;
+    }
+
+    .hero-btns {
+      margin-top: 14px;
+      gap: 10px;
+    }
+
+    .hero-btn-primary,
+    .hero-btn-secondary {
+      min-width: 124px;
+      font-size: 13px;
+      padding: 10px 16px;
+    }
+
+    .hero-visual {
+      flex: 1;
+      max-width: 58%;
+      min-height: clamp(280px, 36vw, 420px);
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: clamp(6px, 1.5vw, 16px);
+      overflow: visible;
+    }
+
+    .hero-cups-frame {
+      width: clamp(320px, 52vw, 620px);
+      max-width: none;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-cups-img {
+      width: 110%;
+      margin-left: -5%;
+      object-position: center bottom;
+      transform-origin: center bottom;
+    }
+
+    .hero-highlights-inner {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 10px;
     }
 
     .hero-highlight {
-      flex: 1 1 0;
-      justify-content: center;
+      flex: none;
+    }
+  }
+
+  /* ─── LARGE DESKTOP (1024px+) ────────────────────── */
+  @media (min-width: 1024px) {
+    .hero-section {
+      overflow: hidden;
     }
 
-    .hero-highlight-icon {
-      width: 40px;
-      height: 40px;
-    }
-
-    .hero-highlight-title { font-size: 0.8rem; }
-    .hero-highlight-sub { font-size: 0.74rem; }
-
-    .hero-highlights-cta {
-      grid-column: auto;
-      justify-self: auto;
-      flex-shrink: 0;
+    .hero-inner {
       position: relative;
-      width: 48px;
-      height: 48px;
-      margin-left: 8px;
+      align-items: flex-end;
+      justify-content: flex-start;
+      padding:
+        calc(92px + env(safe-area-inset-top, 0px) + 12px)
+        clamp(24px, 4vw, 48px)
+        clamp(4px, 1vw, 12px);
+      min-height: calc(100svh - 92px);
     }
 
-    .hero-highlights-cta img { width: 24px; height: 24px; }
+    .hero-copy {
+      flex: 0 0 42%;
+      width: 42%;
+      max-width: 520px;
+      align-items: flex-start;
+      text-align: left;
+      align-self: flex-end;
+      padding-bottom: clamp(56px, 7vw, 88px);
+      gap: 0;
+      z-index: 12;
+      overflow: visible;
+    }
+
+    .hero-eyebrow {
+      top: 0;
+      margin-top: clamp(1px, 1.8vw, 15px);
+      margin-bottom: 18px;
+      justify-content: flex-start;
+      align-self: flex-start;
+      width: auto;
+    }
+
+    .hero-fresh {
+      font-size: clamp(2.5rem, 3.2vw, 3.85rem);
+      top: 0;
+      margin-top: clamp(10px, 0.9vw, 12px);
+      margin-bottom: clamp(-20px, -5vw, -50px);
+      width: auto;
+      text-align: left;
+      align-self: flex-start;
+    }
+
+    .hero-copy-lower {
+      top: 0;
+      margin-top: clamp(-28px, -3.2vw, -16px);
+      margin-bottom: 0;
+      align-items: flex-start;
+      width: 100%;
+      overflow: visible;
+    }
+
+    .hero-taiwan {
+      margin-top: clamp(-18px, -2.2vw, -10px);
+      justify-content: flex-start;
+      align-items: flex-start;
+      width: fit-content;
+      max-width: none;
+      align-self: flex-start;
+      overflow: visible;
+    }
+
+    .hero-taiwan img {
+      width: clamp(480px, 44vw, 700px);
+      max-width: none;
+      height: auto;
+      margin-left: clamp(-192px, -17vw, -128px);
+      margin-right: 0;
+      display: block;
+    }
+
+    .hero-tagline {
+      font-size: clamp(1rem, 1.15vw, 1.35rem);
+      margin-top: 8px;
+      width: auto;
+      text-align: left;
+      align-self: flex-start;
+    }
+
+    .hero-features {
+      width: min(100%, 520px);
+      max-width: 520px;
+      align-self: flex-start;
+      justify-items: stretch;
+      margin-top: clamp(16px, 1.8vw, 22px);
+      margin-left: clamp(-96px, -9vw, -64px);
+    }
+
+    .hero-btns {
+      flex-direction: row;
+      align-items: center;
+      align-self: flex-start;
+      width: auto;
+      max-width: none;
+      margin-top: clamp(18px, 2vw, 24px);
+      margin-left: clamp(-56px, -6vw, -32px);
+      gap: 12px;
+    }
+
+    .hero-btn-primary,
+    .hero-btn-secondary {
+      font-family: 'Signia Pro', 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      min-width: 148px;
+      padding: 10px 18px;
+    }
+
+    .hero-visual {
+      position: absolute;
+      right: calc(-1 * max(0px, (100vw - 1280px) / 2));
+      bottom: clamp(-40px, -3.5vw, -30px);
+      width: clamp(460px, 46vw, 760px);
+      max-width: none;
+      flex: none;
+      min-height: 0;
+      margin: 0;
+      align-items: flex-end;
+      justify-content: flex-end;
+      z-index: 8;
+    }
+
+    .hero-cups-frame {
+      width: 100%;
+      margin: 0;
+      line-height: 0;
+    }
+
+    .hero-cups-img {
+      width: 140%;
+      margin-left: -40%;
+      max-height: none;
+      height: auto;
+      object-fit: contain;
+      object-position: right bottom;
+      transform-origin: right bottom;
+    }
+
+    .hero-highlights {
+      padding: 18px 40px calc(18px + env(safe-area-inset-bottom, 0px));
+    }
+    .hero-highlight {
+      padding: 10px 14px;
+    }
+    .hero-highlight-icon { width: 42px; height: 42px; }
+    .hero-highlight-title { font-size: 0.82rem; }
+    .hero-highlight-sub { font-size: 0.74rem; }
+  }
+
+  /* ─── XL DESKTOP (1280px+) ───────────────────────── */
+  @media (min-width: 1280px) {
+    .hero-copy {
+      flex: 0 0 40%;
+      width: 40%;
+      max-width: 540px;
+    }
+
+    .hero-taiwan img {
+      width: clamp(500px, 42vw, 740px);
+      max-width: none;
+      margin-left: clamp(-210px, -16vw, -140px);
+    }
+
+    .hero-features {
+      margin-left: clamp(-104px, -8vw, -68px);
+    }
+
+    .hero-btns {
+      margin-left: clamp(-64px, -5.5vw, -40px);
+    }
+
+    /* XL: override bottom only — decrease → lower, increase → higher */
+    .hero-visual {
+      width: clamp(500px, 44vw, 820px);
+      bottom: clamp(-8px, 0.1vw, 3px);
+    }
+
+    .hero-cups-img {
+      width: 152%;
+      margin-left: -52%;
+    }
   }
 
   /* ─── Reduced motion ──────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {
     .hero-eyebrow, .hero-fresh, .hero-tagline,
     .hero-features, .hero-btns, .hero-taiwan img,
-    .hero-cup-wrap img, .hero-splash, .hero-highlights {
+    .hero-cups-img, .hero-highlights {
       animation: none !important;
       opacity: 1 !important;
     }
-    .hero-taiwan img, .hero-splash {
+    .hero-eyebrow, .hero-fresh {
+      top: 0;
+    }
+    .hero-copy-lower {
+      top: 0;
+      margin-bottom: 0;
+    }
+    .hero-taiwan img {
       transform: none !important;
     }
-    /* Cup wrappers keep rotate/translate — do NOT set transform: none on .hero-cup-wrap */
-    .hero-cups { transform: rotate(-6deg) translateX(40px); }
+    .hero-cups-img {
+      transform: none !important;
+    }
+    .hero-feature-icon { animation: none !important; }
   }
 `;
 
@@ -767,13 +1127,6 @@ function Leaf({ size = 32, style = {} }) {
 }
 
 export default function Hero() {
-  const [cupsReady, setCupsReady] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setCupsReady(true), 300);
-    return () => clearTimeout(t);
-  }, []);
-
   return (
     <>
       <style>{CSS}</style>
@@ -800,6 +1153,7 @@ export default function Hero() {
 
             <div className="hero-fresh">Fresh Taste of</div>
 
+            <div className="hero-copy-lower">
             <div className="hero-taiwan">
               <img src="/taiwan-word.png" alt="Taiwan" />
             </div>
@@ -822,134 +1176,42 @@ export default function Hero() {
 
             <div className="hero-btns">
               <FranchiseInquiryTrigger className="hero-btn-primary">
-                Franchise Now +
+                <span className="hero-btn-icon">
+                  <img src="/milkshop-logo-removebg-preview.png" alt="" draggable={false} />
+                </span>
+                <span>Franchise Now</span>
+                <span aria-hidden>→</span>
               </FranchiseInquiryTrigger>
               <Link to="/products" className="hero-btn-secondary">
                 View Menu
               </Link>
             </div>
+            </div>
           </div>
 
-          {/* ── RIGHT: Cups ── */}
+          {/* ── RIGHT: Cups (decorative composite) ── */}
           <div className="hero-visual">
-            <div className="hero-cups">
-              {topDrinks.map((drink) => (
-                <div
-                  key={drink.id}
-                  className="hero-cup-wrap"
-                  style={{ opacity: cupsReady ? 1 : 0 }}
-                >
-                  <img src={drink.imageUrl} alt={drink.name} draggable={false} />
-                </div>
-              ))}
+            <div className="hero-cups-frame">
+              <img
+                className="hero-cups-img"
+                src={HERO_CUPS_SRC}
+                alt=""
+                aria-hidden
+                draggable={false}
+              />
             </div>
           </div>
 
         </div>
 
-        {/* ── Milk splash wave ── */}
-        <div className="hero-splash">
-          <svg
-            viewBox="0 0 1440 200"
-            preserveAspectRatio="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* Back ripple layer */}
-            <path
-              d="M0,140
-                 C60,125 100,108 140,118
-                 C165,124 175,138 200,144
-                 C220,149 235,144 255,132
-                 C280,118 295,100 330,105
-                 C360,110 375,128 410,136
-                 C440,143 460,140 490,128
-                 C520,116 535,100 570,106
-                 C600,112 615,130 650,138
-                 C680,145 700,142 730,130
-                 C758,118 772,102 808,108
-                 C838,113 852,130 888,138
-                 C918,145 938,141 968,130
-                 C998,118 1012,102 1048,107
-                 C1078,112 1092,130 1128,138
-                 C1158,145 1178,140 1208,128
-                 C1238,116 1252,100 1290,106
-                 C1340,114 1390,136 1440,130
-                 L1440,200 L0,200 Z"
-              fill="rgba(255,255,255,0.3)"
-            />
-            {/* Splash drip left */}
-            <path
-              d="M60,128 C58,112 52,96 48,80 C45,68 46,56 52,50 C56,46 62,46 66,50 C72,56 72,70 68,84 C64,98 64,114 66,128Z"
-              fill="rgba(255,255,255,0.55)"
-            />
-            {/* Splash drip mid-left */}
-            <path
-              d="M200,120 C198,106 194,90 192,74 C190,62 192,52 198,48 C202,44 208,45 211,50 C216,57 214,70 210,84 C206,98 205,112 206,122Z"
-              fill="rgba(255,255,255,0.5)"
-            />
-            {/* Splash drip center-left */}
-            <path
-              d="M380,112 C378,100 376,84 376,68 C376,56 379,46 385,43 C389,40 394,42 397,47 C401,54 400,67 397,81 C393,95 392,108 393,118Z"
-              fill="rgba(255,255,255,0.6)"
-            />
-            {/* Splash drip center */}
-            <path
-              d="M620,118 C618,104 615,88 615,72 C615,60 618,50 624,47 C628,44 634,46 636,52 C640,60 638,74 634,88 C630,102 630,114 631,122Z"
-              fill="rgba(255,255,255,0.55)"
-            />
-            {/* Splash drip center-right */}
-            <path
-              d="M840,110 C838,98 836,84 837,70 C838,58 842,49 848,46 C852,43 857,46 859,52 C862,60 860,73 856,87 C852,100 851,112 853,120Z"
-              fill="rgba(255,255,255,0.5)"
-            />
-            {/* Splash drip right */}
-            <path
-              d="M1100,116 C1098,104 1096,88 1097,74 C1098,62 1102,52 1108,49 C1112,46 1117,49 1119,55 C1122,63 1120,76 1116,90 C1112,103 1112,114 1114,122Z"
-              fill="rgba(255,255,255,0.5)"
-            />
-            {/* Splash drip far right */}
-            <path
-              d="M1340,122 C1338,110 1337,96 1338,82 C1339,70 1343,61 1348,59 C1352,57 1357,60 1359,66 C1362,74 1360,86 1356,99 C1352,111 1352,121 1354,128Z"
-              fill="rgba(255,255,255,0.45)"
-            />
-            {/* Scattered milk droplets */}
-            <ellipse cx="130" cy="125" rx="7" ry="9" fill="rgba(255,255,255,0.65)" />
-            <ellipse cx="310" cy="118" rx="5" ry="7" fill="rgba(255,255,255,0.6)" />
-            <ellipse cx="500" cy="122" rx="8" ry="10" fill="rgba(255,255,255,0.65)" />
-            <ellipse cx="700" cy="116" rx="6" ry="8" fill="rgba(255,255,255,0.55)" />
-            <ellipse cx="920" cy="120" rx="7" ry="9" fill="rgba(255,255,255,0.6)" />
-            <ellipse cx="1150" cy="118" rx="5" ry="6" fill="rgba(255,255,255,0.55)" />
-            <ellipse cx="1380" cy="123" rx="6" ry="8" fill="rgba(255,255,255,0.5)" />
-            {/* Small boba pearls scattered at base */}
-            <circle cx="160" cy="152" r="5" fill="rgba(80,40,10,0.35)" />
-            <circle cx="290" cy="158" r="4" fill="rgba(80,40,10,0.3)" />
-            <circle cx="450" cy="154" r="6" fill="rgba(80,40,10,0.35)" />
-            <circle cx="640" cy="160" r="5" fill="rgba(80,40,10,0.3)" />
-            <circle cx="800" cy="155" r="4" fill="rgba(80,40,10,0.3)" />
-            <circle cx="1000" cy="158" r="6" fill="rgba(80,40,10,0.32)" />
-            <circle cx="1200" cy="153" r="5" fill="rgba(80,40,10,0.28)" />
-            <circle cx="1360" cy="157" r="4" fill="rgba(80,40,10,0.28)" />
-            {/* Main white wave — front layer */}
-            <path
-              d="M0,155
-                 C80,138 140,122 200,132
-                 C240,139 260,152 300,158
-                 C330,163 355,158 385,146
-                 C415,133 430,118 468,124
-                 C500,129 515,145 550,154
-                 C580,162 600,160 630,148
-                 C660,136 674,120 712,126
-                 C744,131 758,148 794,156
-                 C824,163 846,160 876,148
-                 C906,136 920,120 958,126
-                 C990,131 1004,148 1040,156
-                 C1070,163 1092,159 1122,147
-                 C1152,135 1166,119 1204,126
-                 C1260,135 1340,158 1440,148
-                 L1440,200 L0,200 Z"
-              fill="#ffffff"
-            />
-          </svg>
+        {/* ── SVG Splash — replaced with user's own SVG image ── */}
+        <div style={{ position: "relative", zIndex: 5, marginTop: "-2px", lineHeight: 0, flexShrink: 0 }}>
+          <img
+            src="/splash.svg"
+            alt=""
+            aria-hidden
+            style={{ width: "100%", display: "block" }}
+          />
         </div>
 
         {/* ── Bottom highlights ── */}
@@ -966,12 +1228,6 @@ export default function Hero() {
                 </div>
               </div>
             ))}
-            <Link to="/locations" className="hero-highlights-cta" aria-label="Find Milkshop locations">
-              <img src="/milkshop-logo-removebg-preview.png" alt="" aria-hidden />
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
-            </Link>
           </div>
         </div>
 

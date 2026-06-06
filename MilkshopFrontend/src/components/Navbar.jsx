@@ -10,7 +10,9 @@ const navLinks = [
   { label: "Products",  path: "/products" },
 ];
 
-const NAV_BREAKPOINT = "860px";
+const NAV_DESKTOP_MIN = "768px";
+const NAV_LAPTOP_MIN = "1024px";
+const NAV_FULL_MIN = "1280px";
 
 const NAV_GREEN = "#97b64c";
 const NAV_GREEN_DARK = "#62840b";
@@ -39,18 +41,35 @@ const styles = `
     position: relative;
     width: 100%;
     max-width: 100%;
-    margin: 0;
+    margin: 0 auto;
     height: 64px;
-    padding: 0 16px;
+    padding: 0 clamp(12px, 3vw, 16px);
     padding-top: env(safe-area-inset-top, 0);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 9px;
+    gap: clamp(6px, 1.5vw, 12px);
     box-sizing: border-box;
   }
 
-  @media (min-width: ${NAV_BREAKPOINT}) {
+  @media (min-width: ${NAV_DESKTOP_MIN}) {
+    .nav-inner {
+      height: clamp(68px, 8vw, 72px);
+      padding-left: clamp(16px, 3vw, 40px);
+      padding-right: clamp(16px, 3vw, 40px);
+    }
+  }
+
+  @media (min-width: ${NAV_LAPTOP_MIN}) {
+    .nav-inner {
+      height: clamp(76px, 7vw, 84px);
+      padding-left: clamp(20px, 3.5vw, 56px);
+      padding-right: clamp(20px, 3.5vw, 56px);
+      gap: clamp(10px, 1.5vw, 16px);
+    }
+  }
+
+  @media (min-width: ${NAV_FULL_MIN}) {
     .nav-inner {
       height: 92px;
       padding-left: clamp(24px, 5vw, 96px);
@@ -62,27 +81,38 @@ const styles = `
   .nav-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
+    gap: 6px;
+    flex-shrink: 1;
     min-width: 0;
-  }
-
-  @media (min-width: ${NAV_BREAKPOINT}) {
-    .nav-actions { gap: 10px; }
+    justify-content: flex-end;
   }
 
   .nav-desktop-links {
     display: none;
     align-items: center;
-    gap: 8px;
+    gap: clamp(2px, 0.6vw, 8px);
     margin: 0;
     padding: 0;
     list-style: none;
+    flex-shrink: 1;
+    min-width: 0;
+    justify-content: flex-end;
   }
 
-  @media (min-width: ${NAV_BREAKPOINT}) {
+  @media (min-width: ${NAV_DESKTOP_MIN}) {
     .nav-desktop-links {
       display: flex;
+    }
+  }
+
+  @media (min-width: ${NAV_LAPTOP_MIN}) {
+    .nav-desktop-links {
+      gap: clamp(4px, 0.8vw, 10px);
+    }
+  }
+
+  @media (min-width: ${NAV_FULL_MIN}) {
+    .nav-desktop-links {
       gap: 12px;
     }
   }
@@ -91,9 +121,10 @@ const styles = `
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-shrink: 0;
   }
 
-  @media (min-width: ${NAV_BREAKPOINT}) {
+  @media (min-width: ${NAV_DESKTOP_MIN}) {
     .nav-mobile-actions { display: none; }
   }
 
@@ -102,13 +133,13 @@ const styles = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 51px;
-    height: 55px;
-    padding: 0 14px;
+    min-height: 40px;
+    height: auto;
+    padding: 0 clamp(6px, 1vw, 10px);
     border-radius: 8px;
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: 1.15rem;
+    font-size: clamp(0.78rem, 1.05vw, 0.92rem);
     font-weight: 700;
     letter-spacing: -0.01em;
     color: rgba(24, 33, 15, 0.78);
@@ -120,10 +151,20 @@ const styles = `
       text-shadow 0.28s ease;
   }
 
-  @media (min-width: ${NAV_BREAKPOINT}) {
+  @media (min-width: ${NAV_LAPTOP_MIN}) {
     .nav-link {
-      font-size: 1.47rem;
+      min-height: 46px;
+      padding: 0 clamp(8px, 1.1vw, 14px);
+      font-size: clamp(0.88rem, 1.1vw, 1.12rem);
+    }
+  }
+
+  @media (min-width: ${NAV_FULL_MIN}) {
+    .nav-link {
+      min-height: 51px;
+      height: 55px;
       padding: 0 16px;
+      font-size: 1.47rem;
     }
   }
 
@@ -141,33 +182,42 @@ const styles = `
   .nav-brand-link {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: clamp(6px, 1vw, 10px);
     text-decoration: none;
-    flex-shrink: 1;
+    flex-shrink: 0;
     min-width: 0;
     color: inherit;
     margin-left: 0;
   }
 
-  @media (min-width: ${NAV_BREAKPOINT}) {
-    .nav-brand-link { gap: 10px; flex-shrink: 0; }
-  }
-
   .nav-brand-logo {
     display: block;
-    height: 39px;
+    height: clamp(36px, 5vw, 39px);
     width: auto;
     object-fit: contain;
     transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), filter 0.28s ease;
+    flex-shrink: 0;
   }
 
-  @media (min-width: ${NAV_BREAKPOINT}) {
+  @media (min-width: ${NAV_DESKTOP_MIN}) {
+    .nav-brand-logo {
+      height: clamp(40px, 4.5vw, 48px);
+    }
+  }
+
+  @media (min-width: ${NAV_LAPTOP_MIN}) {
+    .nav-brand-logo {
+      height: clamp(48px, 4.8vw, 56px);
+    }
+  }
+
+  @media (min-width: ${NAV_FULL_MIN}) {
     .nav-brand-logo { height: 60px; }
   }
 
   .nav-brand-wordmark {
     font-family: 'Signia Pro', 'DM Sans', sans-serif;
-    font-size: 1.47rem;
+    font-size: clamp(1.45rem, 5.5vw, 1.75rem);
     font-weight: 900;
     letter-spacing: -0.04em;
     line-height: 1.2;
@@ -176,11 +226,15 @@ const styles = `
     display: inline-block;
     color: ${NAV_GREEN_DARK};
     -webkit-font-smoothing: antialiased;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
-  @media (min-width: ${NAV_BREAKPOINT}) {
+  @media (min-width: ${NAV_DESKTOP_MIN}) {
+    .nav-brand-wordmark {
+      font-size: clamp(1.2rem, 2.2vw, 1.85rem);
+    }
+  }
+
+  @media (min-width: ${NAV_FULL_MIN}) {
     .nav-brand-wordmark { font-size: 2.53rem; }
   }
 
@@ -248,7 +302,7 @@ const styles = `
 
   .nav-mobile-full-brand {
     font-family: 'Signia Pro', 'DM Sans', sans-serif;
-    font-size: 1.35rem;
+    font-size: 1.65rem;
     font-weight: 900;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -291,20 +345,22 @@ const styles = `
     font-size: clamp(1.15rem, 4.8vw, 1.45rem);
     font-weight: 500;
     letter-spacing: 0.01em;
-    color: rgba(24, 33, 15, 0.88);
+    color: ${NAV_GREEN_DARK};
     text-decoration: none;
     opacity: 0;
     animation: navLinkIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     -webkit-tap-highlight-color: transparent;
-    transition: opacity 0.2s ease;
+    transition: color 0.2s ease, opacity 0.2s ease;
   }
 
   .nav-mobile-full-link:active {
-    opacity: 0.72;
+    color: ${NAV_GREEN};
+    opacity: 0.85;
   }
 
   .nav-mobile-full-link.is-active {
     font-weight: 700;
+    color: ${NAV_GREEN_DARK};
   }
 
   .nav-mobile-full-footer {
@@ -325,7 +381,7 @@ const styles = `
     line-height: 1;
   }
 
-  @media (min-width: ${NAV_BREAKPOINT}) {
+  @media (min-width: ${NAV_DESKTOP_MIN}) {
     .nav-mobile-full { display: none !important; }
   }
 
@@ -383,7 +439,7 @@ export default function Navbar() {
   }, [location]);
 
   useEffect(() => {
-    const mq = window.matchMedia(`(min-width: ${NAV_BREAKPOINT})`);
+    const mq = window.matchMedia(`(min-width: ${NAV_DESKTOP_MIN})`);
     const onChange = () => {
       if (mq.matches) setMenuOpen(false);
     };

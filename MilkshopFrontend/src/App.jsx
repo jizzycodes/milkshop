@@ -12,7 +12,7 @@ import { FranchiseInquiryProvider, useFranchiseInquiry } from './context/Franchi
 import { FRANCHISE_INQUIRY_ID, scheduleScrollToFranchiseInquiry } from './utils/franchiseInquiry'
 import './App.css'
 
-const Home = lazy(() => import('./pages/Home'))
+import Home from './pages/Home'
 const Products = lazy(() => import('./pages/Products'))
 const About = lazy(() => import('./pages/About'))
 const Locations = lazy(() => import('./pages/Locations'))
@@ -155,19 +155,21 @@ function AppRoutes() {
           <>
             <ScrollToTop />
             <ScrollPerformance />
-            <Navbar />
-            <div className="animate-page-in mt-0 pt-0">
-              <Suspense fallback={null}>
-              <Routes>
-                <Route path="/"          element={<Home />} />
-                <Route path="/products"  element={<Products />} />
-                <Route path="/about"     element={<About />} />
-                <Route path="/locations" element={<Locations />} />
-                <Route path="/franchise" element={<Franchise />} />
-              </Routes>
-              </Suspense>
+            <div className="site-shell flex min-h-screen w-full flex-col">
+              <Navbar />
+              <main className="animate-page-in mt-0 flex-1 pt-0">
+                <Suspense fallback={null}>
+                <Routes>
+                  <Route path="/"          element={<Home />} />
+                  <Route path="/products"  element={<Products />} />
+                  <Route path="/about"     element={<About />} />
+                  <Route path="/locations" element={<Locations />} />
+                  <Route path="/franchise" element={<Franchise />} />
+                </Routes>
+                </Suspense>
+              </main>
+              <Footer />
             </div>
-            <Footer />
             <FranchiseCTAFloating />
           </>
         }

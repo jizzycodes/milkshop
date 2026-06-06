@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Reveal from "../components/Reveal";
 import { supabase } from "../lib/supabaseClient";
@@ -73,6 +73,9 @@ const topDrinks = [
     imageUrl: "https://ewqycfetxsdpwaqqlhki.supabase.co/storage/v1/object/public/product-images/fruit_series/C1.png",
   },
 ];
+
+const PRODUCTS_HERO_IMAGE = "/products/products-hero.png";
+const PRODUCTS_HERO_FALLBACK = "/HEROFRESH.jpg";
 
 // ─── SERIES CUPS GRID (all products visible: image + name only) ───────────────
 function SeriesCupsGrid({ products }) {
@@ -434,6 +437,22 @@ export default function Products() {
   const [products, setProducts]         = useState([]);
   const [loading, setLoading]           = useState(true);
   const [activeReview, setActiveReview] = useState(0);
+  const [heroImg, setHeroImg] = useState(PRODUCTS_HERO_IMAGE);
+  const [heroAnimReady, setHeroAnimReady] = useState(false);
+
+  useEffect(() => {
+    const startAnim = () => setHeroAnimReady(true);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      startAnim();
+      return undefined;
+    }
+    window.addEventListener("milkshop:route-loader-hidden", startAnim, { once: true });
+    const fallback = window.setTimeout(startAnim, 2200);
+    return () => {
+      window.removeEventListener("milkshop:route-loader-hidden", startAnim);
+      window.clearTimeout(fallback);
+    };
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -457,15 +476,6 @@ export default function Products() {
   }, {});
 
   const featured = feedbacks[activeReview];
-
-  const scrollToMenu = useCallback((e) => {
-    e.preventDefault();
-    const el = document.getElementById("menu");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      window.history.replaceState(null, "", `${window.location.pathname}#menu`);
-    }
-  }, []);
 
   return (
     <main style={{
@@ -582,518 +592,230 @@ export default function Products() {
             padding-bottom: 40px;
           }
         }
+
+        @keyframes heroFadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes locHeroFadeLeft {
+          from { opacity: 0; transform: translateX(-28px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes locHeroScrollLine {
+          0%   { transform: translateY(-100%); }
+          100% { transform: translateY(300%); }
+        }
+        .loc-hero-h1, .loc-hero-p, .loc-hero-tag { opacity: 0; }
+        .loc-hero--ready .loc-hero-tag { animation: heroFadeUp 0.6s ease forwards; animation-delay: 0.12s; }
+        .loc-hero--ready .loc-hero-h1 { animation: locHeroFadeLeft 0.75s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay: 0.25s; }
+        .loc-hero--ready .loc-hero-p  { animation: heroFadeUp 0.7s ease forwards; animation-delay: 0.45s; }
+        .loc-hero-scroll-bar { opacity: 0; }
+        .loc-hero--ready .loc-hero-scroll-bar { opacity: 1; animation: locHeroScrollLine 1.8s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .loc-hero-h1, .loc-hero-p, .loc-hero-tag, .loc-hero-scroll-bar {
+            opacity: 1 !important;
+            animation: none !important;
+            transform: none !important;
+          }
+        }
+        .loc-hero {
+          min-height: 83svh;
+        }
+        .loc-hero-content {
+          padding: 100px 20px 64px;
+        }
+        .loc-hero-h1-text {
+          font-size: clamp(2.4rem, 10vw, 3.4rem);
+        }
+        @media (min-width: 901px) {
+          .loc-hero { min-height: 90vh; }
+          .loc-hero-content { padding: 120px 48px 72px; }
+          .loc-hero-h1-text { font-size: clamp(3.2rem, 5.5vw, 5.2rem); }
+        }
       `}</style>
 
-
-{/* ══ PRODUCTS HERO — Mobile-First Redesign ══ */}
-<section
-  style={{
-    position: "relative",
-    overflow: "hidden",
-    background: "#f7f9f2",
-    fontFamily: "'DM Sans', sans-serif",
-  }}
->
-  <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&display=swap');
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(28px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-    @keyframes sway {
-      0%,100% { transform: var(--base-tx, translateX(0)) rotate(var(--rot-base, 0deg)); }
-      50%      { transform: var(--base-tx, translateX(0)) translateY(-10px) rotate(var(--rot-peak, 0deg)); }
-    }
-    @keyframes marquee {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-50%); }
-    }
-    @keyframes blobPulse {
-      0%,100% { transform: scale(1) rotate(0deg); }
-      50%      { transform: scale(1.04) rotate(3deg); }
-    }
-    @keyframes haloGlow {
-      0%,100% { opacity: 0.5; transform: translateX(-50%) scaleX(1); }
-      50%      { opacity: 0.8; transform: translateX(-50%) scaleX(1.1); }
-    }
-
-    /* Stagger reveals */
-    .ph-label    { opacity:0; animation: fadeUp .55s ease forwards .08s; }
-    .ph-heading  { opacity:0; animation: fadeUp .65s ease forwards .2s; }
-    .ph-sub      { opacity:0; animation: fadeUp .55s ease forwards .32s; }
-    .ph-cta-wrap { opacity:0; animation: fadeUp .55s ease forwards .44s; }
-    .ph-trust    { opacity:0; animation: fadeUp .55s ease forwards .56s; }
-
-    /* Cup stagger */
-    .ph-cup-0 { opacity:0; animation: fadeIn .5s ease forwards .35s; }
-    .ph-cup-1 { opacity:0; animation: fadeIn .5s ease forwards .48s; }
-    .ph-cup-2 { opacity:0; animation: fadeIn .5s ease forwards .25s; }
-    .ph-cup-3 { opacity:0; animation: fadeIn .5s ease forwards .48s; }
-    .ph-cup-4 { opacity:0; animation: fadeIn .5s ease forwards .35s; }
-
-    /* Sway per cup */
-    .ph-cup-0 .ph-sway { animation: sway 9s ease-in-out infinite; --rot-base: -1deg; --rot-peak: 1deg; }
-    .ph-cup-1 .ph-sway { animation: sway 10.5s ease-in-out infinite; animation-delay: -3s; --rot-base: -0.5deg; --rot-peak: 0.5deg; }
-    .ph-cup-2 .ph-sway { animation: sway 8s ease-in-out infinite; animation-delay: -1s; --rot-base: -1.5deg; --rot-peak: 1.5deg; }
-    .ph-cup-3 .ph-sway { animation: sway 11s ease-in-out infinite; animation-delay: -5s; --rot-base: -0.5deg; --rot-peak: 0.5deg; }
-    .ph-cup-4 .ph-sway { animation: sway 9.5s ease-in-out infinite; animation-delay: -2s; --rot-base: -1deg; --rot-peak: 1deg; }
-
-    /* ── LAYOUT ── */
-    .ph-wrapper {
-      position: relative;
-      z-index: 10;
-      max-width: 1280px;
-      margin: 0 auto;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    /* Mobile: stacked — text → cups → trust */
-    .ph-layout {
-      display: flex;
-      flex-direction: column;
-      padding: 64px 24px 0;
-      gap: 0;
-    }
-
-    .ph-left {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      order: 1;
-    }
-
-    /* Cups stage mobile */
-    .ph-cups-stage {
-      order: 2;
-      position: relative;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      width: 100%;
-      height: clamp(260px, 48vw, 380px);
-      margin-top: 28px;
-      overflow: visible;
-    }
-
-    .ph-cup-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      position: absolute;
-      bottom: 0;
-    }
-
-    /* Mobile: only 3 cups, tighter arc */
-    .ph-cup-col.hide-mobile { display: none; }
-
-    /* Desktop overrides */
-    @media (min-width: 1024px) {
-      .ph-layout {
-        flex-direction: row;
-        align-items: center;
-        padding: 100px 48px 0;
-        gap: 40px;
-        min-height: clamp(600px, 80vh, 880px);
-      }
-      .ph-left {
-        flex: 0 0 auto;
-        width: 42%;
-        order: 1;
-        gap: 22px;
-      }
-      .ph-cups-stage {
-        order: 2;
-        flex: 1;
-        height: clamp(440px, 72vh, 780px);
-        margin-top: 0;
-        align-items: flex-end;
-      }
-      .ph-cup-col.hide-mobile { display: flex; }
-    }
-
-    /* Cup image sizing */
-    .ph-cup-img {
-      display: block;
-      object-fit: contain;
-      filter: drop-shadow(0 20px 28px rgba(0,0,0,0.12));
-      width: auto;
-    }
-
-    /* Mobile cup sizes */
-    .ph-img-side   { height: clamp(140px, 28vw, 200px); }
-    .ph-img-mid    { height: clamp(170px, 34vw, 240px); }
-    .ph-img-center { height: clamp(200px, 40vw, 300px); }
-
-    /* Desktop cup sizes */
-    @media (min-width: 1024px) {
-      .ph-img-side   { height: clamp(260px, 34vh, 400px); }
-      .ph-img-mid    { height: clamp(320px, 42vh, 470px); }
-      .ph-img-center { height: clamp(380px, 52vh, 560px); }
-    }
-
-    /* Arc positions — mobile (3 cups: index 0,2,4 → positions left, center, right) */
-    .ph-pos-0 { left: 5%;  transform: rotate(-4deg); z-index: 2; }
-    .ph-pos-2 { left: 50%; transform: translateX(-50%) rotate(0deg); z-index: 5; }
-    .ph-pos-4 { right: 5%; transform: rotate(4deg); z-index: 2; }
-
-    /* Desktop 5-cup arc */
-    @media (min-width: 1024px) {
-      .ph-pos-0 { left: 2%;   transform: rotate(-5deg);  z-index: 2; }
-      .ph-pos-1 { left: 22%;  transform: rotate(-2.5deg); z-index: 3; }
-      .ph-pos-2 { left: 50%;  transform: translateX(-50%) rotate(0deg); z-index: 5; }
-      .ph-pos-3 { right: 22%; transform: rotate(2.5deg);  z-index: 3; }
-      .ph-pos-4 { right: 2%;  transform: rotate(5deg);    z-index: 2; }
-    }
-
-    /* Halo under center */
-    .ph-halo {
-      position: absolute;
-      bottom: -6px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90px;
-      height: 22px;
-      background: radial-gradient(ellipse, rgba(151,182,76,0.6) 0%, transparent 72%);
-      filter: blur(5px);
-      animation: haloGlow 3s ease-in-out infinite;
-      pointer-events: none;
-    }
-
-    /* Shadow puddle */
-    .ph-puddle {
-      width: 55%;
-      height: 8px;
-      margin: 2px auto 0;
-      background: radial-gradient(ellipse, rgba(0,0,0,0.08) 0%, transparent 70%);
-      filter: blur(2px);
-    }
-
-    /* Cup name tag */
-    .ph-cup-tag {
-      margin-top: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(98,132,11,0.15);
-      border-radius: 999px;
-      padding: 3px 9px;
-      font-size: 8px;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      color: #62840b;
-      white-space: nowrap;
-      max-width: min(28vw, 140px);
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .ph-cup-tag::before {
-      content: '';
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #97b64c;
-      flex-shrink: 0;
-    }
-
-    @media (min-width: 1024px) {
-      .ph-cup-tag {
-        font-size: 9px;
-        max-width: min(14vw, 180px);
-        padding: 4px 10px;
-      }
-    }
-
-    /* Trust badges */
-    .ph-trust {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-    }
-
-    /* CTA */
-    .ph-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 48px;
-      padding: 14px 28px;
-      border-radius: 999px;
-      background: #62840b;
-      color: white;
-      font-weight: 800;
-      font-size: 15px;
-      font-family: 'DM Sans', sans-serif;
-      text-decoration: none;
-      letter-spacing: 0.03em;
-      box-shadow: 0 10px 28px rgba(98,132,11,0.32);
-      transition: background 0.22s ease, box-shadow 0.25s ease, transform 0.22s ease;
-      width: fit-content;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .ph-cta:hover {
-      background: #536f09;
-      transform: translateY(-2px);
-      box-shadow: 0 16px 36px rgba(98,132,11,0.42);
-    }
-    .ph-cta:active { transform: translateY(0); }
-
-    /* Marquee */
-    .ph-marquee-track {
-      display: flex;
-      width: max-content;
-      animation: marquee 26s linear infinite;
-    }
-    .ph-marquee-track:hover { animation-play-state: paused; }
-  `}</style>
-
-  {/* ── Decorative blobs ── */}
-  <svg
-    aria-hidden="true"
-    style={{
-      position: "absolute",
-      top: "-80px",
-      right: "-100px",
-      width: "clamp(280px,40vw,580px)",
-      opacity: 0.36,
-      pointerEvents: "none",
-      animation: "blobPulse 12s ease-in-out infinite",
-    }}
-    viewBox="0 0 600 560"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M480 60 C560 120 600 240 560 340 C520 440 400 500 300 490 C200 480 80 420 40 320 C0 220 40 80 140 40 C240 0 400 0 480 60Z"
-      fill="url(#blob1h)"
-    />
-    <defs>
-      <radialGradient id="blob1h" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor="#c8dc8a" />
-        <stop offset="100%" stopColor="#e8f2c8" />
-      </radialGradient>
-    </defs>
-  </svg>
-
-  <svg
-    aria-hidden="true"
-    style={{
-      position: "absolute",
-      bottom: "60px",
-      left: "-80px",
-      width: "clamp(160px,24vw,340px)",
-      opacity: 0.22,
-      pointerEvents: "none",
-      animation: "blobPulse 15s ease-in-out infinite reverse",
-    }}
-    viewBox="0 0 400 380"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M300 30 C360 80 390 180 360 270 C330 360 220 400 130 370 C40 340 -20 240 10 150 C40 60 130 -10 220 2 C270 8 290 20 300 30Z"
-      fill="url(#blob2h)"
-    />
-    <defs>
-      <radialGradient id="blob2h" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor="#97b64c" />
-        <stop offset="100%" stopColor="#d4e8a0" />
-      </radialGradient>
-    </defs>
-  </svg>
-
-  {/* ── Dot grid ── */}
-  <svg
-    aria-hidden="true"
-    style={{
-      position: "absolute",
-      inset: 0,
-      width: "100%",
-      height: "100%",
-      opacity: 0.16,
-      pointerEvents: "none",
-    }}
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <defs>
-      <pattern id="dotgridh" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
-        <circle cx="2" cy="2" r="1.2" fill="#62840b" />
-      </pattern>
-    </defs>
-    <rect width="100%" height="100%" fill="url(#dotgridh)" />
-  </svg>
-
-  {/* ── Main ── */}
-  <div className="ph-wrapper">
-    <div className="ph-layout">
-
-      {/* LEFT */}
-      <div className="ph-left">
-
-        <div className="ph-label" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ width: 26, height: 2, background: "#97b64c", display: "block", borderRadius: 2 }} />
-          <span style={{ fontSize: 11, letterSpacing: "0.22em", fontWeight: 800, color: "#62840b" }}>
-            THE MENU
-          </span>
-        </div>
-
-        <h1
-          className="ph-heading"
+      {/* ══ PRODUCTS HERO — Locations-style blurred image ══ */}
+      <section
+        className={`loc-hero${heroAnimReady ? " loc-hero--ready" : ""}`}
+        style={{
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          fontFamily: "'DM Sans', sans-serif",
+        }}
+      >
+        <div
+          aria-hidden
           style={{
-            fontSize: "clamp(2.8rem,5.8vw,5.6rem)",
-            fontWeight: 900,
-            lineHeight: 0.93,
-            margin: 0,
-            color: "#1a1e14",
-            letterSpacing: "-0.025em",
+            position: "absolute",
+            inset: 0,
+            zIndex: 0,
+            overflow: "hidden",
+            background: "#141c0a",
           }}
         >
-          Sip the <br />
-          <span
-            style={{
-              background: "linear-gradient(135deg,#62840b 0%,#97b64c 50%,#b7cd7f 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
+          <img
+            src={heroImg}
+            alt=""
+            onError={() => {
+              if (heroImg !== PRODUCTS_HERO_FALLBACK) setHeroImg(PRODUCTS_HERO_FALLBACK);
             }}
-          >
-            Difference.
-          </span>
-        </h1>
-
-        <p
-          className="ph-sub"
-          style={{
-            color: "#4d5c3a",
-            maxWidth: 360,
-            fontSize: "clamp(13px,1.05vw,15px)",
-            lineHeight: 1.65,
-            margin: 0,
-          }}
-        >
-          Premium milk tea crafted fresh — no powders, only real ingredients.
-        </p>
-
-        <div className="ph-cta-wrap">
-          <a href="#menu" className="ph-cta" onClick={scrollToMenu}>
-            Browse Menu
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-              <path d="M8 3v10M3 8l5 5 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </a>
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center center",
+              filter: "blur(4px) brightness(0.72) saturate(0.88)",
+              pointerEvents: "none",
+            }}
+          />
         </div>
 
-        <div className="ph-trust">
-          {["Real Tea", "No Powders", "Fresh Daily"].map((t) => (
-            <span
-              key={t}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            background:
+              "linear-gradient(158deg, rgba(18,26,8,0.62) 0%, rgba(24,34,12,0.50) 40%, rgba(20,30,10,0.58) 100%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            background:
+              "radial-gradient(ellipse at center, transparent 40%, rgba(10,18,4,0.35) 100%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          className="loc-hero-content"
+          style={{
+            position: "relative",
+            zIndex: 2,
+            width: "100%",
+            maxWidth: 900,
+            margin: "0 auto",
+            boxSizing: "border-box",
+            textAlign: "center",
+          }}
+        >
+          <div className="loc-hero-tag" style={{ marginBottom: 16 }}>
+            <p
               style={{
+                margin: 0,
                 fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: "0.12em",
-                color: "#97b64c",
-                display: "flex",
-                alignItems: "center",
-                gap: 5,
+                fontWeight: 800,
+                letterSpacing: "0.28em",
+                textTransform: "uppercase",
+                color: "#b7cd7f",
               }}
             >
-              <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#97b64c", display: "inline-block" }} />
-              {t}
-            </span>
-          ))}
-        </div>
-      </div>
+              The Menu
+            </p>
+          </div>
 
-      {/* RIGHT — Cups arc */}
-      <div className="ph-cups-stage">
-        {topDrinks.slice(0, 5).map((d, i) => {
-          const isCenter = i === 1  // index 1 in the visible set of 3 for mobile
-          const posClass = `ph-pos-${i}`
-          // Mobile: hide indices 1 and 3 (show 0, 2, 4)
-          const hideMobile = i === 1 || i === 3
-          // Size class
-          const sizeClass = i === 2
-            ? "ph-img-center"
-            : (i === 1 || i === 3)
-            ? "ph-img-mid"
-            : "ph-img-side"
-          // For the actual center cup (i===2), show halo
-          const showHalo = i === 2
-
-          return (
-            <div
-              key={d.id}
-              className={`ph-cup-col ph-cup-${i} ${posClass}${hideMobile ? " hide-mobile" : ""}`}
+          <div className="loc-hero-h1">
+            <h1
+              className="loc-hero-h1-text"
+              style={{
+                margin: 0,
+                fontWeight: 900,
+                lineHeight: 0.95,
+                letterSpacing: "-0.05em",
+                color: "#F6F1E7",
+                textShadow: "0 6px 30px rgba(0,0,0,0.38)",
+              }}
             >
-              <div className="ph-sway" style={{ position: "relative" }}>
-                <img
-                  src={d.imageUrl}
-                  alt={d.name}
-                  className={`ph-cup-img ${sizeClass}`}
-                  draggable={false}
-                />
-                {showHalo && <div className="ph-halo" />}
-              </div>
-              <div className="ph-puddle" />
-              <div className="ph-cup-tag">{d.name}</div>
-            </div>
-          )
-        })}
-      </div>
+              Sip the{" "}
+              <span
+                style={{
+                  background:
+                    "linear-gradient(135deg, #A6C44A 0%, #C8D97B 45%, #E2C078 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  display: "inline-block",
+                }}
+              >
+                Difference
+              </span>
+            </h1>
+          </div>
 
-    </div>
-  </div>
+          <div className="loc-hero-p" style={{ marginTop: 20 }}>
+            <p
+              style={{
+                margin: "0 auto",
+                maxWidth: 520,
+                fontSize: "clamp(0.92rem, 1.35vw, 1.05rem)",
+                lineHeight: 1.85,
+                color: "rgba(246,241,231,0.72)",
+                fontWeight: 400,
+                textShadow: "0 2px 18px rgba(0,0,0,0.22)",
+              }}
+            >
+              Premium milk tea crafted fresh — no powders, only real ingredients.
+            </p>
+          </div>
+        </div>
 
-  {/* ── Marquee strip ── */}
-  <div
-    style={{
-      position: "relative",
-      zIndex: 10,
-      borderTop: "1px solid rgba(98,132,11,0.11)",
-      borderBottom: "1px solid rgba(98,132,11,0.11)",
-      background: "rgba(255,255,255,0.52)",
-      backdropFilter: "blur(4px)",
-      padding: "10px 0",
-      overflow: "hidden",
-      marginTop: "clamp(28px,5vw,56px)",
-    }}
-  >
-    <div className="ph-marquee-track">
-      {[...Array(2)].map((_, repeat) =>
-        (topDrinks || []).concat([
-          { id: "sep1", name: "★ Black Sugar Boba" },
-          { id: "sep2", name: "★ Signature Taiwanese" },
-          { id: "sep3", name: "★ Milku Strawberry" },
-          { id: "sep4", name: "★ Cheesecake Boba" },
-          { id: "sep5", name: "★ Passion Fruit Canon" },
-          { id: "sep6", name: "★ Brown Sugar Fresh Milk" },
-        ]).map((d, j) => (
-          <span
-            key={`${repeat}-${d.id || j}`}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 2,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 6,
+            opacity: 0.65,
+          }}
+        >
+          <div
             style={{
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: "0.18em",
-              color: j % 3 === 0 ? "#62840b" : "#97b64c",
-              padding: "0 24px",
-              whiteSpace: "nowrap",
+              width: 1,
+              height: 40,
+              overflow: "hidden",
+              background: "rgba(98,132,11,0.25)",
+              borderRadius: 1,
+              position: "relative",
             }}
           >
-            {d.name?.toUpperCase() || "MILKSHOP"}
+            <div
+              className="loc-hero-scroll-bar"
+              style={{
+                position: "absolute",
+                top: 0,
+                width: "100%",
+                height: "40%",
+                background: "#97b64c",
+                borderRadius: 1,
+              }}
+            />
+          </div>
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: 8,
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              color: "#b7cd7f",
+            }}
+          >
+            Scroll
           </span>
-        ))
-      )}
-    </div>
-  </div>
-</section>
+        </div>
+      </section>
 
       <Reveal as="section" className="bg-white prod-section-pad overflow-hidden">
         <div className="prod-container prod-container--wide">
