@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const nodemailer = require('nodemailer')
 const sgMail = require('@sendgrid/mail')
 const { getSetting, KEYS } = require('../models/appSettingsModel')
 const {
@@ -10,11 +11,43 @@ const {
 
 const LOGO_PATH = path.join(__dirname, '../assets/LOGOLAND.png')
 
+const SMTP_HOST = process.env.SMTP_HOST
+const SMTP_PORT = Number(process.env.SMTP_PORT) || 465
+const SMTP_SECURE = process.env.SMTP_SECURE !== 'false'
+const SMTP_USER = process.env.SMTP_USER
+const SMTP_PASSWORD = process.env.SMTP_PASSWORD
+const SMTP_FROM = process.env.SMTP_FROM
+
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY
 const SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL
 
+function isSmtpConfigured() {
+  return !!(SMTP_HOST && SMTP_USER && SMTP_PASSWORD && SMTP_FROM)
+}
+
 function isSendGridConfigured() {
   return !!(SENDGRID_API_KEY && SENDGRID_FROM_EMAIL)
+}
+
+function isEmailConfigured() {
+  return isSmtpConfigured() || isSendGridConfigured()
+}
+
+let smtpTransporter = null
+
+function getSmtpTransporter() {
+  if (!smtpTransporter) {
+    smtpTransporter = nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_SECURE,
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASSWORD,
+      },
+    })
+  }
+  return smtpTransporter
 }
 
 function applyNamePlaceholders(template, displayName) {
@@ -42,16 +75,7 @@ async function getOutcomeEmailConfig(outcome) {
   return merged[outcome] || defaults
 }
 
-async function sendTemplatedEmail(toEmail, name, subject, template) {
-  if (!isSendGridConfigured()) {
-    return {
-      sent: false,
-      error: 'SendGrid not configured (SENDGRID_API_KEY / SENDGRID_FROM_EMAIL)',
-    }
-  }
-
-  sgMail.setApiKey(SENDGRID_API_KEY)
-
+function buildEmailContent(name, subject, template) {
   const textBody = applyNamePlaceholders(template, name)
   const logoSrc = getLogoSrc()
   const htmlBody = escapeHtml(textBody).replace(/\r\n/g, '\n').replace(/\n/g, '<br/>')
@@ -65,21 +89,54 @@ async function sendTemplatedEmail(toEmail, name, subject, template) {
     </div>
   `
 
+  return { textBody, html, subject }
+}
+
+async function sendViaSmtp(toEmail, subject, textBody, html) {
+  const transporter = getSmtpTransporter()
+  await transporter.sendMail({
+    from: `"Milkshop Franchise" <${SMTP_FROM}>`,
+    to: toEmail,
+    subject,
+    text: textBody,
+    html,
+  })
+}
+
+async function sendViaSendGrid(toEmail, subject, textBody, html) {
+  sgMail.setApiKey(SENDGRID_API_KEY)
+  await sgMail.send({
+    to: toEmail,
+    from: {
+      email: SENDGRID_FROM_EMAIL,
+      name: 'Milkshop Franchise',
+    },
+    subject,
+    text: textBody,
+    html,
+  })
+}
+
+async function sendTemplatedEmail(toEmail, name, subject, template) {
+  if (!isEmailConfigured()) {
+    return {
+      sent: false,
+      error: 'Email not configured (SMTP_* or SENDGRID_* env vars)',
+    }
+  }
+
+  const { textBody, html } = buildEmailContent(name, subject, template)
+
   try {
-    await sgMail.send({
-      to: toEmail,
-      from: {
-        email: SENDGRID_FROM_EMAIL,
-        name: 'Milkshop Franchise',
-      },
-      subject,
-      text: textBody,
-      html,
-    })
+    if (isSmtpConfigured()) {
+      await sendViaSmtp(toEmail, subject, textBody, html)
+    } else {
+      await sendViaSendGrid(toEmail, subject, textBody, html)
+    }
     return { sent: true }
   } catch (err) {
     const message =
-      err?.response?.body?.errors?.[0]?.message || err.message || 'SendGrid send failed'
+      err?.response?.body?.errors?.[0]?.message || err.message || 'Email send failed'
     return { sent: false, error: message }
   }
 }

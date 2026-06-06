@@ -32,7 +32,7 @@ export default function FranchiseCTAFloating() {
 
   const location = useLocation()
 
-  const { open } = useFranchiseInquiry()
+  const { open, isOpen } = useFranchiseInquiry()
 
   const [panelVisible, setPanelVisible] = useState(false)
 
@@ -64,7 +64,10 @@ export default function FranchiseCTAFloating() {
 
 
 
-  const hidden = location.pathname.startsWith("/admin")
+  const hidden =
+    location.pathname.startsWith("/admin") ||
+    isOpen ||
+    location.pathname.startsWith("/franchise")
 
 
 

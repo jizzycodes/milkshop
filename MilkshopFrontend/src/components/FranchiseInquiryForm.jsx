@@ -179,8 +179,27 @@ export default function FranchiseInquiryForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
+  const turnstileTokenRef = useRef("");
   const turnstileRef = useRef(null);
   const turnstileWidgetId = useRef(null);
+
+  const clearTurnstileToken = () => {
+    turnstileTokenRef.current = "";
+    setTurnstileToken("");
+  };
+
+  const resolveTurnstileToken = () => {
+    if (turnstileTokenRef.current) return turnstileTokenRef.current;
+    if (turnstileWidgetId.current != null && window.turnstile?.getResponse) {
+      const liveToken = window.turnstile.getResponse(turnstileWidgetId.current);
+      if (liveToken) {
+        turnstileTokenRef.current = liveToken;
+        setTurnstileToken(liveToken);
+        return liveToken;
+      }
+    }
+    return turnstileToken;
+  };
 
   useEffect(() => {
     if (!preferredPackage) return;
@@ -188,7 +207,10 @@ export default function FranchiseInquiryForm({
   }, [preferredPackage]);
 
   useEffect(() => {
-    const handler = (e) => setTurnstileToken(e.detail);
+    const handler = (e) => {
+      turnstileTokenRef.current = e.detail;
+      setTurnstileToken(e.detail);
+    };
     document.addEventListener("turnstile:success", handler);
     return () => document.removeEventListener("turnstile:success", handler);
   }, []);
@@ -198,6 +220,7 @@ export default function FranchiseInquiryForm({
     if (!el || !TURNSTILE_SITE_KEY) return undefined;
 
     const onSuccess = (token) => {
+      turnstileTokenRef.current = token;
       setTurnstileToken(token);
       document.dispatchEvent(new CustomEvent("turnstile:success", { detail: token }));
     };
@@ -213,20 +236,28 @@ export default function FranchiseInquiryForm({
         turnstileWidgetId.current = null;
       }
       el.innerHTML = "";
+      const isMobile = window.matchMedia("(max-width: 767px)").matches;
       turnstileWidgetId.current = window.turnstile.render(el, {
         sitekey: TURNSTILE_SITE_KEY,
         theme: "light",
+        size: isMobile ? "flexible" : "normal",
         callback: onSuccess,
-        "expired-callback": () => setTurnstileToken(""),
-        "error-callback": () => setTurnstileToken(""),
+        "expired-callback": clearTurnstileToken,
+        "error-callback": clearTurnstileToken,
+      });
+    };
+
+    const scheduleRender = () => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(renderWidget);
       });
     };
 
     if (window.turnstile) {
-      renderWidget();
+      scheduleRender();
     } else {
       let script = document.querySelector(`script[src="${TURNSTILE_SCRIPT}"]`);
-      const onLoad = () => renderWidget();
+      const onLoad = () => scheduleRender();
       if (!script) {
         script = document.createElement("script");
         script.src = TURNSTILE_SCRIPT;
@@ -236,7 +267,7 @@ export default function FranchiseInquiryForm({
         document.head.appendChild(script);
       } else {
         script.addEventListener("load", onLoad);
-        if (window.turnstile) renderWidget();
+        if (window.turnstile) scheduleRender();
       }
     }
 
@@ -249,6 +280,7 @@ export default function FranchiseInquiryForm({
         }
       }
       turnstileWidgetId.current = null;
+      clearTurnstileToken();
     };
   }, [isModal]);
 
@@ -286,7 +318,8 @@ export default function FranchiseInquiryForm({
   const handleSubmit = async (ev) => {
     ev.preventDefault();
     setErrorMessage(""); 
-     if (!turnstileToken) {
+    const activeTurnstileToken = resolveTurnstileToken();
+    if (!activeTurnstileToken) {
       setErrorMessage("Please complete the security check.");
       return;
     }
@@ -298,7 +331,7 @@ export default function FranchiseInquiryForm({
     }
     setIsSubmitting(true);
     try {
-      await createFranchiseRequest({ ...formData, turnstileToken });
+      await createFranchiseRequest({ ...formData, turnstileToken: activeTurnstileToken });
       setSubmitted(true);
       setFormData(EMPTY_FORM);
     } catch (err) {
@@ -360,6 +393,9 @@ export default function FranchiseInquiryForm({
           gap: 14px;
           align-items: stretch;
         }
+        .fi-form--modal .fi-form-cta-row--modal .fi-turnstile-wrap {
+          order: -1;
+        }
         .fi-form-trust {
           display: flex;
           flex-wrap: wrap;
@@ -400,7 +436,8 @@ export default function FranchiseInquiryForm({
   background: #fafbf7;
   border-top: 1px solid ${T.border};
   position: relative;
-  z-index: 50;
+  z-index: 200;
+  isolation: isolate;
 }
 
 .fi-form--modal .fi-form-footer {
@@ -409,38 +446,41 @@ export default function FranchiseInquiryForm({
 .fi-form--modal {
   overflow: visible !important;
 }
-.fi-turnstile-wrap iframe {
-  pointer-events: auto !important;
-  touch-action: auto !important;
+.fi-form--modal .fi-form-scroll {
   position: relative;
-  z-index: 9999;
+  z-index: 1;
 }
-        @media (min-width: 768px) {
-          .fi-form--modal .fi-form-footer { padding: 14px 32px 24px; }
-        }
        .fi-turnstile-wrap {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 70px;
+  min-height: 80px;
   width: 100%;
   position: relative;
-  z-index: 100;
+  z-index: 300;
   pointer-events: auto !important;
-  touch-action: auto !important;
-  -webkit-user-select: none;
-  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transform: translateZ(0);
 }
 .fi-turnstile-wrap > div {
   pointer-events: auto !important;
-  touch-action: auto !important;
+  touch-action: manipulation;
   position: relative;
-  z-index: 100;
+  z-index: 300;
+  min-height: 65px;
+  width: 100%;
+  max-width: 100%;
 }
 .fi-turnstile-wrap iframe {
   pointer-events: auto !important;
-  touch-action: auto !important;
+  touch-action: manipulation;
+  position: relative;
+  z-index: 300;
 }
+        @media (min-width: 768px) {
+          .fi-form--modal .fi-form-footer { padding: 14px 32px 24px; }
+        }
         .fi-form--modal .fi-submit-btn {
           width: 100%;
           min-height: 50px;
@@ -609,14 +649,14 @@ export default function FranchiseInquiryForm({
         </div>
 
         <div className="fi-form-footer">
-          <div className="fi-form-cta-row">
+          <div className="fi-form-cta-row fi-form-cta-row--modal">
+            <div className="fi-turnstile-wrap">
+              <div ref={turnstileRef} />
+            </div>
             <div className="fi-form-trust">
               <span>🔒 Secure</span>
               <span>⚡ Fast Review</span>
               <span>📞 We&apos;ll Call You</span>
-            </div>
-            <div className="fi-turnstile-wrap">
-              <div ref={turnstileRef} />
             </div>
             <button
               type="button"

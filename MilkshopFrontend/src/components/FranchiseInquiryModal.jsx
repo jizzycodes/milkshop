@@ -33,8 +33,7 @@ export default function FranchiseInquiryModal({ isOpen, onClose, preferredPackag
           position: fixed;
           inset: 0;
           z-index: 10050;
-          background: rgba(10, 18, 4, 0.55);
-          backdrop-filter: blur(4px);
+          background: rgba(10, 18, 4, 0.72);
           animation: fiModalIn 0.25s ease;
           padding: 0;
           display: flex;
@@ -57,8 +56,9 @@ export default function FranchiseInquiryModal({ isOpen, onClose, preferredPackag
           display: flex;
           flex-direction: column;
           animation: fiSheetUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-          overflow: hidden;
+          overflow: visible;
           transform: none;
+          isolation: isolate;
         }
         @media (min-width: 768px) {
           .fi-modal-panel {
@@ -114,7 +114,7 @@ export default function FranchiseInquiryModal({ isOpen, onClose, preferredPackag
           min-height: 0;
           display: flex;
           flex-direction: column;
-          overflow: hidden;
+          overflow: visible;
           padding: 0;
           background: #fafbf7;
         }
