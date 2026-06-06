@@ -45,6 +45,9 @@ function getSmtpTransporter() {
         user: SMTP_USER,
         pass: SMTP_PASSWORD,
       },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
     })
   }
   return smtpTransporter
@@ -129,10 +132,19 @@ async function sendTemplatedEmail(toEmail, name, subject, template) {
 
   try {
     if (isSmtpConfigured()) {
-      await sendViaSmtp(toEmail, subject, textBody, html)
-    } else {
-      await sendViaSendGrid(toEmail, subject, textBody, html)
+      try {
+        await sendViaSmtp(toEmail, subject, textBody, html)
+        return { sent: true }
+      } catch (smtpErr) {
+        if (isSendGridConfigured()) {
+          await sendViaSendGrid(toEmail, subject, textBody, html)
+          return { sent: true }
+        }
+        throw smtpErr
+      }
     }
+
+    await sendViaSendGrid(toEmail, subject, textBody, html)
     return { sent: true }
   } catch (err) {
     const message =
