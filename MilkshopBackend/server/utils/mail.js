@@ -1,7 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 const nodemailer = require('nodemailer')
-const sgMail = require('@sendgrid/mail')
 const { getSetting, KEYS } = require('../models/appSettingsModel')
 const {
   DEFAULT_FRANCHISE_CONFIRMATION_TEMPLATE,
@@ -18,19 +17,12 @@ const SMTP_USER = process.env.SMTP_USER
 const SMTP_PASSWORD = process.env.SMTP_PASSWORD
 const SMTP_FROM = process.env.SMTP_FROM
 
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY
-const SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL
-
 function isSmtpConfigured() {
   return !!(SMTP_HOST && SMTP_USER && SMTP_PASSWORD && SMTP_FROM)
 }
 
-function isSendGridConfigured() {
-  return !!(SENDGRID_API_KEY && SENDGRID_FROM_EMAIL)
-}
-
 function isEmailConfigured() {
-  return isSmtpConfigured() || isSendGridConfigured()
+  return isSmtpConfigured()
 }
 
 let smtpTransporter = null
@@ -106,49 +98,21 @@ async function sendViaSmtp(toEmail, subject, textBody, html) {
   })
 }
 
-async function sendViaSendGrid(toEmail, subject, textBody, html) {
-  sgMail.setApiKey(SENDGRID_API_KEY)
-  await sgMail.send({
-    to: toEmail,
-    from: {
-      email: SENDGRID_FROM_EMAIL,
-      name: 'Milkshop Franchise',
-    },
-    subject,
-    text: textBody,
-    html,
-  })
-}
-
 async function sendTemplatedEmail(toEmail, name, subject, template) {
   if (!isEmailConfigured()) {
     return {
       sent: false,
-      error: 'Email not configured (SMTP_* or SENDGRID_* env vars)',
+      error: 'Email not configured (SMTP_* env vars)',
     }
   }
 
   const { textBody, html } = buildEmailContent(name, subject, template)
 
   try {
-    if (isSmtpConfigured()) {
-      try {
-        await sendViaSmtp(toEmail, subject, textBody, html)
-        return { sent: true }
-      } catch (smtpErr) {
-        if (isSendGridConfigured()) {
-          await sendViaSendGrid(toEmail, subject, textBody, html)
-          return { sent: true }
-        }
-        throw smtpErr
-      }
-    }
-
-    await sendViaSendGrid(toEmail, subject, textBody, html)
+    await sendViaSmtp(toEmail, subject, textBody, html)
     return { sent: true }
   } catch (err) {
-    const message =
-      err?.response?.body?.errors?.[0]?.message || err.message || 'Email send failed'
+    const message = err.message || 'Email send failed'
     return { sent: false, error: message }
   }
 }
