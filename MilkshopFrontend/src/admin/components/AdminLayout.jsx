@@ -7,7 +7,7 @@ const NAV_ITEMS = [
     to: "/admin/dashboard",
     label: "Dashboard",
     icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="7" height="7" rx="1.5" />
         <rect x="14" y="3" width="7" height="7" rx="1.5" />
         <rect x="3" y="14" width="7" height="7" rx="1.5" />
@@ -19,7 +19,7 @@ const NAV_ITEMS = [
     to: "/admin/leads",
     label: "Leads",
     icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
         <circle cx="9" cy="7" r="4" />
         <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -32,7 +32,7 @@ const NAV_ITEMS = [
     label: "QR & Email",
     adminOnly: true,
     icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="4" width="18" height="14" rx="2" />
         <polyline points="4 6 12 11 20 6" />
       </svg>
@@ -42,7 +42,7 @@ const NAV_ITEMS = [
     to: "/admin/account-settings",
     label: "Account Settings",
     icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="8" r="3" />
         <path d="M5 21v-1a7 7 0 0 1 14 0v1" />
       </svg>
@@ -51,19 +51,19 @@ const NAV_ITEMS = [
 ];
 
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
 
   :root {
     --green-primary: #97b64c;
-    --green-dark: #62840b;
-    --green-light: #b7cd7f;
-    --green-muted: #b7cd7f;
-    --amber: #E8A020;
-    --surface-bg: #f5f8ef;
-    --border: #d0e0b0;
+    --green-dark: #5A9216;
+    --green-soft: #f3f8eb;
+    --surface-bg: #ffffff;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --hover-bg: #f9fafb;
     --text-primary: #1e1e1e;
-    --text-secondary: #374151;
-    --sidebar-width: 240px;
+    --text-secondary: #6b7280;
+    --sidebar-width: 260px;
     --white: #ffffff;
   }
 
@@ -97,8 +97,8 @@ const STYLES = `
 
   /* ─── Brand ─── */
   .al-brand {
-    padding: 24px 20px 20px;
-    border-bottom: 1px solid var(--border);
+    padding: 28px 22px 22px;
+    border-bottom: 1px solid var(--border-light);
   }
 
   .al-brand-link {
@@ -110,52 +110,53 @@ const STYLES = `
 
   .al-brand-logo {
     display: block;
-    height: 32px;
+    height: 36px;
     width: auto;
-    max-width: 140px;
     object-fit: contain;
+    flex-shrink: 0;
   }
 
-  .al-brand-sub {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    color: var(--text-secondary);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    margin-top: 8px;
-    opacity: 0.7;
+  .al-brand-wordmark {
+    font-family: 'Signia Pro', 'DM Sans', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+    color: var(--green-dark);
+    white-space: nowrap;
+    -webkit-font-smoothing: antialiased;
   }
 
   /* ─── Nav ─── */
   .al-nav {
     flex: 1;
-    padding: 16px 12px;
+    padding: 20px 14px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
     overflow-y: auto;
   }
 
   .al-nav-section-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.18em;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--text-secondary);
-    padding: 4px 10px 10px;
-    opacity: 0.6;
+    padding: 0 12px 12px;
+    opacity: 0.75;
   }
 
   .al-nav-link {
     display: flex;
     align-items: center;
-    gap: 11px;
-    padding: 10px 12px;
+    gap: 12px;
+    padding: 12px 14px;
     border-radius: 10px;
-    font-size: 13.5px;
+    font-size: 15px;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     text-decoration: none;
     transition: background 0.15s ease, color 0.15s ease;
     position: relative;
@@ -163,14 +164,15 @@ const STYLES = `
   }
 
   .al-nav-link:hover {
-    background: var(--surface-bg);
+    background: var(--hover-bg);
     color: var(--text-primary);
   }
 
   .al-nav-link.active {
-    background: #eef5df;
+    background: var(--green-soft);
     color: var(--green-dark);
-    font-weight: 600;
+    font-family: 'Signia Pro', 'DM Sans', sans-serif;
+    font-weight: 700;
   }
 
   .al-nav-link.active .al-nav-icon {
@@ -183,57 +185,63 @@ const STYLES = `
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: 3px;
-    height: 52%;
+    width: 4px;
+    height: 58%;
     background: var(--green-primary);
-    border-radius: 0 3px 3px 0;
+    border-radius: 0 4px 4px 0;
   }
 
   .al-nav-icon {
     flex-shrink: 0;
     color: var(--text-secondary);
     transition: color 0.15s;
-    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+  }
+
+  .al-nav-link:hover .al-nav-icon {
+    color: var(--text-primary);
   }
 
   .al-nav-link.active .al-nav-icon {
-    opacity: 1;
+    color: var(--green-primary);
   }
 
   /* ─── Footer ─── */
   .al-footer {
-    padding: 14px 12px 16px;
-    border-top: 1px solid var(--border);
+    padding: 16px 14px 18px;
+    border-top: 1px solid var(--border-light);
   }
 
   .al-admin-info {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 11px;
     padding: 10px 12px;
     border-radius: 10px;
-    background: var(--surface-bg);
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
 
   .al-admin-avatar {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #d4e8a0 0%, #97b64c 100%);
+    background: var(--green-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--white);
     flex-shrink: 0;
-    font-family: 'DM Mono', monospace;
+    font-family: 'DM Sans', sans-serif;
     letter-spacing: 0;
   }
 
   .al-admin-name {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--text-primary);
     white-space: nowrap;
@@ -243,25 +251,23 @@ const STYLES = `
   }
 
   .al-admin-role {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--text-secondary);
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.06em;
-    opacity: 0.7;
-    margin-top: 1px;
+    font-family: 'DM Sans', sans-serif;
+    margin-top: 2px;
   }
 
   .al-logout {
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 9px;
-    padding: 9px 12px;
+    gap: 10px;
+    padding: 10px 12px;
     border-radius: 10px;
     border: none;
     background: transparent;
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: 14px;
     font-family: 'DM Sans', sans-serif;
     font-weight: 500;
     cursor: pointer;
@@ -270,18 +276,17 @@ const STYLES = `
   }
 
   .al-logout:hover {
-    background: #fff1f1;
-    color: #c0392b;
+    background: #fef2f2;
+    color: #b91c1c;
   }
 
   .al-logout:hover .al-logout-icon {
-    color: #c0392b;
+    color: #b91c1c;
   }
 
   .al-logout-icon {
     color: var(--text-secondary);
     transition: color 0.15s;
-    opacity: 0.7;
   }
 
   /* ─── Main content ─── */
@@ -295,7 +300,7 @@ const STYLES = `
   .al-main {
     flex: 1;
     min-height: 100vh;
-    background: var(--surface-bg);
+    background: #ffffff;
   }
 
   /* ─── Mobile header ─── */
@@ -305,7 +310,7 @@ const STYLES = `
     justify-content: space-between;
     padding: 14px 20px;
     background: var(--white);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-light);
     position: sticky;
     top: 0;
     z-index: 50;
@@ -323,7 +328,7 @@ const STYLES = `
     align-items: center;
     justify-content: center;
     gap: 5px;
-    background: var(--surface-bg);
+    background: var(--hover-bg);
     border: 1px solid var(--border);
     border-radius: 9px;
     cursor: pointer;
@@ -332,14 +337,14 @@ const STYLES = `
   }
 
   .al-hamburger:hover {
-    background: #eef5df;
+    background: var(--green-soft);
   }
 
   .al-hamburger span {
     display: block;
     width: 15px;
     height: 1.5px;
-    background: var(--text-secondary);
+    background: var(--text-primary);
     border-radius: 2px;
     transition: background 0.15s;
   }
@@ -348,7 +353,7 @@ const STYLES = `
   .al-mobile-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(10, 20, 5, 0.4);
+    background: rgba(0, 0, 0, 0.35);
     z-index: 40;
     backdrop-filter: blur(3px);
     animation: al-fade-in 0.2s ease;
@@ -370,7 +375,7 @@ const STYLES = `
     flex-direction: column;
     transform: translateX(-100%);
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 4px 0 24px rgba(0,0,0,0.06);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.08);
   }
 
   .al-mobile-drawer.open { transform: translateX(0); }
@@ -384,7 +389,7 @@ const STYLES = `
     align-items: center;
     justify-content: space-between;
     padding: 18px 20px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-light);
   }
 
   .al-drawer-close {
@@ -393,7 +398,7 @@ const STYLES = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--surface-bg);
+    background: var(--hover-bg);
     border: 1px solid var(--border);
     border-radius: 7px;
     cursor: pointer;
@@ -403,7 +408,7 @@ const STYLES = `
   }
 
   .al-drawer-close:hover {
-    background: #eef5df;
+    background: var(--green-soft);
     color: var(--text-primary);
   }
 `;
@@ -423,10 +428,10 @@ export default function AdminLayout({ children }) {
   const SidebarContent = ({ onLinkClick }) => (
     <>
       <div className="al-brand">
-        <Link to="/admin/dashboard" className="al-brand-link" onClick={onLinkClick}>
-          <img src="/milkshop-logo-removebg-preview.png" alt="Milkshop" className="al-brand-logo" />
+        <Link to="/admin/dashboard" className="al-brand-link" onClick={onLinkClick} aria-label="Milkshop Admin dashboard">
+          <img src="/milkshop-logo-removebg-preview.webp" alt="" aria-hidden className="al-brand-logo" />
+          <span className="al-brand-wordmark">Milkshop Admin</span>
         </Link>
-        <p className="al-brand-sub">Admin Console</p>
       </div>
 
       <nav className="al-nav">
@@ -494,7 +499,7 @@ export default function AdminLayout({ children }) {
           {/* Mobile Header */}
           <header className="al-mobile-header">
             <Link to="/admin/dashboard">
-              <img src="/milkshop-logo-removebg-preview.png" alt="Milkshop" className="al-brand-logo" style={{ height: 28 }} />
+              <img src="/milkshop-logo-removebg-preview.webp" alt="Milkshop" className="al-brand-logo" style={{ height: 28 }} />
             </Link>
             <button className="al-hamburger" onClick={() => setMobileOpen(true)} aria-label="Open menu">
               <span /><span /><span />
@@ -509,7 +514,7 @@ export default function AdminLayout({ children }) {
           {/* Mobile Drawer */}
           <div className={`al-mobile-drawer${mobileOpen ? " open" : ""}`}>
             <div className="al-drawer-top">
-              <img src="/milkshop-logo-removebg-preview.png" alt="Milkshop" className="al-brand-logo" style={{ height: 28 }} />
+              <img src="/milkshop-logo-removebg-preview.webp" alt="Milkshop" className="al-brand-logo" style={{ height: 28 }} />
               <button className="al-drawer-close" onClick={() => setMobileOpen(false)} aria-label="Close menu">
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                   <path d="M1 1l11 11M12 1L1 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />

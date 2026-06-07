@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 const EXIT_MS = 180;
-const LOGO_SRC = "/milkshop-logo-removebg-preview.png";
+const LOGO_SRC = "/milkshop-logo-removebg-preview.webp";
 
 /**
  * Full-screen route transition loader (Milkshop brand — pour bar + logo sway).

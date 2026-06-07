@@ -41,9 +41,23 @@ const TURNSTILE_SITE_KEY =
   import.meta.env.VITE_TURNSTILE_SITE_KEY || "0x4AAAAAADe_Eo_j7PaIbsrR";
 const TURNSTILE_SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js";
 
-window.onTurnstileSuccess = (token) => {
-  document.dispatchEvent(new CustomEvent("turnstile:success", { detail: token }));
-};
+function waitForTurnstile() {
+  if (window.turnstile) return Promise.resolve();
+  return new Promise((resolve) => {
+    const script = document.querySelector(`script[src="${TURNSTILE_SCRIPT}"]`);
+    const done = () => resolve();
+    if (script) {
+      script.addEventListener("load", done, { once: true });
+      if (window.turnstile) done();
+      return;
+    }
+    const poll = () => {
+      if (window.turnstile) done();
+      else requestAnimationFrame(poll);
+    };
+    poll();
+  });
+}
 
 function Field({ label, required, error, children }) {
   return (
@@ -65,40 +79,105 @@ function Field({ label, required, error, children }) {
   );
 }
 
-function ThankYouView() {
+function ThankYouView({ variant = "page" }) {
+  const isModal = variant === "modal";
   return (
     <>
       <style>{`
+        @keyframes fiTyFadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
         .fi-thankyou {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 20px;
-          padding: clamp(16px, 3vw, 28px) 12px;
+          gap: 24px;
+          width: 100%;
+          box-sizing: border-box;
+          padding: clamp(20px, 4vw, 28px) clamp(16px, 4vw, 20px);
           animation: fiTyFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .fi-thankyou--modal {
+          padding: 16px 18px 20px;
+          justify-content: center;
+          gap: 16px;
         }
         @media (min-width: 560px) {
           .fi-thankyou {
             flex-direction: row;
             align-items: center;
-            gap: 24px 32px;
+            gap: 28px 36px;
+            padding: clamp(24px, 4vw, 32px) clamp(20px, 4vw, 28px);
+          }
+          .fi-thankyou--modal {
+            flex-direction: row;
+            gap: 20px 24px;
+            padding: 20px 24px 24px;
+          }
+        }
+        @media (min-width: 768px) {
+          .fi-thankyou--modal {
+            padding: 22px 28px 26px;
           }
         }
         .fi-thankyou-visual {
           flex-shrink: 0;
+          display: flex;
+          justify-content: center;
+          width: min(220px, 68vw);
+        }
+        .fi-thankyou--modal .fi-thankyou-visual {
+          width: min(140px, 42vw);
+        }
+        @media (min-width: 560px) {
+          .fi-thankyou-visual {
+            width: auto;
+            flex: 0 0 min(240px, 38%);
+            justify-content: center;
+          }
+          .fi-thankyou--modal .fi-thankyou-visual {
+            flex: 0 0 min(150px, 34%);
+            width: auto;
+          }
+        }
+        @media (min-width: 768px) {
+          .fi-thankyou-visual {
+            flex-basis: min(280px, 40%);
+          }
+          .fi-thankyou--modal .fi-thankyou-visual {
+            flex-basis: min(160px, 32%);
+          }
         }
         .fi-thankyou-visual img {
           display: block;
-          width: auto;
-          max-width: min(300px, 72vw);
+          width: 100%;
           height: auto;
-          max-height: 280px;
+          max-height: min(240px, 42vw);
           object-fit: contain;
+        }
+        .fi-thankyou--modal .fi-thankyou-visual img {
+          max-height: min(150px, 38vw);
         }
         @media (min-width: 560px) {
           .fi-thankyou-visual img {
-            max-width: 300px;
+            width: auto;
+            max-width: min(260px, 100%);
+            max-height: 300px;
+          }
+          .fi-thankyou--modal .fi-thankyou-visual img {
+            max-width: 160px;
+            max-height: 180px;
+          }
+        }
+        @media (min-width: 768px) {
+          .fi-thankyou-visual img {
+            max-width: 280px;
             max-height: 320px;
+          }
+          .fi-thankyou--modal .fi-thankyou-visual img {
+            max-width: 170px;
+            max-height: 190px;
           }
         }
         .fi-thankyou-copy {
@@ -107,51 +186,103 @@ function ThankYouView() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
           text-align: center;
         }
-        .fi-thankyou-copy p {
-          max-width: 36ch;
-          margin-left: auto;
-          margin-right: auto;
+        @media (min-width: 560px) {
+          .fi-thankyou-copy {
+            align-items: flex-start;
+            text-align: left;
+            justify-content: center;
+          }
+          .fi-thankyou--modal .fi-thankyou-copy {
+            align-items: flex-start;
+            text-align: left;
+          }
+        }
+        .fi-thankyou-heading {
+          margin: 0 0 8px;
+          font-size: clamp(1.45rem, 5vw, 2rem);
+          line-height: 1.15;
+        }
+        .fi-thankyou--modal .fi-thankyou-heading {
+          font-size: clamp(1.2rem, 4vw, 1.45rem);
+          margin-bottom: 6px;
+        }
+        .fi-thankyou-message {
+          color: ${T.body};
+          font-size: clamp(0.875rem, 2.6vw, 0.95rem);
+          line-height: 1.6;
+          margin: 0;
+          max-width: 38ch;
+        }
+        .fi-thankyou--modal .fi-thankyou-message {
+          font-size: clamp(0.8125rem, 2.4vw, 0.875rem);
+          line-height: 1.55;
+          max-width: 34ch;
+        }
+        .fi-thankyou-message strong {
+          color: ${T.greenDark};
+          font-weight: 700;
         }
         .fi-thankyou-trust {
           display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 12px 16px;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          margin-top: 24px;
+          padding-top: 20px;
+          border-top: 1px solid ${T.border};
+          font-size: 0.78rem;
+          font-weight: 600;
+          color: ${T.greenDark};
+        }
+        .fi-thankyou--modal .fi-thankyou-trust {
+          margin-top: 14px;
+          padding-top: 12px;
+          gap: 8px;
+          font-size: 0.72rem;
+        }
+        @media (min-width: 420px) {
+          .fi-thankyou-trust {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px 20px;
+          }
+          .fi-thankyou--modal .fi-thankyou-trust {
+            gap: 8px 14px;
+          }
+        }
+        @media (min-width: 560px) {
+          .fi-thankyou-trust {
+            justify-content: flex-start;
+            margin-top: 28px;
+            padding-top: 24px;
+          }
+          .fi-thankyou--modal .fi-thankyou-trust {
+            margin-top: 16px;
+            padding-top: 14px;
+          }
+        }
+        .fi-thankyou-trust span {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          white-space: nowrap;
         }
       `}</style>
-      <div className="fi-thankyou">
+      <div className={`fi-thankyou${isModal ? " fi-thankyou--modal" : ""}`}>
         <div className="fi-thankyou-visual">
-          <img src="/mooba-ty.png" alt="Mooba thank you" draggable={false} />
+          <img src="/mooba-ty.webp" alt="Mooba thank you" draggable={false} />
         </div>
         <div className="fi-thankyou-copy">
-          <h2
-            className="ms-section-heading"
-            style={{ marginBottom: 8, fontSize: "clamp(1.35rem, 4.5vw, 1.85rem)" }}
-          >
-            Thank You!
-          </h2>
-          <p
-            style={{
-              color: T.body,
-              fontSize: "0.92rem",
-              lineHeight: 1.65,
-              margin: "0 0 20px",
-            }}
-          >
+          <h2 className="ms-section-heading fi-thankyou-heading">Thank You!</h2>
+          <p className="fi-thankyou-message">
             We&apos;ve received your franchise application. Our team will reach out within{" "}
-            <strong style={{ color: T.greenDark }}>1–2 business days</strong>.
+            <strong>1–2 business days</strong>.
           </p>
-          <div
-            className="fi-thankyou-trust"
-            style={{
-              fontSize: "0.78rem",
-              color: T.greenDark,
-              fontWeight: 600,
-            }}
-          >
+          <div className="fi-thankyou-trust">
             <span>🔒 Secure</span>
             <span>⚡ Fast Review</span>
             <span>📞 We&apos;ll Call You</span>
@@ -168,6 +299,7 @@ export default function FranchiseInquiryForm({
   preferredPackage = "",
   hideHeader = false,
   variant = "page",
+  onSubmittedChange,
 }) {
   const isModal = variant === "modal";
   const [formData, setFormData] = useState(() => ({
@@ -200,6 +332,10 @@ export default function FranchiseInquiryForm({
     }
     return turnstileToken;
   };
+
+  useEffect(() => {
+    onSubmittedChange?.(submitted);
+  }, [submitted, onSubmittedChange]);
 
   useEffect(() => {
     if (!preferredPackage) return;
@@ -253,25 +389,13 @@ export default function FranchiseInquiryForm({
       });
     };
 
-    if (window.turnstile) {
-      scheduleRender();
-    } else {
-      let script = document.querySelector(`script[src="${TURNSTILE_SCRIPT}"]`);
-      const onLoad = () => scheduleRender();
-      if (!script) {
-        script = document.createElement("script");
-        script.src = TURNSTILE_SCRIPT;
-        script.async = true;
-        script.defer = true;
-        script.addEventListener("load", onLoad);
-        document.head.appendChild(script);
-      } else {
-        script.addEventListener("load", onLoad);
-        if (window.turnstile) scheduleRender();
-      }
-    }
+    let cancelled = false;
+    waitForTurnstile().then(() => {
+      if (!cancelled) scheduleRender();
+    });
 
     return () => {
+      cancelled = true;
       if (turnstileWidgetId.current != null && window.turnstile) {
         try {
           window.turnstile.remove(turnstileWidgetId.current);
@@ -341,7 +465,7 @@ export default function FranchiseInquiryForm({
     }
   };
 
-  if (submitted) return <ThankYouView />;
+  if (submitted) return <ThankYouView variant={variant} />;
 
   return (
     <div className={isModal ? "fi-form-root fi-form--modal" : "fi-form-root"}>

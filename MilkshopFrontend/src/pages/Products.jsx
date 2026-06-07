@@ -74,8 +74,8 @@ const topDrinks = [
   },
 ];
 
-const PRODUCTS_HERO_IMAGE = "/products/products-hero.png";
-const PRODUCTS_HERO_FALLBACK = "/HEROFRESH.jpg";
+const PRODUCTS_HERO_IMAGE = "/products/products-hero.webp";
+const PRODUCTS_HERO_FALLBACK = "/closer.webp";
 
 // ─── SERIES CUPS GRID (all products visible: image + name only) ───────────────
 function SeriesCupsGrid({ products }) {

@@ -75,9 +75,9 @@ export default function GlobalSearchView({ search }) {
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center rounded-xl border border-[#DDE8CF] bg-white py-12 shadow-sm">
+        <div className="flex items-center justify-center rounded-xl border border-[#E5E7EB] bg-white py-12 shadow-sm">
           <div className="flex flex-col items-center gap-3">
-            <div className="h-5 w-5 rounded-full border-2 border-[#DDE8CF] border-t-[#5A9216] animate-spin" />
+            <div className="h-5 w-5 rounded-full border-2 border-[#E5E7EB] border-t-[#6B7280] animate-spin" />
             <span className="font-mono text-xs text-[#374151]">Searching...</span>
           </div>
         </div>
@@ -86,7 +86,7 @@ export default function GlobalSearchView({ search }) {
           columns={columns}
           leads={leads}
           renderRow={(lead) => (
-            <tr key={lead.id} className="border-b border-[#DDE8CF] hover:bg-[#F7F9F4] transition-colors">
+            <tr key={lead.id} className="border-b border-[#F3F4F6] hover:bg-[#F9FAFB] transition-colors">
               <td className="px-4 py-3 text-sm font-medium text-[#1A2410]">
                 {lead.full_name || "—"}
               </td>
@@ -94,7 +94,7 @@ export default function GlobalSearchView({ search }) {
                 {lead.email || "—"}
               </td>
               <td className="px-4 py-3">
-                <span className="inline-flex items-center rounded-full border border-[#DDE8CF] bg-[#F7F9F4] px-2.5 py-0.5 text-xs font-medium text-[#1A2410]">
+                <span className="inline-flex items-center rounded-full border border-[#E5E7EB] bg-[#F3F4F6] px-2.5 py-0.5 text-xs font-medium text-[#6B7280]">
                   {getPipelineStageLabel(lead)}
                 </span>
               </td>
@@ -102,7 +102,7 @@ export default function GlobalSearchView({ search }) {
                 <button
                   type="button"
                   onClick={() => setSelectedLead(lead)}
-                  className="rounded-full border border-[#DDE8CF] bg-white px-4 py-1.5 text-xs font-medium text-[#1A2410] hover:border-[#5A9216] hover:text-[#5A9216] transition"
+                  className="rounded-lg border border-[#97B64C] bg-[#97B64C] px-4 py-1.5 text-xs font-medium text-white hover:bg-[#5A9216] hover:border-[#5A9216] transition"
                 >
                   View
                 </button>

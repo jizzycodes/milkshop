@@ -10,9 +10,10 @@ const navLinks = [
   { label: "Products",  path: "/products" },
 ];
 
-const NAV_DESKTOP_MIN = "768px";
-const NAV_LAPTOP_MIN = "1024px";
-const NAV_FULL_MIN = "1280px";
+const NAV_DESKTOP_MIN = "1024px";
+const NAV_COMPACT_MAX = "1440px";
+const NAV_LARGE_MIN = "1441px";
+const NAV_XL_MIN = "1600px";
 
 const NAV_GREEN = "#97b64c";
 const NAV_GREEN_DARK = "#62840b";
@@ -42,7 +43,7 @@ const styles = `
     width: 100%;
     max-width: 100%;
     margin: 0 auto;
-    height: 64px;
+    height: clamp(56px, 14vw, 64px);
     padding: 0 clamp(12px, 3vw, 16px);
     padding-top: env(safe-area-inset-top, 0);
     display: flex;
@@ -52,24 +53,25 @@ const styles = `
     box-sizing: border-box;
   }
 
-  @media (min-width: ${NAV_DESKTOP_MIN}) {
+  @media (min-width: ${NAV_DESKTOP_MIN}) and (max-width: ${NAV_COMPACT_MAX}) {
     .nav-inner {
-      height: clamp(68px, 8vw, 72px);
-      padding-left: clamp(16px, 3vw, 40px);
-      padding-right: clamp(16px, 3vw, 40px);
+      height: clamp(60px, 6.5vw, 68px);
+      padding-left: clamp(14px, 2.5vw, 28px);
+      padding-right: clamp(14px, 2.5vw, 28px);
+      gap: clamp(6px, 1vw, 10px);
     }
   }
 
-  @media (min-width: ${NAV_LAPTOP_MIN}) {
+  @media (min-width: ${NAV_LARGE_MIN}) {
     .nav-inner {
-      height: clamp(76px, 7vw, 84px);
+      height: clamp(72px, 6vw, 84px);
       padding-left: clamp(20px, 3.5vw, 56px);
       padding-right: clamp(20px, 3.5vw, 56px);
-      gap: clamp(10px, 1.5vw, 16px);
+      gap: clamp(10px, 1.2vw, 16px);
     }
   }
 
-  @media (min-width: ${NAV_FULL_MIN}) {
+  @media (min-width: ${NAV_XL_MIN}) {
     .nav-inner {
       height: 92px;
       padding-left: clamp(24px, 5vw, 96px);
@@ -105,15 +107,15 @@ const styles = `
     }
   }
 
-  @media (min-width: ${NAV_LAPTOP_MIN}) {
+  @media (min-width: ${NAV_DESKTOP_MIN}) and (max-width: ${NAV_COMPACT_MAX}) {
     .nav-desktop-links {
-      gap: clamp(4px, 0.8vw, 10px);
+      gap: clamp(2px, 0.5vw, 6px);
     }
   }
 
-  @media (min-width: ${NAV_FULL_MIN}) {
+  @media (min-width: ${NAV_LARGE_MIN}) {
     .nav-desktop-links {
-      gap: 12px;
+      gap: clamp(6px, 0.8vw, 12px);
     }
   }
 
@@ -133,13 +135,13 @@ const styles = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 40px;
+    min-height: 36px;
     height: auto;
-    padding: 0 clamp(6px, 1vw, 10px);
+    padding: 0 clamp(4px, 0.8vw, 8px);
     border-radius: 8px;
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: clamp(0.78rem, 1.05vw, 0.92rem);
+    font-size: clamp(0.72rem, 1.4vw, 0.88rem);
     font-weight: 700;
     letter-spacing: -0.01em;
     color: rgba(24, 33, 15, 0.78);
@@ -151,20 +153,28 @@ const styles = `
       text-shadow 0.28s ease;
   }
 
-  @media (min-width: ${NAV_LAPTOP_MIN}) {
+  @media (min-width: ${NAV_DESKTOP_MIN}) and (max-width: ${NAV_COMPACT_MAX}) {
     .nav-link {
-      min-height: 46px;
-      padding: 0 clamp(8px, 1.1vw, 14px);
-      font-size: clamp(0.88rem, 1.1vw, 1.12rem);
+      min-height: 38px;
+      padding: 0 clamp(5px, 0.9vw, 10px);
+      font-size: clamp(0.75rem, 1.25vw, 0.9rem);
     }
   }
 
-  @media (min-width: ${NAV_FULL_MIN}) {
+  @media (min-width: ${NAV_LARGE_MIN}) {
+    .nav-link {
+      min-height: 46px;
+      padding: 0 clamp(8px, 1vw, 14px);
+      font-size: clamp(0.88rem, 1vw, 1.12rem);
+    }
+  }
+
+  @media (min-width: ${NAV_XL_MIN}) {
     .nav-link {
       min-height: 51px;
       height: 55px;
       padding: 0 16px;
-      font-size: 1.47rem;
+      font-size: clamp(1.1rem, 1.2vw, 1.47rem);
     }
   }
 
@@ -192,32 +202,32 @@ const styles = `
 
   .nav-brand-logo {
     display: block;
-    height: clamp(36px, 5vw, 39px);
+    height: clamp(32px, 8vw, 38px);
     width: auto;
     object-fit: contain;
     transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), filter 0.28s ease;
     flex-shrink: 0;
   }
 
-  @media (min-width: ${NAV_DESKTOP_MIN}) {
+  @media (min-width: ${NAV_DESKTOP_MIN}) and (max-width: ${NAV_COMPACT_MAX}) {
     .nav-brand-logo {
-      height: clamp(40px, 4.5vw, 48px);
+      height: clamp(34px, 3.8vw, 42px);
     }
   }
 
-  @media (min-width: ${NAV_LAPTOP_MIN}) {
+  @media (min-width: ${NAV_LARGE_MIN}) {
     .nav-brand-logo {
-      height: clamp(48px, 4.8vw, 56px);
+      height: clamp(44px, 4vw, 52px);
     }
   }
 
-  @media (min-width: ${NAV_FULL_MIN}) {
+  @media (min-width: ${NAV_XL_MIN}) {
     .nav-brand-logo { height: 60px; }
   }
 
   .nav-brand-wordmark {
     font-family: 'Signia Pro', 'DM Sans', sans-serif;
-    font-size: clamp(1.45rem, 5.5vw, 1.75rem);
+    font-size: clamp(1.15rem, 4.5vw, 1.5rem);
     font-weight: 900;
     letter-spacing: -0.04em;
     line-height: 1.2;
@@ -228,14 +238,20 @@ const styles = `
     -webkit-font-smoothing: antialiased;
   }
 
-  @media (min-width: ${NAV_DESKTOP_MIN}) {
+  @media (min-width: ${NAV_DESKTOP_MIN}) and (max-width: ${NAV_COMPACT_MAX}) {
     .nav-brand-wordmark {
-      font-size: clamp(1.2rem, 2.2vw, 1.85rem);
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
     }
   }
 
-  @media (min-width: ${NAV_FULL_MIN}) {
-    .nav-brand-wordmark { font-size: 2.53rem; }
+  @media (min-width: ${NAV_LARGE_MIN}) {
+    .nav-brand-wordmark {
+      font-size: clamp(1.35rem, 2vw, 2rem);
+    }
+  }
+
+  @media (min-width: ${NAV_XL_MIN}) {
+    .nav-brand-wordmark { font-size: clamp(2rem, 2.2vw, 2.53rem); }
   }
 
   .nav-brand-link:hover .nav-brand-logo {
@@ -477,7 +493,7 @@ export default function Navbar() {
         <nav className="nav-root nav-inner">
           <Link to="/" aria-label="Milkshop home" className="nav-brand-link">
             <img
-              src="/milkshop-logo-removebg-preview.png"
+              src="/milkshop-logo-removebg-preview.webp"
               alt=""
               aria-hidden
               className="nav-brand-logo"

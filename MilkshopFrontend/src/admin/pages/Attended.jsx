@@ -4,6 +4,8 @@ import LeadModal from "../components/LeadModal"
 import { useAdminAuth } from "../context/AdminAuthContext"
 import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
+import LeadShortId from "../components/LeadShortId"
+import PipelineStageTitle from "../components/PipelineStageTitle"
 import {
   countActiveInactive,
   filterActivityLeads,
@@ -19,10 +21,12 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
 
   :root {
-    --green-primary: #97b64c;
-    --green-dark:    #62840b;
-    --surface-bg:    #f5f8ef;
-    --border:        #d0e0b0;
+    --brand-green: #97b64c;
+    --brand-green-dark: #5A9216;
+    --surface-bg: #ffffff;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --hover-bg: #f9fafb;
     --text-primary:  #1e1e1e;
     --text-secondary:#374151;
     --white:         #ffffff;
@@ -42,27 +46,13 @@ const STYLES = `
 
   /* ── Stage hero ── */
   .att-hero {
-    position: relative;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 20px;
+    gap: 16px;
     flex-wrap: wrap;
-    padding: 22px 22px 22px 26px;
-    border-radius: 18px;
-    border: 1px solid #dde8cf;
-    background: linear-gradient(145deg, #fbfdf8 0%, #ffffff 42%, #f7faf3 100%);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 8px 28px rgba(26, 36, 16, 0.06);
-    overflow: hidden;
-  }
-
-  .att-hero::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 5px;
-    background: linear-gradient(180deg, #97b64c 0%, #62840b 100%);
-    border-radius: 18px 0 0 18px;
+    padding: 0 0 8px 0;
+    background: transparent;
   }
 
   .att-hero-main {
@@ -75,15 +65,14 @@ const STYLES = `
 
   .att-hero-icon {
     flex-shrink: 0;
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(145deg, #eef5df 0%, #d4e4b8 100%);
-    border: 1px solid #c8dfa8;
-    color: #3e6610;
+    background: var(--border-light);
+    color: var(--text-secondary);
   }
 
   .att-hero-meta {
@@ -104,19 +93,18 @@ const STYLES = `
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #3e6610;
-    background: rgba(151, 182, 76, 0.14);
-    border: 1px solid rgba(151, 182, 76, 0.35);
+    color: var(--text-secondary);
+    background: var(--border-light);
   }
 
-  .att-hero-sep { color: #c8dfa8; font-weight: 300; user-select: none; }
+  .att-hero-sep { color: #d1d5db; font-weight: 300; user-select: none; }
   .att-hero-stage {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #5a9216;
+    color: var(--text-secondary);
   }
 
   .att-banner-title {
@@ -131,7 +119,7 @@ const STYLES = `
   .att-banner-desc {
     font-size: 13px;
     line-height: 1.55;
-    color: #5a6b4a;
+    color: var(--text-secondary);
     margin: 0;
   }
   .att-hero-actions { flex-shrink: 0; padding-top: 2px; }
@@ -140,10 +128,6 @@ const STYLES = `
   .att-toggle {
     display: flex;
     align-items: center;
-    background: var(--surface-bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 3px;
     gap: 2px;
     flex-shrink: 0;
   }
@@ -164,10 +148,10 @@ const STYLES = `
   }
 
   .att-toggle-btn.att-active {
-    background: var(--white);
-    color: var(--text-primary);
+    background: var(--brand-green);
+    color: var(--white);
     font-weight: 600;
-    box-shadow: 0 1px 6px rgba(10, 20, 5, 0.09);
+    box-shadow: none;
   }
 
   /* ── Error ── */
@@ -216,8 +200,8 @@ const STYLES = `
   .att-countbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 2px;
+    justify-content: flex-end;
+    padding: 0 0 10px 0;
   }
 
   .att-count-label {
@@ -228,14 +212,10 @@ const STYLES = `
   }
 
   .att-count-pill {
-    font-family: 'DM Mono', monospace;
-    font-size: 10.5px;
-    color: var(--purple-dark);
-    background: var(--purple-light);
-    border: 1px solid var(--purple-border);
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
   }
 
   /* ── Rows ── */
@@ -244,15 +224,8 @@ const STYLES = `
     animation: att-row-in 0.25s ease both;
   }
 
-  .att-tr:not(:last-child) td { border-bottom: 1px solid #f0f6e8; }
-  .att-tr:hover { background: #faf8ff; }
-
-  .att-tr td:first-child {
-    box-shadow: inset 3px 0 0 transparent;
-    transition: box-shadow 0.15s ease;
-  }
-
-  .att-tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--purple); }
+  .att-tr:not(:last-child) td { border-bottom: 1px solid var(--border-light); }
+  .att-tr:hover { background: var(--hover-bg); }
 
   .att-tr:nth-child(1)   { animation-delay: 0.04s; }
   .att-tr:nth-child(2)   { animation-delay: 0.08s; }
@@ -284,14 +257,14 @@ const STYLES = `
   .att-avatar {
     width: 34px; height: 34px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #ddd6fe 0%, #8b5cf6 100%);
+    background: #97b64c;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'DM Mono', monospace;
+    font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     font-weight: 700;
-    color: var(--white);
+    color: #ffffff;
     flex-shrink: 0;
   }
 
@@ -304,19 +277,17 @@ const STYLES = `
   }
 
   .att-email {
-    font-family: 'DM Mono', monospace;
-    font-size: 10.5px;
-    color: var(--text-secondary);
-    opacity: 0.62;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #1e1e1e;
     margin-top: 2px;
   }
 
   /* ── Contact placeholder ── */
   .att-contact-placeholder {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text-secondary);
-    opacity: 0.62;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    color: #1e1e1e;
   }
 
   /* ── Date chip ── */
@@ -324,13 +295,13 @@ const STYLES = `
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11.5px;
-    color: #374151;
-    opacity: 1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    color: #1e1e1e;
+    white-space: nowrap;
   }
 
-  .att-date-chip svg { opacity: 0.45; flex-shrink: 0; }
+  .att-date-chip svg { opacity: 0.55; flex-shrink: 0; }
 
   /* ── View button ── */
   .att-btn-view {
@@ -339,21 +310,21 @@ const STYLES = `
     gap: 5px;
     padding: 6px 14px;
     border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--white);
+    border: 1px solid var(--brand-green);
+    background: var(--brand-green);
     font-size: 12px;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--white);
     cursor: pointer;
     font-family: 'DM Sans', sans-serif;
-    transition: background 0.13s, color 0.13s, border-color 0.13s;
+    transition: background 0.13s, border-color 0.13s;
     white-space: nowrap;
   }
 
   .att-btn-view:hover {
-    background: var(--purple-light);
-    border-color: var(--purple-border);
-    color: var(--purple-dark);
+    background: var(--brand-green-dark);
+    border-color: var(--brand-green-dark);
+    color: var(--white);
   }
 
   /* ── Toast ── */
@@ -373,7 +344,7 @@ const STYLES = `
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--green-dark);
+    background: #1f2937;
     color: var(--white);
     padding: 10px 20px;
     border-radius: 999px;
@@ -400,6 +371,7 @@ export default function Attended() {
   const [success, setSuccess]           = useState("")
 
   const columns = [
+    { key: "id",            label: "Lead ID"          },
     { key: "name",          label: "Lead"             },
     { key: "contactRecord", label: "Contact Record"   },
     { key: "nextContact",   label: "Next Contact Date"},
@@ -482,21 +454,11 @@ export default function Attended() {
 
         <header className="att-hero">
           <div className="att-hero-main">
-            <div className="att-hero-icon" aria-hidden>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-            </div>
             <div>
-              <div className="att-hero-meta">
-                <span className="att-hero-pill">Pipeline</span>
-                <span className="att-hero-sep">·</span>
-                <span className="att-hero-stage">Stage 3</span>
-              </div>
-              <h1 className="att-banner-title">Attended</h1>
+              <PipelineStageTitle
+                title="Attended"
+                count={loading ? null : filteredLeads.length}
+              />
               <p className="att-banner-desc">Leads who have already attended orientation.</p>
             </div>
           </div>
@@ -536,18 +498,15 @@ export default function Attended() {
           </div>
         ) : (
           <>
-            <div className="att-countbar">
-              <span className="att-count-label">
-                Active {activityCounts.active} · Inactive {activityCounts.inactive} · Total {activityCounts.total}
-              </span>
-              <span className="att-count-pill">{filteredLeads.length} showing</span>
-            </div>
-
             <LeadTable
               columns={columns}
               leads={filteredLeads}
               renderRow={(lead) => (
                 <tr key={lead.id} className="att-tr">
+
+                  <td className="att-td">
+                    <LeadShortId id={lead.id} />
+                  </td>
 
                   {/* Name */}
                   <td className="att-td">

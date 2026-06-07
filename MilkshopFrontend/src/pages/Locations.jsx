@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { supabase } from "../lib/supabaseClient"
 import FranchiseInquiryTrigger from "../components/FranchiseInquiryTrigger"
 
-const milkshopLogo = "/milkshop-logo-removebg-preview.png"
+const milkshopLogo = "/milkshop-logo-removebg-preview.webp"
 
 const T = {
   greenDark: "#62840b",
@@ -13,8 +13,8 @@ const T = {
 const MAP_LAYOUT_HEIGHT = "clamp(748px, calc((100svh - 160px) * 1.1), 1078px)"
 
 /** Same image as About Milkshop — 2022 arrival storefront */
-const LOCATIONS_HERO_IMAGE = "/about/history/storefront.png"
-const LOCATIONS_HERO_FALLBACK = "/HEROFRESH.jpg"
+const LOCATIONS_HERO_IMAGE = "/about/history/storefront.webp"
+const LOCATIONS_HERO_FALLBACK = "/closer.webp"
 
 const STATIC_LOCATIONS = [
   {

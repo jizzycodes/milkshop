@@ -661,7 +661,7 @@ export default function AdminLogin() {
 
           {/* Logo + chip */}
           <div className="al-card-top">
-            <img src="/milkshop-logo-removebg-preview.png" alt="Milkshop" className="al-logo" />
+            <img src="/milkshop-logo-removebg-preview.webp" alt="Milkshop" className="al-logo" />
             <div className="al-chip">
               <span className="al-chip-dot" />
               <span className="al-chip-label">Admin</span>

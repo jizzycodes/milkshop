@@ -5,6 +5,8 @@ import StatusTabs from "../components/StatusTabs"
 import { useAdminAuth } from "../context/AdminAuthContext"
 import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
+import LeadShortId from "../components/LeadShortId"
+import PipelineStageTitle from "../components/PipelineStageTitle"
 import {
   countActiveInactive,
   filterActivityLeads,
@@ -15,11 +17,12 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
 
   :root {
-    --green-primary: #97b64c;
-    --green-dark:    #62840b;
-    --green-light:   #b7cd7f;
-    --surface-bg:    #f5f8ef;
-    --border:        #d0e0b0;
+    --brand-green: #97b64c;
+    --brand-green-dark: #5A9216;
+    --surface-bg: #ffffff;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --hover-bg: #f9fafb;
     --text-primary:  #1e1e1e;
     --text-secondary:#374151;
     --white:         #ffffff;
@@ -38,26 +41,12 @@ const STYLES = `
 
   /* ── Stage hero ── */
   .onb-hero {
-    position: relative;
     display: flex;
     align-items: flex-start;
-    gap: 20px;
+    gap: 16px;
     flex-wrap: wrap;
-    padding: 22px 22px 22px 26px;
-    border-radius: 18px;
-    border: 1px solid #dde8cf;
-    background: linear-gradient(145deg, #fbfdf8 0%, #ffffff 42%, #f7faf3 100%);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 8px 28px rgba(26, 36, 16, 0.06);
-    overflow: hidden;
-  }
-
-  .onb-hero::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 5px;
-    background: linear-gradient(180deg, #97b64c 0%, #62840b 100%);
-    border-radius: 18px 0 0 18px;
+    padding: 0 0 8px 0;
+    background: transparent;
   }
 
   .onb-hero-main {
@@ -70,15 +59,14 @@ const STYLES = `
 
   .onb-hero-icon {
     flex-shrink: 0;
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(145deg, #eef5df 0%, #d4e4b8 100%);
-    border: 1px solid #c8dfa8;
-    color: #3e6610;
+    background: var(--border-light);
+    color: var(--text-secondary);
   }
 
   .onb-hero-meta {
@@ -99,19 +87,18 @@ const STYLES = `
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #3e6610;
-    background: rgba(151, 182, 76, 0.14);
-    border: 1px solid rgba(151, 182, 76, 0.35);
+    color: var(--text-secondary);
+    background: var(--border-light);
   }
 
-  .onb-hero-sep { color: #c8dfa8; font-weight: 300; user-select: none; }
+  .onb-hero-sep { color: #d1d5db; font-weight: 300; user-select: none; }
   .onb-hero-stage {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #5a9216;
+    color: var(--text-secondary);
   }
 
   .onb-banner-title {
@@ -126,7 +113,7 @@ const STYLES = `
   .onb-banner-desc {
     font-size: 13px;
     line-height: 1.55;
-    color: #5a6b4a;
+    color: var(--text-secondary);
     margin: 0;
   }
 
@@ -176,8 +163,8 @@ const STYLES = `
   .onb-countbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 2px;
+    justify-content: flex-end;
+    padding: 0 0 10px 0;
   }
 
   .onb-count-label {
@@ -188,14 +175,10 @@ const STYLES = `
   }
 
   .onb-count-pill {
-    font-family: 'DM Mono', monospace;
-    font-size: 10.5px;
-    color: #1d4ed8;
-    background: var(--blue-light);
-    border: 1px solid var(--blue-border);
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
   }
 
   /* ── Rows ── */
@@ -204,15 +187,8 @@ const STYLES = `
     animation: onb-row-in 0.25s ease both;
   }
 
-  .onb-tr:not(:last-child) td { border-bottom: 1px solid #f0f6e8; }
-  .onb-tr:hover { background: #f7faff; }
-
-  .onb-tr td:first-child {
-    box-shadow: inset 3px 0 0 transparent;
-    transition: box-shadow 0.15s ease;
-  }
-
-  .onb-tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--blue); }
+  .onb-tr:not(:last-child) td { border-bottom: 1px solid var(--border-light); }
+  .onb-tr:hover { background: var(--hover-bg); }
 
   .onb-tr:nth-child(1)   { animation-delay: 0.04s; }
   .onb-tr:nth-child(2)   { animation-delay: 0.08s; }
@@ -244,14 +220,14 @@ const STYLES = `
   .onb-avatar {
     width: 34px; height: 34px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #bfdbfe 0%, #3b82f6 100%);
+    background: #97b64c;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'DM Mono', monospace;
+    font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     font-weight: 700;
-    color: var(--white);
+    color: #ffffff;
     flex-shrink: 0;
   }
 
@@ -264,10 +240,9 @@ const STYLES = `
   }
 
   .onb-email {
-    font-family: 'DM Mono', monospace;
-    font-size: 10.5px;
-    color: var(--text-secondary);
-    opacity: 0.62;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #1e1e1e;
     margin-top: 2px;
   }
 
@@ -299,13 +274,13 @@ const STYLES = `
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11.5px;
-    color: #374151;
-    opacity: 1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    color: #1e1e1e;
+    white-space: nowrap;
   }
 
-  .onb-date-chip svg { opacity: 0.45; flex-shrink: 0; }
+  .onb-date-chip svg { opacity: 0.55; flex-shrink: 0; }
 
   /* ── View button ── */
   .onb-btn-view {
@@ -314,21 +289,21 @@ const STYLES = `
     gap: 5px;
     padding: 6px 14px;
     border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--white);
+    border: 1px solid var(--brand-green);
+    background: var(--brand-green);
     font-size: 12px;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--white);
     cursor: pointer;
     font-family: 'DM Sans', sans-serif;
-    transition: background 0.13s, color 0.13s, border-color 0.13s;
+    transition: background 0.13s, border-color 0.13s;
     white-space: nowrap;
   }
 
   .onb-btn-view:hover {
-    background: var(--blue-light);
-    border-color: var(--blue-border);
-    color: #1d4ed8;
+    background: var(--brand-green-dark);
+    border-color: var(--brand-green-dark);
+    color: var(--white);
   }
 `
 
@@ -355,6 +330,7 @@ export default function Onboarding() {
   const [success, setSuccess]           = useState("")
 
   const columns = [
+    { key: "id",       label: "Lead ID"   },
     { key: "name",     label: "Lead"      },
     { key: "paidDate", label: "Paid Date" },
     { key: "view",     label: ""          },
@@ -458,21 +434,11 @@ export default function Onboarding() {
 
         <header className="onb-hero">
           <div className="onb-hero-main">
-            <div className="onb-hero-icon" aria-hidden>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-            </div>
             <div>
-              <div className="onb-hero-meta">
-                <span className="onb-hero-pill">Pipeline</span>
-                <span className="onb-hero-sep">·</span>
-                <span className="onb-hero-stage">Stage 4</span>
-              </div>
-              <h1 className="onb-banner-title">Onboarding</h1>
+              <PipelineStageTitle
+                title="Onboarding"
+                count={loading ? null : filteredLeads.length}
+              />
               <p className="onb-banner-desc">Leads that have paid and are moving into onboarding.</p>
               <div style={{ marginTop: 12 }}>
                 <StatusTabs options={onboardingSubtabs} value={subtab} onChange={setSubtab} />
@@ -504,18 +470,15 @@ export default function Onboarding() {
           </div>
         ) : (
           <>
-            <div className="onb-countbar">
-              <span className="onb-count-label">
-                {ONBOARDING_SUBTABS.find((s) => s.value === subtab)?.label} · Active {activityCounts.active} · Inactive {activityCounts.inactive} · Total {activityCounts.total}
-              </span>
-              <span className="onb-count-pill">{filteredLeads.length} showing</span>
-            </div>
-
             <LeadTable
               columns={columns}
               leads={filteredLeads}
               renderRow={(lead) => (
                 <tr key={lead.id} className="onb-tr">
+
+                  <td className="onb-td">
+                    <LeadShortId id={lead.id} />
+                  </td>
 
                   {/* Name */}
                   <td className="onb-td">

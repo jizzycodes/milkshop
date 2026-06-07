@@ -4,15 +4,19 @@ import LeadModal from "../components/LeadModal"
 import { useAdminAuth } from "../context/AdminAuthContext"
 import { fetchLeads } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
+import LeadShortId from "../components/LeadShortId"
+import PipelineStageTitle from "../components/PipelineStageTitle"
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
 
   :root {
-    --green-primary: #97b64c;
-    --green-dark:    #62840b;
-    --surface-bg:    #f5f8ef;
-    --border:        #d0e0b0;
+    --brand-green: #97b64c;
+    --brand-green-dark: #5A9216;
+    --surface-bg: #ffffff;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --hover-bg: #f9fafb;
     --text-primary:  #1e1e1e;
     --text-secondary:#374151;
     --white:         #ffffff;
@@ -27,22 +31,8 @@ const STYLES = `
   }
 
   .sto-hero {
-    position: relative;
-    padding: 22px 22px 22px 26px;
-    border-radius: 18px;
-    border: 1px solid #dde8cf;
-    background: linear-gradient(145deg, #fbfdf8 0%, #ffffff 42%, #f7faf3 100%);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 8px 28px rgba(26, 36, 16, 0.06);
-    overflow: hidden;
-  }
-
-  .sto-hero::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 5px;
-    background: linear-gradient(180deg, #97b64c 0%, #62840b 100%);
-    border-radius: 18px 0 0 18px;
+    padding: 0 0 8px 0;
+    background: transparent;
   }
 
   .sto-hero-pill {
@@ -54,9 +44,8 @@ const STYLES = `
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #3e6610;
-    background: rgba(151, 182, 76, 0.14);
-    border: 1px solid rgba(151, 182, 76, 0.35);
+    color: var(--text-secondary);
+    background: var(--border-light);
     margin-bottom: 8px;
   }
 
@@ -78,12 +67,9 @@ const STYLES = `
   .sto-countbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 10px;
-    padding: 10px 14px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    padding: 0 0 10px 0;
   }
 
   .sto-count-label {
@@ -96,45 +82,44 @@ const STYLES = `
   }
 
   .sto-count-pill {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--green-dark);
-    background: #eef5df;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 3px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
   }
 
-  .sto-tr:hover { background: #fafdf6; }
-  .sto-td { padding: 14px 16px; border-bottom: 1px solid #edf3e4; vertical-align: middle; }
+  .sto-tr:hover { background: var(--hover-bg); }
+  .sto-td { padding: 14px 16px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
   .sto-name-cell { display: flex; align-items: center; gap: 10px; }
   .sto-avatar {
-    width: 34px; height: 34px; border-radius: 10px;
-    background: #eef5df; border: 1px solid var(--border);
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #97b64c;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 700; color: var(--green-dark); font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700; color: #ffffff; font-size: 13px;
   }
   .sto-name { font-size: 13.5px; font-weight: 600; margin: 0; }
-  .sto-email { font-size: 11.5px; color: var(--text-secondary); opacity: 0.7; margin: 2px 0 0; }
+  .sto-email { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #1e1e1e; margin: 2px 0 0; }
+  .sto-date { margin-top: 6px; font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: #1e1e1e; }
   .sto-open-badge {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 4px 10px; border-radius: 999px;
-    background: #eef5df; border: 1px solid var(--border);
-    font-size: 11px; font-weight: 600; color: var(--green-dark);
+    background: var(--border-light); border: 1px solid var(--border);
+    font-size: 11px; font-weight: 600; color: var(--text-secondary);
   }
-  .sto-open-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-primary); }
+  .sto-open-dot { width: 6px; height: 6px; border-radius: 50%; background: #9ca3af; }
   .sto-btn-view {
-    padding: 6px 14px; border-radius: 8px; border: 1px solid #bfdbfe;
-    background: #eff6ff; color: #1d4ed8; font-size: 12px; font-weight: 600; cursor: pointer;
+    padding: 6px 14px; border-radius: 8px; border: 1px solid var(--brand-green);
+    background: var(--brand-green); color: var(--white); font-size: 12px; font-weight: 600; cursor: pointer;
   }
-  .sto-btn-view:hover { background: #dbeafe; }
+  .sto-btn-view:hover { background: var(--brand-green-dark); border-color: var(--brand-green-dark); }
   .sto-error, .sto-loading {
     padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border);
     background: var(--white); font-size: 12.5px;
   }
   .sto-spinner {
     width: 18px; height: 18px; border-radius: 50%;
-    border: 2px solid #d0e0b0; border-top-color: var(--green-primary);
+    border: 2px solid var(--border); border-top-color: var(--text-secondary);
     animation: sto-spin 0.7s linear infinite;
   }
   @keyframes sto-spin { to { transform: rotate(360deg); } }
@@ -149,6 +134,7 @@ export default function StoreOpen() {
   const [error, setError] = useState("")
 
   const columns = [
+    { key: "id", label: "Lead ID" },
     { key: "name", label: "Lead" },
     { key: "opened", label: "Store Open" },
     { key: "view", label: "" },
@@ -171,8 +157,10 @@ export default function StoreOpen() {
       <style>{STYLES}</style>
       <div className="sto-root">
         <header className="sto-hero">
-          <span className="sto-hero-pill">Final stage</span>
-          <h1 className="sto-banner-title">Store Open</h1>
+          <PipelineStageTitle
+            title="Store Open"
+            count={loading ? null : leads.length}
+          />
           <p className="sto-banner-desc">
             Leads that completed onboarding and reached store opening.
           </p>
@@ -187,16 +175,14 @@ export default function StoreOpen() {
           </div>
         ) : (
           <>
-            <div className="sto-countbar">
-              <span className="sto-count-label">Final stage</span>
-              <span className="sto-count-pill">{leads.length} leads</span>
-            </div>
-
             <LeadTable
               columns={columns}
               leads={leads}
               renderRow={(lead) => (
                 <tr key={lead.id} className="sto-tr">
+                  <td className="sto-td">
+                    <LeadShortId id={lead.id} />
+                  </td>
                   <td className="sto-td">
                     <div className="sto-name-cell">
                       <div className="sto-avatar">
@@ -213,7 +199,7 @@ export default function StoreOpen() {
                       <span className="sto-open-dot" />
                       Store Open
                     </span>
-                    <div style={{ marginTop: 6, fontSize: 11.5, color: "#6b7280" }}>
+                    <div className="sto-date">
                       {formatDateTime(lead.updated_at || lead.last_contacted_at) || "—"}
                     </div>
                   </td>

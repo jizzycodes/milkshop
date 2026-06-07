@@ -5,6 +5,8 @@ import LeadModal from "../components/LeadModal"
 import { useAdminAuth } from "../context/AdminAuthContext"
 import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
+import LeadShortId from "../components/LeadShortId"
+import PipelineStageTitle from "../components/PipelineStageTitle"
 import { filterOrientationLeads, tabsWithCounts } from "../utils/leadActivity"
 
 const ORIENTATION_TABS = [
@@ -18,15 +20,16 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
 
   :root {
-    --green-primary: #97b64c;
-    --green-dark:    #62840b;
-    --green-light:   #b7cd7f;
-    --amber:         #E8A020;
-    --surface-bg:    #f5f8ef;
-    --border:        #d0e0b0;
-    --text-primary:  #1e1e1e;
-    --text-secondary:#374151;
-    --white:         #ffffff;
+    --brand-green: #97b64c;
+    --brand-green-dark: #5A9216;
+    --amber: #E8A020;
+    --surface-bg: #ffffff;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --hover-bg: #f9fafb;
+    --text-primary: #1e1e1e;
+    --text-secondary: #6b7280;
+    --white: #ffffff;
   }
 
   .ori-root {
@@ -39,30 +42,13 @@ const STYLES = `
 
   /* ── Stage hero ── */
   .ori-hero {
-    position: relative;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 20px;
+    gap: 16px;
     flex-wrap: wrap;
-    padding: 22px 22px 22px 26px;
-    border-radius: 18px;
-    border: 1px solid #dde8cf;
-    background: linear-gradient(145deg, #fbfdf8 0%, #ffffff 42%, #f7faf3 100%);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 8px 28px rgba(26, 36, 16, 0.06);
-    overflow: hidden;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .ori-hero::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 5px;
-    background: linear-gradient(180deg, #97b64c 0%, #62840b 100%);
-    border-radius: 18px 0 0 18px;
+    padding: 0 0 8px 0;
+    background: transparent;
   }
 
   .ori-hero-main {
@@ -75,16 +61,14 @@ const STYLES = `
 
   .ori-hero-icon {
     flex-shrink: 0;
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(145deg, #eef5df 0%, #d4e4b8 100%);
-    border: 1px solid #c8dfa8;
-    color: #3e6610;
-    box-shadow: 0 2px 8px rgba(98, 132, 11, 0.12);
+    background: var(--border-light);
+    color: var(--text-secondary);
   }
 
   .ori-hero-meta {
@@ -105,12 +89,11 @@ const STYLES = `
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #3e6610;
-    background: rgba(151, 182, 76, 0.14);
-    border: 1px solid rgba(151, 182, 76, 0.35);
+    color: var(--text-secondary);
+    background: var(--border-light);
   }
 
-  .ori-hero-sep { color: #c8dfa8; font-weight: 300; user-select: none; }
+  .ori-hero-sep { color: #d1d5db; font-weight: 300; user-select: none; }
 
   .ori-hero-stage {
     font-family: 'DM Mono', monospace;
@@ -118,7 +101,7 @@ const STYLES = `
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #5a9216;
+    color: var(--text-secondary);
   }
 
   .ori-banner-title {
@@ -133,7 +116,7 @@ const STYLES = `
   .ori-banner-desc {
     font-size: 13px;
     line-height: 1.55;
-    color: #5a6b4a;
+    color: var(--text-secondary);
     margin: 0;
   }
 
@@ -167,7 +150,7 @@ const STYLES = `
   .ori-spinner {
     width: 22px; height: 22px;
     border: 2px solid var(--border);
-    border-top-color: var(--green-primary);
+    border-top-color: var(--text-secondary);
     border-radius: 50%;
     animation: ori-spin 0.7s linear infinite;
   }
@@ -185,8 +168,8 @@ const STYLES = `
   .ori-countbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 2px;
+    justify-content: flex-end;
+    padding: 0 0 10px 0;
     gap: 10px;
   }
 
@@ -198,14 +181,10 @@ const STYLES = `
   }
 
   .ori-count-pill {
-    font-family: 'DM Mono', monospace;
-    font-size: 10.5px;
-    color: #b07010;
-    background: #fef3e0;
-    border: 1px solid #f9d89a;
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
   }
 
   /* ── Rows ── */
@@ -215,17 +194,10 @@ const STYLES = `
   }
 
   .ori-tr:not(:last-child) td {
-    border-bottom: 1px solid #f0f6e8;
+    border-bottom: 1px solid var(--border-light);
   }
 
-  .ori-tr:hover { background: #fafcf6; }
-
-  .ori-tr td:first-child {
-    box-shadow: inset 3px 0 0 transparent;
-    transition: box-shadow 0.15s ease;
-  }
-
-  .ori-tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--amber); }
+  .ori-tr:hover { background: var(--hover-bg); }
 
   .ori-tr:nth-child(1)   { animation-delay: 0.04s; }
   .ori-tr:nth-child(2)   { animation-delay: 0.08s; }
@@ -249,11 +221,11 @@ const STYLES = `
 
   .ori-td-mono {
     padding: 13px 18px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text-secondary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 400;
+    color: #1e1e1e;
     vertical-align: middle;
-    opacity: 0.7;
     white-space: nowrap;
   }
 
@@ -267,14 +239,14 @@ const STYLES = `
   .ori-avatar {
     width: 34px; height: 34px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #fde9b8 0%, #E8A020 100%);
+    background: #97b64c;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'DM Mono', monospace;
+    font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     font-weight: 700;
-    color: var(--white);
+    color: #ffffff;
     flex-shrink: 0;
   }
 
@@ -287,10 +259,9 @@ const STYLES = `
   }
 
   .ori-email {
-    font-family: 'DM Mono', monospace;
-    font-size: 10.5px;
-    color: var(--text-secondary);
-    opacity: 0.62;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #1e1e1e;
     margin-top: 2px;
   }
 
@@ -299,20 +270,19 @@ const STYLES = `
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11.5px;
-    color: #374151;
-    opacity: 1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    color: #1e1e1e;
+    white-space: nowrap;
   }
 
-  .ori-date-chip svg { opacity: 0.45; flex-shrink: 0; }
+  .ori-date-chip svg { opacity: 0.55; flex-shrink: 0; }
 
   /* ── Contact record placeholder ── */
   .ori-contact-placeholder {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text-secondary);
-    opacity: 0.62;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    color: #1e1e1e;
   }
 
   /* ── View button ── */
@@ -322,21 +292,21 @@ const STYLES = `
     gap: 5px;
     padding: 6px 14px;
     border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--white);
+    border: 1px solid var(--brand-green);
+    background: var(--brand-green);
     font-size: 12px;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--white);
     cursor: pointer;
     font-family: 'DM Sans', sans-serif;
-    transition: background 0.13s, color 0.13s, border-color 0.13s;
+    transition: background 0.13s, border-color 0.13s;
     white-space: nowrap;
   }
 
   .ori-btn-view:hover {
-    background: #fef3e0;
-    border-color: #f9d89a;
-    color: #b07010;
+    background: var(--brand-green-dark);
+    border-color: var(--brand-green-dark);
+    color: var(--white);
   }
 
   /* ── Toast ── */
@@ -356,7 +326,7 @@ const STYLES = `
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--green-dark);
+    background: #1f2937;
     color: var(--white);
     padding: 10px 20px;
     border-radius: 999px;
@@ -385,6 +355,7 @@ export default function Orientation({ initialSubStatus }) {
   const showContactColumn = subStatus !== "confirmed"
 
   const columns = [
+    { key: "id",                label: "Lead ID"              },
     { key: "name",              label: "Lead"                 },
     { key: "orientationSchedule", label: "Orientation Schedule" },
     ...(showContactColumn ? [{ key: "contactRecord", label: "Contact Record" }] : []),
@@ -490,21 +461,11 @@ export default function Orientation({ initialSubStatus }) {
 
         <header className="ori-hero">
           <div className="ori-hero-main">
-            <div className="ori-hero-icon" aria-hidden>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-            </div>
             <div>
-              <div className="ori-hero-meta">
-                <span className="ori-hero-pill">Pipeline</span>
-                <span className="ori-hero-sep">·</span>
-                <span className="ori-hero-stage">Stage 2</span>
-              </div>
-              <h1 className="ori-banner-title">Orientation</h1>
+              <PipelineStageTitle
+                title="Orientation"
+                count={loading ? null : filteredLeads.length}
+              />
               <p className="ori-banner-desc">Orientation scheduling and reminders.</p>
             </div>
           </div>
@@ -535,18 +496,15 @@ export default function Orientation({ initialSubStatus }) {
           </div>
         ) : (
           <>
-            <div className="ori-countbar">
-              <span className="ori-count-label">
-                {ORIENTATION_TABS.find((t) => t.value === subStatus)?.label} · Total {orientationTotal}
-              </span>
-              <span className="ori-count-pill">{filteredLeads.length} showing</span>
-            </div>
-
             <LeadTable
               columns={columns}
               leads={filteredLeads}
               renderRow={(lead) => (
                 <tr key={lead.id} className="ori-tr">
+
+                  <td className="ori-td">
+                    <LeadShortId id={lead.id} />
+                  </td>
 
                   {/* Name */}
                   <td className="ori-td">

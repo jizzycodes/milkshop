@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import FranchiseInquiryTrigger from "./FranchiseInquiryTrigger";
 
-const logo = "/milkshop-logo-removebg-preview.png";
+const logo = "/milkshop-logo-removebg-preview.webp";
 
 const FOOTER_BG = "#97b64c";
 const FOOTER_TEXT = "#ffffff";

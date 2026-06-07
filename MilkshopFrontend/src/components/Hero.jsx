@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import FranchiseInquiryTrigger from "./FranchiseInquiryTrigger";
 
 /** Decorative cups composite */
-const HERO_CUPS_SRC = "/hero/hero-cups.png";
+const HERO_CUPS_SRC = "/hero/hero-cups1.webp";
 
 const FEATURES = [
   { id: "ingredients", line1: "Premium", line2: "Ingredients" },
@@ -485,6 +485,8 @@ const CSS = `
     margin-left: auto;
     margin-right: auto;
     overflow: visible;
+    transform: scale(0.9);
+    transform-origin: center bottom;
   }
 
   .hero-cups-img {
@@ -715,7 +717,7 @@ const CSS = `
     }
   }
 
-  /* ─── TABLET (768px–1023px) — scaled side-by-side, no bleed ─── */
+  /* ─── TABLET / iPad (768px–1023px) — stacked like mobile ─── */
   @media (min-width: 768px) and (max-width: 1023px) {
     .hero-section {
       min-height: auto;
@@ -723,138 +725,141 @@ const CSS = `
     }
 
     .hero-inner {
-      align-items: flex-end;
+      flex-direction: column;
+      align-items: stretch;
       min-height: auto;
-      gap: clamp(6px, 1.2vw, 14px);
+      gap: 0;
       padding:
-        calc(64px + env(safe-area-inset-top, 0px) + 12px)
-        clamp(12px, 2vw, 24px)
-        clamp(12px, 2vw, 20px);
+        calc(64px + env(safe-area-inset-top, 0px) + clamp(16px, 3vw, 28px))
+        clamp(16px, 3vw, 28px)
+        clamp(16px, 2vw, 24px);
     }
 
     .hero-copy {
-      flex: 1 1 48%;
-      min-width: 0;
-      max-width: 48%;
-      width: auto;
-      padding-bottom: clamp(12px, 2vw, 28px);
-      overflow: hidden;
+      flex: none;
+      width: 100%;
+      max-width: 100%;
+      align-items: center;
+      text-align: center;
+      align-self: center;
+      padding-bottom: 8px;
     }
 
-    .hero-eyebrow { top: 0; }
+    .hero-eyebrow {
+      top: clamp(8px, 2vw, 16px);
+      justify-content: center;
+      align-self: center;
+      width: 100%;
+    }
 
     .hero-fresh {
-      font-size: clamp(1.65rem, 2.6vw, 2.2rem);
-      margin-bottom: -2px;
-      top: 0;
+      font-size: clamp(2rem, 4.5vw, 2.75rem);
+      margin-bottom: clamp(-18px, -4vw, -10px);
+      top: clamp(8px, 2vw, 16px);
+      text-align: center;
+      align-self: center;
+      width: 100%;
     }
 
     .hero-copy-lower {
-      top: 0;
-      margin-bottom: 0;
-      align-items: flex-start;
+      align-items: center;
+      top: clamp(20px, 5vw, 40px);
+      margin-bottom: clamp(-20px, -5vw, -40px);
       width: 100%;
     }
 
     .hero-taiwan {
-      justify-content: flex-start;
+      justify-content: center;
       width: 100%;
-    }
-
-    .hero-taiwan img {
-      width: min(100%, clamp(200px, 28vw, 320px));
-      height: auto;
-      max-width: 100%;
       margin-left: 0;
     }
 
+    .hero-taiwan img {
+      width: min(100%, clamp(300px, 62vw, 480px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     .hero-tagline {
-      font-size: clamp(0.82rem, 1.1vw, 1rem);
-      margin-top: clamp(4px, 0.6vw, 8px);
-      letter-spacing: 0.04em;
+      font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+      margin-top: clamp(8px, 1.5vw, 14px);
+      text-align: center;
+      align-self: center;
+      width: 100%;
     }
 
     .hero-features {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      max-width: 100%;
+      max-width: min(100%, 480px);
       width: 100%;
-      gap: 6px;
-      margin-top: 10px;
-      margin-left: 0;
-      align-self: flex-start;
-    }
-
-    .hero-feature {
-      padding: 6px 4px;
+      gap: 10px 8px;
+      margin-top: clamp(16px, 3vw, 24px);
+      margin-left: auto;
+      margin-right: auto;
+      align-self: center;
     }
 
     .hero-feature-icon {
-      width: 32px;
-      height: 32px;
+      width: 40px;
+      height: 40px;
     }
 
     .hero-feature-line1,
     .hero-feature-line2 {
-      font-size: 6px;
+      font-size: 7px;
     }
 
     .hero-btns {
-      flex-wrap: wrap;
-      margin-top: 10px;
-      margin-left: 0;
-      gap: 8px;
+      flex-direction: column;
+      align-items: center;
+      align-self: center;
       width: 100%;
+      max-width: min(100%, 320px);
+      margin-top: clamp(16px, 3vw, 24px);
+      margin-left: auto;
+      margin-right: auto;
+      gap: 12px;
     }
 
     .hero-btn-primary,
     .hero-btn-secondary {
-      min-width: 0;
-      flex: 1 1 calc(50% - 4px);
-      font-size: 11px;
-      padding: 8px 10px;
-    }
-
-    .hero-btn-primary {
-      padding-left: 8px;
-    }
-
-    .hero-btn-icon {
-      width: 28px;
-      height: 28px;
-    }
-
-    .hero-btn-icon img {
-      width: 20px;
-      height: 20px;
+      width: 100%;
+      max-width: 280px;
+      flex: none;
+      font-size: 14px;
+      padding: 10px 20px;
     }
 
     .hero-visual {
       position: relative;
       right: auto;
       bottom: auto;
-      flex: 1 1 52%;
-      min-width: 0;
-      max-width: 52%;
-      min-height: clamp(220px, 32vw, 340px);
-      justify-content: flex-end;
+      flex: none;
+      width: 100%;
+      max-width: 100%;
+      min-height: clamp(280px, 42vw, 420px);
+      margin-top: clamp(4px, 1vw, 12px);
+      justify-content: center;
       align-items: flex-end;
       overflow: hidden;
     }
 
     .hero-cups-frame {
+      display: flex;
+      justify-content: center;
       width: 100%;
-      max-width: 100%;
-      margin: 0;
+      max-width: min(100%, 560px);
+      margin: 0 auto;
     }
 
     .hero-cups-img {
-      width: 100%;
-      max-width: 100%;
+      width: min(100%, 520px);
       margin-left: 0;
-      max-height: clamp(240px, 38vh, 360px);
+      margin-right: 0;
+      max-height: clamp(300px, 44vh, 440px);
       object-fit: contain;
-      object-position: right bottom;
-      transform-origin: right bottom;
+      object-position: center bottom;
+      transform-origin: center bottom;
     }
 
     .hero-highlights-inner {
@@ -868,8 +873,162 @@ const CSS = `
     }
   }
 
-  /* ─── LARGE DESKTOP (1024px+) ────────────────────── */
-  @media (min-width: 1024px) {
+  /* ─── COMPACT DESKTOP (1024px–1440px) — 13" laptop / zoom-safe ─── */
+  @media (min-width: 1024px) and (max-width: 1440px) {
+    .hero-section {
+      min-height: auto;
+      overflow-x: hidden;
+    }
+
+    .hero-inner {
+      position: relative;
+      align-items: center;
+      justify-content: center;
+      min-height: auto;
+      gap: clamp(10px, 1.8vw, 20px);
+      padding:
+        calc(80px + env(safe-area-inset-top, 0px) + 12px)
+        clamp(16px, 2.5vw, 28px)
+        clamp(16px, 2vw, 24px);
+    }
+
+    .hero-copy {
+      flex: 1 1 50%;
+      min-width: 0;
+      max-width: 50%;
+      width: auto;
+      padding-bottom: clamp(16px, 2.5vw, 32px);
+      overflow: visible;
+      z-index: 12;
+      align-items: center;
+      text-align: center;
+      align-self: center;
+    }
+
+    .hero-eyebrow {
+      top: 0;
+      justify-content: center;
+      align-self: center;
+      width: 100%;
+    }
+
+    .hero-fresh {
+      font-size: clamp(2rem, 2.8vw, 2.65rem);
+      margin-bottom: -4px;
+      top: 0;
+      text-align: center;
+      align-self: center;
+      width: 100%;
+    }
+
+    .hero-copy-lower {
+      top: 0;
+      margin-top: 0;
+      margin-bottom: 0;
+      align-items: center;
+      width: 100%;
+    }
+
+    .hero-taiwan {
+      justify-content: center;
+      width: 100%;
+      max-width: 100%;
+      margin-top: 0;
+    }
+
+    .hero-taiwan img {
+      width: min(100%, clamp(240px, 32vw, 380px));
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-tagline {
+      font-size: clamp(0.9rem, 1.15vw, 1.1rem);
+      margin-top: 6px;
+      text-align: center;
+      align-self: center;
+      width: 100%;
+    }
+
+    .hero-features {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+      max-width: min(100%, 420px);
+      margin-top: 12px;
+      margin-left: auto;
+      margin-right: auto;
+      align-self: center;
+      gap: 8px;
+    }
+
+    .hero-feature-icon {
+      width: 36px;
+      height: 36px;
+    }
+
+    .hero-feature-line1,
+    .hero-feature-line2 {
+      font-size: 6.5px;
+    }
+
+    .hero-btns {
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 14px;
+      margin-left: auto;
+      margin-right: auto;
+      gap: 10px;
+      width: 100%;
+      max-width: min(100%, 380px);
+      align-self: center;
+    }
+
+    .hero-btn-primary,
+    .hero-btn-secondary {
+      min-width: 0;
+      flex: 1 1 calc(50% - 5px);
+      font-size: 12px;
+      padding: 9px 14px;
+    }
+
+    .hero-visual {
+      position: relative;
+      right: auto;
+      bottom: auto;
+      flex: 1 1 50%;
+      min-width: 0;
+      max-width: 50%;
+      min-height: clamp(345px, 46vw, 530px);
+      justify-content: center;
+      align-items: flex-end;
+      overflow: visible;
+    }
+
+    .hero-cups-frame {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      transform: scale(1.29);
+      transform-origin: center bottom;
+    }
+
+    .hero-cups-img {
+      width: min(100%, clamp(414px, 53vw, 621px));
+      max-width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+      max-height: clamp(391px, 60vh, 575px);
+      object-fit: contain;
+      object-position: center bottom;
+      transform-origin: center bottom;
+    }
+  }
+
+  /* ─── LARGE DESKTOP (1441px+) — full bleed layout ─── */
+  @media (min-width: 1441px) {
     .hero-section {
       overflow: hidden;
     }
@@ -1002,6 +1161,8 @@ const CSS = `
       width: 100%;
       margin: 0;
       line-height: 0;
+      transform: scale(0.9);
+      transform-origin: right bottom;
     }
 
     .hero-cups-img {
@@ -1025,8 +1186,8 @@ const CSS = `
     .hero-highlight-sub { font-size: 0.74rem; }
   }
 
-  /* ─── XL DESKTOP (1280px+) ───────────────────────── */
-  @media (min-width: 1280px) {
+  /* ─── XL DESKTOP (1600px+) ───────────────────────── */
+  @media (min-width: 1600px) {
     .hero-copy {
       flex: 0 0 40%;
       width: 40%;
@@ -1194,7 +1355,7 @@ export default function Hero() {
 
             <div className="hero-copy-lower">
             <div className="hero-taiwan">
-              <img src="/taiwan-word.png" alt="Taiwan" />
+              <img src="/taiwan-word.webp" alt="Taiwan" />
             </div>
 
             <div className="hero-tagline">Milky · Healthy · Chewy</div>
@@ -1216,7 +1377,7 @@ export default function Hero() {
             <div className="hero-btns">
               <FranchiseInquiryTrigger className="hero-btn-primary">
                 <span className="hero-btn-icon">
-                  <img src="/milkshop-logo-removebg-preview.png" alt="" draggable={false} />
+                  <img src="/milkshop-logo-removebg-preview.webp" alt="" draggable={false} />
                 </span>
                 <span>Franchise Now</span>
                 <span aria-hidden>→</span>

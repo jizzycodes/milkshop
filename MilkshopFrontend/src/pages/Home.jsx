@@ -634,7 +634,7 @@ const whyProps = [
     statSuffix: "mo",
     statLabel: "Average Payback Period",
     body: "Our franchise fee is affordable and allows you to start your own business without breaking the bank.",
-    image: "/franchise/why/no-royalty-fee.png",
+    image: "/franchise/why/no-royalty-fee.webp",
   },
   {
     title: "Wide Market and ROI",
@@ -642,7 +642,7 @@ const whyProps = [
     statSuffix: "",
     statLabel: "Cart · Kiosk · In-line",
     body: "Estimated ROI: 10–12 months. Historical customer demand and repeat transactions indicate favorable investment potential.",
-    image: "/franchise/why/why-06.png",
+    image: "/franchise/why/why-06.webp",
   },
   {
     title: "Training & Guidance",
@@ -650,7 +650,7 @@ const whyProps = [
     statSuffix: "+",
     statLabel: "Active Franchise Branches",
     body: "We provide training to help you get started, as well as ongoing support to help your business succeed.",
-    image: "/franchise/why/why-03.png",
+    image: "/franchise/why/why-03.webp",
   },
   {
     title: "Marketing Support",
@@ -658,7 +658,7 @@ const whyProps = [
     statSuffix: "%",
     statLabel: "Franchisee Satisfaction Rate",
     body: "We offer marketing materials, such as brochures and banners, to help promote your store in your local area.",
-    image: "/franchise/why/why-02.png",
+    image: "/franchise/why/why-02.webp",
   },
   {
     title: "Authentic TW Products",
@@ -666,7 +666,7 @@ const whyProps = [
     statSuffix: "d",
     statLabel: "Onboarding & Ops Training",
     body: "We provide training to help you get started, as well as ongoing support to help your business succeed.",
-    image: "/franchise/why/why-05.png",
+    image: "/franchise/why/why-05.webp",
   },
   {
     title: "Flexible Store Type & Design",
@@ -674,7 +674,7 @@ const whyProps = [
     statSuffix: "°",
     statLabel: "Launch-to-Growth Support",
     body: "We offer a range of store designs to choose from, giving you the flexibility to create a concept that fit your vision.",
-    image: "/franchise/why/why-04.png",
+    image: "/franchise/why/why-04.webp",
   },
 ]
 
@@ -1922,11 +1922,11 @@ function FranchiseTestimonialsSection() {
   )
 }
 
-const MOOBA_SRC = "/happy-customers/mooba.png"
+const MOOBA_SRC = "/happy-customers/mooba.webp"
 
 const happyCustomerPhotos = Array.from({ length: 10 }, (_, i) => ({
   id: `h${i + 1}`,
-  src: `/happy-customers/h${i + 1}.jpg`,
+  src: `/happy-customers/h${i + 1}.webp`,
   alt: `Happy Milkshop customer ${i + 1}`,
 }))
 

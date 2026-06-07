@@ -4,14 +4,19 @@ import LeadModal from "../components/LeadModal"
 import { useAdminAuth } from "../context/AdminAuthContext"
 import { fetchLeads } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
+import LeadShortId from "../components/LeadShortId"
+import PipelineStageTitle from "../components/PipelineStageTitle"
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
 
   :root {
-    --green-dark:    #62840b;
-    --surface-bg:    #f5f8ef;
-    --border:        #d0e0b0;
+    --brand-green: #97b64c;
+    --brand-green-dark: #5A9216;
+    --surface-bg: #ffffff;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --hover-bg: #f9fafb;
     --text-primary:  #1e1e1e;
     --text-secondary:#374151;
     --white:         #ffffff;
@@ -32,23 +37,19 @@ const STYLES = `
 
   /* ── Banner ── */
   .drp-banner {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
+    background: transparent;
+    padding: 0 0 8px 0;
   }
 
   .drp-banner-inner { display: flex; align-items: stretch; }
 
   .drp-banner-accent {
-    width: 5px;
-    background: var(--red);
-    flex-shrink: 0;
+    display: none;
   }
 
   .drp-banner-body {
     flex: 1;
-    padding: 18px 22px;
+    padding: 0;
   }
 
   .drp-stage-tag {
@@ -136,8 +137,8 @@ const STYLES = `
   .drp-countbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 2px;
+    justify-content: flex-end;
+    padding: 0 0 10px 0;
   }
 
   .drp-count-label {
@@ -148,14 +149,10 @@ const STYLES = `
   }
 
   .drp-count-pill {
-    font-family: 'DM Mono', monospace;
-    font-size: 10.5px;
-    color: var(--red-dark);
-    background: var(--red-light);
-    border: 1px solid var(--red-border);
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
   }
 
   /* ── Rows ── */
@@ -164,18 +161,8 @@ const STYLES = `
     animation: drp-row-in 0.25s ease both;
   }
 
-  .drp-tr:not(:last-child) td { border-bottom: 1px solid #f0f6e8; }
-  .drp-tr:hover { background: #fff8f8; }
-
-  /* Safe row accent (avoid tr::before because it can break table column alignment). */
-  .drp-tr td:first-child {
-    box-shadow: inset 3px 0 0 transparent;
-    transition: box-shadow 0.15s ease;
-  }
-
-  .drp-tr:hover td:first-child {
-    box-shadow: inset 3px 0 0 var(--red);
-  }
+  .drp-tr:not(:last-child) td { border-bottom: 1px solid var(--border-light); }
+  .drp-tr:hover { background: var(--hover-bg); }
 
   .drp-tr:nth-child(1)   { animation-delay: 0.04s; }
   .drp-tr:nth-child(2)   { animation-delay: 0.08s; }
@@ -207,14 +194,14 @@ const STYLES = `
   .drp-avatar {
     width: 34px; height: 34px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #fecaca 0%, #ef4444 100%);
+    background: #97b64c;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'DM Mono', monospace;
+    font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     font-weight: 700;
-    color: var(--white);
+    color: #ffffff;
     flex-shrink: 0;
   }
 
@@ -227,10 +214,9 @@ const STYLES = `
   }
 
   .drp-email {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--text-secondary);
-    opacity: 0.5;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #1e1e1e;
     margin-top: 2px;
   }
 
@@ -262,33 +248,36 @@ const STYLES = `
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text-secondary);
-    opacity: 0.65;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    color: #1e1e1e;
+    white-space: nowrap;
   }
 
-  .drp-date-chip svg { opacity: 0.45; flex-shrink: 0; }
+  .drp-date-chip svg { opacity: 0.55; flex-shrink: 0; }
 
   /* ── View button ── */
   .drp-btn-view {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    width: 32px; height: 32px;
-    border-radius: 9px;
-    border: 1px solid var(--red-border);
-    background: var(--white);
-    color: var(--text-secondary);
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--brand-green);
+    background: var(--brand-green);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--white);
     cursor: pointer;
-    transition: background 0.13s, color 0.13s, border-color 0.13s, transform 0.1s;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.13s, border-color 0.13s;
+    white-space: nowrap;
   }
 
   .drp-btn-view:hover {
-    background: var(--red-light);
-    border-color: var(--red-mid);
-    color: var(--red-dark);
-    transform: translateX(2px);
+    background: var(--brand-green-dark);
+    border-color: var(--brand-green-dark);
+    color: var(--white);
   }
 `
 
@@ -300,6 +289,7 @@ export default function Dropped() {
   const [selectedLead, setSelectedLead] = useState(null)
 
   const columns = [
+    { key: "id",          label: "Lead ID"      },
     { key: "name",        label: "Lead"         },
     { key: "status",      label: "Status"       },
     { key: "inquiryDate", label: "Inquiry Date" },
@@ -337,11 +327,10 @@ export default function Dropped() {
           <div className="drp-banner-inner">
             <div className="drp-banner-accent" />
             <div className="drp-banner-body">
-              <div className="drp-stage-tag">
-                <span className="drp-stage-dot" />
-                Dropped
-              </div>
-              <h1 className="drp-banner-title">Dropped</h1>
+              <PipelineStageTitle
+                title="Dropped"
+                count={loading ? null : leads.length}
+              />
               <p className="drp-banner-desc">Leads that have been dropped and are no longer active.</p>
             </div>
           </div>
@@ -367,16 +356,15 @@ export default function Dropped() {
           </div>
         ) : (
           <>
-            <div className="drp-countbar">
-              <span className="drp-count-label">Dropped leads</span>
-              <span className="drp-count-pill">{leads.length} leads</span>
-            </div>
-
             <LeadTable
               columns={columns}
               leads={leads}
               renderRow={(lead) => (
                 <tr key={lead.id} className="drp-tr">
+
+                  <td className="drp-td">
+                    <LeadShortId id={lead.id} />
+                  </td>
 
                   {/* Name */}
                   <td className="drp-td">

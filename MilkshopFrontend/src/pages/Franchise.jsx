@@ -11,14 +11,14 @@ import {
 
 // ─── DATA (unchanged) ────────────────────────────────────────────────────────
 
-/** Drop files here: `public/franchise/process/step-01.png` … `step-06.png` (or change paths below). */
+/** Drop files here: `public/franchise/process/step-01.webp` … `step-06.webp` (or change paths below). */
 const steps = [
-  { step: "01", icon: "📋", title: "APPLICATION",    desc: "Contact us or fill out our franchise application form and provide us with some basic information about your background and what you envision for your store.",    image: "/franchise/process/step-01.png" },
-  { step: "02", icon: "🤝", title: "INTERVIEW & QUALIFICATIONS", desc: "Contact us or fill out our franchise application form and provide us with some basic information about your background and what you envision for your store.", image: "/franchise/process/step-02.png" },
-  { step: "03", icon: "📍", title: "LOCATION ASSESSMENT & SUPPORT",   desc: "We will work with you to find the perfect location and negotiate a lease for your new store.", image: "/franchise/process/step-03.png" },
-  { step: "04", icon: "✍️", title: "CONTRACT SIGNING",    desc: "Together we will sign our commitment to bring the Fresh Taste of Taiwan here in the Philippines.", image: "/franchise/process/step-04.png" },
-  { step: "05", icon: "🏗️", title: "SETUP & TRAINING",  desc: "You will receive training to prepare you for running a successful Milkshop Franchise", image: "/franchise/process/step-05.png" },
-  { step: "06", icon: "🎉", title: "GRAND OPENING", desc: "Finally,following the successful completion of your training, your store will open and you will become a Milkshop Franchisee.", image: "/franchise/process/step-06.png" },
+  { step: "01", icon: "📋", title: "APPLICATION",    desc: "Contact us or fill out our franchise application form and provide us with some basic information about your background and what you envision for your store.",    image: "/franchise/process/step-01.webp" },
+  { step: "02", icon: "🤝", title: "INTERVIEW & QUALIFICATIONS", desc: "Contact us or fill out our franchise application form and provide us with some basic information about your background and what you envision for your store.", image: "/franchise/process/step-02.webp" },
+  { step: "03", icon: "📍", title: "LOCATION ASSESSMENT & SUPPORT",   desc: "We will work with you to find the perfect location and negotiate a lease for your new store.", image: "/franchise/process/step-03.webp" },
+  { step: "04", icon: "✍️", title: "CONTRACT SIGNING",    desc: "Together we will sign our commitment to bring the Fresh Taste of Taiwan here in the Philippines.", image: "/franchise/process/step-04.webp" },
+  { step: "05", icon: "🏗️", title: "SETUP & TRAINING",  desc: "You will receive training to prepare you for running a successful Milkshop Franchise", image: "/franchise/process/step-05.webp" },
+  { step: "06", icon: "🎉", title: "GRAND OPENING", desc: "Finally,following the successful completion of your training, your store will open and you will become a Milkshop Franchisee.", image: "/franchise/process/step-06.webp" },
 ];
 
 const faqs = [
@@ -374,9 +374,9 @@ const franchisePageStyles = `
 // ─── STORE TYPES — CAROUSEL (Products Top 5 style) ───────────────────────────
 
 const PACKAGE_IMAGES = {
-  sqm2: "/franchise/packages/2.png",
-  sqm4: "/franchise/packages/4.png",
-  sqm8: "/franchise/packages/8.png",
+  sqm2: "/franchise/packages/2.webp",
+  sqm4: "/franchise/packages/4.webp",
+  sqm8: "/franchise/packages/8.webp",
 };
 
 const storeTypes = [
@@ -412,7 +412,8 @@ const storeTypes = [
   },
 ];
 
-const STORE_IMG_FALLBACK = "/hero-bg-3.png";
+const FRANCHISE_HERO_IMAGE = "/franchise/packages/hero-franchise.webp";
+const STORE_IMG_FALLBACK = "/hero-bg-3.webp";
 
 function StoreTypesCarousel({ onPackageSelect }) {
   const [active, setActive] = useState(0);
@@ -710,132 +711,224 @@ export default function Franchise() {
     WITH THE SECTION BELOW
 ══════════════════════════════════════ */}
 
-<section
-  style={{
-    position: "relative",
-    overflow: "hidden",
-    fontFamily: "'DM Sans', sans-serif",
-    minHeight: "100svh",
-    display: "flex",
-    alignItems: "flex-end",
-  }}
->
+<section className="fh-section">
   <style>{`
     @keyframes fhFadeUp {
       from { opacity: 0; transform: translateY(32px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    @keyframes fhImgScale {
-      from { transform: scale(1.06); }
-      to   { transform: scale(1); }
+    @keyframes fhImgEnter {
+      from { opacity: 0; transform: translateY(24px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
     @keyframes fhBadgePulse {
-      0%,100% { box-shadow: 0 0 0 0 rgba(151,182,76,0.5); }
-      50%      { box-shadow: 0 0 0 8px rgba(151,182,76,0); }
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.55; }
     }
 
-    /* ── Mobile: full-screen image bg, text at bottom ── */
-    .fh-bg-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center 55%;
-      animation: fhImgScale 1.6s cubic-bezier(0.16,1,0.3,1) forwards;
+    .fh-section {
+      position: relative;
+      overflow: hidden;
+      font-family: 'DM Sans', sans-serif;
+      min-height: min(100svh, 920px);
+      display: flex;
+      align-items: center;
+      background: #f6f3ea;
     }
 
-    /* Dark gradient — strong top-to-bottom, heavier overall for legibility */
-    .fh-overlay {
+    .fh-bg-base,
+    .fh-bg-panel,
+    .fh-bg-lines,
+    .fh-bg-stamp,
+    .fh-bg-index {
       position: absolute;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .fh-bg-base {
       inset: 0;
-      background: linear-gradient(
-        180deg,
-        rgba(10,18,4,0.52) 0%,
-        rgba(10,18,4,0.44) 35%,
-        rgba(10,18,4,0.72) 65%,
-        rgba(10,18,4,0.92) 100%
+      z-index: 0;
+      background: #f6f3ea;
+    }
+
+    /* Flat color block — no gradient */
+    .fh-bg-panel {
+      inset: 0;
+      z-index: 0;
+      background: #e4ecd3;
+      clip-path: polygon(44% 0, 100% 0, 100% 100%, 30% 100%);
+    }
+
+    /* Notebook ruled lines on the copy side */
+    .fh-bg-lines {
+      inset: 0;
+      z-index: 0;
+      width: min(52%, 640px);
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 35px,
+        rgba(98, 132, 11, 0.075) 35px,
+        rgba(98, 132, 11, 0.075) 36px
       );
-      z-index: 1;
+      mask-image: linear-gradient(to right, #000 55%, transparent 100%);
     }
 
-    /* Solid dark base behind text — ensures contrast regardless of image */
-    .fh-overlay::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(8,14,3,0.28);
+    /* Vertical index label — editorial / dossier feel */
+    .fh-bg-index {
+      top: clamp(108px, 14vw, 148px);
+      left: clamp(14px, 2vw, 28px);
+      z-index: 0;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(98, 132, 11, 0.38);
     }
 
-    /* Green tint layer — brand colour warmth */
-    .fh-tint {
+    .fh-bg-stamp {
+      bottom: clamp(48px, 8vw, 88px);
+      left: clamp(20px, 4vw, 48px);
+      z-index: 0;
+      padding: 10px 14px;
+      border: 1.5px solid rgba(98, 132, 11, 0.28);
+      border-radius: 3px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(98, 132, 11, 0.42);
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    @media (max-width: 899px) {
+      .fh-bg-panel {
+        clip-path: polygon(0 36%, 100% 30%, 100% 100%, 0 100%);
+      }
+      .fh-bg-lines {
+        width: 100%;
+        height: 42%;
+        mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+      }
+      .fh-bg-index { display: none; }
+      .fh-bg-stamp { display: none; }
+    }
+
+    .fh-inner {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: clamp(96px, 12vw, 120px) clamp(20px, 4vw, 48px) clamp(48px, 6vw, 72px);
+      box-sizing: border-box;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(28px, 4vw, 40px);
+      align-items: center;
+    }
+
+    @media (min-width: 900px) {
+      .fh-inner {
+        grid-template-columns: minmax(0, 0.82fr) minmax(480px, 1.12fr);
+        gap: clamp(12px, 2vw, 28px);
+        padding-right: clamp(8px, 1.2vw, 16px);
+        min-height: min(90svh, 900px);
+      }
+    }
+
+    .fh-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 520px;
+    }
+
+    .fh-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      width: 100%;
+      min-height: clamp(320px, 68vw, 520px);
+      overflow: visible;
+    }
+
+    .fh-visual-frame {
+      position: relative;
+      width: min(100%, 920px);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding: clamp(12px, 2vw, 20px);
+    }
+
+    .fh-frame-corner {
       position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 30% 80%, rgba(98,132,11,0.22) 0%, transparent 60%);
+      width: clamp(22px, 3vw, 34px);
+      height: clamp(22px, 3vw, 34px);
+      border: 2px solid rgba(98, 132, 11, 0.5);
+      pointer-events: none;
       z-index: 2;
     }
+    .fh-frame-corner--tl { top: 4%; left: 2%; border-right: none; border-bottom: none; }
+    .fh-frame-corner--tr { top: 4%; right: 2%; border-left: none; border-bottom: none; }
+    .fh-frame-corner--bl { bottom: 0; left: 2%; border-right: none; border-top: none; }
+    .fh-frame-corner--br { bottom: 0; right: 2%; border-left: none; border-top: none; }
 
-    /* Content sits above overlays */
-    .fh-content {
-      position: relative;
-      z-index: 10;
+    .fh-plinth {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      bottom: 0;
+      height: 14px;
+      background: #62840b;
+      opacity: 0.12;
+      z-index: 0;
+    }
+
+    .fh-hero-img {
+      display: block;
       width: 100%;
-      padding: 100px 24px 52px;
-      box-sizing: border-box;
+      height: auto;
+      max-height: min(94svh, 960px);
+      object-fit: contain;
+      object-position: center bottom;
+      filter: drop-shadow(0 18px 32px rgba(24, 33, 15, 0.12));
+      animation: fhImgEnter 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;
+      opacity: 0;
     }
 
-    /* ── Desktop: split layout restored ── */
-    @media (min-width: 768px) {
-      .fh-section {
-        align-items: center !important;
-        min-height: clamp(920px, 110svh, 1180px) !important;
+    @media (min-width: 900px) {
+      .fh-visual {
+        justify-content: flex-end;
+        min-height: min(78svh, 820px);
+        margin-right: clamp(-20px, -1.5vw, -6px);
       }
-
-      .fh-bg-img {
-        /* On desktop image stays right side via object-position */
-        object-position: center center;
+      .fh-visual-frame {
+        width: min(118%, 980px);
       }
-
-      /* Desktop overlay: dark left for text, lighter right to show store */
-      .fh-overlay {
-        background: linear-gradient(
-          105deg,
-          rgba(8,14,3,0.88) 0%,
-          rgba(8,14,3,0.72) 35%,
-          rgba(8,14,3,0.28) 60%,
-          rgba(8,14,3,0.12) 100%
-        );
-      }
-      .fh-overlay::after { display: none; }
-
-      .fh-tint {
-        background: radial-gradient(ellipse at 25% 60%, rgba(98,132,11,0.2) 0%, transparent 55%);
-      }
-
-      .fh-content {
-        padding: 0 clamp(48px, 6vw, 96px);
-        max-width: 1380px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        min-height: inherit;
-      }
-
-      /* Desktop: organic cream shape over left content zone */
-      .fh-desktop-curve {
-        display: block !important;
+      .fh-hero-img {
+        width: 118%;
+        max-width: none;
+        max-height: min(92svh, 980px);
       }
     }
 
-    /* Animations */
-    .fh-anim-1 { opacity: 0; animation: fhFadeUp 0.7s 0.15s cubic-bezier(0.16,1,0.3,1) forwards; }
-    .fh-anim-2 { opacity: 0; animation: fhFadeUp 0.7s 0.28s cubic-bezier(0.16,1,0.3,1) forwards; }
-    .fh-anim-3 { opacity: 0; animation: fhFadeUp 0.7s 0.42s cubic-bezier(0.16,1,0.3,1) forwards; }
-    .fh-anim-4 { opacity: 0; animation: fhFadeUp 0.7s 0.56s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .fh-anim-1 { opacity: 0; animation: fhFadeUp 0.7s 0.1s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .fh-anim-2 { opacity: 0; animation: fhFadeUp 0.7s 0.22s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .fh-anim-3 { opacity: 0; animation: fhFadeUp 0.7s 0.36s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .fh-anim-4 { opacity: 0; animation: fhFadeUp 0.7s 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
 
     .fh-badge-dot {
       width: 7px; height: 7px; border-radius: 50%;
-      background: #97b64c; flex-shrink: 0;
+      background: #62840b; flex-shrink: 0;
       animation: fhBadgePulse 2.2s ease-in-out infinite;
     }
 
@@ -845,7 +938,7 @@ export default function Franchise() {
       background: #62840b; color: #fff;
       font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 0.92rem;
       border: none; cursor: pointer; text-decoration: none;
-      box-shadow: 0 8px 28px rgba(98,132,11,0.38);
+      box-shadow: 0 8px 28px rgba(98,132,11,0.28);
       transition: transform 0.2s ease, background 0.2s ease;
       -webkit-tap-highlight-color: transparent;
     }
@@ -855,40 +948,42 @@ export default function Franchise() {
     .fh-btn-secondary {
       display: inline-flex; align-items: center; justify-content: center;
       height: 52px; padding: 0 24px; border-radius: 999px;
-      background: rgba(255,255,255,0.12);
-      border: 1.5px solid rgba(255,255,255,0.45);
-      color: #fff;
+      background: #fff;
+      border: 2px solid #62840b;
+      color: #62840b;
       font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.9rem;
       text-decoration: none; cursor: pointer;
-      backdrop-filter: blur(8px);
-      transition: transform 0.2s ease, background 0.2s ease;
+      transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
       -webkit-tap-highlight-color: transparent;
     }
-    .fh-btn-secondary:hover { transform: translateY(-2px); background: rgba(255,255,255,0.2); }
+    .fh-btn-secondary:hover {
+      transform: translateY(-2px);
+      background: #62840b;
+      color: #fff;
+    }
 
-    /* Mobile: stat bar at bottom */
     .fh-stat-bar {
       display: flex;
       gap: 0;
-      margin-top: 36px;
-      border-top: 1px solid rgba(255,255,255,0.14);
-      padding-top: 24px;
+      margin-top: 8px;
+      border-top: 1px solid rgba(98,132,11,0.16);
+      padding-top: 22px;
     }
     .fh-stat-item {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
       padding: 0 12px;
-      border-right: 1px solid rgba(255,255,255,0.12);
+      border-right: 1px solid rgba(98,132,11,0.14);
     }
     .fh-stat-item:first-child { padding-left: 0; }
     .fh-stat-item:last-child { border-right: none; }
     .fh-stat-num {
       font-family: 'DM Sans', sans-serif;
-      font-size: clamp(1.4rem, 5vw, 1.8rem);
+      font-size: clamp(1.35rem, 4vw, 1.75rem);
       font-weight: 900;
-      color: #b7cd7f;
+      color: #62840b;
       letter-spacing: -0.04em;
       line-height: 1;
     }
@@ -896,70 +991,43 @@ export default function Franchise() {
       font-family: 'DM Sans', sans-serif;
       font-size: 0.68rem;
       font-weight: 600;
-      color: rgba(255,255,255,0.55);
+      color: #4a5640;
       letter-spacing: 0.04em;
       line-height: 1.3;
     }
 
+    @media (max-width: 899px) {
+      .fh-visual { order: -1; min-height: clamp(300px, 72vw, 520px); }
+      .fh-hero-img { width: 108%; max-height: clamp(300px, 72vw, 520px); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
-      .fh-anim-1, .fh-anim-2, .fh-anim-3, .fh-anim-4 {
+      .fh-anim-1, .fh-anim-2, .fh-anim-3, .fh-anim-4, .fh-hero-img {
         opacity: 1 !important; animation: none !important;
       }
-      .fh-bg-img { animation: none !important; }
       .fh-badge-dot { animation: none !important; }
     }
   `}</style>
 
-  {/* ── Full-bleed background image ── */}
-  <img
-    className="fh-bg-img"
-    src="/franchise/packages/8.png"
-    alt=""
-    aria-hidden="true"
-    onError={(e) => { e.currentTarget.src = STORE_IMG_FALLBACK; }}
-  />
-
-  {/* ── Overlays ── */}
-  <div className="fh-overlay" />
-  <div className="fh-tint" />
-
-  {/* ── Watermark logo ── */}
-  <img
-    src="/milkshop-logo-removebg-preview.png"
-    alt=""
-    aria-hidden="true"
-    style={{
-      position: "absolute",
-      bottom: "8%",
-      right: "5%",
-      opacity: 0.06,
-      width: 220,
-      pointerEvents: "none",
-      zIndex: 3,
-      userSelect: "none",
-    }}
-  />
-
-  {/* ── Content ── */}
-  <div className="fh-content">
-    <div style={{ maxWidth: 540, display: "flex", flexDirection: "column", gap: 20 }}>
-
+  <div className="fh-bg-base" aria-hidden />
+  <div className="fh-bg-panel" aria-hidden />
+  <div className="fh-bg-lines" aria-hidden />
+  
+  <div className="fh-inner">
+    <div className="fh-copy">
    
-
-      {/* Headline */}
       <h1 className="fh-anim-2" style={{
         margin: 0,
-        fontSize: "clamp(3.2rem, 10vw, 6.8rem)",
-        lineHeight: 0.88,
+        fontSize: "clamp(2.8rem, 8vw, 5.6rem)",
+        lineHeight: 0.92,
         letterSpacing: "-0.05em",
         fontWeight: 900,
-        color: "#F6F1E7",
-        textShadow: "0 4px 24px rgba(0,0,0,0.3)",
+        color: "#18210f",
       }}>
         Own the<br />
         Future of<br />
         <span style={{
-          background: "linear-gradient(135deg, #A6C44A 0%, #C8D97B 50%, #97b64c 100%)",
+          background: "linear-gradient(135deg, #62840b 0%, #97b64c 55%, #b7cd7f 100%)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
           backgroundClip: "text",
@@ -969,23 +1037,20 @@ export default function Franchise() {
         </span>
       </h1>
 
-      {/* Accent rule */}
       <div className="fh-anim-2" style={{ width: 48, height: 3, background: "#97b64c", borderRadius: 2 }} />
 
-      {/* Description */}
       <p className="fh-anim-3" style={{
         margin: 0,
-        maxWidth: 400,
-        fontSize: "clamp(0.9rem, 2.4vw, 1rem)",
+        maxWidth: 460,
+        fontSize: "clamp(0.92rem, 2.2vw, 1.02rem)",
         lineHeight: 1.8,
-        color: "rgba(246,241,231,0.75)",
+        color: "#4a5640",
         fontWeight: 400,
       }}>
         Launch a premium milk tea franchise with proven operations,
         strong branding, and modern customer experience built for the Filipino market.
       </p>
 
-      {/* CTAs */}
       <div className="fh-anim-4" style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <FranchiseInquiryTrigger className="fh-btn-main">
           Apply for Franchise →
@@ -993,7 +1058,6 @@ export default function Franchise() {
         <a href="#packages" className="fh-btn-secondary">Explore Packages</a>
       </div>
 
-      {/* Stat bar */}
       <div className="fh-anim-4 fh-stat-bar">
         <div className="fh-stat-item">
           <span className="fh-stat-num">11+</span>
@@ -1008,7 +1072,24 @@ export default function Franchise() {
           <span className="fh-stat-label">Authentic Taiwan Brand</span>
         </div>
       </div>
+    </div>
 
+    <div className="fh-visual">
+      <div className="fh-visual-frame">
+        <span className="fh-frame-corner fh-frame-corner--tl" aria-hidden />
+        <span className="fh-frame-corner fh-frame-corner--tr" aria-hidden />
+        <span className="fh-frame-corner fh-frame-corner--bl" aria-hidden />
+        <span className="fh-frame-corner fh-frame-corner--br" aria-hidden />
+        <span className="fh-plinth" aria-hidden />
+        <img
+          className="fh-hero-img"
+          src={FRANCHISE_HERO_IMAGE}
+          alt="Milkshop franchise store"
+          loading="eager"
+          decoding="async"
+          draggable={false}
+        />
+      </div>
     </div>
   </div>
 </section>

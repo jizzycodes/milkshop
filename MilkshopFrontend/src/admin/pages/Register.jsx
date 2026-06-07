@@ -5,6 +5,8 @@ import LeadModal from "../components/LeadModal"
 import { useAdminAuth } from "../context/AdminAuthContext"
 import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
+import LeadShortId from "../components/LeadShortId"
+import PipelineStageTitle from "../components/PipelineStageTitle"
 import {
   countActiveInactive,
   filterRegisterLeads,
@@ -15,15 +17,16 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
 
   :root {
-    --green-primary: #97b64c;
-    --green-dark:    #62840b;
-    --green-light:   #b7cd7f;
-    --amber:         #E8A020;
-    --surface-bg:    #f5f8ef;
-    --border:        #d0e0b0;
-    --text-primary:  #1e1e1e;
-    --text-secondary:#374151;
-    --white:         #ffffff;
+    --brand-green: #97b64c;
+    --brand-green-dark: #5A9216;
+    --amber: #E8A020;
+    --surface-bg: #ffffff;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --hover-bg: #f9fafb;
+    --text-primary: #1e1e1e;
+    --text-secondary: #6b7280;
+    --white: #ffffff;
   }
 
   .reg-root {
@@ -36,35 +39,13 @@ const STYLES = `
 
   /* ── Stage hero (Register header) ── */
   .reg-hero {
-    position: relative;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 20px;
+    gap: 16px;
     flex-wrap: wrap;
-    padding: 18px 18px 18px 22px;
-    border-radius: 18px;
-    border: 1px solid #dde8cf;
-    background: linear-gradient(145deg, #fbfdf8 0%, #ffffff 42%, #f7faf3 100%);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 8px 28px rgba(26, 36, 16, 0.06);
-    overflow: hidden;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-  }
-
-  .reg-hero::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 5px;
-    background: linear-gradient(180deg, #97b64c 0%, #62840b 100%);
-    border-radius: 18px 0 0 18px;
-  }
-
-  .reg-hero:hover {
-    border-color: #c8dfa8;
-    box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 12px 36px rgba(98, 132, 11, 0.1);
+    padding: 0 0 8px 0;
+    background: transparent;
   }
 
   .reg-hero-main {
@@ -77,16 +58,14 @@ const STYLES = `
 
   .reg-hero-icon {
     flex-shrink: 0;
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(145deg, #eef5df 0%, #d4e4b8 100%);
-    border: 1px solid #c8dfa8;
-    color: #3e6610;
-    box-shadow: 0 2px 8px rgba(98, 132, 11, 0.12);
+    background: var(--border-light);
+    color: var(--text-secondary);
   }
 
   .reg-hero-copy {
@@ -111,13 +90,12 @@ const STYLES = `
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #3e6610;
-    background: rgba(151, 182, 76, 0.14);
-    border: 1px solid rgba(151, 182, 76, 0.35);
+    color: var(--text-secondary);
+    background: var(--border-light);
   }
 
   .reg-hero-sep {
-    color: #c8dfa8;
+    color: #d1d5db;
     font-weight: 300;
     user-select: none;
   }
@@ -128,7 +106,7 @@ const STYLES = `
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #5a9216;
+    color: var(--text-secondary);
   }
 
   .reg-title {
@@ -143,7 +121,7 @@ const STYLES = `
   .reg-desc {
     font-size: 13px;
     line-height: 1.55;
-    color: #5a6b4a;
+    color: var(--text-secondary);
     margin: 0;
     max-width: 28rem;
   }
@@ -157,7 +135,7 @@ const STYLES = `
   .reg-hero-actions > div { width: 100%; justify-content: stretch; }
 
   @media (min-width: 641px) {
-    .reg-hero { padding: 22px 22px 22px 26px; }
+    .reg-hero { padding: 0 0 8px 0; }
     .reg-hero-actions { width: auto; }
     .reg-hero-actions > div { width: auto; justify-content: flex-end; }
   }
@@ -192,7 +170,7 @@ const STYLES = `
     width: 22px;
     height: 22px;
     border: 2px solid var(--border);
-    border-top-color: var(--green-primary);
+    border-top-color: var(--text-secondary);
     border-radius: 50%;
     animation: reg-spin 0.7s linear infinite;
   }
@@ -209,38 +187,34 @@ const STYLES = `
   /* ── Table Card ── */
   .reg-table-card {
     background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    overflow: hidden;
   }
 
   /* ── Table Header ── */
   .reg-thead {
-    background: var(--surface-bg);
+    background: var(--hover-bg);
     border-bottom: 1px solid var(--border);
   }
 
   .reg-th {
     padding: 10px 16px;
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.16em;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--text-secondary);
+    color: #5A9216;
     text-align: left;
-    opacity: 0.7;
     white-space: nowrap;
   }
 
   /* ── Rows ── */
   .reg-tr {
-    border-bottom: 1px solid #eef5df;
+    border-bottom: 1px solid var(--border-light);
     transition: background 0.1s ease;
   }
 
   .reg-tr:last-child { border-bottom: none; }
-  .reg-tr:hover { background: var(--surface-bg); }
+  .reg-tr:hover { background: var(--hover-bg); }
 
   .reg-td {
     padding: 13px 16px;
@@ -251,9 +225,10 @@ const STYLES = `
 
   .reg-td-mono {
     padding: 13px 16px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11.5px;
-    color: var(--text-secondary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 400;
+    color: #1e1e1e;
     vertical-align: middle;
   }
 
@@ -268,15 +243,15 @@ const STYLES = `
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #d4e8a0 0%, #97b64c 100%);
+    background: #97b64c;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 12px;
     font-weight: 700;
-    color: var(--white);
+    color: #ffffff;
     flex-shrink: 0;
-    font-family: 'DM Mono', monospace;
+    font-family: 'DM Sans', sans-serif;
   }
 
   .reg-name {
@@ -306,10 +281,10 @@ const STYLES = `
   }
 
   .reg-badge.new {
-    background: #eef5df;
-    color: var(--green-dark);
+    background: #f3f4f6;
+    color: #374151;
   }
-  .reg-badge.new .reg-badge-dot { background: var(--green-primary); }
+  .reg-badge.new .reg-badge-dot { background: #9ca3af; }
 
   .reg-badge.followup {
     background: #fef3e0;
@@ -336,21 +311,21 @@ const STYLES = `
     gap: 5px;
     padding: 6px 14px;
     border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--white);
+    border: 1px solid var(--brand-green);
+    background: var(--brand-green);
     font-size: 12px;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--white);
     cursor: pointer;
     font-family: 'DM Sans', sans-serif;
-    transition: background 0.13s, color 0.13s, border-color 0.13s;
+    transition: background 0.13s, border-color 0.13s;
     white-space: nowrap;
   }
 
   .reg-btn-view:hover {
-    background: #eef5df;
-    border-color: var(--green-light);
-    color: var(--green-dark);
+    background: var(--brand-green-dark);
+    border-color: var(--brand-green-dark);
+    color: var(--white);
   }
 
   /* ── Empty State ── */
@@ -395,7 +370,7 @@ const STYLES = `
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--green-dark);
+    background: #1f2937;
     color: var(--white);
     padding: 9px 18px;
     border-radius: 999px;
@@ -413,12 +388,9 @@ const STYLES = `
   .reg-countbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 10px;
-    padding: 10px 14px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    padding: 0 0 10px 0;
   }
 
   .reg-count-label {
@@ -431,13 +403,10 @@ const STYLES = `
   }
 
   .reg-count-pill {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--green-dark);
-    background: #eef5df;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 3px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
   }
 `
 
@@ -488,6 +457,7 @@ export default function Register() {
   const [success, setSuccess]           = useState("")
 
   const columns = [
+    { key: "id",          label: "Lead ID"           },
     { key: "name",        label: "Lead Name"         },
     { key: "status",      label: "Status"            },
     { key: "inquiryDate", label: "Inquiry Date"      },
@@ -571,21 +541,11 @@ export default function Register() {
         {/* Stage header */}
         <header className="reg-hero">
           <div className="reg-hero-main">
-            <div className="reg-hero-icon" aria-hidden>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-            </div>
             <div className="reg-hero-copy">
-              <div className="reg-hero-meta">
-                <span className="reg-hero-pill">Pipeline</span>
-                <span className="reg-hero-sep">·</span>
-                <span className="reg-hero-stage">Stage 1</span>
-              </div>
-              <h1 className="reg-title">Register</h1>
+              <PipelineStageTitle
+                title="Register"
+                count={loading ? null : filteredLeads.length}
+              />
               <p className="reg-desc">
                 New franchise inquiries and initial follow-ups.
               </p>
@@ -614,12 +574,6 @@ export default function Register() {
           </div>
         ) : (
           <>
-          <div className="reg-countbar">
-            <span className="reg-count-label">
-              Active {activityCounts.active} · Inactive {activityCounts.inactive} · Total {activityCounts.total}
-            </span>
-            <span className="reg-count-pill">{filteredLeads.length} showing</span>
-          </div>
           <div className="reg-table-card">
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead className="reg-thead">
@@ -647,6 +601,9 @@ export default function Register() {
                 ) : (
                   filteredLeads.map((lead) => (
                     <tr key={lead.id} className="reg-tr">
+                      <td className="reg-td">
+                        <LeadShortId id={lead.id} />
+                      </td>
                       <td className="reg-td">
                         <div className="reg-name-cell">
                           <div className="reg-avatar">

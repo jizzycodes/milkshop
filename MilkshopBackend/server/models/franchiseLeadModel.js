@@ -145,12 +145,20 @@ async function listLeads(options = {}) {
       `LOWER(full_name) LIKE $${params.length}`,
       `LOWER(email) LIKE $${params.length}`,
       `LOWER(contact_number) LIKE $${params.length}`,
+      `LOWER(id::text) LIKE $${params.length}`,
     ]
     const digitsOnly = String(search).replace(/\D/g, '')
     if (digitsOnly.length >= 2) {
       params.push(`%${digitsOnly}%`)
       searchConditions.push(
         `regexp_replace(contact_number, '[^0-9]', '', 'g') LIKE $${params.length}`,
+      )
+    }
+    const idStripped = String(search).replace(/-/g, '').toLowerCase()
+    if (idStripped.length >= 2) {
+      params.push(`%${idStripped}%`)
+      searchConditions.push(
+        `LOWER(REPLACE(id::text, '-', '')) LIKE $${params.length}`,
       )
     }
     conditions.push(`(${searchConditions.join(' OR ')})`)

@@ -17,14 +17,15 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
 
   :root {
-    --green-primary: #97b64c;
-    --green-dark:    #62840b;
-    --green-light:   #b7cd7f;
-    --surface-bg:    #f5f8ef;
-    --border:        #d0e0b0;
-    --text-primary:  #1e1e1e;
-    --text-secondary:#374151;
-    --white:         #ffffff;
+    --brand-green: #97b64c;
+    --brand-green-dark: #5A9216;
+    --surface-bg: #ffffff;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --hover-bg: #f9fafb;
+    --text-primary: #1e1e1e;
+    --text-secondary: #6b7280;
+    --white: #ffffff;
   }
 
   .lp-root {
@@ -44,22 +45,24 @@ const STYLES = `
     .lp-wrapper { padding: 28px 32px; }
   }
 
-  /* ── Topbar ── */
-  .lp-topbar {
+  /* ── Header ── */
+  .lp-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 14px 20px;
-    margin-bottom: 20px;
-    gap: 14px;
+    gap: 12px;
     flex-wrap: wrap;
+    margin-bottom: 14px;
   }
 
   @media (min-width: 769px) {
-    .lp-topbar { padding: 16px 24px; flex-wrap: nowrap; }
+    .lp-header { flex-wrap: nowrap; }
+  }
+
+  .lp-tabs-row {
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-light);
   }
 
   /* ── Title block ── */
@@ -77,22 +80,24 @@ const STYLES = `
   }
 
   .lp-title {
-    font-size: 16px;
+    font-family: 'Signia Pro', 'DM Sans', sans-serif;
+    font-size: 28px;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--brand-green);
     letter-spacing: -0.02em;
     line-height: 1.15;
+    margin: 0;
   }
 
   @media (min-width: 769px) {
-    .lp-title { font-size: 18px; }
+    .lp-title { font-size: 36px; }
   }
 
   /* ── Search ── */
   .lp-search-wrap {
     flex: 1;
-    min-width: 180px;
-    max-width: 340px;
+    min-width: 200px;
+    max-width: 420px;
     position: relative;
   }
 
@@ -100,21 +105,21 @@ const STYLES = `
     width: 100%;
     padding: 9px 14px 9px 38px;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 8px;
     font-size: 13px;
     font-family: 'DM Sans', sans-serif;
     color: var(--text-primary);
-    background: var(--surface-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235a5a5a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 12px center;
+    background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 12px center;
     background-size: 15px;
-    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s;
     outline: none;
   }
 
-  .lp-search-input::placeholder { color: var(--text-secondary); opacity: 0.45; }
+  .lp-search-input::placeholder { color: var(--text-secondary); opacity: 0.55; }
 
   .lp-search-input:focus {
-    border-color: var(--green-primary);
-    box-shadow: 0 0 0 3px rgba(151, 182, 76, 0.12);
+    border-color: #d1d5db;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.04);
     background-color: var(--white);
   }
 
@@ -127,7 +132,7 @@ const STYLES = `
     background: var(--white);
     border: 1px solid var(--border);
     border-radius: 14px;
-    box-shadow: 0 12px 40px rgba(10, 20, 5, 0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     max-height: 300px;
     overflow-y: auto;
     z-index: 50;
@@ -148,7 +153,7 @@ const STYLES = `
     width: 100%;
     background: none;
     border: none;
-    border-bottom: 1px solid var(--surface-bg);
+    border-bottom: 1px solid var(--border-light);
     text-align: left;
     font-family: 'DM Sans', sans-serif;
     color: var(--text-primary);
@@ -156,19 +161,19 @@ const STYLES = `
   }
 
   .lp-search-item:last-child { border-bottom: none; }
-  .lp-search-item:hover { background: var(--surface-bg); }
+  .lp-search-item:hover { background: var(--hover-bg); }
 
   .lp-search-item-avatar {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #d4e8a0 0%, #97b64c 100%);
+    background: #e5e7eb;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 12px;
     font-weight: 700;
-    color: var(--white);
+    color: #374151;
     flex-shrink: 0;
     font-family: 'DM Mono', monospace;
   }
@@ -202,8 +207,9 @@ const STYLES = `
     flex-shrink: 0;
     font-size: 10.5px;
     font-weight: 500;
-    color: var(--green-dark);
-    background: #eef5df;
+    color: var(--text-secondary);
+    background: #f3f4f6;
+    border: 1px solid var(--border);
     padding: 3px 9px;
     border-radius: 20px;
     font-family: 'DM Sans', sans-serif;
@@ -391,21 +397,18 @@ export default function LeadsPage() {
       <div className="lp-root">
         <div className="lp-wrapper">
 
-          {/* ── Topbar ── */}
-          <div className="lp-topbar">
-
-            {/* Title */}
+          {/* ── Header ── */}
+          <div className="lp-header">
             <div className="lp-title-block">
-              <p className="lp-eyebrow">Admin CRM</p>
-              <h1 className="lp-title">Leads Pipeline</h1>
+            
+              <h1 className="lp-title">LEADS</h1>
             </div>
 
-            {/* Search */}
             <div className="lp-search-wrap" ref={searchWrapRef}>
               <input
                 type="search"
                 className="lp-search-input"
-                placeholder="Search leads by name, email, or phone..."
+                placeholder="Search by name, email, phone, or lead ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 aria-label="Search leads"
@@ -448,9 +451,10 @@ export default function LeadsPage() {
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Stage Tabs */}
-            <StatusTabs options={stageTabs} value={stage} onChange={setStage} />
+          <div className="lp-tabs-row">
+            <StatusTabs options={stageTabs} value={stage} onChange={setStage} size="lg" />
           </div>
 
           {/* ── Page Content ── */}

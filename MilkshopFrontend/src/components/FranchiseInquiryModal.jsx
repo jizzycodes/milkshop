@@ -1,8 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import FranchiseInquiryForm from "./FranchiseInquiryForm";
 
 export default function FranchiseInquiryModal({ isOpen, onClose, preferredPackage = "" }) {
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) setSubmitted(false);
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) return undefined;
     const onKey = (e) => {
@@ -60,6 +66,9 @@ export default function FranchiseInquiryModal({ isOpen, onClose, preferredPackag
           transform: none;
           isolation: isolate;
         }
+        .fi-modal-panel--success {
+          max-height: fit-content;
+        }
         @media (min-width: 768px) {
           .fi-modal-panel {
             width: 100%;
@@ -69,35 +78,52 @@ export default function FranchiseInquiryModal({ isOpen, onClose, preferredPackag
             animation: fiDialogIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 24px 80px rgba(0,0,0,0.22);
           }
+          .fi-modal-panel--success {
+            max-width: 520px;
+            max-height: none;
+          }
         }
         .fi-modal-header {
           flex-shrink: 0;
-          display: flex;
+          display: grid;
+          grid-template-columns: 44px 1fr 44px;
           align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          padding: 14px 16px;
+          gap: 8px;
+          padding: 12px 14px;
           border-bottom: 1px solid rgba(151,182,76,0.18);
           background: #f9fbf4;
         }
+        .fi-modal-header--success {
+          padding: 10px 14px;
+        }
         @media (min-width: 768px) {
-          .fi-modal-header { padding: 16px 20px; }
+          .fi-modal-header { padding: 14px 18px; }
+          .fi-modal-header--success { padding: 12px 18px; }
         }
         .fi-modal-title {
           margin: 0;
+          grid-column: 2;
+          text-align: center;
           font-family: 'Signia Pro', 'DM Sans', sans-serif;
-          font-size: 1rem;
+          font-size: 0.95rem;
           font-weight: 900;
           color: #62840b;
           letter-spacing: -0.02em;
         }
         @media (min-width: 768px) {
-          .fi-modal-title { font-size: 1.1rem; }
+          .fi-modal-title { font-size: 1.05rem; }
         }
-        .fi-modal-close {
-          flex-shrink: 0;
+        .fi-modal-header-spacer {
+          grid-column: 1;
           width: 44px;
           height: 44px;
+        }
+        .fi-modal-close {
+          grid-column: 3;
+          justify-self: end;
+          flex-shrink: 0;
+          width: 40px;
+          height: 40px;
           border: none;
           border-radius: 12px;
           background: rgba(98,132,11,0.1);
@@ -136,14 +162,15 @@ export default function FranchiseInquiryModal({ isOpen, onClose, preferredPackag
         onClick={onClose}
       >
         <div
-          className="fi-modal-panel"
+          className={`fi-modal-panel${submitted ? " fi-modal-panel--success" : ""}`}
           role="dialog"
           aria-modal="true"
           aria-labelledby="fi-modal-title"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="fi-modal-handle" aria-hidden />
-          <header className="fi-modal-header">
+          <header className={`fi-modal-header${submitted ? " fi-modal-header--success" : ""}`}>
+            <span className="fi-modal-header-spacer" aria-hidden />
             <h2 id="fi-modal-title" className="fi-modal-title">
               Franchise Application
             </h2>
@@ -163,6 +190,7 @@ export default function FranchiseInquiryModal({ isOpen, onClose, preferredPackag
               preferredPackage={preferredPackage}
               hideHeader
               variant="modal"
+              onSubmittedChange={setSubmitted}
             />
           </div>
         </div>

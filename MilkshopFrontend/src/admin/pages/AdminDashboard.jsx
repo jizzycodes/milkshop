@@ -6,17 +6,18 @@ import AdminErrorBanner from "../components/AdminErrorBanner";
 import AdminEmptyState from "../components/AdminEmptyState";
 
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
 
   :root {
-    --green-primary: #97b64c;
-    --green-dark:    #62840b;
-    --green-light:   #b7cd7f;
-    --surface-bg:    #f5f8ef;
-    --border:        #d0e0b0;
-    --text-primary:  #1e1e1e;
-    --text-secondary:#374151;
-    --white:         #ffffff;
+    --brand-green: #97b64c;
+    --brand-green-dark: #5A9216;
+    --surface-bg: #ffffff;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --hover-bg: #f9fafb;
+    --text-primary: #1e1e1e;
+    --text-secondary: #6b7280;
+    --white: #ffffff;
   }
 
   .db-root {
@@ -24,15 +25,19 @@ const STYLES = `
     background: var(--surface-bg);
     font-family: 'DM Sans', sans-serif;
     color: var(--text-primary);
-    padding: 32px 28px;
   }
 
   .db-inner {
-    max-width: 1080px;
+    max-width: 1400px;
     margin: 0 auto;
+    padding: 20px 16px;
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 24px;
+  }
+
+  @media (min-width: 769px) {
+    .db-inner { padding: 28px 32px; gap: 28px; }
   }
 
   /* ── Header ── */
@@ -42,46 +47,68 @@ const STYLES = `
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
+    padding-bottom: 4px;
+  }
+
+  @media (min-width: 769px) {
+    .db-header { flex-wrap: nowrap; align-items: center; }
+  }
+
+  .db-page-title {
+    font-family: 'Signia Pro', 'DM Sans', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--brand-green);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin: 0 0 6px;
+  }
+
+  @media (min-width: 769px) {
+    .db-page-title { font-size: 36px; }
   }
 
   .db-greeting {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 500;
     color: var(--text-primary);
-    letter-spacing: -0.03em;
-    line-height: 1.1;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    margin: 0;
   }
 
-  .db-greeting span { color: var(--green-dark); }
+  .db-greeting span {
+    font-weight: 600;
+    color: var(--brand-green-dark);
+  }
 
   .db-subline {
-    margin-top: 6px;
-    font-size: 20px;
-    color: #4b5563;
-    opacity: 1;
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
   }
 
   .db-date-chip {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    background: var(--white);
+    gap: 8px;
+    background: var(--hover-bg);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 8px 14px;
-    font-family: 'DM Mono', monospace;
     font-size: 13px;
-    color: #4b5563;
-    opacity: 1;
+    font-weight: 500;
+    color: var(--text-secondary);
     white-space: nowrap;
     flex-shrink: 0;
-    margin-top: 4px;
   }
 
   .db-date-dot {
-    width: 6px; height: 6px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: var(--green-primary);
+    background: var(--brand-green);
     flex-shrink: 0;
   }
 
@@ -89,277 +116,239 @@ const STYLES = `
   .db-stats {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 12px;
   }
 
-  @media (min-width: 560px) {
+  @media (min-width: 640px) {
     .db-stats { grid-template-columns: repeat(3, 1fr); }
   }
 
   .db-stat {
     background: var(--white);
     border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 24px;
+    border-radius: 8px;
+    padding: 20px 22px;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
     gap: 16px;
-    position: relative;
-    overflow: hidden;
-    transition: box-shadow 0.18s ease, transform 0.18s ease;
-    cursor: default;
-    animation: db-enter 0.35s ease both;
   }
 
-  .db-stat:nth-child(1) { animation-delay: 0.05s; }
-  .db-stat:nth-child(2) { animation-delay: 0.12s; }
-  .db-stat:nth-child(3) { animation-delay: 0.19s; }
-
-  .db-stat:hover {
-    box-shadow: 0 10px 36px rgba(10, 20, 5, 0.09);
-    transform: translateY(-2px);
-  }
-
-  .db-stat.featured {
-    background: var(--green-dark);
-    border-color: var(--green-dark);
-  }
-
-  .db-stat-glow {
-    position: absolute;
-    right: -28px; top: -28px;
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    background: rgba(151, 182, 76, 0.07);
-    pointer-events: none;
-  }
-
-  .db-stat.featured .db-stat-glow {
-    background: rgba(255, 255, 255, 0.05);
+  .db-stat.primary {
+    border-left: 4px solid var(--brand-green);
   }
 
   .db-stat-label {
-    font-family: 'DM Mono', monospace;
     font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.16em;
+    font-weight: 600;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #4b5563;
-    opacity: 1;
-    margin-bottom: 10px;
-  }
-
-  .db-stat.featured .db-stat-label {
-    color: rgba(255,255,255,0.55);
-    opacity: 1;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
   }
 
   .db-stat-value {
-    font-family: 'DM Mono', monospace;
-    font-size: 46px;
+    font-size: 40px;
     font-weight: 700;
     color: var(--text-primary);
-    letter-spacing: -0.04em;
+    letter-spacing: -0.03em;
     line-height: 1;
   }
 
-  .db-stat.featured .db-stat-value { color: var(--white); }
+  .db-stat.primary .db-stat-value {
+    color: var(--brand-green-dark);
+  }
 
   .db-stat-icon {
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    background: var(--surface-bg);
-    border: 1px solid var(--border);
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--hover-bg);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #4b5563;
+    color: var(--brand-green-dark);
     flex-shrink: 0;
-    opacity: 1;
-  }
-
-  .db-stat.featured .db-stat-icon {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.15);
-    color: var(--white);
-    opacity: 1;
   }
 
   .db-stat-skeleton {
-    height: 46px; width: 68px;
-    border-radius: 8px;
-    background: var(--border);
+    height: 40px;
+    width: 64px;
+    border-radius: 6px;
+    background: var(--border-light);
     animation: db-pulse 1.3s ease-in-out infinite;
   }
 
-  .db-stat.featured .db-stat-skeleton {
-    background: rgba(255,255,255,0.15);
-  }
-
   @keyframes db-pulse {
-    0%, 100% { opacity: 1;    }
-    50%       { opacity: 0.4; }
-  }
-
-  @keyframes db-enter {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0);    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
   }
 
   /* ── Today's Focus ── */
-  .db-focus {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 16px;
-    animation: db-enter 0.35s 0.2s ease both;
-  }
-
-  .db-focus-head {
+  .db-section-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 12px;
   }
 
-  .db-focus-title {
-    font-size: 14px;
+  .db-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Signia Pro', 'DM Sans', sans-serif;
+    font-size: 18px;
     font-weight: 700;
     color: var(--text-primary);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
+    margin: 0;
   }
 
-  .db-focus-sub {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: #4b5563;
-    opacity: 1;
+  .db-section-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--brand-green);
+    flex-shrink: 0;
   }
 
   .db-focus-grid {
     display: grid;
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--white);
   }
 
-  @media (min-width: 640px) {
-    .db-focus-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  }
-
-  @media (min-width: 980px) {
+  @media (min-width: 768px) {
     .db-focus-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   }
 
   .db-focus-card {
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 13px;
-    background: #fbfdf7;
+    padding: 18px 20px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border-light);
+    border-right: 1px solid var(--border-light);
+  }
+
+  .db-focus-card:nth-child(2n) { border-right: none; }
+  .db-focus-card:nth-last-child(-n+2) { border-bottom: none; }
+
+  @media (min-width: 768px) {
+    .db-focus-card { border-bottom: none; }
+    .db-focus-card:nth-child(2n) { border-right: 1px solid var(--border-light); }
+    .db-focus-card:last-child { border-right: none; }
+  }
+
+  .db-focus-card.overdue {
+    border-left: 3px solid #dc2626;
+    padding-left: 17px;
   }
 
   .db-focus-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: #4b5563;
-    opacity: 1;
+    color: var(--text-secondary);
   }
 
   .db-focus-value {
-    margin-top: 7px;
-    font-family: 'DM Mono', monospace;
-    font-size: 28px;
+    margin-top: 8px;
+    font-size: 32px;
     font-weight: 700;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.03em;
     line-height: 1;
     color: var(--text-primary);
   }
 
-  .db-focus-card.overdue {
-    border-color: #f2c8c8;
-    background: #fff7f7;
-  }
-
-  .db-focus-card.overdue .db-focus-value { color: #b42318; }
+  .db-focus-card.overdue .db-focus-value { color: #dc2626; }
 
   /* ── Recent Panel ── */
   .db-panel {
-    background: var(--white);
     border: 1px solid var(--border);
-    border-radius: 18px;
+    border-radius: 8px;
     overflow: hidden;
-    animation: db-enter 0.35s 0.25s ease both;
+    background: var(--white);
   }
 
   .db-panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
     gap: 12px;
   }
 
-  .db-panel-title {
-    font-size: 13.5px;
+  .db-panel-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--brand-green);
+    background: var(--brand-green);
+    font-size: 12px;
     font-weight: 600;
-    color: var(--text-primary);
-    letter-spacing: -0.01em;
+    color: var(--white);
+    white-space: nowrap;
   }
 
-  .db-panel-badge {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: #4b5563;
-    background: var(--surface-bg);
-    border: 1px solid var(--border);
-    padding: 3px 10px;
-    border-radius: 20px;
-    opacity: 1;
+  .db-table-head {
+    display: none;
+    grid-template-columns: 48px 1fr 180px;
+    gap: 14px;
+    align-items: center;
+    padding: 10px 20px;
+    background: var(--hover-bg);
+    border-bottom: 1px solid var(--border-light);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--brand-green-dark);
+  }
+
+  @media (min-width: 768px) {
+    .db-table-head { display: grid; }
   }
 
   /* ── Rows ── */
   .db-row {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
     gap: 14px;
-    padding: 14px 24px;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-light);
     transition: background 0.12s;
-    position: relative;
   }
 
-  .db-row:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 24px; right: 24px;
-    height: 1px;
-    background: var(--surface-bg);
-  }
+  .db-row:last-child { border-bottom: none; }
 
-  .db-row:hover { background: #fafcf6; }
+  .db-row:hover { background: var(--hover-bg); }
 
   .db-row-avatar {
-    width: 38px; height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #d4e8a0 0%, #97b64c 100%);
+    background: var(--brand-green);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'DM Mono', monospace;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--white);
     flex-shrink: 0;
   }
 
-  .db-row-info { flex: 1; min-width: 0; }
+  .db-row-info { min-width: 0; }
 
   .db-row-name {
-    font-size: 17px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
@@ -368,10 +357,8 @@ const STYLES = `
   }
 
   .db-row-email {
-    font-family: 'DM Mono', monospace;
     font-size: 13px;
-    color: #4b5563;
-    opacity: 1;
+    color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -382,66 +369,51 @@ const STYLES = `
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 5px;
+    gap: 4px;
     flex-shrink: 0;
   }
 
   .db-row-location {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    background: var(--surface-bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 3px 9px;
-    font-size: 11px;
+    gap: 4px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--text-secondary);
     white-space: nowrap;
   }
 
   .db-row-time {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: #4b5563;
-    opacity: 1;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
   }
 
   /* ── Skeleton ── */
   .db-skel-row {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
     gap: 14px;
-    padding: 14px 24px;
-  }
-
-  .db-skel-row:not(:last-child) {
-    border-bottom: 1px solid var(--surface-bg);
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-light);
   }
 
   .db-skel-circle {
-    width: 38px; height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: var(--border);
+    background: var(--border-light);
     flex-shrink: 0;
     animation: db-pulse 1.3s ease-in-out infinite;
   }
 
   .db-skel-block {
-    background: var(--border);
-    border-radius: 6px;
+    background: var(--border-light);
+    border-radius: 4px;
     animation: db-pulse 1.3s ease-in-out infinite;
   }
-
-  /* ── Row entrance stagger ── */
-  .db-rows .db-row {
-    animation: db-enter 0.25s ease both;
-  }
-  .db-rows .db-row:nth-child(1) { animation-delay: 0.05s; }
-  .db-rows .db-row:nth-child(2) { animation-delay: 0.10s; }
-  .db-rows .db-row:nth-child(3) { animation-delay: 0.15s; }
-  .db-rows .db-row:nth-child(4) { animation-delay: 0.20s; }
-  .db-rows .db-row:nth-child(5) { animation-delay: 0.25s; }
 `
 
 function getGreeting() {
@@ -521,10 +493,11 @@ export default function AdminDashboard() {
           {/* ── Header ── */}
           <div className="db-header">
             <div>
-              <h1 className="db-greeting">
+              <h1 className="db-page-title">Dashboard</h1>
+              <p className="db-greeting">
                 {getGreeting()}, <span>{adminName}</span>.
-              </h1>
-              <p className="db-subline">Here's what's happening with your franchise leads.</p>
+              </p>
+              <p className="db-subline">Franchise lead overview and recent activity.</p>
             </div>
             <div className="db-date-chip">
               <span className="db-date-dot" />
@@ -537,8 +510,7 @@ export default function AdminDashboard() {
           {/* ── Stats ── */}
           <div className="db-stats">
 
-            <div className="db-stat featured">
-              <div className="db-stat-glow" />
+            <div className="db-stat primary">
               <div>
                 <p className="db-stat-label">Total Requests</p>
                 {isLoading
@@ -557,7 +529,6 @@ export default function AdminDashboard() {
             </div>
 
             <div className="db-stat">
-              <div className="db-stat-glow" />
               <div>
                 <p className="db-stat-label">Today</p>
                 {isLoading
@@ -576,7 +547,6 @@ export default function AdminDashboard() {
             </div>
 
             <div className="db-stat">
-              <div className="db-stat-glow" />
               <div>
                 <p className="db-stat-label">This Month</p>
                 {isLoading
@@ -594,10 +564,12 @@ export default function AdminDashboard() {
           </div>
 
           {/* ── Today's Focus ── */}
-          <section className="db-focus">
-            <div className="db-focus-head">
-              <p className="db-focus-title">Today's Focus</p>
-              <span className="db-focus-sub">LEADS SNAPSHOT</span>
+          <section>
+            <div className="db-section-head">
+              <h2 className="db-section-title">
+                <span className="db-section-dot" aria-hidden />
+                Today&apos;s Focus
+              </h2>
             </div>
             <div className="db-focus-grid">
               <div className="db-focus-card overdue">
@@ -622,8 +594,17 @@ export default function AdminDashboard() {
           {/* ── Recent Requests ── */}
           <div className="db-panel">
             <div className="db-panel-header">
-              <p className="db-panel-title">Recent Franchise Requests</p>
-              <span className="db-panel-badge">{recent.length || 0} entries</span>
+              <h2 className="db-section-title">
+                <span className="db-section-dot" aria-hidden />
+                Recent Franchise Requests
+              </h2>
+              <span className="db-panel-badge">({recent.length || 0} entries)</span>
+            </div>
+
+            <div className="db-table-head">
+              <span />
+              <span>Lead</span>
+              <span>Submitted</span>
             </div>
 
             {isLoading ? (

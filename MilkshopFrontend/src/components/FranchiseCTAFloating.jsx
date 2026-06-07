@@ -66,7 +66,7 @@ function CtaIcon() {
       />
       <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white/90 ring-1 ring-black/5">
         <img
-          src="/milkshop-logo-removebg-preview.png"
+          src="/milkshop-logo-removebg-preview.webp"
           alt=""
           className="h-7 w-7 object-contain"
           draggable={false}

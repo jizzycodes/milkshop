@@ -2,23 +2,19 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap');
 
   :root {
-    --green-primary: #97b64c;
-    --green-dark:    #62840b;
-    --green-light:   #b7cd7f;
-    --surface-bg:    #f5f8ef;
-    --border:        #d0e0b0;
-    --text-primary:  #1e1e1e;
-    --text-secondary:#374151;
-    --white:         #ffffff;
+    --brand-green: #97b64c;
+    --surface-bg: #ffffff;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --hover-bg: #f9fafb;
+    --text-primary: #1e1e1e;
+    --text-secondary: #6b7280;
+    --white: #ffffff;
   }
 
   /* ── Wrapper ── */
   .lt-wrap {
     background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 2px 16px rgba(10, 20, 5, 0.05);
     font-family: 'DM Sans', sans-serif;
   }
 
@@ -30,20 +26,19 @@ const STYLES = `
 
   /* ── Head ── */
   .lt-thead tr {
-    background: var(--surface-bg);
+    background: var(--hover-bg);
     border-bottom: 1px solid var(--border);
   }
 
   .lt-th {
     padding: 11px 20px;
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.18em;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--text-secondary);
+    color: #5A9216;
     text-align: left;
-    opacity: 0.65;
     white-space: nowrap;
   }
 
@@ -52,22 +47,18 @@ const STYLES = `
     transition: background 0.12s ease;
   }
 
+  .lt-tbody td {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #1e1e1e;
+  }
+
   .lt-tbody tr:not(:last-child) td {
-    border-bottom: 1px solid #f0f6e8;
+    border-bottom: 1px solid var(--border-light);
   }
 
   .lt-tbody tr:hover {
-    background: #fafcf6;
-  }
-
-  /* Hover accent on first cell only — do NOT use tr::before (breaks table column alignment in browsers). */
-  .lt-tbody tr td:first-child {
-    box-shadow: inset 3px 0 0 transparent;
-    transition: box-shadow 0.15s ease;
-  }
-
-  .lt-tbody tr:hover td:first-child {
-    box-shadow: inset 3px 0 0 var(--green-primary);
+    background: var(--hover-bg);
   }
 
   /* ── Empty ── */

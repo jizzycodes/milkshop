@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import FranchiseInquiryTrigger from "../components/FranchiseInquiryTrigger"
-const logo = "/milkshop-logo-removebg-preview.png";
+const logo = "/milkshop-logo-removebg-preview.webp";
 
 // ─── DESIGN TOKENS (match Home / Franchise) ───────────────────────────────────
 const T = {
@@ -22,8 +22,8 @@ const T = {
 
 const historyBlocks = [
   {
-    image: "/about/history/storefront.png",
-    fallback: "/HEROFRESH.jpg",
+    image: "/about/history/storefront.webp",
+    fallback: "/milkshop-logo-removebg-preview.webp",
     alt: "Milkshop storefront — The Fresh Taste of Taiwan",
     label: "2022 — Arrival in PH",
     content: (
@@ -33,8 +33,8 @@ const historyBlocks = [
     ),
   },
   {
-    image: "/about/history/grand-opening.png",
-    fallback: "/closer.jpg",
+    image: "/about/history/grand-opening.webp",
+    fallback: "/about/history/storefront.webp",
     alt: "Milkshop grand opening ribbon cutting",
     label: "Local Taste Evolution",
     content: (
@@ -44,8 +44,8 @@ const historyBlocks = [
     ),
   },
   {
-    image: "/about/history/ingredientss.jpg",
-    fallback: "/about/history/ingredients.png",
+    image: "/about/history/ingredientss.webp",
+    fallback: "/about/history/ingredients.webp",
     alt: "Milkshop signature Taiwan green, black, and oolong tea",
     label: "Premium Ingredients",
     content: (
@@ -56,8 +56,8 @@ const historyBlocks = [
     ),
   },
   {
-    image: "/hero-bg-3.png",
-    fallback: "/LOGOLAND.png",
+    image: "/hero-bg-3.webp",
+    fallback: "/milkshop-logo-removebg-preview.webp",
     alt: "Milkshop brand",
     imageFirst: false,
     content: (
@@ -91,25 +91,25 @@ const rawMaterials = [
   {
     title: "Premium Taiwanese Tea",
     caption: "Premium Taiwanese Tea",
-    image: "/franchise/why/why-05.png",
+    image: "/franchise/why/why-05.webp",
     imageAlt: "Milkshop tea leaves and packaging imported from Taiwan",
   },
   {
     title: "Handcrafted and Chewy",
     caption: "Handcrafted and Chewy",
-    image: "/about/raw-materials/brown-sugar-pearls.png",
+    image: "/about/raw-materials/brown-sugar-pearls.webp",
     imageAlt: "Brown sugar tapioca pearls in a bowl with a spoon",
   },
   {
     title: "Healthy Options",
     caption: "Healthy Options",
-    image: "/about/raw-materials/natural-ingredients.png",
+    image: "/about/raw-materials/natural-ingredients.webp",
     imageAlt: "Fresh fruit, berries, and popping boba on ice",
   },
   {
     title: "Smooth & Milky",
     caption: "Smooth & Milky",
-    image: "/about/raw-materials/fresh-milk-boba.png",
+    image: "/about/raw-materials/fresh-milk-boba.webp",
     imageAlt: "Milk being poured into a milk tea with boba pearls",
   },
 ]
@@ -220,13 +220,21 @@ export default function About() {
 
 
 {/* ── Video Background ── */}
-<video
+  <div
+    aria-hidden
+    style={{
+      position: "absolute",
+      inset: 0,
+      zIndex: 0,
+      background: "#141c0a",
+    }}
+  />
+  <video
     autoPlay
     muted
     loop
     playsInline
     preload="none"
-    poster="/HEROFRESH.jpg"
     aria-hidden
     style={{
       position: "absolute",
@@ -336,7 +344,7 @@ export default function About() {
       transform-origin: 50% 80%;
     }
     .about-taiwan-word img {
-      height: clamp(53px, 9.12vw, 103px);
+      height: clamp(72px, 12.5vw, 145px);
       width: auto;
       display: block;
       filter: drop-shadow(0 10px 26px rgba(0,0,0,0.38));
@@ -536,7 +544,7 @@ export default function About() {
     
 
     <span className="about-taiwan-word">
-      <img src="/about/taiwan-word.png" alt="Taiwan" />
+      <img src="/about/taiwan-word.webp" alt="Taiwan" />
     </span>
 
     <br />
@@ -618,188 +626,182 @@ export default function About() {
 
 {/* ── Ingredients ── */}
 <section
-        style={{
-          background: T.greenLight,
-          padding: isMobile ? "56px 20px 64px" : "72px 48px 80px",
-          borderTop: "1px solid rgba(255,255,255,0.12)",
-          borderBottom: "1px solid rgba(255,255,255,0.12)",
-        }}
-      >
-        <style>{`
-          .ftc-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: clamp(14px, 2vw, 20px);
-          }
-          .ftc-item {
-            background: #fff;
-            border: 1px solid rgba(255,255,255,0.6);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            height: 100%;
-            transition: transform 0.22s ease, box-shadow 0.22s ease;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-            cursor: default;
-          }
-          .ftc-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.14);
-          }
-          .ftc-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.9);
-            border: 1px solid rgba(0,0,0,0.07);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.35rem;
-            flex-shrink: 0;
-            margin: 16px 16px 0;
-          }
-          .ftc-media {
-            width: 100%;
-            aspect-ratio: 4 / 3;
-            overflow: hidden;
-            flex-shrink: 0;
-            background: #f0ede8;
-          }
-          .ftc-media img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            display: block;
-            transition: transform 0.35s ease;
-          }
-          .ftc-item:hover .ftc-media img {
-            transform: scale(1.05);
-          }
-          .ftc-body {
-            padding: 14px 18px 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-          }
-          .ftc-origin {
-            margin: 0;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 9px;
-            font-weight: 800;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: ${T.greenDark};
-            display: flex;
-            align-items: center;
-            gap: 6px;
-          }
-          .ftc-origin::before {
-            content: '';
-            display: inline-block;
-            width: 16px;
-            height: 2px;
-            background: ${T.greenDark};
-            border-radius: 2px;
-            flex-shrink: 0;
-            opacity: 0.7;
-          }
-          .ftc-title {
-            margin: 0;
-            font-family: 'DM Sans', sans-serif;
-            font-size: clamp(0.95rem, 1.3vw, 1.08rem);
-            font-weight: 900;
-            letter-spacing: -0.02em;
-            color: ${T.ink};
-            line-height: 1.2;
-          }
-          .ftc-desc {
-            margin: 0;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.8rem;
-            line-height: 1.65;
-            color: ${T.body};
-          }
-          .ftc-heading-wrap {
-            text-align: center;
-            margin-bottom: ${isMobile ? "32px" : "40px"};
-          }
-          .ftc-eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 9px;
-            font-weight: 800;
-            letter-spacing: 0.26em;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 10px;
-          }
-          .ftc-eyebrow-line {
-            width: 20px;
-            height: 2px;
-            background: rgba(255,255,255,0.6);
-            border-radius: 2px;
-          }
-          @media (max-width: 900px) {
-            .ftc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-          }
-          @media (max-width: 520px) {
-            .ftc-grid { grid-template-columns: 1fr; }
-            .ftc-item { border-radius: 16px; }
-          }
-        `}</style>
+  style={{
+    background: "#fff",
+    padding: isMobile ? "56px 20px 64px" : "80px 48px 96px",
+    borderTop: "1px solid rgba(0,0,0,0.06)",
+    borderBottom: "1px solid rgba(0,0,0,0.06)",
+  }}
+>
+  <style>{`
+    .ftc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(12px, 1.5vw, 18px);
+    }
+    .ftc-item {
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      cursor: default;
+      background: #f5f5f0;
+    }
+    .ftc-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.13);
+    }
+    .ftc-media {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .ftc-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      transition: transform 0.38s ease;
+    }
+    .ftc-item:hover .ftc-media img {
+      transform: scale(1.06);
+    }
+    .ftc-caption {
+      background: #7a9e5f;
+      padding: 16px 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .ftc-origin {
+      margin: 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+    }
+    .ftc-title {
+      margin: 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+    .ftc-desc {
+      margin: 4px 0 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.85);
+    }
+    .ftc-heading-wrap {
+      text-align: center;
+      margin-bottom: ${isMobile ? "36px" : "52px"};
+    }
+    .ftc-main-heading {
+      font-family: 'Signia Pro', 'DM Sans', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      color: ${T.greenDark};
+      line-height: 1.05;
+      margin: 0 0 14px;
+    }
+    .ftc-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      color: #888;
+      max-width: 420px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+    .ftc-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: ${T.greenDark};
+      margin-bottom: 12px;
+      opacity: 0.7;
+    }
+    .ftc-eyebrow-line {
+      width: 20px;
+      height: 2px;
+      background: ${T.greenDark};
+      border-radius: 2px;
+      opacity: 0.5;
+    }
+    @media (max-width: 900px) {
+      .ftc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .ftc-media { aspect-ratio: 4 / 3; }
+    }
+    @media (max-width: 520px) {
+      .ftc-grid { grid-template-columns: 1fr; }
+      .ftc-item { border-radius: 16px; }
+    }
+  `}</style>
 
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <Slide direction="up">
-            <div className="ftc-heading-wrap">
-              <div className="ftc-eyebrow">
-                <span className="ftc-eyebrow-line" />
-                What Goes Inside
-                <span className="ftc-eyebrow-line" />
-              </div>
-              <h2 className="ms-section-heading" style={{ margin: "0 0 10px", color: T.white }}>
-                Ingredients that Make the Difference
-              </h2>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.92rem",
-                color: "rgba(255,255,255,0.82)",
-                maxWidth: 460,
-                margin: "0 auto",
-                lineHeight: 1.7,
-              }}>
-                Every cup starts with ingredients sourced and crafted for one purpose — authentic taste.
-              </p>
-            </div>
-          </Slide>
-
-          <div className="ftc-grid">
-            {rawMaterials.map((r, i) => (
-              <Slide key={r.title} direction="up" delay={i * 60}>
-                <article className="ftc-item">
-                  {r.image ? (
-                    <div className="ftc-media">
-                      <img src={r.image} alt={r.imageAlt || r.title} loading="lazy" decoding="async" />
-                    </div>
-                  ) : (
-                    <div className="ftc-icon" aria-hidden>{r.icon}</div>
-                  )}
-                  <div className="ftc-body">
-                    <p className="ftc-origin">{r.origin}</p>
-                    <h3 className="ftc-title">{r.title}</h3>
-                    <p className="ftc-desc">{r.desc}</p>
-                  </div>
-                </article>
-              </Slide>
-            ))}
-          </div>
+  <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+    <Slide direction="up">
+      <div className="ftc-heading-wrap">
+        <div className="ftc-eyebrow">
+          <span className="ftc-eyebrow-line" />
+          What Goes Inside
+          <span className="ftc-eyebrow-line" />
         </div>
-      </section>
+        <h2 className="ftc-main-heading">
+          Ingredients that<br />Make the Difference
+        </h2>
+        <p className="ftc-sub">
+          Every cup starts with ingredients sourced and crafted for one purpose — authentic taste.
+        </p>
+      </div>
+    </Slide>
+
+    <div className="ftc-grid">
+      {rawMaterials.map((r, i) => (
+        <Slide key={r.title} direction="up" delay={i * 60}>
+          <article className="ftc-item">
+            {r.image ? (
+              <div className="ftc-media">
+                <img src={r.image} alt={r.imageAlt || r.title} loading="lazy" decoding="async" />
+              </div>
+            ) : (
+              <div className="ftc-media" style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "3rem",
+                background: "#e8f0e0",
+              }}>
+                {r.icon}
+              </div>
+            )}
+            <div className="ftc-caption">
+              {r.origin && <p className="ftc-origin">{r.origin}</p>}
+              <h3 className="ftc-title">{r.title}</h3>
+              {r.desc && <p className="ftc-desc">{r.desc}</p>}
+            </div>
+          </article>
+        </Slide>
+      ))}
+    </div>
+  </div>
+</section>
  
      {/* ══════════════════════════════════════════════
     COMPANY HISTORY — PREMIUM TIMELINE
@@ -1297,7 +1299,7 @@ export default function About() {
           }}
         >
           <img
-            src="/closer.jpg"
+            src="/about/community-image.webp"
             alt="Milkshop drinks"
             loading="lazy"
             decoding="async"
