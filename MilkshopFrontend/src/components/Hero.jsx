@@ -1404,16 +1404,6 @@ export default function Hero() {
 
         </div>
 
-        {/* ── SVG Splash — replaced with user's own SVG image ── */}
-        <div style={{ position: "relative", zIndex: 5, marginTop: "-2px", lineHeight: 0, flexShrink: 0 }}>
-          <img
-            src="/splash.svg"
-            alt=""
-            aria-hidden
-            style={{ width: "100%", display: "block" }}
-          />
-        </div>
-
         {/* ── Bottom highlights ── */}
         <div className="hero-highlights">
           <div className="hero-highlights-inner">
