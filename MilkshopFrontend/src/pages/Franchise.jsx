@@ -373,7 +373,11 @@ const franchisePageStyles = `
 
 // ─── STORE TYPES — CAROUSEL (Products Top 5 style) ───────────────────────────
 
-const STORE_PLACEHOLDER_IMAGE = "/franchise/packages/placeholder-store.png";
+const PACKAGE_IMAGES = {
+  sqm2: "/franchise/packages/2.png",
+  sqm4: "/franchise/packages/4.png",
+  sqm8: "/franchise/packages/8.png",
+};
 
 const storeTypes = [
   {
@@ -384,7 +388,7 @@ const storeTypes = [
     description: "A cozy and premium dine-in experience for milktea lovers.",
     tag: "Premium",
     tagColor: "bg-[#62840b] text-white",
-    image: STORE_PLACEHOLDER_IMAGE,
+    image: PACKAGE_IMAGES.sqm8,
   },
   {
     id: "kiosk-delights",
@@ -394,17 +398,7 @@ const storeTypes = [
     description: "Perfect for malls, events, and busy on-the-go customers.",
     tag: "Compact",
     tagColor: "bg-[#97b64c] text-white",
-    image: STORE_PLACEHOLDER_IMAGE,
-  },
-  {
-    id: "basic",
-    label: "Basic Shop",
-    storeName: "Dairy Dream Express",
-    size: "8 SQM",
-    description: "Taiwan Milkbox-Inspired Store Concept",
-    tag: "Classic",
-    tagColor: "bg-[#E8A020] text-white",
-    image: STORE_PLACEHOLDER_IMAGE,
+    image: PACKAGE_IMAGES.sqm2,
   },
   {
     id: "kiosk-deal",
@@ -414,7 +408,7 @@ const storeTypes = [
     description: "Ideal for malls, food courts, and outdoor locations.",
     tag: "Starter",
     tagColor: "bg-rose-400 text-white",
-    image: STORE_PLACEHOLDER_IMAGE,
+    image: PACKAGE_IMAGES.sqm4,
   },
 ];
 
@@ -425,19 +419,48 @@ function StoreTypesCarousel({ onPackageSelect }) {
   const [imgFallback, setImgFallback] = useState({});
   const total = storeTypes.length;
   const intervalRef = useRef(null);
+  const touchStartX = useRef(null);
 
-  const startAuto = () => {
+  const stopAuto = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = null;
+  }, []);
+
+  const startAuto = useCallback(() => {
+    stopAuto();
     intervalRef.current = setInterval(() => {
       setActive((prev) => (prev + 1) % total);
     }, 3500);
-  };
-
-  const stopAuto = () => clearInterval(intervalRef.current);
+  }, [total, stopAuto]);
 
   useEffect(() => {
     startAuto();
     return () => stopAuto();
-  }, []);
+  }, [startAuto]);
+
+  const goTo = (index) => {
+    setActive(index);
+    onPackageSelect?.(storeTypes[index].id);
+    startAuto();
+  };
+
+  const goPrev = () => goTo((active - 1 + total) % total);
+  const goNext = () => goTo((active + 1) % total);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current == null) return;
+    const endX = e.changedTouches[0]?.clientX ?? touchStartX.current;
+    const delta = endX - touchStartX.current;
+    if (Math.abs(delta) >= 48) {
+      if (delta < 0) goNext();
+      else goPrev();
+    }
+    touchStartX.current = null;
+  };
 
   const getPos = (index) => {
     const diff = (index - active + total) % total;
@@ -450,12 +473,12 @@ function StoreTypesCarousel({ onPackageSelect }) {
   };
 
   const posStyles = {
-    center: "z-40 scale-110 opacity-100 translate-x-0",
-    right1: "z-30 scale-50 opacity-35 translate-x-[70%]",
-    left1: "z-30 scale-50 opacity-35 -translate-x-[70%]",
-    right2: "z-20 scale-50 opacity-35 translate-x-[130%]",
-    left2: "z-20 scale-50 opacity-35 -translate-x-[130%]",
-    hidden: "z-10 scale-50 opacity-0 translate-x-0 pointer-events-none",
+    center: "z-40 scale-100 opacity-100 translate-x-0",
+    right1: "z-30 scale-[0.55] opacity-40 translate-x-[78%]",
+    left1: "z-30 scale-[0.55] opacity-40 -translate-x-[78%]",
+    right2: "z-20 scale-[0.45] opacity-0 translate-x-[130%]",
+    left2: "z-20 scale-[0.45] opacity-0 -translate-x-[130%]",
+    hidden: "z-10 scale-[0.45] opacity-0 translate-x-0 pointer-events-none",
   };
 
   const current = storeTypes[active];
@@ -466,8 +489,7 @@ function StoreTypesCarousel({ onPackageSelect }) {
   };
 
   const selectIndex = (i) => {
-    setActive(i);
-    onPackageSelect?.(storeTypes[i].id);
+    goTo(i);
   };
 
   return (
@@ -476,7 +498,11 @@ function StoreTypesCarousel({ onPackageSelect }) {
       onMouseEnter={stopAuto}
       onMouseLeave={startAuto}
     >
-      <div className="relative h-64 sm:h-72 md:h-80 flex items-center justify-center overflow-hidden">
+      <div
+        className="relative h-[min(380px,72vw)] sm:h-[min(460px,64vw)] md:h-[min(520px,58vh)] lg:h-[min(560px,54vh)] flex items-center justify-center overflow-visible px-2 touch-pan-y"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {storeTypes.map((store, i) => {
           const pos = getPos(i);
           const isCenter = pos === "center";
@@ -489,25 +515,26 @@ function StoreTypesCarousel({ onPackageSelect }) {
               aria-label={`${store.label}, ${store.storeName}`}
               aria-pressed={i === active}
             >
-              <div
-                className={`rounded-2xl overflow-hidden bg-white border border-[#dde8cc] shadow-lg ${
-                  isCenter ? "w-[min(280px,78vw)]" : "w-[min(200px,55vw)]"
+              <img
+                src={srcFor(store)}
+                alt={store.label}
+                className={`object-contain select-none ${
+                  isCenter
+                    ? "w-[min(540px,94vw)] h-[min(460px,70vw)] sm:h-[min(500px,58vw)] md:h-[min(520px,52vh)]"
+                    : "w-[min(300px,62vw)] h-[min(240px,48vw)]"
                 }`}
-              >
-                <img
-                  src={srcFor(store)}
-                  alt={store.label}
-                  className={`w-full object-cover select-none ${
-                    isCenter ? "h-48 sm:h-56 md:h-64" : "h-36 sm:h-44"
-                  }`}
-                  draggable={false}
-                  loading="lazy"
-                  decoding="async"
-                  onError={() =>
-                    setImgFallback((prev) => ({ ...prev, [store.id]: true }))
-                  }
-                />
-              </div>
+                style={{
+                  filter: isCenter
+                    ? "drop-shadow(0 24px 48px rgba(24, 33, 15, 0.14))"
+                    : "drop-shadow(0 12px 24px rgba(24, 33, 15, 0.08))",
+                }}
+                draggable={false}
+                loading="lazy"
+                decoding="async"
+                onError={() =>
+                  setImgFallback((prev) => ({ ...prev, [store.id]: true }))
+                }
+              />
             </button>
           );
         })}
@@ -516,27 +543,31 @@ function StoreTypesCarousel({ onPackageSelect }) {
           <>
             <button
               type="button"
-              onClick={() => selectIndex((active - 1 + total) % total)}
-              className="hidden sm:flex items-center justify-center absolute left-4 md:left-10 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border text-xs transition-colors"
+              onClick={goPrev}
+              className="flex items-center justify-center absolute left-1 sm:left-4 md:left-8 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-full border-0 text-lg sm:text-xl font-bold transition-transform hover:scale-105 active:scale-95"
               style={{
-                borderColor: "#b7cd7f",
-                backgroundColor: "rgba(183,205,127,0.18)",
+                zIndex: 60,
+                border: "2px solid #b7cd7f",
+                backgroundColor: "rgba(255,255,255,0.92)",
                 color: "#62840b",
+                boxShadow: "0 8px 24px rgba(98,132,11,0.18)",
               }}
-              aria-label="Previous store type"
+              aria-label="Previous package"
             >
               ←
             </button>
             <button
               type="button"
-              onClick={() => selectIndex((active + 1) % total)}
-              className="hidden sm:flex items-center justify-center absolute right-4 md:right-10 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border text-xs transition-colors"
+              onClick={goNext}
+              className="flex items-center justify-center absolute right-1 sm:right-4 md:right-8 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-full border-0 text-lg sm:text-xl font-bold transition-transform hover:scale-105 active:scale-95"
               style={{
-                borderColor: "#b7cd7f",
-                backgroundColor: "rgba(183,205,127,0.18)",
+                zIndex: 60,
+                border: "2px solid #b7cd7f",
+                backgroundColor: "rgba(255,255,255,0.92)",
                 color: "#62840b",
+                boxShadow: "0 8px 24px rgba(98,132,11,0.18)",
               }}
-              aria-label="Next store type"
+              aria-label="Next package"
             >
               →
             </button>

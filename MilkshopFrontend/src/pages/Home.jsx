@@ -225,6 +225,30 @@ const globalStyles = `
       transition: none !important;
     }
   }
+
+  /* Mobile: skip scroll-hide/reveal — content stays visible (faster UX + SEO-friendly) */
+  @media (max-width: 767px) {
+    .reveal,
+    .reveal.visible,
+    .reveal-fade,
+    .reveal-fade.visible {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+    }
+    .ambient-float {
+      animation: none !important;
+      transform: none !important;
+    }
+    .tm-fade,
+    .tm-fade.visible,
+    .hc-fade,
+    .hc-fade.visible {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+  }
 `
 
 const whySectionStyles = `
@@ -480,27 +504,56 @@ const whySectionStyles = `
   }
 `
 
+// ─── MOTION HELPERS (mobile = visible content, no scroll delay) ───────────────
+function prefersReducedMotion() {
+  if (typeof window === "undefined") return true
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+}
+
+function isMobileViewport() {
+  if (typeof window === "undefined") return false
+  return window.matchMedia("(max-width: 767px)").matches
+}
+
+function useScrollRevealEnabled() {
+  return !prefersReducedMotion() && !isMobileViewport()
+}
+
 // ─── REVEAL HOOK ──────────────────────────────────────────────────────────────
 function useReveal() {
   const ref = useRef(null)
   useEffect(() => {
-    const el = ref.current; if (!el) return
+    const el = ref.current
+    if (!el) return undefined
+
+    if (!useScrollRevealEnabled()) {
+      el.classList.add("visible")
+      return undefined
+    }
+
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { el.classList.add("visible"); obs.disconnect() } },
-      { threshold: 0.08 }
+      ([e]) => {
+        if (e.isIntersecting) {
+          el.classList.add("visible")
+          obs.disconnect()
+        }
+      },
+      { threshold: 0.06, rootMargin: "0px 0px 4% 0px" },
     )
-    obs.observe(el); return () => obs.disconnect()
+    obs.observe(el)
+    return () => obs.disconnect()
   }, [])
   return ref
 }
 
 function Reveal({ children, delay = 0, fade = false, style = {}, className = "" }) {
   const ref = useReveal()
+  const motionDelay = useScrollRevealEnabled() ? delay : 0
   return (
     <div
       ref={ref}
       className={`${fade ? "reveal-fade" : "reveal"} ${className}`}
-      style={{ animationDelay: `${delay}ms`, ...style }}
+      style={{ animationDelay: `${motionDelay}ms`, ...style }}
     >
       {children}
     </div>
@@ -717,11 +770,13 @@ function WhySection() {
   const sectionRef = useRef(null)
   const [motionOk] = useState(() => {
     if (typeof window === "undefined") return false
-    return !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (isMobileViewport()) return false
+    return !prefersReducedMotion()
   })
   const [inView, setInView] = useState(() => {
     if (typeof window === "undefined") return true
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReducedMotion() || isMobileViewport()) return true
+    return false
   })
 
   useEffect(() => {
@@ -736,7 +791,7 @@ function WhySection() {
           obs.disconnect()
         }
       },
-      { threshold: 0.08, rootMargin: "0px 0px -5% 0px" },
+      { threshold: 0.06, rootMargin: "0px 0px 4% 0px" },
     )
 
     obs.observe(el)
@@ -847,6 +902,16 @@ function WhySection() {
         }
 
         @media (prefers-reduced-motion: reduce) {
+          .why-section .why-card,
+          .why-section .why-card-media img,
+          .why-section .why-top-header .home-section-heading {
+            opacity: 1 !important;
+            transform: none !important;
+            transition: none !important;
+          }
+        }
+
+        @media (max-width: 767px) {
           .why-section .why-card,
           .why-section .why-card-media img,
           .why-section .why-top-header .home-section-heading {
@@ -1298,7 +1363,11 @@ function FranchiseTestimonialsSection() {
   const [branchesLoaded, setBranchesLoaded] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const [featuredFade, setFeaturedFade] = useState(true)
-  const [inView, setInView] = useState(false)
+  const [inView, setInView] = useState(() => {
+    if (typeof window === "undefined") return true
+    if (prefersReducedMotion() || isMobileViewport()) return true
+    return false
+  })
   const [autoEpoch, setAutoEpoch] = useState(0)
 
   const sectionRef = useRef(null)
@@ -1358,13 +1427,15 @@ function FranchiseTestimonialsSection() {
   }, [])
 
   useEffect(() => {
+    if (inView) return undefined
+
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setInView(true) },
-      { threshold: 0.12 }
+      { threshold: 0.06, rootMargin: "0px 0px 4% 0px" },
     )
     if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
-  }, [])
+  }, [inView])
 
   const stories = buildPartnerStories(branchCards)
   const safeIndex = Math.min(activeIndex, Math.max(0, stories.length - 1))
@@ -1591,6 +1662,15 @@ function FranchiseTestimonialsSection() {
           .tm-fade { transition: none; opacity: 1; transform: none; }
           .tm-story-btn:hover, .tm-cta-link:hover { transform: none; }
           .tm-featured-fade { transition: none; }
+        }
+
+        @media (max-width: 767px) {
+          .tm-fade,
+          .tm-fade.visible {
+            opacity: 1 !important;
+            transform: none !important;
+            transition: none !important;
+          }
         }
       `}</style>
 
@@ -1851,18 +1931,24 @@ const happyCustomerPhotos = Array.from({ length: 10 }, (_, i) => ({
 }))
 
 function HappyCustomersSection() {
-  const [inView, setInView] = useState(false)
+  const [inView, setInView] = useState(() => {
+    if (typeof window === "undefined") return true
+    if (prefersReducedMotion() || isMobileViewport()) return true
+    return false
+  })
   const [lightboxIndex, setLightboxIndex] = useState(null)
   const sectionRef = useRef(null)
 
   useEffect(() => {
+    if (inView) return undefined
+
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setInView(true) },
-      { threshold: 0.1 },
+      { threshold: 0.06, rootMargin: "0px 0px 4% 0px" },
     )
     if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
-  }, [])
+  }, [inView])
 
   useEffect(() => {
     if (lightboxIndex === null) return undefined
@@ -2227,6 +2313,15 @@ function HappyCustomersSection() {
         @media (prefers-reduced-motion: reduce) {
           .hc-fade { transition: none; opacity: 1; transform: none; }
           .hc-card { transition: none; }
+        }
+
+        @media (max-width: 767px) {
+          .hc-fade,
+          .hc-fade.visible {
+            opacity: 1 !important;
+            transform: none !important;
+            transition: none !important;
+          }
         }
       `}</style>
 

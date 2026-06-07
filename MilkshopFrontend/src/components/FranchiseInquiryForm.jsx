@@ -628,7 +628,6 @@ export default function FranchiseInquiryForm({
               <option value="">Select package</option>
               <option value="inline">In-line Store (30 SQM)</option>
               <option value="kiosk-delights">To-Go Kiosk — Dairy Delights (6 SQM)</option>
-              <option value="basic">Basic Shop (8 SQM)</option>
               <option value="kiosk-deal">To-Go Kiosk — Dairy Deal (4 SQM)</option>
               <option value="unsure">Not sure</option>
             </select>
@@ -802,7 +801,6 @@ export default function FranchiseInquiryForm({
                   <option value="">Select package</option>
                   <option value="inline">In-line Store (30 SQM)</option>
                   <option value="kiosk-delights">To-Go Kiosk — Dairy Delights (6 SQM)</option>
-                  <option value="basic">Basic Shop (8 SQM)</option>
                   <option value="kiosk-deal">To-Go Kiosk — Dairy Deal (4 SQM)</option>
                   <option value="unsure">Not sure</option>
                 </select>

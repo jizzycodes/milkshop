@@ -715,32 +715,37 @@ const CSS = `
     }
   }
 
-  /* ─── TABLET (768px–1023px) ──────────────────────── */
+  /* ─── TABLET (768px–1023px) — scaled side-by-side, no bleed ─── */
   @media (min-width: 768px) and (max-width: 1023px) {
     .hero-section {
       min-height: auto;
+      overflow-x: hidden;
     }
 
     .hero-inner {
-      align-items: center;
+      align-items: flex-end;
       min-height: auto;
+      gap: clamp(6px, 1.2vw, 14px);
       padding:
         calc(64px + env(safe-area-inset-top, 0px) + 12px)
-        clamp(16px, 3vw, 28px)
-        clamp(8px, 2vw, 16px);
+        clamp(12px, 2vw, 24px)
+        clamp(12px, 2vw, 20px);
     }
 
     .hero-copy {
-      flex: 0 0 44%;
-      max-width: 420px;
-      padding-bottom: clamp(16px, 3vw, 36px);
+      flex: 1 1 48%;
+      min-width: 0;
+      max-width: 48%;
+      width: auto;
+      padding-bottom: clamp(12px, 2vw, 28px);
+      overflow: hidden;
     }
 
     .hero-eyebrow { top: 0; }
 
     .hero-fresh {
-      font-size: clamp(1.85rem, 3vw, 2.65rem);
-      margin-bottom: -4px;
+      font-size: clamp(1.65rem, 2.6vw, 2.2rem);
+      margin-bottom: -2px;
       top: 0;
     }
 
@@ -748,74 +753,108 @@ const CSS = `
       top: 0;
       margin-bottom: 0;
       align-items: flex-start;
+      width: 100%;
     }
 
-    .hero-taiwan { justify-content: flex-start; }
+    .hero-taiwan {
+      justify-content: flex-start;
+      width: 100%;
+    }
+
     .hero-taiwan img {
-      width: min(100%, clamp(280px, 34vw, 440px));
+      width: min(100%, clamp(200px, 28vw, 320px));
       height: auto;
       max-width: 100%;
+      margin-left: 0;
     }
 
     .hero-tagline {
-      font-size: clamp(0.9rem, 1.2vw, 1.15rem);
-      margin-top: clamp(4px, 0.8vw, 8px);
-      letter-spacing: 0.05em;
+      font-size: clamp(0.82rem, 1.1vw, 1rem);
+      margin-top: clamp(4px, 0.6vw, 8px);
+      letter-spacing: 0.04em;
     }
 
     .hero-features {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      max-width: min(100%, 420px);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-width: 100%;
       width: 100%;
-      gap: 8px;
-      margin-top: 12px;
+      gap: 6px;
+      margin-top: 10px;
+      margin-left: 0;
       align-self: flex-start;
     }
 
+    .hero-feature {
+      padding: 6px 4px;
+    }
+
     .hero-feature-icon {
-      width: 38px;
-      height: 38px;
+      width: 32px;
+      height: 32px;
     }
 
     .hero-feature-line1,
     .hero-feature-line2 {
-      font-size: 6.5px;
+      font-size: 6px;
     }
 
     .hero-btns {
-      margin-top: 14px;
-      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      margin-left: 0;
+      gap: 8px;
+      width: 100%;
     }
 
     .hero-btn-primary,
     .hero-btn-secondary {
-      min-width: 124px;
-      font-size: 13px;
-      padding: 10px 16px;
+      min-width: 0;
+      flex: 1 1 calc(50% - 4px);
+      font-size: 11px;
+      padding: 8px 10px;
+    }
+
+    .hero-btn-primary {
+      padding-left: 8px;
+    }
+
+    .hero-btn-icon {
+      width: 28px;
+      height: 28px;
+    }
+
+    .hero-btn-icon img {
+      width: 20px;
+      height: 20px;
     }
 
     .hero-visual {
-      flex: 1;
-      max-width: 58%;
-      min-height: clamp(280px, 36vw, 420px);
-      justify-content: center;
+      position: relative;
+      right: auto;
+      bottom: auto;
+      flex: 1 1 52%;
+      min-width: 0;
+      max-width: 52%;
+      min-height: clamp(220px, 32vw, 340px);
+      justify-content: flex-end;
       align-items: flex-end;
-      padding-bottom: clamp(6px, 1.5vw, 16px);
-      overflow: visible;
+      overflow: hidden;
     }
 
     .hero-cups-frame {
-      width: clamp(320px, 52vw, 620px);
-      max-width: none;
-      margin-left: auto;
-      margin-right: auto;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
     }
 
     .hero-cups-img {
-      width: 110%;
-      margin-left: -5%;
-      object-position: center bottom;
-      transform-origin: center bottom;
+      width: 100%;
+      max-width: 100%;
+      margin-left: 0;
+      max-height: clamp(240px, 38vh, 360px);
+      object-fit: contain;
+      object-position: right bottom;
+      transform-origin: right bottom;
     }
 
     .hero-highlights-inner {
