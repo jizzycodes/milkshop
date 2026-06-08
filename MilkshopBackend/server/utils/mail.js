@@ -9,6 +9,7 @@ const {
 } = require('../constants/leadEmailTemplates')
 
 const LOGO_PATH = path.join(__dirname, '../assets/LOGOLAND.png')
+const SENDGRID_API_URL = 'https://api.sendgrid.com/v3/mail/send'
 
 function getSmtpConfig() {
   const host = process.env.SMTP_HOST
@@ -20,16 +21,45 @@ function getSmtpConfig() {
   return { host, port, secure, user, pass, from }
 }
 
+function getSendGridConfig() {
+  return {
+    apiKey: process.env.SENDGRID_API_KEY,
+    fromEmail: process.env.SENDGRID_FROM_EMAIL,
+    fromName: process.env.SENDGRID_FROM_NAME || 'Milkshop Franchise',
+  }
+}
+
 function isSmtpConfigured() {
   const { host, user, pass, from } = getSmtpConfig()
   return !!(host && user && pass && from)
 }
 
-function isEmailConfigured() {
-  return isSmtpConfigured()
+function isSendGridConfigured() {
+  const { apiKey, fromEmail } = getSendGridConfig()
+  return !!(apiKey && fromEmail)
 }
 
-/** Safe summary for logs — never prints password. */
+/**
+ * auto: SendGrid if SENDGRID_API_KEY is set, else SMTP.
+ * sendgrid | smtp: force a provider.
+ */
+function getEmailProvider() {
+  const mode = String(process.env.EMAIL_PROVIDER || 'auto').trim().toLowerCase()
+  if (mode === 'sendgrid') {
+    return isSendGridConfigured() ? 'sendgrid' : null
+  }
+  if (mode === 'smtp') {
+    return isSmtpConfigured() ? 'smtp' : null
+  }
+  if (isSendGridConfigured()) return 'sendgrid'
+  if (isSmtpConfigured()) return 'smtp'
+  return null
+}
+
+function isEmailConfigured() {
+  return getEmailProvider() != null
+}
+
 function getSmtpStatusSummary() {
   const { host, port, secure, user, from } = getSmtpConfig()
   if (!isSmtpConfigured()) {
@@ -47,6 +77,32 @@ function getSmtpStatusSummary() {
     secure,
     user,
     from,
+  }
+}
+
+function getSendGridStatusSummary() {
+  const { fromEmail, fromName } = getSendGridConfig()
+  if (!isSendGridConfigured()) {
+    const missing = []
+    if (!process.env.SENDGRID_API_KEY) missing.push('SENDGRID_API_KEY')
+    if (!fromEmail) missing.push('SENDGRID_FROM_EMAIL')
+    return { configured: false, missing }
+  }
+  return {
+    configured: true,
+    fromEmail,
+    fromName,
+    apiKeyPrefix: `${String(process.env.SENDGRID_API_KEY).slice(0, 6)}...`,
+  }
+}
+
+function getEmailStatusSummary() {
+  const provider = getEmailProvider()
+  return {
+    provider: provider || 'none',
+    mode: process.env.EMAIL_PROVIDER || 'auto',
+    sendgrid: getSendGridStatusSummary(),
+    smtp: getSmtpStatusSummary(),
   }
 }
 
@@ -129,25 +185,77 @@ async function sendViaSmtp(toEmail, subject, textBody, html) {
   })
 }
 
+async function sendViaSendGrid(toEmail, subject, textBody, html) {
+  const { apiKey, fromEmail, fromName } = getSendGridConfig()
+  const response = await fetch(SENDGRID_API_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      personalizations: [{ to: [{ email: toEmail }] }],
+      from: { email: fromEmail, name: fromName },
+      subject,
+      content: [
+        { type: 'text/plain', value: textBody },
+        { type: 'text/html', value: html },
+      ],
+    }),
+  })
+
+  if (!response.ok) {
+    let detail = response.statusText || 'Send failed'
+    try {
+      const body = await response.json()
+      if (Array.isArray(body.errors) && body.errors.length > 0) {
+        detail = body.errors.map((e) => e.message).join('; ')
+      } else if (body.message) {
+        detail = body.message
+      }
+    } catch {
+      // ignore JSON parse errors
+    }
+    const err = new Error(`SendGrid HTTP ${response.status}: ${detail}`)
+    err.status = response.status
+    throw err
+  }
+}
+
+async function sendEmail(toEmail, subject, textBody, html) {
+  const provider = getEmailProvider()
+  if (provider === 'sendgrid') {
+    await sendViaSendGrid(toEmail, subject, textBody, html)
+    return
+  }
+  if (provider === 'smtp') {
+    await sendViaSmtp(toEmail, subject, textBody, html)
+    return
+  }
+  throw new Error('Email not configured (set SendGrid or SMTP env vars)')
+}
+
 async function sendTemplatedEmail(toEmail, name, subject, template) {
   if (!isEmailConfigured()) {
+    const status = getEmailStatusSummary()
     return {
       sent: false,
-      error: 'Email not configured (SMTP_* env vars)',
+      error: `Email not configured (provider=${status.provider})`,
     }
   }
 
   const { textBody, html } = buildEmailContent(name, subject, template)
+  const provider = getEmailProvider()
 
   try {
-    await sendViaSmtp(toEmail, subject, textBody, html)
-    return { sent: true }
+    await sendEmail(toEmail, subject, textBody, html)
+    return { sent: true, provider }
   } catch (err) {
     const code = err.code ? ` [${err.code}]` : ''
     const message = `${err.message || 'Email send failed'}${code}`
     // eslint-disable-next-line no-console
-    console.error('[SMTP] Send failed:', message)
-    return { sent: false, error: message }
+    console.error(`[${provider === 'sendgrid' ? 'SendGrid' : 'SMTP'}] Send failed:`, message)
+    return { sent: false, error: message, provider }
   }
 }
 
@@ -216,9 +324,66 @@ async function verifySmtpConnection() {
   }
 }
 
+async function verifySendGridConnection() {
+  if (!isSendGridConfigured()) {
+    return { ok: false, error: 'SendGrid not configured', status: getSendGridStatusSummary() }
+  }
+  try {
+    const response = await fetch('https://api.sendgrid.com/v3/scopes', {
+      headers: {
+        Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+      },
+    })
+    if (!response.ok) {
+      let detail = response.statusText
+      try {
+        const body = await response.json()
+        detail = body.errors?.map((e) => e.message).join('; ') || body.message || detail
+      } catch {
+        // ignore
+      }
+      return {
+        ok: false,
+        error: `SendGrid HTTP ${response.status}: ${detail}`,
+        status: getSendGridStatusSummary(),
+      }
+    }
+    return { ok: true, status: getSendGridStatusSummary() }
+  } catch (err) {
+    return {
+      ok: false,
+      error: err.message || 'SendGrid verify failed',
+      status: getSendGridStatusSummary(),
+    }
+  }
+}
+
+async function verifyEmailConnection() {
+  const provider = getEmailProvider()
+  if (!provider) {
+    return {
+      ok: false,
+      error: 'No email provider configured',
+      provider: null,
+      status: getEmailStatusSummary(),
+    }
+  }
+  if (provider === 'sendgrid') {
+    const result = await verifySendGridConnection()
+    return { ...result, provider }
+  }
+  const result = await verifySmtpConnection()
+  return { ...result, provider }
+}
+
 module.exports = {
   sendFranchiseConfirmation,
   sendLeadOutcomeEmail,
+  getEmailProvider,
+  getEmailStatusSummary,
   getSmtpStatusSummary,
+  getSendGridStatusSummary,
+  verifyEmailConnection,
   verifySmtpConnection,
+  verifySendGridConnection,
 }

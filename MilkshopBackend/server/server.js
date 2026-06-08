@@ -85,16 +85,19 @@ app.use(errorHandler)
 const PORT = process.env.PORT || 4000
 
 const server = app.listen(PORT, () => {
-  const { getSmtpStatusSummary } = require('./utils/mail')
-  const smtp = getSmtpStatusSummary()
+  const { getEmailProvider, getEmailStatusSummary } = require('./utils/mail')
+  const email = getEmailStatusSummary()
+  const provider = getEmailProvider()
   console.log(`Milkshop backend listening on port ${PORT}`)
   console.log(`Keep this terminal open while developing.`)
   console.log(`Health check: http://localhost:${PORT}/api/health`)
-  if (smtp.configured) {
-    console.log(`SMTP: configured (${smtp.host}:${smtp.port}, from ${smtp.from})`)
+  if (provider === 'sendgrid') {
+    console.log(`Email: SendGrid (${email.sendgrid.fromEmail})`)
+  } else if (provider === 'smtp') {
+    console.log(`Email: SMTP (${email.smtp.host}:${email.smtp.port}, from ${email.smtp.from})`)
   } else {
-    console.warn(`SMTP: NOT configured — missing: ${(smtp.missing || []).join(', ')}`)
-    console.warn('Check MilkshopBackend/.env (not repo root). Quote passwords with special chars, e.g. SMTP_PASSWORD="your-pass"')
+    console.warn('Email: NOT configured — set SendGrid (production) or SMTP (local)')
+    console.warn('Production/Linode: EMAIL_PROVIDER=sendgrid, SENDGRID_API_KEY, SENDGRID_FROM_EMAIL')
   }
 })
 
