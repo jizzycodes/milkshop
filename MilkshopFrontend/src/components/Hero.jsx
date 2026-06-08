@@ -1,8 +1,15 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import FranchiseInquiryTrigger from "./FranchiseInquiryTrigger";
 
+function isBrowserZoom125() {
+  if (typeof window === "undefined") return false;
+  const ratio = window.outerWidth / window.innerWidth;
+  return ratio >= 1.22 && ratio <= 1.28;
+}
+
 /** Decorative cups composite */
-const HERO_CUPS_SRC = "/hero/hero-cups1.webp";
+const HERO_CUPS_SRC = "/hero/hero-cups2.webp";
 
 const FEATURES = [
   { id: "ingredients", line1: "Premium", line2: "Ingredients" },
@@ -1220,6 +1227,49 @@ const CSS = `
     }
   }
 
+  /* ─── 125% browser zoom only (class toggled via JS) ─── */
+  @media (min-width: 1024px) and (max-width: 1440px) {
+    .hero-section.hero-zoom-125 .hero-copy {
+      margin-left: clamp(12px, 2vw, 28px);
+    }
+  }
+
+  @media (min-width: 1441px) {
+    .hero-section.hero-zoom-125 .hero-inner {
+      padding-left: clamp(32px, 4.5vw, 56px);
+    }
+
+    .hero-section.hero-zoom-125 .hero-copy {
+      padding-left: clamp(16px, 2vw, 36px);
+    }
+
+    .hero-section.hero-zoom-125 .hero-taiwan img {
+      margin-left: clamp(-160px, -14vw, -96px);
+    }
+
+    .hero-section.hero-zoom-125 .hero-features {
+      margin-left: clamp(-64px, -6.5vw, -40px);
+    }
+
+    .hero-section.hero-zoom-125 .hero-btns {
+      margin-left: clamp(-24px, -3.5vw, -8px);
+    }
+  }
+
+  @media (min-width: 1600px) {
+    .hero-section.hero-zoom-125 .hero-taiwan img {
+      margin-left: clamp(-176px, -13vw, -112px);
+    }
+
+    .hero-section.hero-zoom-125 .hero-features {
+      margin-left: clamp(-72px, -5.5vw, -48px);
+    }
+
+    .hero-section.hero-zoom-125 .hero-btns {
+      margin-left: clamp(-32px, -3vw, -12px);
+    }
+  }
+
   /* ─── Reduced motion ──────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {
     .hero-eyebrow, .hero-fresh, .hero-tagline,
@@ -1327,10 +1377,19 @@ function Leaf({ size = 32, style = {} }) {
 }
 
 export default function Hero() {
+  const [zoom125, setZoom125] = useState(false);
+
+  useEffect(() => {
+    const syncZoom = () => setZoom125(isBrowserZoom125());
+    syncZoom();
+    window.addEventListener("resize", syncZoom);
+    return () => window.removeEventListener("resize", syncZoom);
+  }, []);
+
   return (
     <>
       <style>{CSS}</style>
-      <section className="hero-section">
+      <section className={`hero-section${zoom125 ? " hero-zoom-125" : ""}`}>
 
         {/* Ambient glow */}
         <div className="hero-glow" />

@@ -289,12 +289,6 @@ function DrinksCarousel() {
         >
           {current.description}
         </p>
-        <span
-          className="text-xl font-bold text-[#97b64c] mt-1"
-          style={{ fontFamily: "'DM Mono', monospace" }}
-        >
-          {current.price}
-        </span>
       </div>
 
       <div className="flex justify-center gap-2 mt-5">
@@ -323,60 +317,28 @@ function CategorySection({ category, products }) {
     <section style={{ marginBottom: "20px" }}>
 
       {/* Section Header */}
-      <div className="prod-category-header" style={{ textAlign: "center", marginBottom: "16px" }}>
-
-        {/* Series eyebrow */}
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: "10px",
-          marginBottom: "12px",
-        }}>
-          <div style={{ width: "24px", height: "1.5px", background: "linear-gradient(to right, transparent, #97b64c)" }} />
-          <span style={{
-            fontSize: "10px", fontWeight: 800, letterSpacing: "0.35em",
-            textTransform: "uppercase", color: "#97b64c",
-            fontFamily: "'DM Sans', sans-serif",
-          }}>
-            {isBreak ? "Bites" : "Series"}
+      <div className="prod-container prod-container--wide" style={{ marginBottom: "16px" }}>
+        <h2 className="ms-section-heading" style={{ color: "#1e1e1e" }}>
+          {isBreak ? (
+            <span style={{ color: "#97b64c" }}>Fresh </span>
+          ) : (
+            <span style={{ color: "#97b64c" }}>{seriesName} </span>
+          )}
+          <span style={{ color: "#1e1e1e" }}>
+            {isBreak ? "Bread" : "Series"}
           </span>
-          <div style={{ width: "24px", height: "1.5px", background: "linear-gradient(to left, transparent, #97b64c)" }} />
-        </div>
-
-        {/* Series title */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px" }}>
-          <h2 className="ms-section-heading" style={{ color: "#1e1e1e" }}>
-            {isBreak ? (
-              <span style={{ color: "#1e1e1e" }}>Fresh </span>
-            ) : (
-              <span style={{ color: "#97b64c" }}>{seriesName} </span>
-            )}
-            <span style={{ color: "#1e1e1e" }}>
-              {isBreak ? "Bread" : "Series"}
-            </span>
-          </h2>
-
-          {/* Count pill */}
-          <span style={{
-            fontFamily: "'DM Mono', monospace",
-            fontSize: "10px", fontWeight: 700,
-            padding: "4px 12px", borderRadius: "999px",
-            background: "linear-gradient(135deg, #f0f6e8, #e4f0d0)",
-            color: "#62840b",
-            border: "1px solid rgba(151,182,76,0.3)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8)",
-          }}>
-            {products.length} items
-          </span>
-        </div>
+        </h2>
       </div>
 
       {/* Carousel */}
       <SeriesCupsGrid products={products} />
 
-      {/* Section Divider */}
-      <div className="prod-category-divider" style={{
-        height: "1px",
-        background: "linear-gradient(to right, transparent, rgba(151,182,76,0.25) 20%, rgba(151,182,76,0.25) 80%, transparent)",
-      }} />
+      {!isBreak && (
+        <div className="prod-category-divider" style={{
+          height: "1px",
+          background: "linear-gradient(to right, transparent, rgba(151,182,76,0.25) 20%, rgba(151,182,76,0.25) 80%, transparent)",
+        }} />
+      )}
     </section>
   );
 }
@@ -446,12 +408,8 @@ export default function Products() {
       startAnim();
       return undefined;
     }
-    window.addEventListener("milkshop:route-loader-hidden", startAnim, { once: true });
-    const fallback = window.setTimeout(startAnim, 2200);
-    return () => {
-      window.removeEventListener("milkshop:route-loader-hidden", startAnim);
-      window.clearTimeout(fallback);
-    };
+    const raf = requestAnimationFrame(() => startAnim());
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   useEffect(() => {
@@ -824,7 +782,7 @@ export default function Products() {
               <p className="text-[#97b64c] text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: "'Signia Pro', 'DM Sans', sans-serif" }}>
                 Top 5 Picks
               </p>
-              <h2 className="ms-section-heading">
+              <h2 className="ms-section-heading" style={{ color: "#1e1e1e" }}>
                 Fan Favorites
               </h2>
             </div>

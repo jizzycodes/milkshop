@@ -133,12 +133,6 @@ function buildMapsQuery(loc) {
   return label || null
 }
 
-function getGoogleMapsViewUrl(loc) {
-  const query = buildMapsQuery(loc)
-  if (!query) return null
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
-}
-
 function getGoogleMapsDirectionsUrl(loc) {
   const query = buildMapsQuery(loc)
   if (!query) return null
@@ -151,40 +145,14 @@ function openGoogleMaps(url) {
 }
 
 function BranchMapActions({ loc, accent = "#97b64c", compact = false }) {
-  const viewUrl = getGoogleMapsViewUrl(loc)
   const directionsUrl = getGoogleMapsDirectionsUrl(loc)
-  if (!viewUrl && !directionsUrl) return null
+  if (!directionsUrl) return null
 
   const fontSize = compact ? "11px" : "12px"
   const padding = compact ? "9px 8px" : "10px 10px"
 
   return (
     <div style={{ display: "flex", gap: 8, marginTop: compact ? 12 : 14, flexWrap: "wrap" }}>
-      {viewUrl && (
-        <button
-          type="button"
-          onClick={() => openGoogleMaps(viewUrl)}
-          style={{
-            flex: "1 1 120px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 6,
-            padding,
-            borderRadius: 8,
-            background: "#fff",
-            color: accent,
-            border: `1.5px solid ${accent}55`,
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize,
-            fontWeight: 700,
-            cursor: "pointer",
-            transition: "background 0.15s ease, border-color 0.15s ease",
-          }}
-        >
-          View on Google Maps
-        </button>
-      )}
       {directionsUrl && (
         <button
           type="button"
@@ -321,12 +289,8 @@ export default function Locations() {
       startAnim()
       return undefined
     }
-    window.addEventListener("milkshop:route-loader-hidden", startAnim, { once: true })
-    const fallback = window.setTimeout(startAnim, 2200)
-    return () => {
-      window.removeEventListener("milkshop:route-loader-hidden", startAnim)
-      window.clearTimeout(fallback)
-    }
+    const raf = requestAnimationFrame(() => startAnim())
+    return () => cancelAnimationFrame(raf)
   }, [])
 
   useEffect(() => {

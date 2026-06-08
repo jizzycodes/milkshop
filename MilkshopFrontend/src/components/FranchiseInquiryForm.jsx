@@ -282,11 +282,7 @@ function ThankYouView({ variant = "page" }) {
             We&apos;ve received your franchise application. Our team will reach out within{" "}
             <strong>1–2 business days</strong>.
           </p>
-          <div className="fi-thankyou-trust">
-            <span>🔒 Secure</span>
-            <span>⚡ Fast Review</span>
-            <span>📞 We&apos;ll Call You</span>
-          </div>
+         
         </div>
       </div>
     </>
@@ -501,110 +497,22 @@ export default function FranchiseInquiryForm({
           border-top: 1px solid ${T.border};
           display: flex;
           flex-direction: column;
+          align-items: stretch;
           gap: 16px;
           overflow: visible;
         }
         @media (min-width: 768px) {
-          .fi-form-root:not(.fi-form--modal) .fi-form-cta-row {
+          .fi-form-cta-row {
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
-            gap: 24px 32px;
-          }
-        }
-        .fi-form-cta-actions {
-          display: flex;
-          flex-direction: column;
-          align-items: stretch;
-          gap: 12px;
-          width: 100%;
-          min-width: 0;
-        }
-        @media (min-width: 768px) {
-          .fi-form-root:not(.fi-form--modal) .fi-form-cta-actions {
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 16px;
-            width: auto;
-            flex-shrink: 0;
+            gap: 24px;
           }
         }
         .fi-form--modal .fi-form-cta-row {
           margin-top: 20px;
           padding-top: 18px;
           gap: 14px;
-          align-items: stretch;
-        }
-        @media (min-width: 640px) {
-          .fi-form--modal .fi-form-cta-row {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px 24px;
-          }
-          .fi-form--modal .fi-form-trust {
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: center;
-            flex: 0 0 auto;
-          }
-        }
-        .fi-form--modal .fi-form-cta-actions {
-          display: flex;
-          flex-direction: column;
-          align-items: stretch;
-          gap: 12px;
-          width: 100%;
-        }
-        @media (min-width: 640px) {
-          .fi-form--modal .fi-form-cta-actions {
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-end;
-            width: auto;
-            flex-shrink: 0;
-          }
-          .fi-form--modal .fi-turnstile-wrap {
-            width: auto;
-            min-width: 300px;
-            justify-content: flex-start;
-          }
-          .fi-form--modal .fi-turnstile-wrap > div {
-            width: auto;
-            max-width: none;
-          }
-        }
-        .fi-form-trust {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 10px 16px;
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: ${T.greenDark};
-        }
-        @media (min-width: 768px) {
-          .fi-form-root:not(.fi-form--modal) .fi-form-trust {
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: center;
-            gap: 8px;
-            flex: 0 0 auto;
-          }
-        }
-        @media (max-width: 767px) {
-          .fi-form-root:not(.fi-form--modal) .fi-form-trust {
-            order: 2;
-          }
-          .fi-form-root:not(.fi-form--modal) .fi-form-cta-actions {
-            order: 1;
-          }
-        }
-        .fi-form--modal .fi-form-trust {
-          justify-content: center;
-          gap: 10px 18px;
-          padding-bottom: 4px;
         }
         .fi-form--modal {
           display: flex;
@@ -643,49 +551,35 @@ export default function FranchiseInquiryForm({
   position: relative;
   z-index: 1;
 }
-       .fi-turnstile-wrap {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 65px;
-  width: 100%;
-  position: relative;
-  z-index: 300;
-  pointer-events: auto !important;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-.fi-form-root:not(.fi-form--modal) .fi-turnstile-wrap {
-  width: 100%;
-}
-@media (min-width: 768px) {
-  .fi-form-root:not(.fi-form--modal) .fi-turnstile-wrap {
-    width: auto;
-    min-width: 300px;
-    justify-content: flex-start;
-  }
-}
-.fi-turnstile-wrap > div {
-  pointer-events: auto !important;
-  touch-action: manipulation;
-  position: relative;
-  z-index: 300;
-  min-height: 65px;
-  width: 100%;
-  max-width: 100%;
-}
-@media (min-width: 768px) {
-  .fi-form-root:not(.fi-form--modal) .fi-turnstile-wrap > div {
-    width: auto;
-    max-width: none;
-  }
-}
-.fi-turnstile-wrap iframe {
-  pointer-events: auto !important;
-  touch-action: manipulation;
-  position: relative;
-  z-index: 300;
-}
+        .fi-turnstile-wrap {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 65px;
+          width: 100%;
+          min-width: 0;
+          position: relative;
+          z-index: 1;
+          pointer-events: auto !important;
+          touch-action: manipulation;
+          -webkit-tap-highlight-color: transparent;
+        }
+        @media (min-width: 768px) {
+          .fi-turnstile-wrap {
+            width: auto;
+            flex: 1 1 auto;
+            justify-content: flex-start;
+          }
+        }
+        .fi-turnstile-wrap > div {
+          pointer-events: auto !important;
+          touch-action: manipulation;
+          min-height: 65px;
+        }
+        .fi-turnstile-wrap iframe {
+          pointer-events: auto !important;
+          touch-action: manipulation;
+        }
         @media (min-width: 768px) {
           .fi-form--modal .fi-form-footer { padding: 14px 32px 24px; }
         }
@@ -720,11 +614,12 @@ export default function FranchiseInquiryForm({
           line-height: 1.2;
         }
         @media (min-width: 768px) {
-          .fi-form-root:not(.fi-form--modal) .fi-submit-btn {
+          .fi-submit-btn {
             width: auto;
             min-width: 220px;
             white-space: nowrap;
             flex-shrink: 0;
+            margin-left: auto;
           }
         }
         .fi-submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
@@ -874,24 +769,17 @@ export default function FranchiseInquiryForm({
 
         <div className="fi-form-footer">
           <div className="fi-form-cta-row fi-form-cta-row--modal">
-            <div className="fi-form-trust">
-              <span>🔒 Secure</span>
-              <span>⚡ Fast Review</span>
-              <span>📞 We&apos;ll Call You</span>
+            <div className="fi-turnstile-wrap">
+              <div ref={turnstileRef} />
             </div>
-            <div className="fi-form-cta-actions">
-              <div className="fi-turnstile-wrap">
-                <div ref={turnstileRef} />
-              </div>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="fi-submit-btn"
-              >
-                {isSubmitting ? "Submitting..." : "Submit Application →"}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="fi-submit-btn"
+            >
+              {isSubmitting ? "Submitting..." : "Submit Application →"}
+            </button>
           </div>
         </div>
         </>
@@ -1047,24 +935,17 @@ export default function FranchiseInquiryForm({
           </div>
 
           <div className="fi-form-cta-row">
-            <div className="fi-form-trust">
-              <span>🔒 Secure</span>
-              <span>⚡ Fast Review</span>
-              <span>📞 We&apos;ll Call You</span>
+            <div className="fi-turnstile-wrap">
+              <div ref={turnstileRef} />
             </div>
-            <div className="fi-form-cta-actions">
-              <div className="fi-turnstile-wrap">
-                <div ref={turnstileRef} />
-              </div>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="fi-submit-btn"
-              >
-                {isSubmitting ? "Submitting..." : "Submit Application →"}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="fi-submit-btn"
+            >
+              {isSubmitting ? "Submitting..." : "Submit Application →"}
+            </button>
           </div>
         </>
       )}

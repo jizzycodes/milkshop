@@ -178,12 +178,8 @@ export default function About() {
       startAnim()
       return undefined
     }
-    window.addEventListener("milkshop:route-loader-hidden", startAnim, { once: true })
-    const fallback = window.setTimeout(startAnim, 2200)
-    return () => {
-      window.removeEventListener("milkshop:route-loader-hidden", startAnim)
-      window.clearTimeout(fallback)
-    }
+    const raf = requestAnimationFrame(() => startAnim())
+    return () => cancelAnimationFrame(raf)
   }, [])
 
   return (
@@ -544,7 +540,7 @@ export default function About() {
     
 
     <span className="about-taiwan-word">
-      <img src="/about/taiwan-word.webp" alt="Taiwan" />
+      <img src="taiwan-word.webp" alt="Taiwan" />
     </span>
 
     <br />

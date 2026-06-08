@@ -354,11 +354,11 @@ export default function Footer() {
           {/* Contact col */}
           <div>
             <p className="footer-col-label">Contact</p>
-            <a href="tel:09952908161" className="footer-contact-link">
-              0995 290 8161
+            <a href="tel:(0907)-358-2460" className="footer-contact-link">
+              (0907)-358-2460
             </a>
-            <a href="mailto:franchise@milkshop.ph" className="footer-contact-link">
-              franchise@milkshop.ph
+            <a href="mailto:franchisemilkshop@gmail.com" className="footer-contact-link">
+              franchisemilkshop@gmail.com
             </a>
 
           

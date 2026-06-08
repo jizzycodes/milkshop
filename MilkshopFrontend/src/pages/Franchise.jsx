@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useCallback } from "react"
+﻿import { useState, useEffect, useRef } from "react"
 import { Link, useLocation } from "react-router-dom"
 import FranchiseInquiryForm from "../components/FranchiseInquiryForm"
 import FranchiseInquiryTrigger from "../components/FranchiseInquiryTrigger"
@@ -371,11 +371,11 @@ const franchisePageStyles = `
 
 
 
-// ─── STORE TYPES — CAROUSEL (Products Top 5 style) ───────────────────────────
+// ─── STORE TYPES — PICKUP-STYLE SHOWCASE ─────────────────────────────────────
 
 const PACKAGE_IMAGES = {
-  sqm2: "/franchise/packages/2.webp",
-  sqm4: "/franchise/packages/4.webp",
+  sqm2: "/franchise/packages/22.webp",
+  sqm4: "/franchise/packages/88.webp",
   sqm8: "/franchise/packages/8.webp",
 };
 
@@ -384,7 +384,7 @@ const storeTypes = [
     id: "inline",
     label: "In-line Store",
     storeName: "Milky Deluxe Haven",
-    size: "30 SQM",
+    size: "30 sqm",
     description: "A cozy and premium dine-in experience for milktea lovers.",
     tag: "Premium",
     tagColor: "bg-[#62840b] text-white",
@@ -394,7 +394,7 @@ const storeTypes = [
     id: "kiosk-delights",
     label: "To-Go Kiosk",
     storeName: "Dairy Delights",
-    size: "6 SQM",
+    size: "6 sqm",
     description: "Perfect for malls, events, and busy on-the-go customers.",
     tag: "Compact",
     tagColor: "bg-[#97b64c] text-white",
@@ -404,7 +404,7 @@ const storeTypes = [
     id: "kiosk-deal",
     label: "To-Go Kiosk",
     storeName: "Dairy Deal",
-    size: "4 SQM",
+    size: "4 sqm",
     description: "Ideal for malls, food courts, and outdoor locations.",
     tag: "Starter",
     tagColor: "bg-rose-400 text-white",
@@ -415,222 +415,187 @@ const storeTypes = [
 const FRANCHISE_HERO_IMAGE = "/franchise/packages/hero-franchise.webp";
 const STORE_IMG_FALLBACK = "/hero-bg-3.webp";
 
-function StoreTypesCarousel({ onPackageSelect }) {
-  const [active, setActive] = useState(0);
+function StoreTypesShowcase() {
+  const slides = storeTypes;
+
   const [imgFallback, setImgFallback] = useState({});
-  const total = storeTypes.length;
-  const intervalRef = useRef(null);
-  const touchStartX = useRef(null);
 
-  const stopAuto = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = null;
-  }, []);
-
-  const startAuto = useCallback(() => {
-    stopAuto();
-    intervalRef.current = setInterval(() => {
-      setActive((prev) => (prev + 1) % total);
-    }, 3500);
-  }, [total, stopAuto]);
-
-  useEffect(() => {
-    startAuto();
-    return () => stopAuto();
-  }, [startAuto]);
-
-  const goTo = (index) => {
-    setActive(index);
-    onPackageSelect?.(storeTypes[index].id);
-    startAuto();
-  };
-
-  const goPrev = () => goTo((active - 1 + total) % total);
-  const goNext = () => goTo((active + 1) % total);
-
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0]?.clientX ?? null;
-  };
-
-  const handleTouchEnd = (e) => {
-    if (touchStartX.current == null) return;
-    const endX = e.changedTouches[0]?.clientX ?? touchStartX.current;
-    const delta = endX - touchStartX.current;
-    if (Math.abs(delta) >= 48) {
-      if (delta < 0) goNext();
-      else goPrev();
-    }
-    touchStartX.current = null;
-  };
-
-  const getPos = (index) => {
-    const diff = (index - active + total) % total;
-    if (diff === 0) return "center";
-    if (diff === 1) return "right1";
-    if (diff === 2) return "right2";
-    if (diff === total - 2) return "left2";
-    if (diff === total - 1) return "left1";
-    return "hidden";
-  };
-
-  const posStyles = {
-    center: "z-40 scale-100 opacity-100 translate-x-0",
-    right1: "z-30 scale-[0.55] opacity-40 translate-x-[78%]",
-    left1: "z-30 scale-[0.55] opacity-40 -translate-x-[78%]",
-    right2: "z-20 scale-[0.45] opacity-0 translate-x-[130%]",
-    left2: "z-20 scale-[0.45] opacity-0 -translate-x-[130%]",
-    hidden: "z-10 scale-[0.45] opacity-0 translate-x-0 pointer-events-none",
-  };
-
-  const current = storeTypes[active];
-
-  const srcFor = (store) => {
-    if (imgFallback[store.id]) return STORE_IMG_FALLBACK;
-    return store.image;
-  };
-
-  const selectIndex = (i) => {
-    goTo(i);
-  };
+  const srcFor = (store) =>
+    imgFallback[store.id] ? STORE_IMG_FALLBACK : store.image;
 
   return (
-    <div
-      className="w-full"
-      onMouseEnter={stopAuto}
-      onMouseLeave={startAuto}
-    >
-      <div
-        className="relative h-[min(380px,72vw)] sm:h-[min(460px,64vw)] md:h-[min(520px,58vh)] lg:h-[min(560px,54vh)] flex items-center justify-center overflow-visible px-2 touch-pan-y"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        {storeTypes.map((store, i) => {
-          const pos = getPos(i);
-          const isCenter = pos === "center";
-          return (
-            <button
-              key={store.id}
-              type="button"
-              onClick={() => selectIndex(i)}
-              className={`absolute transition-all duration-500 ease-in-out flex flex-col items-center cursor-pointer bg-transparent border-0 p-0 ${posStyles[pos]}`}
-              aria-label={`${store.label}, ${store.storeName}`}
-              aria-pressed={i === active}
-            >
-              <img
-                src={srcFor(store)}
-                alt={store.label}
-                className={`object-contain select-none ${
-                  isCenter
-                    ? "w-[min(540px,94vw)] h-[min(460px,70vw)] sm:h-[min(500px,58vw)] md:h-[min(520px,52vh)]"
-                    : "w-[min(300px,62vw)] h-[min(240px,48vw)]"
-                }`}
-                style={{
-                  filter: isCenter
-                    ? "drop-shadow(0 24px 48px rgba(24, 33, 15, 0.14))"
-                    : "drop-shadow(0 12px 24px rgba(24, 33, 15, 0.08))",
-                }}
-                draggable={false}
-                loading="lazy"
-                decoding="async"
-                onError={() =>
-                  setImgFallback((prev) => ({ ...prev, [store.id]: true }))
-                }
-              />
-            </button>
+    <div className="st-showcase">
+      <style>{`
+        .st-showcase-header {
+          text-align: center;
+          padding: clamp(40px, 7vw, 72px) clamp(20px, 5vw, 48px) clamp(24px, 4vw, 36px);
+        }
+        .st-showcase-heading {
+          margin: 0 0 clamp(14px, 2.5vw, 22px);
+          font-family: 'Signia Pro', 'DM Sans', sans-serif;
+          font-size: clamp(1.75rem, 4vw, 2.85rem);
+          font-weight: 900;
+          letter-spacing: -0.03em;
+          line-height: 1.12;
+          text-transform: uppercase;
+          color: #62840b;
+        }
+        .st-showcase-intro {
+          margin: 0 auto;
+          max-width: 720px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: clamp(0.92rem, 1.7vw, 1.08rem);
+          line-height: 1.7;
+          color: #4a5640;
+        }
+        .st-showcase-slider {
+          position: relative;
+          width: 100%;
+        }
+        .st-showcase-viewport {
+          width: 100%;
+          overflow: hidden;
+        }
+        .st-showcase-track {
+          display: flex;
+          width: 100%;
+        }
+        @media (min-width: 768px) {
+          .st-showcase-card {
+            flex: 0 0 calc(100% / ${slides.length});
+          }
+        }
+        .st-showcase-card {
+          position: relative;
+          flex: 0 0 calc(100% / ${slides.length});
+          min-height: clamp(260px, 38vw, 480px);
+          padding: 0;
+          margin: 0;
+          overflow: hidden;
+          text-align: left;
+          background: linear-gradient(180deg, #f7faef 0%, #eef5e2 100%);
+          border-right: 1px solid rgba(151, 182, 76, 0.18);
+        }
+        .st-showcase-card img {
+          width: 100%;
+          height: 100%;
+          min-height: clamp(260px, 38vw, 480px);
+          object-fit: contain;
+          object-position: center bottom;
+          display: block;
+          padding: clamp(10px, 1.8vw, 18px);
+          box-sizing: border-box;
+          transition: transform 0.45s ease;
+        }
+        .st-showcase-label {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          padding: clamp(16px, 2.8vw, 28px);
+          pointer-events: none;
+          background: linear-gradient(
+            to top,
+            rgba(249, 251, 244, 0.96) 0%,
+            rgba(249, 251, 244, 0.72) 50%,
+            transparent 100%
           );
-        })}
+        }
+        .st-showcase-label-title {
+          display: block;
+          font-family: 'DM Sans', sans-serif;
+          font-size: clamp(1.1rem, 2.2vw, 1.65rem);
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          line-height: 1.15;
+          color: #62840b;
+        }
+        .st-showcase-label-meta {
+          display: block;
+          margin-top: 5px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: clamp(0.72rem, 1.2vw, 0.88rem);
+          font-weight: 600;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+          color: #4a5640;
+        }
+        .st-showcase-foot {
+          margin: 0 auto;
+          padding: clamp(24px, 4vw, 40px) clamp(20px, 5vw, 40px);
+          max-width: 680px;
+          text-align: center;
+          font-family: 'DM Sans', sans-serif;
+          font-size: clamp(0.92rem, 1.6vw, 1.05rem);
+          line-height: 1.65;
+          color: #4a5640;
+        }
+        @media (max-width: 767px) {
+          .st-showcase-viewport {
+            overflow: visible;
+          }
+          .st-showcase-track {
+            flex-direction: column;
+            gap: clamp(16px, 4vw, 24px);
+            padding: 0 clamp(16px, 4vw, 24px);
+            box-sizing: border-box;
+          }
+          .st-showcase-card {
+            flex: none;
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid rgba(151, 182, 76, 0.18);
+          }
+          .st-showcase-card:last-child {
+            border-bottom: none;
+          }
+          .st-showcase-card,
+          .st-showcase-card img {
+            min-height: clamp(220px, 56vw, 300px);
+          }
+        }
+      `}</style>
 
-        {total > 1 && (
-          <>
-            <button
-              type="button"
-              onClick={goPrev}
-              className="flex items-center justify-center absolute left-1 sm:left-4 md:left-8 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-full border-0 text-lg sm:text-xl font-bold transition-transform hover:scale-105 active:scale-95"
-              style={{
-                zIndex: 60,
-                border: "2px solid #b7cd7f",
-                backgroundColor: "rgba(255,255,255,0.92)",
-                color: "#62840b",
-                boxShadow: "0 8px 24px rgba(98,132,11,0.18)",
-              }}
-              aria-label="Previous package"
-            >
-              ←
-            </button>
-            <button
-              type="button"
-              onClick={goNext}
-              className="flex items-center justify-center absolute right-1 sm:right-4 md:right-8 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-full border-0 text-lg sm:text-xl font-bold transition-transform hover:scale-105 active:scale-95"
-              style={{
-                zIndex: 60,
-                border: "2px solid #b7cd7f",
-                backgroundColor: "rgba(255,255,255,0.92)",
-                color: "#62840b",
-                boxShadow: "0 8px 24px rgba(98,132,11,0.18)",
-              }}
-              aria-label="Next package"
-            >
-              →
-            </button>
-          </>
-        )}
+      <header className="st-showcase-header">
+        <Slide direction="up" delay={60}>
+          <h2 className="st-showcase-heading">Milkshop Store Types</h2>
+        </Slide>
+        <Slide direction="up" delay={100}>
+         
+        </Slide>
+      </header>
+
+      <div className="st-showcase-slider">
+        <div className="st-showcase-viewport">
+          <div className="st-showcase-track">
+            {slides.map((store) => (
+              <article
+                key={store.id}
+                className="st-showcase-card"
+                aria-label={`${store.label}, ${store.storeName}, ${store.size}`}
+              >
+                <img
+                  src={srcFor(store)}
+                  alt={store.label}
+                  draggable={false}
+                  loading="lazy"
+                  decoding="async"
+                  onError={() =>
+                    setImgFallback((prev) => ({ ...prev, [store.id]: true }))
+                  }
+                />
+                <div className="st-showcase-label">
+                  <span className="st-showcase-label-title">{store.label}</span>
+                  <span className="st-showcase-label-meta">
+                    {store.storeName} · {store.size}
+                  </span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div className="mt-6 flex flex-col items-center text-center gap-2 px-4 min-h-[200px] transition-all duration-300">
-        <span
-          className={`text-[11px] font-bold px-3 py-1 rounded-full ${current.tagColor}`}
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
-          {current.tag}
-        </span>
-        <h3
-          className="text-xl sm:text-2xl font-bold text-[#1e1e1e] m-0"
-          style={{ fontFamily: "'DM Sans', sans-serif", letterSpacing: "-0.02em" }}
-        >
-          {current.label}
-        </h3>
-        <p
-          className="text-[#62840b] text-base sm:text-lg m-0 italic font-medium"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
-          {current.storeName}
-        </p>
-        <p
-          className="text-[#1e1e1e] text-lg sm:text-xl font-extrabold m-0"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
-          {current.size}
-        </p>
-        <div
-          className="w-full max-w-md my-1"
-          style={{
-            borderTop: "2px dotted rgba(98, 132, 11, 0.35)",
-          }}
-          aria-hidden
-        />
-        <p
-          className="text-[#5a5a5a] text-sm sm:text-base max-w-md leading-relaxed m-0"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
-          {current.description}
-        </p>
-      </div>
-
-      <div className="flex justify-center gap-2 mt-5">
-        {storeTypes.map((_, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => selectIndex(i)}
-            className={`rounded-full transition-all duration-300 border-0 cursor-pointer ${
-              i === active
-                ? "w-6 h-2 bg-[#97b64c]"
-                : "w-2 h-2 bg-[#d0e0b0] hover:bg-[#b7cd7f]"
-            }`}
-            aria-label={`Show ${storeTypes[i].label}`}
-          />
-        ))}
-      </div>
     </div>
   );
 }
@@ -644,7 +609,6 @@ export default function Franchise() {
   const inquiryFromLink = isFranchiseInquiryHash(location.hash);
 
   const [openFaq, setOpenFaq]           = useState(null);
-  const [preferredPackage, setPreferredPackage] = useState("");
   const [heroInlineAnimReady, setHeroInlineAnimReady] = useState(false);
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -678,12 +642,8 @@ export default function Franchise() {
       startAnim();
       return undefined;
     }
-    window.addEventListener("milkshop:route-loader-hidden", startAnim, { once: true });
-    const fallback = window.setTimeout(startAnim, 2200);
-    return () => {
-      window.removeEventListener("milkshop:route-loader-hidden", startAnim);
-      window.clearTimeout(fallback);
-    };
+    const raf = requestAnimationFrame(() => startAnim());
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   return (
@@ -738,7 +698,6 @@ export default function Franchise() {
 
     .fh-bg-base,
     .fh-bg-panel,
-    .fh-bg-lines,
     .fh-bg-stamp,
     .fh-bg-index {
       position: absolute;
@@ -758,21 +717,6 @@ export default function Franchise() {
       z-index: 0;
       background: #e4ecd3;
       clip-path: polygon(44% 0, 100% 0, 100% 100%, 30% 100%);
-    }
-
-    /* Notebook ruled lines on the copy side */
-    .fh-bg-lines {
-      inset: 0;
-      z-index: 0;
-      width: min(52%, 640px);
-      background: repeating-linear-gradient(
-        to bottom,
-        transparent 0,
-        transparent 35px,
-        rgba(98, 132, 11, 0.075) 35px,
-        rgba(98, 132, 11, 0.075) 36px
-      );
-      mask-image: linear-gradient(to right, #000 55%, transparent 100%);
     }
 
     /* Vertical index label — editorial / dossier feel */
@@ -810,11 +754,6 @@ export default function Franchise() {
     @media (max-width: 899px) {
       .fh-bg-panel {
         clip-path: polygon(0 36%, 100% 30%, 100% 100%, 0 100%);
-      }
-      .fh-bg-lines {
-        width: 100%;
-        height: 42%;
-        mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
       }
       .fh-bg-index { display: none; }
       .fh-bg-stamp { display: none; }
@@ -997,8 +936,18 @@ export default function Franchise() {
     }
 
     @media (max-width: 899px) {
-      .fh-visual { order: -1; min-height: clamp(300px, 72vw, 520px); }
-      .fh-hero-img { width: 108%; max-height: clamp(300px, 72vw, 520px); }
+      .fh-section {
+        min-height: auto;
+        align-items: flex-start;
+      }
+      .fh-inner {
+        padding-top: clamp(72px, 11vw, 84px);
+        padding-bottom: clamp(32px, 5vw, 44px);
+        gap: clamp(16px, 3vw, 22px);
+      }
+      .fh-visual { order: -1; min-height: clamp(240px, 58vw, 400px); }
+      .fh-visual-frame { padding: clamp(6px, 1.5vw, 10px); }
+      .fh-hero-img { width: 108%; max-height: clamp(240px, 58vw, 400px); }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1011,11 +960,9 @@ export default function Franchise() {
 
   <div className="fh-bg-base" aria-hidden />
   <div className="fh-bg-panel" aria-hidden />
-  <div className="fh-bg-lines" aria-hidden />
-  
+
   <div className="fh-inner">
     <div className="fh-copy">
-   
       <h1 className="fh-anim-2" style={{
         margin: 0,
         fontSize: "clamp(2.8rem, 8vw, 5.6rem)",
@@ -1066,10 +1013,6 @@ export default function Franchise() {
         <div className="fh-stat-item">
           <span className="fh-stat-num">12–18<span style={{ fontSize: "0.55em", fontWeight: 700 }}>mo</span></span>
           <span className="fh-stat-label">Avg. ROI Period</span>
-        </div>
-        <div className="fh-stat-item">
-          <span className="fh-stat-num">🇹🇼</span>
-          <span className="fh-stat-label">Authentic Taiwan Brand</span>
         </div>
       </div>
     </div>
@@ -1360,52 +1303,20 @@ export default function Franchise() {
 
 
 {/* ══════════════════════════════════════
-   PACKAGE SELECTION — PEEK CAROUSEL v1
-   Direction: Editorial peek carousel
-   Center card dominant, side cards peek
-   Brand cream bg, image-forward, clean
+   PACKAGE SELECTION — PICKUP-STYLE SHOWCASE
+   Full-bleed 3-column grid, sage green band
 ══════════════════════════════════════ */}
 <section
   id="packages"
-  className="relative py-10 sm:py-12 lg:py-16 overflow-x-clip"
+  className="relative overflow-x-clip"
   style={{
-    background: T.offWhite,
+    background: T.heroGradient,
     overflowY: "visible",
     borderTop: `1px solid ${T.border}`,
     borderBottom: `1px solid ${T.border}`,
   }}
 >
- 
-  <div className="relative z-10">
- 
-    {/* Header */}
-    <div className="text-center mb-2 px-4">
-    
-      <Slide direction="up" delay={60}>
-        <h2 className="ms-section-heading" style={{ margin: "0 0 10px" }}>
-          Store Types
-        </h2>
-      </Slide>
-      <Slide direction="up" delay={100}>
-      
-      </Slide>
-    </div>
- 
-    {/* Packages grid — full section width */}
-    <div className="mt-10 mb-2 w-full max-w-[min(100%,1520px)] mx-auto px-[clamp(10px,1.2vw,20px)]">
-      <StoreTypesCarousel onPackageSelect={setPreferredPackage} />
-    </div>
- 
-    {/* Bottom nudge */}
-    <Slide direction="up" delay={300} className="text-center mt-6 px-4">
-      <p style={{
-        fontSize: "0.78rem", color: T.body,
-        fontFamily: "'DM Sans', sans-serif",
-      }}>
-        Not sure? Select <strong style={{ color: T.greenDark }}>Not sure</strong> in the application form and we&apos;ll help you decide.
-      </p>
-    </Slide>
-  </div>
+  <StoreTypesShowcase />
 </section>
  
 
@@ -1429,23 +1340,10 @@ export default function Franchise() {
     </Slide>
 
     <Slide direction="up" delay={80}>
-      <div
-        style={{
-          marginTop: 8,
-          background: "rgba(255,255,255,0.96)",
-          border: `1px solid ${T.border}`,
-          borderRadius: 24,
-          padding: "clamp(24px, 4vw, 40px)",
-          boxShadow: "0 16px 48px rgba(98, 132, 11, 0.08)",
-        }}
-      >
-        <FranchiseInquiryForm
-          key={preferredPackage || "default"}
-          idPrefix="franchise-"
-          preferredPackage={preferredPackage}
-          hideHeader
-        />
-      </div>
+      <FranchiseInquiryForm
+        idPrefix="franchise-"
+        hideHeader
+      />
     </Slide>
   </div>
 </section>

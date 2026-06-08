@@ -641,7 +641,7 @@ const whyProps = [
     stat: "3",
     statSuffix: "",
     statLabel: "Cart · Kiosk · In-line",
-    body: "Estimated ROI: 10–12 months. Historical customer demand and repeat transactions indicate favorable investment potential.",
+    body: "Estimated ROI: 12–18 months. Historical customer demand and repeat transactions indicate favorable investment potential.",
     image: "/franchise/why/why-06.webp",
   },
   {
@@ -665,7 +665,7 @@ const whyProps = [
     stat: "14",
     statSuffix: "d",
     statLabel: "Onboarding & Ops Training",
-    body: "We provide training to help you get started, as well as ongoing support to help your business succeed.",
+    body: " We use authentic ingredients sourced from Taiwan to ensure consistent quality and true Milkshop taste in every product.",
     image: "/franchise/why/why-05.webp",
   },
   {
@@ -1936,7 +1936,6 @@ function HappyCustomersSection() {
     if (prefersReducedMotion() || isMobileViewport()) return true
     return false
   })
-  const [lightboxIndex, setLightboxIndex] = useState(null)
   const sectionRef = useRef(null)
 
   useEffect(() => {
@@ -1949,40 +1948,6 @@ function HappyCustomersSection() {
     if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
   }, [inView])
-
-  useEffect(() => {
-    if (lightboxIndex === null) return undefined
-    const prev = document.body.style.overflow
-    document.body.style.overflow = "hidden"
-    const onKey = (e) => {
-      if (e.key === "Escape") setLightboxIndex(null)
-      if (e.key === "ArrowRight") {
-        setLightboxIndex((i) => ((i ?? 0) + 1) % happyCustomerPhotos.length)
-      }
-      if (e.key === "ArrowLeft") {
-        setLightboxIndex(
-          (i) => ((i ?? 0) - 1 + happyCustomerPhotos.length) % happyCustomerPhotos.length,
-        )
-      }
-    }
-    window.addEventListener("keydown", onKey)
-    return () => {
-      document.body.style.overflow = prev
-      window.removeEventListener("keydown", onKey)
-    }
-  }, [lightboxIndex])
-
-  const openLightbox = (index) => setLightboxIndex(index)
-  const goPrev = (e) => {
-    e.stopPropagation()
-    setLightboxIndex(
-      (i) => ((i ?? 0) - 1 + happyCustomerPhotos.length) % happyCustomerPhotos.length,
-    )
-  }
-  const goNext = (e) => {
-    e.stopPropagation()
-    setLightboxIndex((i) => ((i ?? 0) + 1) % happyCustomerPhotos.length)
-  }
 
   return (
     <section
@@ -2092,10 +2057,8 @@ function HappyCustomersSection() {
 
         .hc-card {
           scroll-snap-align: center;
-          border: none;
           padding: 0;
           margin: 0;
-          cursor: pointer;
           border-radius: 18px;
           overflow: hidden;
           background: ${T.greenFade};
@@ -2103,11 +2066,8 @@ function HappyCustomersSection() {
           border: 2px solid ${T.border};
           aspect-ratio: 5 / 4;
           position: relative;
-          font: inherit;
           transition: transform 0.22s ease, box-shadow 0.22s ease;
         }
-
-        .hc-card:active { transform: scale(0.98); }
 
         .hc-card img {
           width: 100%;
@@ -2261,55 +2221,6 @@ function HappyCustomersSection() {
           }
         }
 
-        .hc-lightbox {
-          position: fixed;
-          inset: 0;
-          z-index: 10040;
-          background: rgba(10, 18, 4, 0.92);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
-          box-sizing: border-box;
-        }
-        .hc-lightbox img {
-          max-width: min(100%, 720px);
-          max-height: min(85dvh, 900px);
-          width: auto;
-          height: auto;
-          object-fit: contain;
-          border-radius: 12px;
-        }
-        .hc-lightbox-close {
-          position: absolute;
-          top: max(12px, env(safe-area-inset-top));
-          right: max(12px, env(safe-area-inset-right));
-          width: 48px;
-          height: 48px;
-          border: none;
-          border-radius: 12px;
-          background: rgba(255,255,255,0.12);
-          color: #fff;
-          font-size: 1.75rem;
-          line-height: 1;
-          cursor: pointer;
-        }
-        .hc-lightbox-nav {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 48px;
-          height: 48px;
-          border: none;
-          border-radius: 999px;
-          background: rgba(255,255,255,0.15);
-          color: #fff;
-          font-size: 1.5rem;
-          cursor: pointer;
-        }
-        .hc-lightbox-prev { left: max(8px, env(safe-area-inset-left)); }
-        .hc-lightbox-next { right: max(8px, env(safe-area-inset-right)); }
-
         @media (prefers-reduced-motion: reduce) {
           .hc-fade { transition: none; opacity: 1; transform: none; }
           .hc-card { transition: none; }
@@ -2355,17 +2266,14 @@ function HappyCustomersSection() {
           <div className="hc-photos">
             <div className="hc-grid-frame">
               <div className="hc-gallery" role="list" aria-label="Happy customer photos">
-                {happyCustomerPhotos.map((photo, index) => (
-                  <button
+                {happyCustomerPhotos.map((photo) => (
+                  <div
                     key={photo.id}
-                    type="button"
                     className="hc-card"
                     role="listitem"
-                    onClick={() => openLightbox(index)}
-                    aria-label={`View photo ${index + 1} of ${happyCustomerPhotos.length}`}
                   >
                     <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -2374,45 +2282,6 @@ function HappyCustomersSection() {
         </div>
       </div>
 
-      {lightboxIndex !== null && (
-        <div
-          className="hc-lightbox"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Photo viewer"
-          onClick={() => setLightboxIndex(null)}
-        >
-          <button
-            type="button"
-            className="hc-lightbox-close"
-            onClick={() => setLightboxIndex(null)}
-            aria-label="Close"
-          >
-            ×
-          </button>
-          <button
-            type="button"
-            className="hc-lightbox-nav hc-lightbox-prev"
-            onClick={goPrev}
-            aria-label="Previous photo"
-          >
-            ‹
-          </button>
-          <img
-            src={happyCustomerPhotos[lightboxIndex].src}
-            alt={happyCustomerPhotos[lightboxIndex].alt}
-            onClick={(e) => e.stopPropagation()}
-          />
-          <button
-            type="button"
-            className="hc-lightbox-nav hc-lightbox-next"
-            onClick={goNext}
-            aria-label="Next photo"
-          >
-            ›
-          </button>
-        </div>
-      )}
     </section>
   )
 }

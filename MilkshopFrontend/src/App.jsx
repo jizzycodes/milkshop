@@ -2,30 +2,19 @@ import { Suspense, lazy, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-import AdminLayout from './admin/components/AdminLayout'
-import ProtectedRoute from './admin/components/ProtectedRoute'
-import { AdminAuthProvider } from './admin/context/AdminAuthContext'
-import RouteLoader from './components/RouteLoader'
 import FranchiseCTAFloating from './components/FranchiseCTAFloating'
 import ScrollPerformance from './components/ScrollPerformance'
 import { FranchiseInquiryProvider, useFranchiseInquiry } from './context/FranchiseInquiryContext'
 import { FRANCHISE_INQUIRY_ID, scheduleScrollToFranchiseInquiry } from './utils/franchiseInquiry'
 import './App.css'
 
-import Home from './pages/Home'
+const Home = lazy(() => import('./pages/Home'))
 const Products = lazy(() => import('./pages/Products'))
 const About = lazy(() => import('./pages/About'))
 const Locations = lazy(() => import('./pages/Locations'))
 const Franchise = lazy(() => import('./pages/Franchise'))
+const AdminApp = lazy(() => import('./admin/AdminApp'))
 
-const AdminLogin = lazy(() => import('./admin/pages/AdminLogin'))
-const AdminDashboard = lazy(() => import('./admin/pages/AdminDashboard'))
-const LeadsPage = lazy(() => import('./admin/pages/LeadsPage'))
-const QrAndEmail = lazy(() => import('./admin/pages/QrAndEmail'))
-const AccountSettings = lazy(() => import('./admin/pages/AccountSettings'))
-const LeadDetails = lazy(() => import('./admin/pages/LeadDetails'))
-
-// Preload loader assets so they're cached before RouteLoader mounts
 const PRELOAD_ASSETS = ['/milkshop-logo-removebg-preview.webp']
 
 function PreloadAssets() {
@@ -86,67 +75,11 @@ function AppRoutes() {
 
   return (
     <>
-      <RouteLoader />
       <Suspense fallback={null}>
       <Routes location={location} key={location.pathname}>
       <Route
-        path="/admin/login"
-        element={<AdminLogin />}
-      />
-
-      <Route
-        path="/admin/dashboard"
-        element={
-          <ProtectedRoute>
-            <AdminLayout>
-              <AdminDashboard />
-            </AdminLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/admin/leads"
-        element={
-          <ProtectedRoute>
-            <AdminLayout>
-              <LeadsPage />
-            </AdminLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/admin/qr-email"
-        element={
-          <ProtectedRoute adminOnly>
-            <AdminLayout>
-              <QrAndEmail />
-            </AdminLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/admin/account-settings"
-        element={
-          <ProtectedRoute>
-            <AdminLayout>
-              <AccountSettings />
-            </AdminLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/admin/leads/:id"
-        element={
-          <ProtectedRoute>
-            <AdminLayout>
-              <LeadDetails />
-            </AdminLayout>
-          </ProtectedRoute>
-        }
+        path="/admin/*"
+        element={<AdminApp />}
       />
 
       <Route
@@ -184,10 +117,8 @@ function App() {
   return (
     <BrowserRouter>
       <FranchiseInquiryProvider>
-        <AdminAuthProvider>
-          <PreloadAssets />
-          <AppRoutes />
-        </AdminAuthProvider>
+        <PreloadAssets />
+        <AppRoutes />
       </FranchiseInquiryProvider>
     </BrowserRouter>
   )
