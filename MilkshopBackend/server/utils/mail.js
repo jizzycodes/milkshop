@@ -10,37 +10,67 @@ const {
 
 const LOGO_PATH = path.join(__dirname, '../assets/LOGOLAND.png')
 
-const SMTP_HOST = process.env.SMTP_HOST
-const SMTP_PORT = Number(process.env.SMTP_PORT) || 465
-const SMTP_SECURE = process.env.SMTP_SECURE !== 'false'
-const SMTP_USER = process.env.SMTP_USER
-const SMTP_PASSWORD = process.env.SMTP_PASSWORD
-const SMTP_FROM = process.env.SMTP_FROM
+function getSmtpConfig() {
+  const host = process.env.SMTP_HOST
+  const port = Number(process.env.SMTP_PORT) || 465
+  const secure = process.env.SMTP_SECURE !== 'false'
+  const user = process.env.SMTP_USER
+  const pass = process.env.SMTP_PASSWORD
+  const from = process.env.SMTP_FROM
+  return { host, port, secure, user, pass, from }
+}
 
 function isSmtpConfigured() {
-  return !!(SMTP_HOST && SMTP_USER && SMTP_PASSWORD && SMTP_FROM)
+  const { host, user, pass, from } = getSmtpConfig()
+  return !!(host && user && pass && from)
 }
 
 function isEmailConfigured() {
   return isSmtpConfigured()
 }
 
+/** Safe summary for logs — never prints password. */
+function getSmtpStatusSummary() {
+  const { host, port, secure, user, from } = getSmtpConfig()
+  if (!isSmtpConfigured()) {
+    const missing = []
+    if (!host) missing.push('SMTP_HOST')
+    if (!user) missing.push('SMTP_USER')
+    if (!process.env.SMTP_PASSWORD) missing.push('SMTP_PASSWORD')
+    if (!from) missing.push('SMTP_FROM')
+    return { configured: false, missing }
+  }
+  return {
+    configured: true,
+    host,
+    port,
+    secure,
+    user,
+    from,
+  }
+}
+
 let smtpTransporter = null
+let smtpTransporterKey = ''
 
 function getSmtpTransporter() {
-  if (!smtpTransporter) {
+  const { host, port, secure, user, pass } = getSmtpConfig()
+  const key = `${host}|${port}|${secure}|${user}|${pass}`
+  if (!smtpTransporter || smtpTransporterKey !== key) {
     smtpTransporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: SMTP_PORT,
-      secure: SMTP_SECURE,
-      auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASSWORD,
+      host,
+      port,
+      secure,
+      auth: { user, pass },
+      connectionTimeout: 15000,
+      greetingTimeout: 15000,
+      socketTimeout: 20000,
+      tls: {
+        minVersion: 'TLSv1.2',
+        servername: host,
       },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 15000,
     })
+    smtpTransporterKey = key
   }
   return smtpTransporter
 }
@@ -88,9 +118,10 @@ function buildEmailContent(name, subject, template) {
 }
 
 async function sendViaSmtp(toEmail, subject, textBody, html) {
+  const { from } = getSmtpConfig()
   const transporter = getSmtpTransporter()
   await transporter.sendMail({
-    from: `"Milkshop Franchise" <${SMTP_FROM}>`,
+    from: `"Milkshop Franchise" <${from}>`,
     to: toEmail,
     subject,
     text: textBody,
@@ -112,7 +143,10 @@ async function sendTemplatedEmail(toEmail, name, subject, template) {
     await sendViaSmtp(toEmail, subject, textBody, html)
     return { sent: true }
   } catch (err) {
-    const message = err.message || 'Email send failed'
+    const code = err.code ? ` [${err.code}]` : ''
+    const message = `${err.message || 'Email send failed'}${code}`
+    // eslint-disable-next-line no-console
+    console.error('[SMTP] Send failed:', message)
     return { sent: false, error: message }
   }
 }
@@ -165,7 +199,26 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;')
 }
 
+async function verifySmtpConnection() {
+  if (!isSmtpConfigured()) {
+    return { ok: false, error: 'SMTP not configured', status: getSmtpStatusSummary() }
+  }
+  try {
+    await getSmtpTransporter().verify()
+    return { ok: true, status: getSmtpStatusSummary() }
+  } catch (err) {
+    const code = err.code ? ` [${err.code}]` : ''
+    return {
+      ok: false,
+      error: `${err.message || 'SMTP verify failed'}${code}`,
+      status: getSmtpStatusSummary(),
+    }
+  }
+}
+
 module.exports = {
   sendFranchiseConfirmation,
   sendLeadOutcomeEmail,
+  getSmtpStatusSummary,
+  verifySmtpConnection,
 }

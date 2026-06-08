@@ -1,9 +1,12 @@
+const path = require('path')
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
 const { loadEnv } = require('./utils/env')
-require('dotenv').config();
+
+// Always load MilkshopBackend/.env even if PM2 cwd is the repo root.
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') })
 const apiRouter = require('./routes')
 const { requestLogger } = require('./middleware/requestLogger')
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler')
@@ -82,9 +85,17 @@ app.use(errorHandler)
 const PORT = process.env.PORT || 4000
 
 const server = app.listen(PORT, () => {
+  const { getSmtpStatusSummary } = require('./utils/mail')
+  const smtp = getSmtpStatusSummary()
   console.log(`Milkshop backend listening on port ${PORT}`)
   console.log(`Keep this terminal open while developing.`)
   console.log(`Health check: http://localhost:${PORT}/api/health`)
+  if (smtp.configured) {
+    console.log(`SMTP: configured (${smtp.host}:${smtp.port}, from ${smtp.from})`)
+  } else {
+    console.warn(`SMTP: NOT configured — missing: ${(smtp.missing || []).join(', ')}`)
+    console.warn('Check MilkshopBackend/.env (not repo root). Quote passwords with special chars, e.g. SMTP_PASSWORD="your-pass"')
+  }
 })
 
 server.on('error', (err) => {
