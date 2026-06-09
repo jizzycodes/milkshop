@@ -1,5 +1,3 @@
-const fs = require('fs')
-const path = require('path')
 const nodemailer = require('nodemailer')
 const { getSetting, KEYS } = require('../models/appSettingsModel')
 const {
@@ -8,7 +6,6 @@ const {
   mergeOutcomeEmails,
 } = require('../constants/leadEmailTemplates')
 
-const LOGO_PATH = path.join(__dirname, '../assets/LOGOLAND.png')
 const SENDGRID_API_URL = 'https://api.sendgrid.com/v3/mail/send'
 
 function getSmtpConfig() {
@@ -260,15 +257,15 @@ async function sendTemplatedEmail(toEmail, name, subject, template) {
 }
 
 function getLogoSrc() {
-  if (fs.existsSync(LOGO_PATH)) {
-    const base64 = fs.readFileSync(LOGO_PATH).toString('base64')
-    return `data:image/png;base64,${base64}`
-  }
-
-  return (
+  // Never inline the local PNG as base64 — LOGOLAND.png is ~800KB+ and Gmail clips HTML over ~102KB.
+  const envUrl =
+    process.env.EMAIL_LOGO_URL ||
     process.env.FRONTEND_PUBLIC_LOGO_URL ||
-    'https://milkshop.ph/logo-landscape.png'
-  )
+    ''
+  if (String(envUrl).trim()) {
+    return String(envUrl).trim()
+  }
+  return 'https://milk-shop.ph/mlogo.webp'
 }
 
 /**

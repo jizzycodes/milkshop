@@ -19,15 +19,11 @@ const FEATURES = [
 ];
 
 const HERO_HIGHLIGHTS = [
-  { id: "brewed", icon: "leaf", title: "Freshly Brewed", subtitle: "Every Day" },
-  { id: "love", icon: "cup", title: "Made with Love", subtitle: "in Taiwan" },
   { id: "best", icon: "trophy", title: "Best Taiwan Milktea", subtitle: "in Town!" },
   { id: "near", icon: "pin", title: "Now Brewing", subtitle: "Near You" },
 ];
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Caveat:wght@700;800&display=swap');
-
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(24px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -182,7 +178,7 @@ const CSS = `
     align-self: center;
   }
 
-  /* Taiwan → tagline → features → CTAs (dragged down as one block) */
+  /* Taiwan → tagline → features → CTAs (desktop); mobile reorders via flex + display:contents */
   .hero-copy-lower {
     position: relative;
     width: 100%;
@@ -228,7 +224,23 @@ const CSS = `
   @media (max-width: 767px) {
     .hero-inner {
       padding-top: calc(64px + env(safe-area-inset-top, 0px) + clamp(28px, 6vw, 42px));
+      display: flex;
+      flex-direction: column;
     }
+
+    /* Flatten copy so we can reorder: text → buttons → cups → feature boxes */
+    .hero-copy,
+    .hero-copy-lower {
+      display: contents;
+    }
+
+    .hero-eyebrow { order: 1; }
+    .hero-fresh { order: 2; }
+    .hero-taiwan { order: 3; }
+    .hero-tagline { order: 4; }
+    .hero-btns { order: 5; }
+    .hero-visual { order: 6; }
+    .hero-features { order: 7; }
 
     .hero-copy {
       gap: clamp(2px, 0.6vw, 6px);
@@ -257,7 +269,7 @@ const CSS = `
     .hero-taiwan {
       justify-content: center;
       margin-left: 0;
-      margin-top: clamp(-12px, -3vw, -6px);
+      margin-top: clamp(28px, 7vw, 64px);
     }
 
     .hero-tagline {
@@ -265,50 +277,46 @@ const CSS = `
     }
 
     .hero-features {
-      margin-top: clamp(22px, 5.5vw, 32px);
+      margin-top: clamp(14px, 3.5vw, 22px);
+      margin-bottom: clamp(8px, 2vw, 14px);
       gap: 10px 8px;
     }
 
     .hero-btns {
-      flex-direction: column;
-      align-items: center;
-      align-self: center;
-      width: 100%;
-      max-width: 100%;
-      margin-top: clamp(24px, 5.5vw, 32px);
-      margin-bottom: clamp(14px, 3.5vw, 22px);
-      margin-left: auto;
-      margin-right: auto;
-      gap: 12px;
+      margin-top: clamp(18px, 4.5vw, 28px);
+      margin-bottom: 0;
     }
 
     .hero-visual {
-      margin-top: clamp(12px, 3vw, 20px);
+      margin-top: clamp(10px, 2.5vw, 16px);
     }
 
     .hero-btn-primary,
     .hero-btn-secondary {
-      width: auto;
-      align-self: center;
-      max-width: min(100%, 260px);
-      min-width: 0;
+      flex: 1 1 0;
       font-family: 'Signia Pro', 'DM Sans', sans-serif;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 12px;
       letter-spacing: 0.02em;
       text-transform: none;
-      padding: 10px 20px;
+      padding: 8px 10px;
       border-radius: 999px;
-      min-height: 48px;
+      min-height: 42px;
       box-shadow: none;
       border: none;
+      gap: 4px;
     }
 
     .hero-btn-primary {
       background: #e8a020;
       color: #fff;
-      padding-left: 12px;
-      gap: 10px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .hero-btn-icon,
+    .hero-btn-arrow {
+      display: none;
     }
 
     .hero-btn-primary:hover {
@@ -324,6 +332,7 @@ const CSS = `
       background: #f5f8ef;
       color: #62840b;
     }
+
   }
 
   /* ─── Feature Pills ───────────────────────────────── */
@@ -400,10 +409,11 @@ const CSS = `
     color: rgba(255,255,255,0.78);
   }
 
-  /* ─── Buttons ─────────────────────────────────────── */
+  /* ─── Buttons (mobile-first: side by side) ────────── */
   .hero-btns {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: nowrap;
     align-items: stretch;
     gap: 10px;
     width: 100%;
@@ -419,14 +429,16 @@ const CSS = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 10px 20px;
+    gap: 6px;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    padding: 8px 10px;
     border-radius: 999px;
-    min-height: 48px;
+    min-height: 42px;
     font-family: 'Signia Pro', 'DM Sans', sans-serif;
     font-weight: 700;
-    font-size: 14px;
+    font-size: clamp(10px, 2.8vw, 12px);
     letter-spacing: 0.02em;
     text-transform: none;
     text-decoration: none;
@@ -434,12 +446,22 @@ const CSS = `
     border: none;
     box-shadow: none;
     transition: background-color 0.2s ease;
-    white-space: nowrap;
+    overflow: hidden;
   }
   .hero-btn-primary {
     background: #e8a020;
     color: #fff;
-    padding-left: 12px;
+    padding-left: 8px;
+  }
+  .hero-btn-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .hero-btn-arrow {
+    flex-shrink: 0;
+    line-height: 1;
   }
   .hero-btn-primary:hover {
     background: #d49218;
@@ -459,15 +481,15 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.95);
     overflow: hidden;
   }
   .hero-btn-icon img {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
     object-fit: contain;
   }
 
@@ -679,10 +701,12 @@ const CSS = `
     }
     .hero-btn-primary,
     .hero-btn-secondary {
+      flex: 0 0 auto;
       width: auto;
       min-width: 148px;
       font-size: 14px;
       padding: 12px 22px;
+      overflow: visible;
     }
 
     .hero-visual {
@@ -835,6 +859,7 @@ const CSS = `
       flex: none;
       font-size: 14px;
       padding: 10px 20px;
+      overflow: visible;
     }
 
     .hero-visual {
@@ -887,30 +912,32 @@ const CSS = `
       overflow-x: hidden;
     }
 
-    .hero-inner {
-      position: relative;
-      align-items: center;
-      justify-content: center;
-      min-height: auto;
-      gap: clamp(10px, 1.8vw, 20px);
-      padding:
-        calc(80px + env(safe-area-inset-top, 0px) + 12px)
-        clamp(16px, 2.5vw, 28px)
-        clamp(16px, 2vw, 24px);
-    }
+   /* line 905 — hero-inner: change justify-content */
+.hero-inner {
+  position: relative;
+  align-items: center;
+  justify-content: flex-start;   /* was: center */
+  min-height: auto;
+  gap: clamp(10px, 1.8vw, 20px);
+  padding:
+    calc(80px + env(safe-area-inset-top, 0px) + 12px)
+    clamp(32px, 4vw, 56px)       /* was: clamp(16px, 2.5vw, 28px) — more side padding */
+    clamp(16px, 2vw, 24px);
+}
 
-    .hero-copy {
-      flex: 1 1 50%;
-      min-width: 0;
-      max-width: 50%;
-      width: auto;
-      padding-bottom: clamp(16px, 2.5vw, 32px);
-      overflow: visible;
-      z-index: 12;
-      align-items: center;
-      text-align: center;
-      align-self: center;
-    }
+  .hero-copy {
+  flex: 0 0 48%;                 /* was: 1 1 50% */
+  min-width: 0;
+  max-width: 48%;
+  width: auto;
+  padding-bottom: clamp(16px, 2.5vw, 32px);
+  padding-left: clamp(8px, 1.5vw, 20px);   /* ADD — stops leftward bleed */
+  overflow: visible;
+  z-index: 12;
+  align-items: center;
+  text-align: center;
+  align-self: center;
+}
 
     .hero-eyebrow {
       top: 0;
@@ -994,9 +1021,18 @@ const CSS = `
     .hero-btn-primary,
     .hero-btn-secondary {
       min-width: 0;
-      flex: 1 1 calc(50% - 5px);
       font-size: 12px;
-      padding: 9px 14px;
+      padding: 9px 12px;
+      overflow: hidden;
+    }
+    .hero-btn-primary {
+      flex: 1.4 1 0;
+    }
+    .hero-btn-secondary {
+      flex: 0.6 1 0;
+    }
+    .hero-btn-arrow {
+      display: none;
     }
 
     .hero-visual {
@@ -1141,6 +1177,7 @@ const CSS = `
 
     .hero-btn-primary,
     .hero-btn-secondary {
+      flex: 0 0 auto;
       font-family: 'Signia Pro', 'DM Sans', sans-serif;
       font-weight: 700;
       font-size: 13px;
@@ -1148,6 +1185,7 @@ const CSS = `
       text-transform: none;
       min-width: 148px;
       padding: 10px 18px;
+      overflow: visible;
     }
 
     .hero-visual {
@@ -1297,21 +1335,6 @@ const CSS = `
 
 function HighlightIcon({ type }) {
   const icons = {
-    leaf: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22C12 22 4 16 4 10a8 8 0 0116 0c0 6-8 12-8 12z" />
-        <path d="M12 10v12" />
-      </svg>
-    ),
-    cup: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 8h12l-1 10H7L6 8z" />
-        <path d="M9 8V6a3 3 0 016 0v2" />
-        <circle cx="9" cy="14" r="1.2" fill="currentColor" stroke="none" />
-        <circle cx="13" cy="16" r="1" fill="currentColor" stroke="none" />
-        <circle cx="15" cy="13" r="0.9" fill="currentColor" stroke="none" />
-      </svg>
-    ),
     trophy: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M8 4h8v3a4 4 0 01-8 0V4z" />
@@ -1328,7 +1351,7 @@ function HighlightIcon({ type }) {
       </svg>
     ),
   };
-  return icons[type] || icons.leaf;
+  return icons[type] || icons.trophy;
 }
 
 function FeatureIcon({ type }) {
@@ -1414,7 +1437,13 @@ export default function Hero() {
 
             <div className="hero-copy-lower">
             <div className="hero-taiwan">
-              <img src="/taiwan-word.webp" alt="Taiwan" />
+              <img
+                src="/taiwan-word.webp"
+                alt="Taiwan"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+              />
             </div>
 
             <div className="hero-tagline">Milky · Healthy · Chewy</div>
@@ -1438,8 +1467,8 @@ export default function Hero() {
                 <span className="hero-btn-icon">
                   <img src="/milkshop-logo-removebg-preview.webp" alt="" draggable={false} />
                 </span>
-                <span>Franchise Now</span>
-                <span aria-hidden>→</span>
+                <span className="hero-btn-label">Franchise Now</span>
+                <span className="hero-btn-arrow" aria-hidden>→</span>
               </FranchiseInquiryTrigger>
               <Link to="/products" className="hero-btn-secondary">
                 View Menu
@@ -1457,6 +1486,9 @@ export default function Hero() {
                 alt=""
                 aria-hidden
                 draggable={false}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
               />
             </div>
           </div>

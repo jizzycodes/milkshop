@@ -4,18 +4,22 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import FranchiseCTAFloating from './components/FranchiseCTAFloating'
 import ScrollPerformance from './components/ScrollPerformance'
+import Home from './pages/Home'
+import Products from './pages/Products'
+import About from './pages/About'
+import Locations from './pages/Locations'
+import Franchise from './pages/Franchise'
 import { FranchiseInquiryProvider, useFranchiseInquiry } from './context/FranchiseInquiryContext'
 import { FRANCHISE_INQUIRY_ID, scheduleScrollToFranchiseInquiry } from './utils/franchiseInquiry'
 import './App.css'
 
-const Home = lazy(() => import('./pages/Home'))
-const Products = lazy(() => import('./pages/Products'))
-const About = lazy(() => import('./pages/About'))
-const Locations = lazy(() => import('./pages/Locations'))
-const Franchise = lazy(() => import('./pages/Franchise'))
 const AdminApp = lazy(() => import('./admin/AdminApp'))
 
-const PRELOAD_ASSETS = ['/milkshop-logo-removebg-preview.webp']
+const PRELOAD_ASSETS = [
+  '/milkshop-logo-removebg-preview.webp',
+  '/hero/hero-cups2.webp',
+  '/taiwan-word.webp',
+]
 
 function PreloadAssets() {
   useEffect(() => {
@@ -90,8 +94,7 @@ function AppRoutes() {
             <ScrollPerformance />
             <div className="site-shell flex min-h-screen w-full flex-col">
               <Navbar />
-              <main className="animate-page-in mt-0 flex-1 pt-0">
-                <Suspense fallback={null}>
+              <main className="mt-0 flex-1 pt-0">
                 <Routes>
                   <Route path="/"          element={<Home />} />
                   <Route path="/products"  element={<Products />} />
@@ -99,7 +102,6 @@ function AppRoutes() {
                   <Route path="/locations" element={<Locations />} />
                   <Route path="/franchise" element={<Franchise />} />
                 </Routes>
-                </Suspense>
               </main>
               <Footer />
             </div>

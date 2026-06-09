@@ -381,16 +381,6 @@ const PACKAGE_IMAGES = {
 
 const storeTypes = [
   {
-    id: "inline",
-    label: "In-line Store",
-    storeName: "Milky Deluxe Haven",
-    size: "30 sqm",
-    description: "A cozy and premium dine-in experience for milktea lovers.",
-    tag: "Premium",
-    tagColor: "bg-[#62840b] text-white",
-    image: PACKAGE_IMAGES.sqm8,
-  },
-  {
     id: "kiosk-delights",
     label: "To-Go Kiosk",
     storeName: "Dairy Delights",
@@ -399,6 +389,16 @@ const storeTypes = [
     tag: "Compact",
     tagColor: "bg-[#97b64c] text-white",
     image: PACKAGE_IMAGES.sqm2,
+  },
+  {
+    id: "inline",
+    label: "In-line Store",
+    storeName: "Milky Deluxe Haven",
+    size: "30 sqm",
+    description: "A cozy and premium dine-in experience for milktea lovers.",
+    tag: "Premium",
+    tagColor: "bg-[#62840b] text-white",
+    image: PACKAGE_IMAGES.sqm8,
   },
   {
     id: "kiosk-deal",
@@ -473,8 +473,8 @@ function StoreTypesShowcase() {
           margin: 0;
           overflow: hidden;
           text-align: left;
-          background: linear-gradient(180deg, #f7faef 0%, #eef5e2 100%);
-          border-right: 1px solid rgba(151, 182, 76, 0.18);
+          background: transparent;
+          border-right: 1px solid ${T.border};
         }
         .st-showcase-card img {
           width: 100%;
@@ -496,8 +496,8 @@ function StoreTypesShowcase() {
           pointer-events: none;
           background: linear-gradient(
             to top,
-            rgba(249, 251, 244, 0.96) 0%,
-            rgba(249, 251, 244, 0.72) 50%,
+            #e8f2d0 0%,
+            rgba(238, 246, 220, 0.82) 55%,
             transparent 100%
           );
         }
@@ -544,7 +544,7 @@ function StoreTypesShowcase() {
             flex: none;
             width: 100%;
             border-right: none;
-            border-bottom: 1px solid rgba(151, 182, 76, 0.18);
+            border-bottom: 1px solid ${T.border};
           }
           .st-showcase-card:last-child {
             border-bottom: none;
