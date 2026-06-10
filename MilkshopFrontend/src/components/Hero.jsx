@@ -1231,6 +1231,170 @@ const CSS = `
     .hero-highlight-sub { font-size: 0.74rem; }
   }
 
+  /* ─── LARGE DESKTOP transition (1441px–1540px) — flex row, no absolute bleed ─── */
+  @media (min-width: 1441px) and (max-width: 1540px) {
+    .hero-section {
+      min-height: auto;
+      overflow-x: hidden;
+    }
+
+    .hero-inner {
+      position: relative;
+      align-items: center;
+      justify-content: flex-start;
+      max-width: 1320px;
+      margin-left: auto;
+      margin-right: auto;
+      min-height: auto;
+      gap: clamp(8px, 1.5vw, 16px);
+      padding:
+        calc(92px + env(safe-area-inset-top, 0px) + 12px)
+        clamp(24px, 3vw, 40px)
+        clamp(20px, 2.5vw, 32px);
+    }
+
+    .hero-copy {
+      --hero-taiwan-track: min(100%, clamp(300px, 28vw, 420px));
+      flex: 0 0 44%;
+      width: auto;
+      max-width: 46%;
+      min-width: 0;
+      padding-bottom: clamp(20px, 3vw, 36px);
+      padding-left: 0;
+      align-items: flex-start;
+      align-self: center;
+    }
+
+    .hero-eyebrow {
+      width: var(--hero-taiwan-track);
+      max-width: var(--hero-taiwan-track);
+      justify-content: flex-start;
+      align-self: flex-start;
+      top: 0;
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    .hero-fresh {
+      width: var(--hero-taiwan-track);
+      max-width: var(--hero-taiwan-track);
+      font-size: clamp(2.2rem, 2.9vw, 3rem);
+      text-align: left;
+      align-self: flex-start;
+      top: 0;
+      margin-top: 0;
+      margin-bottom: clamp(-12px, -1.5vw, -6px);
+    }
+
+    .hero-copy-lower {
+      align-items: flex-start;
+      margin-top: 0;
+      width: var(--hero-taiwan-track);
+      max-width: var(--hero-taiwan-track);
+    }
+
+    .hero-taiwan {
+      width: 100%;
+      max-width: 100%;
+      margin-top: 0;
+      margin-left: 0;
+    }
+
+    .hero-taiwan img {
+      width: 100%;
+      max-width: 100%;
+      margin-left: 0;
+    }
+
+    .hero-tagline {
+      width: 100%;
+      text-align: left;
+      align-self: flex-start;
+    }
+
+    .hero-features {
+      width: 100%;
+      max-width: 100%;
+      margin-left: 0;
+      margin-top: clamp(12px, 1.5vw, 18px);
+      align-self: flex-start;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(8px, 1vw, 12px);
+    }
+
+    .hero-feature-line1,
+    .hero-feature-line2 {
+      font-size: clamp(6.5px, 0.5vw, 7.5px);
+    }
+
+    .hero-feature-icon {
+      width: clamp(40px, 3.5vw, 48px);
+      height: clamp(40px, 3.5vw, 48px);
+    }
+
+    .hero-btns {
+      width: 100%;
+      max-width: 100%;
+      margin-left: 0;
+      margin-top: clamp(14px, 1.8vw, 20px);
+      align-self: flex-start;
+      justify-content: flex-start;
+    }
+
+    .hero-btn-primary,
+    .hero-btn-secondary {
+      flex: 0 0 auto;
+      min-width: 130px;
+      font-size: 13px;
+      padding: 10px 16px;
+    }
+
+    .hero-visual {
+      position: relative;
+      right: auto;
+      bottom: auto;
+      flex: 1 1 50%;
+      width: auto;
+      max-width: 54%;
+      min-width: 0;
+      min-height: clamp(340px, 40vw, 480px);
+      margin: 0;
+      justify-content: center;
+      align-items: flex-end;
+      z-index: 8;
+    }
+
+    .hero-cups-frame {
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      transform: scale(1.08);
+      transform-origin: center bottom;
+    }
+
+    .hero-cups-img {
+      width: min(100%, clamp(400px, 46vw, 560px));
+      max-width: 100%;
+      margin-left: 0;
+      max-height: clamp(360px, 52vh, 500px);
+      object-fit: contain;
+      object-position: center bottom;
+    }
+
+    .hero-section.hero-zoom-125 .hero-eyebrow,
+    .hero-section.hero-zoom-125 .hero-fresh,
+    .hero-section.hero-zoom-125 .hero-copy-lower {
+      width: var(--hero-taiwan-track);
+      max-width: var(--hero-taiwan-track);
+    }
+
+    .hero-section.hero-zoom-125 .hero-taiwan img,
+    .hero-section.hero-zoom-125 .hero-features,
+    .hero-section.hero-zoom-125 .hero-btns {
+      margin-left: 0;
+    }
+  }
+
   /* ─── XL DESKTOP (1600px+) ───────────────────────── */
   @media (min-width: 1600px) {
     .hero-copy {

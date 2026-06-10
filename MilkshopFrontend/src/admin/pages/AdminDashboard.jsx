@@ -416,8 +416,51 @@ const STYLES = `
   }
 `
 
+const PH_TIMEZONE = "Asia/Manila"
+
+function getPhHour(date = new Date()) {
+  const hour = new Intl.DateTimeFormat("en-PH", {
+    timeZone: PH_TIMEZONE,
+    hour: "numeric",
+    hour12: false,
+  }).formatToParts(date).find((p) => p.type === "hour")?.value
+  return Number(hour ?? 0)
+}
+
+function formatPhDateTime(date = new Date()) {
+  const datePart = date.toLocaleDateString("en-PH", {
+    timeZone: PH_TIMEZONE,
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
+  const timePart = date.toLocaleTimeString("en-PH", {
+    timeZone: PH_TIMEZONE,
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  })
+  return `${datePart} · ${timePart}`
+}
+
+function formatPhSubmittedAt(value) {
+  if (!value) return "—"
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return "—"
+  return d.toLocaleString("en-PH", {
+    timeZone: PH_TIMEZONE,
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  })
+}
+
 function getGreeting() {
-  const h = new Date().getHours()
+  const h = getPhHour()
   if (h < 12) return "Good morning"
   if (h < 18) return "Good afternoon"
   return "Good evening"
@@ -430,6 +473,12 @@ export default function AdminDashboard() {
   const [recent, setRecent]             = useState([]);
   const [isLoading, setIsLoading]       = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [phNow, setPhNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const tick = setInterval(() => setPhNow(new Date()), 60_000);
+    return () => clearInterval(tick);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -480,9 +529,7 @@ export default function AdminDashboard() {
 
   const adminName = admin?.email?.split("@")[0] || "Admin";
 
-  const dateStr = new Date().toLocaleDateString("en-US", {
-    weekday: "short", month: "short", day: "numeric", year: "numeric",
-  });
+  const dateStr = formatPhDateTime(phNow);
 
   return (
     <>
@@ -652,12 +699,7 @@ export default function AdminDashboard() {
                         </span>
                       )}
                       <p className="db-row-time">
-                        {item.created_at
-                          ? new Date(item.created_at).toLocaleString("en-US", {
-                              month: "short", day: "numeric",
-                              hour: "numeric", minute: "2-digit",
-                            })
-                          : "—"}
+                        {formatPhSubmittedAt(item.created_at)}
                       </p>
                     </div>
                   </div>

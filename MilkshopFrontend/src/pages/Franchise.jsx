@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from "react"
+﻿import { useState, useEffect, useRef, Fragment } from "react"
 import { Link, useLocation } from "react-router-dom"
 import FranchiseInquiryForm from "../components/FranchiseInquiryForm"
 import FranchiseInquiryTrigger from "../components/FranchiseInquiryTrigger"
@@ -374,9 +374,10 @@ const franchisePageStyles = `
 // ─── STORE TYPES — PICKUP-STYLE SHOWCASE ─────────────────────────────────────
 
 const PACKAGE_IMAGES = {
-  sqm2: "/franchise/packages/22.webp",
+  sqm2: "/franchise/packages/222.webp",
   sqm4: "/franchise/packages/88.webp",
   sqm8: "/franchise/packages/8.webp",
+  basicShop: "/franchise/packages/44.webp",
 };
 
 const storeTypes = [
@@ -389,6 +390,8 @@ const storeTypes = [
     tag: "Compact",
     tagColor: "bg-[#97b64c] text-white",
     image: PACKAGE_IMAGES.sqm2,
+    imageNudgeY: 12,
+    imageScale: 1,
   },
   {
     id: "inline",
@@ -399,6 +402,8 @@ const storeTypes = [
     tag: "Premium",
     tagColor: "bg-[#62840b] text-white",
     image: PACKAGE_IMAGES.sqm8,
+    imageNudgeY: 0,
+    imageScale: 1,
   },
   {
     id: "kiosk-deal",
@@ -409,6 +414,20 @@ const storeTypes = [
     tag: "Starter",
     tagColor: "bg-rose-400 text-white",
     image: PACKAGE_IMAGES.sqm4,
+    imageNudgeY: 72,
+    imageScale: 1.05,
+  },
+  {
+    id: "basic-shop",
+    label: "BASIC SHOP",
+    storeName: "",
+    size: "8 sqm",
+    description: "Efficient and convenient for everyday cravings.",
+    tag: "Essential",
+    tagColor: "bg-amber-600 text-white",
+    image: PACKAGE_IMAGES.basicShop,
+    imageNudgeY: 88,
+    imageScale: 1.14,
   },
 ];
 
@@ -457,49 +476,62 @@ function StoreTypesShowcase() {
           overflow: hidden;
         }
         .st-showcase-track {
+          --st-image-row-h: clamp(300px, 38vw, 420px);
           display: flex;
+          flex-direction: column;
           width: 100%;
         }
         @media (min-width: 768px) {
-          .st-showcase-card {
-            flex: 0 0 calc(100% / ${slides.length});
+          .st-showcase-viewport {
+            overflow: visible;
+          }
+          .st-showcase-track {
+            display: grid;
+            grid-template-columns: repeat(${slides.length}, 1fr);
+            grid-template-rows: var(--st-image-row-h) auto;
+            align-items: end;
+          }
+          .st-showcase-media {
+            grid-row: 1;
+            height: var(--st-image-row-h);
+            min-height: unset;
+            align-self: end;
+            overflow: visible;
+          }
+          .st-showcase-label {
+            grid-row: 2;
+            align-self: start;
+          }
+          .st-showcase-card img {
+            max-height: calc(var(--st-image-row-h) - 8px);
           }
         }
-        .st-showcase-card {
-          position: relative;
-          flex: 0 0 calc(100% / ${slides.length});
-          min-height: clamp(260px, 38vw, 480px);
-          padding: 0;
-          margin: 0;
-          overflow: hidden;
-          text-align: left;
-          background: transparent;
-          border-right: 1px solid ${T.border};
+        .st-showcase-media {
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          min-height: clamp(200px, 32vw, 400px);
+          box-sizing: border-box;
+          overflow: visible;
         }
         .st-showcase-card img {
           width: 100%;
-          height: 100%;
-          min-height: clamp(260px, 38vw, 480px);
+          height: auto;
+          max-height: clamp(200px, 32vw, 400px);
           object-fit: contain;
-          object-position: center bottom;
+          object-position: bottom center;
+          transform: translateY(var(--st-nudge, 0px)) scale(var(--st-scale, 1));
+          transform-origin: bottom center;
           display: block;
           padding: clamp(10px, 1.8vw, 18px);
+          padding-bottom: 0;
           box-sizing: border-box;
-          transition: transform 0.45s ease;
         }
         .st-showcase-label {
-          position: absolute;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          padding: clamp(16px, 2.8vw, 28px);
+          flex-shrink: 0;
+          padding: clamp(12px, 2vw, 18px) clamp(16px, 2.8vw, 28px) clamp(16px, 2.8vw, 28px);
           pointer-events: none;
-          background: linear-gradient(
-            to top,
-            #e8f2d0 0%,
-            rgba(238, 246, 220, 0.82) 55%,
-            transparent 100%
-          );
+          background: transparent;
         }
         .st-showcase-label-title {
           display: block;
@@ -509,13 +541,23 @@ function StoreTypesShowcase() {
           letter-spacing: -0.02em;
           line-height: 1.15;
           color: #62840b;
+          text-transform: uppercase;
+        }
+        .st-showcase-label-desc {
+          display: block;
+          margin-top: 6px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: clamp(0.72rem, 1.15vw, 0.86rem);
+          font-weight: 500;
+          line-height: 1.45;
+          color: #4a5640;
         }
         .st-showcase-label-meta {
           display: block;
           margin-top: 5px;
           font-family: 'DM Sans', sans-serif;
           font-size: clamp(0.72rem, 1.2vw, 0.88rem);
-          font-weight: 600;
+          font-weight: 500;
           letter-spacing: 0.05em;
           text-transform: uppercase;
           color: #4a5640;
@@ -540,18 +582,28 @@ function StoreTypesShowcase() {
             padding: 0 clamp(16px, 4vw, 24px);
             box-sizing: border-box;
           }
-          .st-showcase-card {
-            flex: none;
-            width: 100%;
-            border-right: none;
+          .st-showcase-media {
+            min-height: clamp(200px, 52vw, 280px);
+            border-bottom: none;
+            --st-nudge: 0px;
+            --st-scale: 1;
+          }
+          .st-showcase-label {
             border-bottom: 1px solid ${T.border};
           }
-          .st-showcase-card:last-child {
+          .st-showcase-label:last-child {
             border-bottom: none;
           }
-          .st-showcase-card,
           .st-showcase-card img {
-            min-height: clamp(220px, 56vw, 300px);
+            max-height: clamp(200px, 52vw, 280px);
+          }
+          .st-showcase-card--basic-shop .st-showcase-media {
+            min-height: clamp(280px, 78vw, 400px);
+          }
+          .st-showcase-card--basic-shop img {
+            max-height: clamp(280px, 78vw, 400px);
+            padding-left: 0;
+            padding-right: 0;
           }
         }
       `}</style>
@@ -568,29 +620,45 @@ function StoreTypesShowcase() {
       <div className="st-showcase-slider">
         <div className="st-showcase-viewport">
           <div className="st-showcase-track">
-            {slides.map((store) => (
-              <article
-                key={store.id}
-                className="st-showcase-card"
-                aria-label={`${store.label}, ${store.storeName}, ${store.size}`}
-              >
-                <img
-                  src={srcFor(store)}
-                  alt={store.label}
-                  draggable={false}
-                  loading="lazy"
-                  decoding="async"
-                  onError={() =>
-                    setImgFallback((prev) => ({ ...prev, [store.id]: true }))
-                  }
-                />
-                <div className="st-showcase-label">
-                  <span className="st-showcase-label-title">{store.label}</span>
-                  <span className="st-showcase-label-meta">
-                    {store.storeName} · {store.size}
-                  </span>
+            {slides.map((store, index) => (
+              <Fragment key={store.id}>
+                <div
+                  className={`st-showcase-media st-showcase-card--${store.id}`}
+                  style={{
+                    gridColumn: index + 1,
+                    borderRight:
+                      index < slides.length - 1 ? `1px solid ${T.border}` : undefined,
+                    ["--st-nudge"]: `${store.imageNudgeY ?? 0}px`,
+                    ["--st-scale"]: String(store.imageScale ?? 1),
+                  }}
+                >
+                  <img
+                    src={srcFor(store)}
+                    alt={store.label}
+                    draggable={false}
+                    loading="lazy"
+                    decoding="async"
+                    onError={() =>
+                      setImgFallback((prev) => ({ ...prev, [store.id]: true }))
+                    }
+                  />
                 </div>
-              </article>
+                <div
+                  className={`st-showcase-label st-showcase-card--${store.id}`}
+                  style={{
+                    gridColumn: index + 1,
+                    borderRight:
+                      index < slides.length - 1 ? `1px solid ${T.border}` : undefined,
+                  }}
+                  aria-label={`${store.label}, ${store.size}`}
+                >
+                  <span className="st-showcase-label-title">{store.label}</span>
+                  {store.description ? (
+                    <span className="st-showcase-label-desc">{store.description}</span>
+                  ) : null}
+                  <span className="st-showcase-label-meta">{store.size}</span>
+                </div>
+              </Fragment>
             ))}
           </div>
         </div>
@@ -945,6 +1013,51 @@ export default function Franchise() {
         padding-bottom: clamp(32px, 5vw, 44px);
         gap: clamp(16px, 3vw, 22px);
       }
+      .fh-copy {
+        align-items: center;
+        text-align: center;
+        max-width: 100%;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .fh-copy h1,
+      .fh-copy p {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .fh-copy > .fh-anim-2 {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .fh-btns {
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: stretch;
+        width: 100%;
+        max-width: 100%;
+        gap: 10px;
+      }
+      .fh-btn-main,
+      .fh-btn-secondary {
+        flex: 1 1 0;
+        min-width: 0;
+        height: 44px;
+        padding: 0 10px;
+        font-size: clamp(10px, 2.6vw, 12px);
+        white-space: nowrap;
+      }
+      .fh-stat-bar {
+        width: 100%;
+        max-width: 360px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .fh-stat-item {
+        align-items: center;
+        text-align: center;
+      }
       .fh-visual { order: -1; min-height: clamp(240px, 58vw, 400px); }
       .fh-visual-frame { padding: clamp(6px, 1.5vw, 10px); }
       .fh-hero-img { width: 108%; max-height: clamp(240px, 58vw, 400px); }
@@ -971,8 +1084,7 @@ export default function Franchise() {
         fontWeight: 900,
         color: "#18210f",
       }}>
-        Own the<br />
-        Future of<br />
+        Own the Future of<br />
         <span style={{
           background: "linear-gradient(135deg, #62840b 0%, #97b64c 55%, #b7cd7f 100%)",
           WebkitBackgroundClip: "text",
@@ -998,7 +1110,7 @@ export default function Franchise() {
         strong branding, and modern customer experience built for the Filipino market.
       </p>
 
-      <div className="fh-anim-4" style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+      <div className="fh-anim-4 fh-btns" style={{ display: "flex", gap: 10 }}>
         <FranchiseInquiryTrigger className="fh-btn-main">
           Apply for Franchise →
         </FranchiseInquiryTrigger>
@@ -1304,7 +1416,7 @@ export default function Franchise() {
 
 {/* ══════════════════════════════════════
    PACKAGE SELECTION — PICKUP-STYLE SHOWCASE
-   Full-bleed 3-column grid, sage green band
+   Full-bleed 4-column grid, sage green band
 ══════════════════════════════════════ */}
 <section
   id="packages"

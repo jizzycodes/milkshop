@@ -582,6 +582,27 @@ export default function Products() {
         .loc-hero-h1-text {
           font-size: clamp(2.4rem, 10vw, 3.4rem);
         }
+        @media (max-width: 767px) {
+          .loc-hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+          }
+          .loc-hero-tag,
+          .loc-hero-h1,
+          .loc-hero-p {
+            width: 100%;
+            text-align: center;
+          }
+          .loc-hero-h1-text {
+            text-align: center;
+          }
+          .loc-hero--ready .loc-hero-h1 {
+            animation: heroFadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: 0.25s;
+          }
+        }
         @media (min-width: 901px) {
           .loc-hero { min-height: 90vh; }
           .loc-hero-content { padding: 120px 48px 72px; }

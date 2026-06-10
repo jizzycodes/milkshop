@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import { isFirebaseConfigured } from "../firebase/config";
@@ -499,11 +499,7 @@ export default function AdminLogin() {
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isAuthenticated, firebaseConfigured } = useAdminAuth();
-
-  useEffect(() => {
-    if (isAuthenticated) navigate("/admin/dashboard", { replace: true });
-  }, [isAuthenticated, navigate]);
+  const { login, firebaseConfigured } = useAdminAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;

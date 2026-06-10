@@ -52,9 +52,15 @@ async function getFranchiseDashboardStats() {
     `
       SELECT
         COUNT(*)::int AS total,
-        COUNT(*) FILTER (WHERE created_at::date = CURRENT_DATE)::int AS today,
         COUNT(*) FILTER (
-          WHERE date_trunc('month', created_at) = date_trunc('month', CURRENT_DATE)
+          WHERE (created_at AT TIME ZONE 'Asia/Manila')::date
+            = (now() AT TIME ZONE 'Asia/Manila')::date
+        )::int AS today,
+        COUNT(*) FILTER (
+          WHERE date_trunc(
+            'month',
+            created_at AT TIME ZONE 'Asia/Manila'
+          ) = date_trunc('month', now() AT TIME ZONE 'Asia/Manila')
         )::int AS this_month
       FROM franchise_requests
     `,

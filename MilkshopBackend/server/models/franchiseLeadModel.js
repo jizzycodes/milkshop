@@ -234,16 +234,21 @@ async function getLeadFocusStats() {
       COUNT(*) FILTER (
         WHERE status = 'NEW'
           AND best_contact_at IS NOT NULL
-          AND best_contact_at::date = CURRENT_DATE
+          AND (best_contact_at AT TIME ZONE 'Asia/Manila')::date
+            = (now() AT TIME ZONE 'Asia/Manila')::date
       )::int
       +
       COUNT(*) FILTER (
         WHERE status = 'FOR_FOLLOWUP'
           AND next_followup_at IS NOT NULL
-          AND next_followup_at::date = CURRENT_DATE
+          AND (next_followup_at AT TIME ZONE 'Asia/Manila')::date
+            = (now() AT TIME ZONE 'Asia/Manila')::date
       )::int AS due_today,
 
-      COUNT(*) FILTER (WHERE created_at::date = CURRENT_DATE)::int AS new_today,
+      COUNT(*) FILTER (
+        WHERE (created_at AT TIME ZONE 'Asia/Manila')::date
+          = (now() AT TIME ZONE 'Asia/Manila')::date
+      )::int AS new_today,
       COUNT(*) FILTER (WHERE status = 'FOR_FOLLOWUP')::int AS for_followup
     FROM franchise_leads
     WHERE status NOT IN ('DROPPED', 'ARCHIVED')

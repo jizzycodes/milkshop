@@ -5,6 +5,12 @@ const {
   DEFAULT_LEAD_OUTCOME_EMAILS,
   mergeOutcomeEmails,
 } = require('../constants/leadEmailTemplates')
+const {
+  GMAIL_CLIP_BYTES,
+  SAFE_LOGO_URL,
+  sanitizeLogoUrl,
+  sanitizeEmailTemplate,
+} = require('./emailSanitize')
 
 const SENDGRID_API_URL = 'https://api.sendgrid.com/v3/mail/send'
 
@@ -153,19 +159,33 @@ async function getOutcomeEmailConfig(outcome) {
   return merged[outcome] || defaults
 }
 
+function buildEmailHtml(logoSrc, htmlBody, { includeLogo = true } = {}) {
+  const safeLogo = escapeHtml(sanitizeLogoUrl(logoSrc))
+  const logoBlock = includeLogo
+    ? `<div style="text-align:center;margin-bottom:24px"><img src="${safeLogo}" alt="Milkshop" width="180" style="max-width:180px;height:auto;border:0;display:block;margin:0 auto"></div>`
+    : ''
+  return `<!DOCTYPE html><html><body style="font-family:Segoe UI,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1e1e1e">${logoBlock}<div style="line-height:1.6">${htmlBody}</div></body></html>`
+}
+
 function buildEmailContent(name, subject, template) {
-  const textBody = applyNamePlaceholders(template, name)
+  const textBody = applyNamePlaceholders(sanitizeEmailTemplate(template), name)
   const logoSrc = getLogoSrc()
   const htmlBody = escapeHtml(textBody).replace(/\r\n/g, '\n').replace(/\n/g, '<br/>')
 
-  const html = `
-    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color: #1e1e1e;">
-      <div style="text-align: center; margin-bottom: 24px;">
-        <img src="${logoSrc}" alt="Milkshop" style="max-width: 180px; height: auto;" />
-      </div>
-      <div style="line-height: 1.6;">${htmlBody}</div>
-    </div>
-  `
+  let html = buildEmailHtml(logoSrc, htmlBody, { includeLogo: true })
+  let bytes = Buffer.byteLength(html, 'utf8')
+
+  if (bytes > GMAIL_CLIP_BYTES - 4096) {
+    html = buildEmailHtml(logoSrc, htmlBody, { includeLogo: false })
+    bytes = Buffer.byteLength(html, 'utf8')
+    // eslint-disable-next-line no-console
+    console.warn('[Email] HTML exceeded Gmail safe size; sent without logo. bytes=', bytes)
+  }
+
+  if (bytes > GMAIL_CLIP_BYTES - 4096) {
+    // eslint-disable-next-line no-console
+    console.warn('[Email] HTML still large after logo removal. bytes=', bytes)
+  }
 
   return { textBody, html, subject }
 }
@@ -257,15 +277,15 @@ async function sendTemplatedEmail(toEmail, name, subject, template) {
 }
 
 function getLogoSrc() {
-  // Never inline the local PNG as base64 — LOGOLAND.png is ~800KB+ and Gmail clips HTML over ~102KB.
+  // Never inline logos as base64 — Gmail clips HTML over ~102KB.
   const envUrl =
     process.env.EMAIL_LOGO_URL ||
     process.env.FRONTEND_PUBLIC_LOGO_URL ||
     ''
   if (String(envUrl).trim()) {
-    return String(envUrl).trim()
+    return sanitizeLogoUrl(String(envUrl).trim())
   }
-  return 'https://milk-shop.ph/mlogo.webp'
+  return SAFE_LOGO_URL
 }
 
 /**
@@ -278,6 +298,8 @@ async function sendFranchiseConfirmation(toEmail, name) {
   let template = await getSetting(KEYS.EMAIL_TEMPLATE)
   if (!template || !String(template).trim()) {
     template = DEFAULT_FRANCHISE_CONFIRMATION_TEMPLATE
+  } else {
+    template = sanitizeEmailTemplate(template)
   }
 
   return sendTemplatedEmail(toEmail, name, subject, template)

@@ -1,5 +1,6 @@
 const { query } = require('../config/db')
 const { mergeOutcomeEmails } = require('../constants/leadEmailTemplates')
+const { sanitizeEmailTemplate, sanitizeOutcomeEmails } = require('../utils/emailSanitize')
 
 const KEYS = {
   QR_URL: 'franchise_qr_url',
@@ -46,9 +47,14 @@ async function getQrEmailSettings() {
 
 async function updateQrEmailSettings({ qrUrl, emailTemplate, outcomeEmails }) {
   if (qrUrl !== undefined) await setSetting(KEYS.QR_URL, String(qrUrl))
-  if (emailTemplate !== undefined) await setSetting(KEYS.EMAIL_TEMPLATE, String(emailTemplate))
+  if (emailTemplate !== undefined) {
+    await setSetting(KEYS.EMAIL_TEMPLATE, sanitizeEmailTemplate(emailTemplate))
+  }
   if (outcomeEmails !== undefined) {
-    await setSetting(KEYS.OUTCOME_EMAIL_TEMPLATES, JSON.stringify(outcomeEmails))
+    await setSetting(
+      KEYS.OUTCOME_EMAIL_TEMPLATES,
+      JSON.stringify(sanitizeOutcomeEmails(outcomeEmails)),
+    )
   }
   return getQrEmailSettings()
 }

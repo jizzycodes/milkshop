@@ -15,6 +15,7 @@ const {
   verifyEmailConnection,
   sendFranchiseConfirmation,
 } = require('../utils/mail')
+const { GMAIL_CLIP_BYTES, SAFE_LOGO_URL, sanitizeLogoUrl } = require('../utils/emailSanitize')
 
 function checkTcpPort(host, port, timeoutMs = 8000) {
   return new Promise((resolve) => {
@@ -72,6 +73,15 @@ async function main() {
   }
 
   console.log(`Email verify OK (${verify.provider})`)
+  const logoUrl = sanitizeLogoUrl(
+    process.env.EMAIL_LOGO_URL || process.env.FRONTEND_PUBLIC_LOGO_URL || SAFE_LOGO_URL,
+  )
+  console.log('Logo URL:', logoUrl)
+  if (/^data:/i.test(process.env.EMAIL_LOGO_URL || '')) {
+    console.warn('WARNING: EMAIL_LOGO_URL is a data: URI — Gmail will clip the message. Use a hosted https URL.')
+  }
+  console.log('Gmail clip limit (approx):', GMAIL_CLIP_BYTES, 'bytes')
+  console.log('')
 
   if (to) {
     console.log('Sending franchise test email to:', to)

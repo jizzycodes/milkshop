@@ -439,6 +439,25 @@ export default function About() {
       transition: transform 0.3s ease;
     }
     .about-stat-item:hover { transform: translateY(-3px); }
+
+    @media (max-width: 767px) {
+      .about-hero-cta {
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: stretch;
+        width: 100%;
+        max-width: 100%;
+        gap: 10px;
+      }
+      .about-hero-cta .about-cta-primary,
+      .about-hero-cta .about-cta-secondary {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 12px 10px;
+        font-size: clamp(10px, 2.8vw, 12px);
+        white-space: nowrap;
+      }
+    }
   `}</style>
 
   {/* ── Background layers ── */}
@@ -578,7 +597,7 @@ export default function About() {
      
 
       {/* CTAs */}
-      <div className="about-hero-cta" style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
+      <div className="about-hero-cta" style={{ display: "flex", gap: 12, justifyContent: "center" }}>
         <FranchiseInquiryTrigger className="about-cta-primary">
          Franchise Opportunities 
         </FranchiseInquiryTrigger>
@@ -1236,6 +1255,28 @@ export default function About() {
       align-items: stretch;
       min-height: 0;
     }
+    .bmc-btns {
+      display: flex;
+      gap: 12px;
+    }
+    @media (max-width: 767px) {
+      .bmc-btns {
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: stretch;
+        width: 100%;
+        gap: 10px;
+      }
+      .bmc-btns .bmc-cta,
+      .bmc-btns .bmc-ghost {
+        flex: 1 1 0;
+        min-width: 0;
+        justify-content: center;
+        padding: 12px 10px;
+        font-size: clamp(10px, 2.8vw, 12px);
+        white-space: nowrap;
+      }
+    }
   `}</style>
 
   {/* ── Ambient orbs ── */}
@@ -1327,20 +1368,30 @@ export default function About() {
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
+            alignItems: isMobile ? "center" : "flex-start",
+            textAlign: isMobile ? "center" : "left",
             gap: 20,
             height: "100%",
             padding: isMobile ? "0 4px" : "0 clamp(32px, 5vw, 64px)",
             boxSizing: "border-box",
           }}
         >
-          <h2 className="ms-section-heading">
+          <h2
+            className="ms-section-heading"
+            style={isMobile ? { textAlign: "center", width: "100%" } : undefined}
+          >
             Bring Milkshop<br />
-            <span style={{ color: T.ink }}>Closer to Your</span>
-            <br />
-            <span style={{ color: T.ink }}>Community.</span>
+            <span style={{ color: T.ink }}>Closer to Your Community.</span>
           </h2>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 4 }}>
+          <div
+            className="bmc-btns"
+            style={{
+              marginTop: 4,
+              justifyContent: isMobile ? "center" : "flex-start",
+              width: "100%",
+            }}
+          >
             <FranchiseInquiryTrigger className="bmc-cta">
               Start Your Journey →
             </FranchiseInquiryTrigger>

@@ -1550,6 +1550,34 @@ export default function Locations() {
             background: #f7faef;
             transform: translateY(-1px);
           }
+          @media (max-width: 640px) {
+            .loc-expand-copy {
+              text-align: center;
+            }
+            .loc-expand-eyebrow {
+              justify-content: center;
+            }
+            .loc-expand-body {
+              margin-left: auto;
+              margin-right: auto;
+            }
+            .loc-expand-actions {
+              flex-direction: row;
+              flex-wrap: nowrap;
+              justify-content: center;
+              align-items: stretch;
+              gap: 10px;
+            }
+            .loc-expand-btn-primary,
+            .loc-expand-btn-secondary {
+              flex: 1 1 0;
+              min-width: 0;
+              width: auto;
+              padding: 12px 10px;
+              font-size: clamp(10px, 2.8vw, 12px);
+              white-space: nowrap;
+            }
+          }
           @media (min-width: 641px) {
             .loc-expand-inner {
               flex-direction: row;
