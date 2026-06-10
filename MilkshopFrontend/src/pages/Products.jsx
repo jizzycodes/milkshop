@@ -14,16 +14,16 @@ const CATEGORIES = [
 ];
 
 const feedbacks = [
-  { id: 1,  name: "Angelica R.",  handle: "@angelicar_ph",  stars: 5, comment: "Our favorite MilkTea shop!!! Pinaka nagustuhan namin of all milktea places" },
-  { id: 2,  name: "Miguel T.",    handle: "@migueltravels", stars: 5, comment: "yummers talaga ang milktea nyo..ni-recommend ko to sa mga friends ko at nasiyahan naman sila" },
-  { id: 3,  name: "Trisha Mae",   handle: "@trishafoods",   stars: 5, comment: "sobrang sarap talaga ng Milkshop! walang wala sa mga big names sa milk tea industry. this is our favorite talaga. worth the money" },
-  { id: 4,  name: "Carlo B.",     handle: "@carloeats",     stars: 5, comment: "the kids love it. They also granted my request for the birthday note. Thank you so much highly recommended" },
-  { id: 5,  name: "Diane L.",     handle: "@dianelim.ph",   stars: 5, comment: "Unexpected taste for its cheap price! This is actually better than those popular milktea shop. Definitely will reorder" },
-  { id: 6,  name: "Nico S.",      handle: "@nicosip",       stars: 5, comment: "My friends dragged me here and now I'm the one dragging everyone else. The lychee popping boba is completely addicting." },
-  { id: 7,  name: "Justine A.",   handle: "@justineandco",  stars: 5, comment: "Visited the Cebu branch and it was packed! Staff was super friendly and drinks came out fast. Ube cream is a must-try." },
-  { id: 8,  name: "Rachel P.",    handle: "@rachelpdiary",  stars: 5, comment: "Milkshop is the only milk tea that makes me feel like I'm actually in Taiwan. Every sip is just absolutely perfect." },
-  { id: 9,  name: "James V.",     handle: "@jamesv.eats",   stars: 5, comment: "Came for the black sugar, stayed for everything else. This is easily the best milk tea brand operating in the country right now." },
-  { id: 10, name: "Sofia M.",     handle: "@sofiamph",      stars: 5, comment: "The freshness is unreal. No weird aftertaste, no powder taste — just clean, smooth, and so satisfying every single time." },
+  { id: 1,  stars: 5, comment: "Our favorite MilkTea shop!!! Pinaka nagustuhan namin of all milktea places" },
+  { id: 2,  stars: 5, comment: "yummers talaga ang milktea nyo..ni-recommend ko to sa mga friends ko at nasiyahan naman sila" },
+  { id: 3,  stars: 5, comment: "sobrang sarap talaga ng Milkshop! walang wala sa mga big names sa milk tea industry. this is our favorite talaga. worth the money" },
+  { id: 4,  stars: 5, comment: "the kids love it. They also granted my request for the birthday note. Thank you so much highly recommended" },
+  { id: 5,  stars: 5, comment: "Unexpected taste for its cheap price! This is actually better than those popular milktea shop. Definitely will reorder" },
+  { id: 6,  stars: 5, comment: "My friends dragged me here and now I'm the one dragging everyone else. The lychee popping boba is completely addicting." },
+  { id: 7,  stars: 5, comment: "sobra sarap nung A1 nila, classic milk tea ang datingan." },
+  { id: 8,  stars: 5, comment: "solid ang sarap! sobra refreshing ng kanilang milk tea series." },
+  { id: 9,  stars: 5, comment: "bought 5 milktea for my family. Milkshop is the best milktea shop because of its quality and price." },
+  { id: 10, stars: 5, comment: "The freshness is unreal." },
 ];
 
 const topDrinks = [
@@ -372,21 +372,6 @@ function ReviewTicker({ reviews, direction = "left", speed = 38 }) {
             <p style={{ fontSize: "11px", lineHeight: 1.65, flex: 1, color: "#5a6a4a", fontFamily: "'DM Sans', sans-serif" }}>
               "{fb.comment}"
             </p>
-            <div style={{
-              display: "flex", alignItems: "center", gap: "10px",
-              paddingTop: "12px", borderTop: "1px solid #eef4e3",
-            }}>
-              <div style={{
-                width: "28px", height: "28px", borderRadius: "50%",
-                backgroundColor: "#eef4e3", border: "1px solid #d0e0b0",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "13px", flexShrink: 0,
-              }}>🧋</div>
-              <div>
-                <p style={{ fontSize: "10px", fontWeight: 700, color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}>{fb.name}</p>
-                <p style={{ fontSize: "9px", color: "#97b64c", fontFamily: "'DM Sans', sans-serif" }}>{fb.handle}</p>
-              </div>
-            </div>
           </div>
         ))}
       </div>
@@ -519,25 +504,6 @@ export default function Products() {
         }
         @media (min-width: 768px) {
           .prod-review-card { padding: 32px; }
-        }
-
-        .prod-review-dot {
-          min-width: 44px;
-          min-height: 44px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 0;
-          border: none;
-          background: transparent;
-          cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .prod-review-dot span {
-          display: block;
-          border-radius: 999px;
-          height: 6px;
-          transition: all 0.3s ease;
         }
 
         .prod-menu-section {
@@ -892,38 +858,11 @@ export default function Products() {
                   {featured.comment}
                 </p>
                 <div key={`a-${activeReview}`} className="review-fadein" style={{
-                  display: "flex", alignItems: "center", gap: "12px",
+                  display: "flex", alignItems: "center", gap: "2px",
                   marginTop: "20px", paddingTop: "20px", borderTop: "1px solid #eef4e3",
                 }}>
-                  <div style={{
-                    width: "38px", height: "38px", borderRadius: "50%",
-                    backgroundColor: "#eef4e3", border: "1px solid #dde8cc",
-                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px",
-                  }}>🧋</div>
-                  <div>
-                    <p style={{ fontSize: "0.875rem", fontWeight: 700, color: "#1e1e1e", fontFamily: "'DM Sans', sans-serif" }}>{featured.name}</p>
-                    <p style={{ fontSize: "0.75rem", color: "#97b64c", fontFamily: "'DM Sans', sans-serif" }}>{featured.handle}</p>
-                  </div>
-                  <div style={{ marginLeft: "auto", display: "flex", gap: "2px" }}>
-                    {Array.from({ length: featured.stars }).map((_, i) => (
-                      <span key={i} style={{ color: "#97b64c", fontSize: "14px" }}>★</span>
-                    ))}
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: "4px", marginTop: "16px", flexWrap: "wrap" }}>
-                  {feedbacks.map((_, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      className="prod-review-dot"
-                      onClick={() => setActiveReview(i)}
-                      aria-label={`Show review ${i + 1}`}
-                    >
-                      <span style={{
-                        width: i === activeReview ? "24px" : "6px",
-                        backgroundColor: i === activeReview ? "#97b64c" : "#dde8cc",
-                      }} />
-                    </button>
+                  {Array.from({ length: featured.stars }).map((_, i) => (
+                    <span key={i} style={{ color: "#97b64c", fontSize: "14px" }}>★</span>
                   ))}
                 </div>
               </div>
