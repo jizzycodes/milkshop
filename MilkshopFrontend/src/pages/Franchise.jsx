@@ -377,7 +377,7 @@ const PACKAGE_IMAGES = {
   sqm2: "/franchise/packages/222.webp",
   sqm4: "/franchise/packages/88.webp",
   sqm8: "/franchise/packages/8.webp",
-  basicShop: "/franchise/packages/44.webp",
+  basicShop: "/franchise/packages/444.webp",
 };
 
 const storeTypes = [
