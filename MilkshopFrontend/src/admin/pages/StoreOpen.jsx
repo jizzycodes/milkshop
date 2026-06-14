@@ -6,6 +6,7 @@ import { fetchLeads } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
 import LeadShortId from "../components/LeadShortId"
 import PipelineStageTitle from "../components/PipelineStageTitle"
+import { LEAD_PAGE_SIZE } from "../components/LeadPagination"
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
@@ -130,6 +131,9 @@ export default function StoreOpen() {
   const { token } = useAdminAuth()
   const [selectedLead, setSelectedLead] = useState(null)
   const [leads, setLeads] = useState([])
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -145,12 +149,24 @@ export default function StoreOpen() {
     if (!token) { setLoading(false); return }
     setLoading(true)
     setError("")
-    fetchLeads(token, { tab: "store_open", page: 1, pageSize: 50 })
-      .then((res) => { if (!cancelled) setLeads(res.data || []) })
-      .catch((err) => { if (!cancelled) { setError(err?.message || "Failed to load store open leads"); setLeads([]) } })
+    fetchLeads(token, { tab: "store_open", page, pageSize: LEAD_PAGE_SIZE })
+      .then((res) => {
+        if (cancelled) return
+        setLeads(res.data || [])
+        setTotal(res.pagination?.total || 0)
+        setTotalPages(res.pagination?.totalPages || 1)
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err?.message || "Failed to load store open leads")
+          setLeads([])
+          setTotal(0)
+          setTotalPages(1)
+        }
+      })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [token])
+  }, [token, page])
 
   return (
     <>
@@ -159,7 +175,7 @@ export default function StoreOpen() {
         <header className="sto-hero">
           <PipelineStageTitle
             title="Store Open"
-            count={loading ? null : leads.length}
+            count={loading ? null : total}
           />
           <p className="sto-banner-desc">
             Leads that completed onboarding and reached store opening.
@@ -178,6 +194,13 @@ export default function StoreOpen() {
             <LeadTable
               columns={columns}
               leads={leads}
+              pagination={{
+                page,
+                totalPages,
+                total,
+                loading,
+                onPageChange: setPage,
+              }}
               renderRow={(lead) => (
                 <tr key={lead.id} className="sto-tr">
                   <td className="sto-td">

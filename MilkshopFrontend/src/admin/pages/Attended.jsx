@@ -6,6 +6,7 @@ import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadSe
 import { formatDateTime } from "../utils/formatDateTime"
 import LeadShortId from "../components/LeadShortId"
 import PipelineStageTitle from "../components/PipelineStageTitle"
+import { LEAD_PAGE_SIZE } from "../components/LeadPagination"
 import {
   countActiveInactive,
   filterActivityLeads,
@@ -365,6 +366,9 @@ export default function Attended() {
   const [subStatus, setSubStatus]       = useState("active")
   const [selectedLead, setSelectedLead] = useState(null)
   const [leads, setLeads]               = useState([])
+  const [page, setPage]                 = useState(1)
+  const [total, setTotal]               = useState(0)
+  const [totalPages, setTotalPages]     = useState(1)
   const [loading, setLoading]           = useState(true)
   const [error, setError]               = useState("")
   const [refreshKey, setRefreshKey]     = useState(0)
@@ -392,12 +396,24 @@ export default function Attended() {
     if (!token) { setLoading(false); return }
     setLoading(true)
     setError("")
-    fetchLeads(token, { status: "APPROVED", page: 1, pageSize: 50 })
-      .then((res)  => { if (!cancelled) setLeads(res.data || []) })
-      .catch((err) => { if (!cancelled) { setError(err?.message || "Failed to load attended"); setLeads([]) } })
+    fetchLeads(token, { status: "APPROVED", page, pageSize: LEAD_PAGE_SIZE })
+      .then((res) => {
+        if (cancelled) return
+        setLeads(res.data || [])
+        setTotal(res.pagination?.total || 0)
+        setTotalPages(res.pagination?.totalPages || 1)
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err?.message || "Failed to load attended")
+          setLeads([])
+          setTotal(0)
+          setTotalPages(1)
+        }
+      })
       .finally(()  => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [token, refreshKey])
+  }, [token, refreshKey, page])
 
   const handleSaveContact = async ({ contactRecord, nextContactAt, notes }) => {
     if (!token || !selectedLead) return
@@ -429,6 +445,7 @@ export default function Attended() {
       await updateLead(token, selectedLead.id, { next_followup_at: nextContactAt })
     }
     if (notes) await updateLead(token, selectedLead.id, { remarks_admin: notes })
+    setPage(1)
     setRefreshKey((k) => k + 1)
     return log
   }
@@ -457,7 +474,7 @@ export default function Attended() {
             <div>
               <PipelineStageTitle
                 title="Attended"
-                count={loading ? null : filteredLeads.length}
+                count={loading ? null : total}
               />
               <p className="att-banner-desc">Leads who have already attended orientation.</p>
             </div>
@@ -469,7 +486,10 @@ export default function Attended() {
                     key={tab.value}
                     type="button"
                     className={`att-toggle-btn${subStatus === tab.value ? " att-active" : ""}`}
-                    onClick={() => setSubStatus(tab.value)}
+                    onClick={() => {
+                      setSubStatus(tab.value)
+                      setPage(1)
+                    }}
                   >
                     {tab.label}
                   </button>
@@ -501,6 +521,14 @@ export default function Attended() {
             <LeadTable
               columns={columns}
               leads={filteredLeads}
+              pagination={{
+                page,
+                totalPages,
+                total,
+                loading,
+                onPageChange: setPage,
+                visibleCount: filteredLeads.length,
+              }}
               renderRow={(lead) => (
                 <tr key={lead.id} className="att-tr">
 

@@ -310,7 +310,6 @@ export default function FranchiseInquiryForm({
   const turnstileTokenRef = useRef("");
   const turnstileRef = useRef(null);
   const turnstileWidgetId = useRef(null);
-
   const clearTurnstileToken = () => {
     turnstileTokenRef.current = "";
     setTurnstileToken("");
@@ -523,10 +522,33 @@ export default function FranchiseInquiryForm({
         .fi-form--modal .fi-form-scroll {
           flex: 1;
           min-height: 0;
-          overflow-y: auto;
+          overflow-y: scroll;
           overflow-x: hidden;
+          scrollbar-gutter: stable;
           -webkit-overflow-scrolling: touch;
           padding: 16px 16px 12px;
+        }
+        .fi-form--modal .fi-form-scroll::-webkit-scrollbar {
+          width: 8px;
+        }
+        .fi-form--modal .fi-form-scroll::-webkit-scrollbar-track {
+          background: #eef4e3;
+          border-radius: 999px;
+        }
+        .fi-form--modal .fi-form-scroll::-webkit-scrollbar-thumb {
+          background: #97b64c;
+          border-radius: 999px;
+        }
+        .fi-form--modal .fi-form-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: #97b64c #eef4e3;
+        }
+        .fi-form--modal:has(.fi-datetime-input:focus) .fi-form-scroll {
+          overflow: visible !important;
+        }
+        .fi-form--modal:has(.fi-datetime-input:focus) .fi-form-footer {
+          z-index: 0;
+          pointer-events: none;
         }
         @media (min-width: 768px) {
           .fi-form--modal .fi-form-scroll { padding: 20px 32px 16px; }
@@ -713,7 +735,7 @@ export default function FranchiseInquiryForm({
               value={formData.bestContactTime}
               min={localDatetimeLocalFloor()}
               onChange={handleChange}
-              className={`${inputBase} ${inputIdle}`}
+              className={`fi-datetime-input ${inputBase} ${inputIdle}`}
             />
           </Field>
         </div>
@@ -881,7 +903,7 @@ export default function FranchiseInquiryForm({
                   value={formData.bestContactTime}
                   min={localDatetimeLocalFloor()}
                   onChange={handleChange}
-                  className={`${inputBase} ${inputIdle}`}
+                  className={`fi-datetime-input ${inputBase} ${inputIdle}`}
                 />
               </Field>
             </div>

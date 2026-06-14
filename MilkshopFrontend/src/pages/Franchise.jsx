@@ -230,7 +230,7 @@ const franchisePageStyles = `
 
   .franchise-inquiry-section {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     background: #ffffff;
     padding: 48px 0;
   }
@@ -447,10 +447,10 @@ function StoreTypesShowcase() {
       <style>{`
         .st-showcase-header {
           text-align: center;
-          padding: clamp(40px, 7vw, 72px) clamp(20px, 5vw, 48px) clamp(24px, 4vw, 36px);
+          padding: clamp(40px, 7vw, 72px) clamp(20px, 5vw, 48px) clamp(6px, 1vw, 10px);
         }
         .st-showcase-heading {
-          margin: 0 0 clamp(14px, 2.5vw, 22px);
+          margin: 0;
           font-family: 'Signia Pro', 'DM Sans', sans-serif;
           font-size: clamp(1.75rem, 4vw, 2.85rem);
           font-weight: 900;
@@ -476,7 +476,7 @@ function StoreTypesShowcase() {
           overflow: hidden;
         }
         .st-showcase-track {
-          --st-image-row-h: clamp(300px, 38vw, 420px);
+          --st-image-row-h: clamp(260px, 32vw, 360px);
           display: flex;
           flex-direction: column;
           width: 100%;

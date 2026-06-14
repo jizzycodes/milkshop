@@ -7,6 +7,7 @@ import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadSe
 import { formatDateTime } from "../utils/formatDateTime"
 import LeadShortId from "../components/LeadShortId"
 import PipelineStageTitle from "../components/PipelineStageTitle"
+import LeadPagination, { LEAD_PAGE_SIZE } from "../components/LeadPagination"
 import {
   countActiveInactive,
   filterRegisterLeads,
@@ -410,6 +411,8 @@ const STYLES = `
   }
 `
 
+const PAGE_SIZE = LEAD_PAGE_SIZE
+
 const REGISTER_TABS = [
   { value: "active",   label: "Active"   },
   { value: "inactive", label: "Inactive" },
@@ -451,6 +454,9 @@ export default function Register() {
   const [subStatus, setSubStatus]       = useState("active")
   const [selectedLead, setSelectedLead] = useState(null)
   const [leads, setLeads]               = useState([])
+  const [page, setPage]                 = useState(1)
+  const [total, setTotal]               = useState(0)
+  const [totalPages, setTotalPages]     = useState(1)
   const [loading, setLoading]           = useState(true)
   const [error, setError]               = useState("")
   const [refreshKey, setRefreshKey]     = useState(0)
@@ -478,12 +484,24 @@ export default function Register() {
     if (!token) { setLoading(false); return }
     setLoading(true)
     setError("")
-    fetchLeads(token, { tab: "new", page: 1, pageSize: 50 })
-      .then((res)  => { if (!cancelled) setLeads(res.data || []) })
-      .catch((err) => { if (!cancelled) { setError(err?.message || "Failed to load leads"); setLeads([]) } })
+    fetchLeads(token, { tab: "new", page, pageSize: PAGE_SIZE })
+      .then((res) => {
+        if (cancelled) return
+        setLeads(res.data || [])
+        setTotal(res.pagination?.total || 0)
+        setTotalPages(res.pagination?.totalPages || 1)
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err?.message || "Failed to load leads")
+          setLeads([])
+          setTotal(0)
+          setTotalPages(1)
+        }
+      })
       .finally(()  => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [token, refreshKey])
+  }, [token, refreshKey, page])
 
   const handleSaveContact = async ({ contactRecord, nextContactAt, notes, nextScheduleAt }) => {
     if (!token || !selectedLead) return
@@ -521,6 +539,7 @@ export default function Register() {
     if (notes) {
       await updateLead(token, selectedLead.id, { remarks_admin: notes })
     }
+    setPage(1)
     setRefreshKey((k) => k + 1)
     return log
   }
@@ -544,7 +563,7 @@ export default function Register() {
             <div className="reg-hero-copy">
               <PipelineStageTitle
                 title="Register"
-                count={loading ? null : filteredLeads.length}
+                count={loading ? null : total}
               />
               <p className="reg-desc">
                 New franchise inquiries and initial follow-ups.
@@ -552,7 +571,14 @@ export default function Register() {
             </div>
           </div>
           <div className="reg-hero-actions">
-            <StatusTabs options={registerTabs} value={subStatus} onChange={setSubStatus} />
+            <StatusTabs
+              options={registerTabs}
+              value={subStatus}
+              onChange={(value) => {
+                setSubStatus(value)
+                setPage(1)
+              }}
+            />
           </div>
         </header>
 
@@ -575,6 +601,14 @@ export default function Register() {
         ) : (
           <>
           <div className="reg-table-card">
+            <LeadPagination
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              loading={loading}
+              onPageChange={setPage}
+              visibleCount={filteredLeads.length}
+            />
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead className="reg-thead">
                 <tr>

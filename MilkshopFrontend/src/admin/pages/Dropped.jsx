@@ -6,6 +6,7 @@ import { fetchLeads } from "../services/leadService"
 import { formatDateTime } from "../utils/formatDateTime"
 import LeadShortId from "../components/LeadShortId"
 import PipelineStageTitle from "../components/PipelineStageTitle"
+import { LEAD_PAGE_SIZE } from "../components/LeadPagination"
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
@@ -284,6 +285,9 @@ const STYLES = `
 export default function Dropped() {
   const { token } = useAdminAuth()
   const [leads, setLeads]               = useState([])
+  const [page, setPage]                 = useState(1)
+  const [total, setTotal]               = useState(0)
+  const [totalPages, setTotalPages]     = useState(1)
   const [loading, setLoading]           = useState(true)
   const [error, setError]               = useState("")
   const [selectedLead, setSelectedLead] = useState(null)
@@ -301,12 +305,24 @@ export default function Dropped() {
     if (!token) { setLoading(false); return }
     setLoading(true)
     setError("")
-    fetchLeads(token, { tab: "dropped", page: 1, pageSize: 50 })
-      .then((res)  => { if (!cancelled) setLeads(res.data || []) })
-      .catch((err) => { if (!cancelled) { setError(err?.message || "Failed to load dropped"); setLeads([]) } })
+    fetchLeads(token, { tab: "dropped", page, pageSize: LEAD_PAGE_SIZE })
+      .then((res) => {
+        if (cancelled) return
+        setLeads(res.data || [])
+        setTotal(res.pagination?.total || 0)
+        setTotalPages(res.pagination?.totalPages || 1)
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err?.message || "Failed to load dropped")
+          setLeads([])
+          setTotal(0)
+          setTotalPages(1)
+        }
+      })
       .finally(()  => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [token])
+  }, [token, page])
 
   const calIcon = (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -329,7 +345,7 @@ export default function Dropped() {
             <div className="drp-banner-body">
               <PipelineStageTitle
                 title="Dropped"
-                count={loading ? null : leads.length}
+                count={loading ? null : total}
               />
               <p className="drp-banner-desc">Leads that have been dropped and are no longer active.</p>
             </div>
@@ -359,6 +375,13 @@ export default function Dropped() {
             <LeadTable
               columns={columns}
               leads={leads}
+              pagination={{
+                page,
+                totalPages,
+                total,
+                loading,
+                onPageChange: setPage,
+              }}
               renderRow={(lead) => (
                 <tr key={lead.id} className="drp-tr">
 

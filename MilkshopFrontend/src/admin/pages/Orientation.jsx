@@ -7,6 +7,7 @@ import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadSe
 import { formatDateTime } from "../utils/formatDateTime"
 import LeadShortId from "../components/LeadShortId"
 import PipelineStageTitle from "../components/PipelineStageTitle"
+import { LEAD_PAGE_SIZE } from "../components/LeadPagination"
 import { filterOrientationLeads, tabsWithCounts } from "../utils/leadActivity"
 
 const ORIENTATION_TABS = [
@@ -347,6 +348,9 @@ export default function Orientation({ initialSubStatus }) {
   const [subStatus, setSubStatus]       = useState(initialSubStatus || "reschedule")
   const [selectedLead, setSelectedLead] = useState(null)
   const [leads, setLeads]               = useState([])
+  const [page, setPage]                 = useState(1)
+  const [total, setTotal]               = useState(0)
+  const [totalPages, setTotalPages]     = useState(1)
   const [loading, setLoading]           = useState(true)
   const [error, setError]               = useState("")
   const [refreshKey, setRefreshKey]     = useState(0)
@@ -384,12 +388,24 @@ export default function Orientation({ initialSubStatus }) {
     if (!token) { setLoading(false); return }
     setLoading(true)
     setError("")
-    fetchLeads(token, { tab: "orientation", page: 1, pageSize: 50 })
-      .then((res)  => { if (!cancelled) setLeads(res.data || []) })
-      .catch((err) => { if (!cancelled) setError(err?.message || "Failed to load orientation"); setLeads([]) })
+    fetchLeads(token, { tab: "orientation", page, pageSize: LEAD_PAGE_SIZE })
+      .then((res) => {
+        if (cancelled) return
+        setLeads(res.data || [])
+        setTotal(res.pagination?.total || 0)
+        setTotalPages(res.pagination?.totalPages || 1)
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err?.message || "Failed to load orientation")
+          setLeads([])
+          setTotal(0)
+          setTotalPages(1)
+        }
+      })
       .finally(()  => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [token, refreshKey])
+  }, [token, refreshKey, page])
 
   const handleSaveContact = async ({ contactRecord, nextContactAt, notes, nextScheduleAt }) => {
     if (!token || !selectedLead) return
@@ -432,6 +448,7 @@ export default function Orientation({ initialSubStatus }) {
     }
 
     if (notes) await updateLead(token, selectedLead.id, { remarks_admin: notes })
+    setPage(1)
     setRefreshKey((k) => k + 1)
     return log
   }
@@ -443,10 +460,6 @@ export default function Orientation({ initialSubStatus }) {
     attendance: filterOrientationLeads(leads, "attendance").length,
   })
   const filteredLeads = filterOrientationLeads(leads, subStatus)
-  const orientationTotal = ORIENTATION_TABS.reduce(
-    (sum, tab) => sum + filterOrientationLeads(leads, tab.value).length,
-    0,
-  )
 
   const clockIcon = (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -464,7 +477,7 @@ export default function Orientation({ initialSubStatus }) {
             <div>
               <PipelineStageTitle
                 title="Orientation"
-                count={loading ? null : filteredLeads.length}
+                count={loading ? null : total}
               />
               <p className="ori-banner-desc">Orientation scheduling and reminders.</p>
             </div>
@@ -473,7 +486,10 @@ export default function Orientation({ initialSubStatus }) {
             <StatusTabs
               options={orientationTabs}
               value={subStatus}
-              onChange={setSubStatus}
+              onChange={(value) => {
+                setSubStatus(value)
+                setPage(1)
+              }}
             />
           </div>
         </header>
@@ -499,6 +515,14 @@ export default function Orientation({ initialSubStatus }) {
             <LeadTable
               columns={columns}
               leads={filteredLeads}
+              pagination={{
+                page,
+                totalPages,
+                total,
+                loading,
+                onPageChange: setPage,
+                visibleCount: filteredLeads.length,
+              }}
               renderRow={(lead) => (
                 <tr key={lead.id} className="ori-tr">
 

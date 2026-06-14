@@ -100,13 +100,25 @@ const STYLES = `
   }
 `
 
-export default function LeadTable({ columns, leads, renderRow }) {
+import LeadPagination from "./LeadPagination"
+
+export default function LeadTable({ columns, leads, renderRow, pagination }) {
   return (
     <>
       <style>{STYLES}</style>
 
-      {!leads || leads.length === 0 ? (
-        <div className="lt-wrap">
+      <div className="lt-wrap">
+        {pagination && pagination.total > 0 && (
+          <LeadPagination
+            page={pagination.page}
+            totalPages={pagination.totalPages}
+            total={pagination.total}
+            loading={pagination.loading}
+            onPageChange={pagination.onPageChange}
+            visibleCount={pagination.visibleCount}
+          />
+        )}
+        {!leads || leads.length === 0 ? (
           <div className="lt-empty">
             <div className="lt-empty-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -119,9 +131,7 @@ export default function LeadTable({ columns, leads, renderRow }) {
             <p className="lt-empty-title">No leads available</p>
             <p className="lt-empty-sub">Records will appear here once added.</p>
           </div>
-        </div>
-      ) : (
-        <div className="lt-wrap">
+        ) : (
           <table className="lt-table">
             <thead className="lt-thead">
               <tr>
@@ -136,8 +146,8 @@ export default function LeadTable({ columns, leads, renderRow }) {
               {leads.map((lead) => renderRow(lead))}
             </tbody>
           </table>
-        </div>
-      )}
+        )}
+      </div>
     </>
   )
 }

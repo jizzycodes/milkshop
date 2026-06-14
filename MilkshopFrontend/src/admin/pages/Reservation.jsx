@@ -6,6 +6,7 @@ import { fetchLeads, createLeadContactLog, updateLead } from "../services/leadSe
 import { formatDateTime } from "../utils/formatDateTime"
 import LeadShortId from "../components/LeadShortId"
 import PipelineStageTitle from "../components/PipelineStageTitle"
+import { LEAD_PAGE_SIZE } from "../components/LeadPagination"
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
@@ -51,6 +52,9 @@ export default function Reservation() {
   const { token } = useAdminAuth()
   const [selectedLead, setSelectedLead] = useState(null)
   const [leads, setLeads] = useState([])
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [refreshKey, setRefreshKey] = useState(0)
@@ -70,12 +74,24 @@ export default function Reservation() {
     if (!token) { setLoading(false); return }
     setLoading(true)
     setError("")
-    fetchLeads(token, { tab: "reservation", page: 1, pageSize: 50 })
-      .then((res) => { if (!cancelled) setLeads(res.data || []) })
-      .catch((err) => { if (!cancelled) { setError(err?.message || "Failed to load reservation"); setLeads([]) } })
+    fetchLeads(token, { tab: "reservation", page, pageSize: LEAD_PAGE_SIZE })
+      .then((res) => {
+        if (cancelled) return
+        setLeads(res.data || [])
+        setTotal(res.pagination?.total || 0)
+        setTotalPages(res.pagination?.totalPages || 1)
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err?.message || "Failed to load reservation")
+          setLeads([])
+          setTotal(0)
+          setTotalPages(1)
+        }
+      })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [token, refreshKey])
+  }, [token, refreshKey, page])
 
   const handleSaveContact = async ({ contactRecord, nextContactAt, notes }) => {
     if (!token || !selectedLead) return
@@ -90,6 +106,7 @@ export default function Reservation() {
       await updateLead(token, selectedLead.id, { stage: "ONBOARDING", status: "ACTIVE", next_followup_at: nextContactAt || null })
     }
     if (notes) await updateLead(token, selectedLead.id, { remarks_admin: notes })
+    setPage(1)
     setRefreshKey((k) => k + 1)
     return log
   }
@@ -112,7 +129,7 @@ export default function Reservation() {
             <div>
               <PipelineStageTitle
                 title="Reservation"
-                count={loading ? null : leads.length}
+                count={loading ? null : total}
               />
               <p className="res-banner-desc">Leads with reservation payments before full franchise fee.</p>
             </div>
@@ -138,6 +155,13 @@ export default function Reservation() {
             <LeadTable
               columns={columns}
               leads={leads}
+              pagination={{
+                page,
+                totalPages,
+                total,
+                loading,
+                onPageChange: setPage,
+              }}
               renderRow={(lead) => (
                 <tr key={lead.id} className="res-tr">
                   <td className="res-td">
